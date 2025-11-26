@@ -104,355 +104,355 @@ abstract class AppLocalizations {
   /// **'MikroTik Manager'**
   String get appName;
 
-  /// No description provided for @login.
+  /// Login button or page title
   ///
   /// In en, this message translates to:
   /// **'Login'**
   String get login;
 
-  /// No description provided for @logout.
+  /// Logout action
   ///
   /// In en, this message translates to:
   /// **'Logout'**
   String get logout;
 
-  /// No description provided for @username.
+  /// Username field label
   ///
   /// In en, this message translates to:
   /// **'Username'**
   String get username;
 
-  /// No description provided for @password.
+  /// Password field label
   ///
   /// In en, this message translates to:
   /// **'Password'**
   String get password;
 
-  /// No description provided for @host.
+  /// Host field label
   ///
   /// In en, this message translates to:
   /// **'Host'**
   String get host;
 
-  /// No description provided for @port.
+  /// Port field label
   ///
   /// In en, this message translates to:
   /// **'Port'**
   String get port;
 
-  /// No description provided for @rememberMe.
+  /// Remember me checkbox label
   ///
   /// In en, this message translates to:
   /// **'Remember me'**
   String get rememberMe;
 
-  /// No description provided for @loginButton.
+  /// Login button text
   ///
   /// In en, this message translates to:
   /// **'Login'**
   String get loginButton;
 
-  /// No description provided for @loginError.
+  /// Login error message
   ///
   /// In en, this message translates to:
   /// **'Login failed'**
   String get loginError;
 
-  /// No description provided for @connectionError.
+  /// Connection error message
   ///
   /// In en, this message translates to:
   /// **'Connection error'**
   String get connectionError;
 
-  /// No description provided for @invalidCredentials.
+  /// Invalid credentials error message
   ///
   /// In en, this message translates to:
   /// **'Invalid username or password'**
   String get invalidCredentials;
 
-  /// No description provided for @dashboard.
+  /// Dashboard page title
   ///
   /// In en, this message translates to:
   /// **'Dashboard'**
   String get dashboard;
 
-  /// No description provided for @interfaces.
+  /// Interfaces section title
   ///
   /// In en, this message translates to:
   /// **'Interfaces'**
   String get interfaces;
 
-  /// No description provided for @ipAddresses.
+  /// IP Addresses section title
   ///
   /// In en, this message translates to:
   /// **'IP Addresses'**
   String get ipAddresses;
 
-  /// No description provided for @dhcpServer.
+  /// DHCP Server section title
   ///
   /// In en, this message translates to:
   /// **'DHCP Server'**
   String get dhcpServer;
 
-  /// No description provided for @firewall.
+  /// Firewall section title
   ///
   /// In en, this message translates to:
   /// **'Firewall'**
   String get firewall;
 
-  /// No description provided for @settings.
+  /// Settings page title
   ///
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
 
-  /// No description provided for @systemResources.
+  /// System Resources section title
   ///
   /// In en, this message translates to:
   /// **'System Resources'**
   String get systemResources;
 
-  /// No description provided for @uptime.
+  /// Uptime label
   ///
   /// In en, this message translates to:
   /// **'Uptime'**
   String get uptime;
 
-  /// No description provided for @version.
+  /// Version label
   ///
   /// In en, this message translates to:
   /// **'Version'**
   String get version;
 
-  /// No description provided for @cpu.
+  /// CPU label
   ///
   /// In en, this message translates to:
   /// **'CPU'**
   String get cpu;
 
-  /// No description provided for @memory.
+  /// Memory label
   ///
   /// In en, this message translates to:
   /// **'Memory'**
   String get memory;
 
-  /// No description provided for @disk.
+  /// Disk label
   ///
   /// In en, this message translates to:
   /// **'Disk'**
   String get disk;
 
-  /// No description provided for @cpuLoad.
+  /// CPU Load label
   ///
   /// In en, this message translates to:
   /// **'CPU Load'**
   String get cpuLoad;
 
-  /// No description provided for @freeMemory.
+  /// Free Memory label
   ///
   /// In en, this message translates to:
   /// **'Free Memory'**
   String get freeMemory;
 
-  /// No description provided for @totalMemory.
+  /// Total Memory label
   ///
   /// In en, this message translates to:
   /// **'Total Memory'**
   String get totalMemory;
 
-  /// No description provided for @freeDisk.
+  /// Free Disk label
   ///
   /// In en, this message translates to:
   /// **'Free Disk'**
   String get freeDisk;
 
-  /// No description provided for @totalDisk.
+  /// Total Disk label
   ///
   /// In en, this message translates to:
   /// **'Total Disk'**
   String get totalDisk;
 
-  /// No description provided for @language.
+  /// Language setting label
   ///
   /// In en, this message translates to:
   /// **'Language'**
   String get language;
 
-  /// No description provided for @english.
+  /// English language option
   ///
   /// In en, this message translates to:
   /// **'English'**
   String get english;
 
-  /// No description provided for @persian.
+  /// Persian language option
   ///
   /// In en, this message translates to:
   /// **'Persian'**
   String get persian;
 
-  /// No description provided for @changeLanguage.
+  /// Change language action
   ///
   /// In en, this message translates to:
   /// **'Change Language'**
   String get changeLanguage;
 
-  /// No description provided for @connecting.
+  /// Connecting status message
   ///
   /// In en, this message translates to:
   /// **'Connecting...'**
   String get connecting;
 
-  /// No description provided for @loading.
+  /// Loading status message
   ///
   /// In en, this message translates to:
   /// **'Loading...'**
   String get loading;
 
-  /// No description provided for @retry.
+  /// Retry button text
   ///
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
 
-  /// No description provided for @cancel.
+  /// Cancel button text
   ///
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
 
-  /// No description provided for @save.
+  /// Save button text
   ///
   /// In en, this message translates to:
   /// **'Save'**
   String get save;
 
-  /// No description provided for @delete.
+  /// Delete button text
   ///
   /// In en, this message translates to:
   /// **'Delete'**
   String get delete;
 
-  /// No description provided for @edit.
+  /// Edit button text
   ///
   /// In en, this message translates to:
   /// **'Edit'**
   String get edit;
 
-  /// No description provided for @add.
+  /// Add button text
   ///
   /// In en, this message translates to:
   /// **'Add'**
   String get add;
 
-  /// No description provided for @name.
+  /// Name field label
   ///
   /// In en, this message translates to:
   /// **'Name'**
   String get name;
 
-  /// No description provided for @type.
+  /// Type field label
   ///
   /// In en, this message translates to:
   /// **'Type'**
   String get type;
 
-  /// No description provided for @status.
+  /// Status field label
   ///
   /// In en, this message translates to:
   /// **'Status'**
   String get status;
 
-  /// No description provided for @enabled.
+  /// Enabled status
   ///
   /// In en, this message translates to:
   /// **'Enabled'**
   String get enabled;
 
-  /// No description provided for @disabled.
+  /// Disabled status
   ///
   /// In en, this message translates to:
   /// **'Disabled'**
   String get disabled;
 
-  /// No description provided for @running.
+  /// Running status
   ///
   /// In en, this message translates to:
   /// **'Running'**
   String get running;
 
-  /// No description provided for @address.
+  /// Address field label
   ///
   /// In en, this message translates to:
   /// **'Address'**
   String get address;
 
-  /// No description provided for @network.
+  /// Network field label
   ///
   /// In en, this message translates to:
   /// **'Network'**
   String get network;
 
-  /// No description provided for @interface.
+  /// Interface field label
   ///
   /// In en, this message translates to:
   /// **'Interface'**
   String get interface;
 
-  /// No description provided for @comment.
+  /// Comment field label
   ///
   /// In en, this message translates to:
   /// **'Comment'**
   String get comment;
 
-  /// No description provided for @noData.
+  /// No data message
   ///
   /// In en, this message translates to:
   /// **'No data available'**
   String get noData;
 
-  /// No description provided for @error.
+  /// Error message
   ///
   /// In en, this message translates to:
   /// **'Error'**
   String get error;
 
-  /// No description provided for @success.
+  /// Success message
   ///
   /// In en, this message translates to:
   /// **'Success'**
   String get success;
 
-  /// No description provided for @warning.
+  /// Warning message
   ///
   /// In en, this message translates to:
   /// **'Warning'**
   String get warning;
 
-  /// No description provided for @info.
+  /// Information message
   ///
   /// In en, this message translates to:
   /// **'Information'**
   String get info;
 
-  /// No description provided for @confirm.
+  /// Confirm action
   ///
   /// In en, this message translates to:
   /// **'Confirm'**
   String get confirm;
 
-  /// No description provided for @yes.
+  /// Yes option
   ///
   /// In en, this message translates to:
   /// **'Yes'**
   String get yes;
 
-  /// No description provided for @no.
+  /// No option
   ///
   /// In en, this message translates to:
   /// **'No'**
   String get no;
 
-  /// No description provided for @pleaseWait.
+  /// Please wait message
   ///
   /// In en, this message translates to:
   /// **'Please wait...'**

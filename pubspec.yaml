@@ -13,11 +13,11 @@ dependencies:
     sdk: flutter
   
   # State Management
-  flutter_bloc: ^8.1.6
+  flutter_bloc: ^9.1.1
   equatable: ^2.0.5
   
   # Dependency Injection
-  get_it: ^8.0.2
+  get_it: ^9.1.1
   
   # Secure Storage
   flutter_secure_storage: ^9.2.2
@@ -35,7 +35,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  bloc_test: ^9.1.7
+  bloc_test: ^10.0.0
   mocktail: ^1.0.4
 
 flutter:
