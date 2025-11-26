@@ -1,0 +1,10 @@
+name: test_routeros_api
+description: Test RouterOS API binary protocol connection
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  # No external dependencies needed - using dart:io only
