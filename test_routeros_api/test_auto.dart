@@ -1,7 +1,7 @@
 import 'lib/routeros_client.dart';
+// ignore_for_file: avoid_print
 
 void main() async {
-  // ignore: avoid_print
   print('═══════════════════════════════════════════════════════');
   print('🧪 RouterOS API Automatic Test');
   print('═══════════════════════════════════════════════════════\n');

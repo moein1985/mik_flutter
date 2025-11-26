@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'routeros_protocol.dart';
+// ignore_for_file: avoid_print
 
 class RouterOSClient {
   final String host;

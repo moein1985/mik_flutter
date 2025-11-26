@@ -1,5 +1,7 @@
 import 'dart:io';
+// ignore: avoid_relative_lib_imports
 import '../lib/routeros_client.dart';
+// ignore_for_file: avoid_print
 
 void main() async {
   print('═══════════════════════════════════════════════════════');

@@ -1,63 +1,243 @@
 {
   "@@locale": "fa",
   "appName": "مدیریت میکروتیک",
+  "@appName": {
+    "description": "نام برنامه"
+  },
   "login": "ورود",
+  "@login": {
+    "description": "دکمه ورود یا عنوان صفحه"
+  },
   "logout": "خروج",
+  "@logout": {
+    "description": "اقدام خروج"
+  },
   "username": "نام کاربری",
+  "@username": {
+    "description": "برچسب فیلد نام کاربری"
+  },
   "password": "رمز عبور",
+  "@password": {
+    "description": "برچسب فیلد رمز عبور"
+  },
   "host": "میزبان",
+  "@host": {
+    "description": "برچسب فیلد میزبان"
+  },
   "port": "پورت",
+  "@port": {
+    "description": "برچسب فیلد پورت"
+  },
   "rememberMe": "مرا به خاطر بسپار",
+  "@rememberMe": {
+    "description": "برچسب چک‌باکس به خاطر سپاری"
+  },
   "loginButton": "ورود",
+  "@loginButton": {
+    "description": "متن دکمه ورود"
+  },
   "loginError": "ورود ناموفق",
+  "@loginError": {
+    "description": "پیام خطای ورود"
+  },
   "connectionError": "خطای اتصال",
+  "@connectionError": {
+    "description": "پیام خطای اتصال"
+  },
   "invalidCredentials": "نام کاربری یا رمز عبور اشتباه است",
+  "@invalidCredentials": {
+    "description": "پیام خطای اعتبارنامه نامعتبر"
+  },
   "dashboard": "داشبورد",
+  "@dashboard": {
+    "description": "عنوان صفحه داشبورد"
+  },
   "interfaces": "اینترفیس‌ها",
+  "@interfaces": {
+    "description": "عنوان بخش اینترفیس‌ها"
+  },
   "ipAddresses": "آدرس‌های IP",
+  "@ipAddresses": {
+    "description": "عنوان بخش آدرس‌های IP"
+  },
   "dhcpServer": "سرور DHCP",
+  "@dhcpServer": {
+    "description": "عنوان بخش سرور DHCP"
+  },
   "firewall": "فایروال",
+  "@firewall": {
+    "description": "عنوان بخش فایروال"
+  },
   "settings": "تنظیمات",
+  "@settings": {
+    "description": "عنوان صفحه تنظیمات"
+  },
   "systemResources": "منابع سیستم",
+  "@systemResources": {
+    "description": "عنوان بخش منابع سیستم"
+  },
   "uptime": "زمان فعالیت",
+  "@uptime": {
+    "description": "برچسب زمان فعالیت"
+  },
   "version": "نسخه",
+  "@version": {
+    "description": "برچسب نسخه"
+  },
   "cpu": "پردازنده",
+  "@cpu": {
+    "description": "برچسب پردازنده"
+  },
   "memory": "حافظه",
+  "@memory": {
+    "description": "برچسب حافظه"
+  },
   "disk": "دیسک",
+  "@disk": {
+    "description": "برچسب دیسک"
+  },
   "cpuLoad": "بار پردازنده",
+  "@cpuLoad": {
+    "description": "برچسب بار پردازنده"
+  },
   "freeMemory": "حافظه آزاد",
+  "@freeMemory": {
+    "description": "برچسب حافظه آزاد"
+  },
   "totalMemory": "کل حافظه",
+  "@totalMemory": {
+    "description": "برچسب کل حافظه"
+  },
   "freeDisk": "دیسک آزاد",
+  "@freeDisk": {
+    "description": "برچسب دیسک آزاد"
+  },
   "totalDisk": "کل دیسک",
+  "@totalDisk": {
+    "description": "برچسب کل دیسک"
+  },
   "language": "زبان",
+  "@language": {
+    "description": "برچسب تنظیم زبان"
+  },
   "english": "انگلیسی",
+  "@english": {
+    "description": "گزینه زبان انگلیسی"
+  },
   "persian": "فارسی",
+  "@persian": {
+    "description": "گزینه زبان فارسی"
+  },
   "changeLanguage": "تغییر زبان",
+  "@changeLanguage": {
+    "description": "اقدام تغییر زبان"
+  },
   "connecting": "در حال اتصال...",
+  "@connecting": {
+    "description": "پیام وضعیت اتصال"
+  },
   "loading": "در حال بارگذاری...",
+  "@loading": {
+    "description": "پیام وضعیت بارگذاری"
+  },
   "retry": "تلاش مجدد",
+  "@retry": {
+    "description": "متن دکمه تلاش مجدد"
+  },
   "cancel": "لغو",
+  "@cancel": {
+    "description": "متن دکمه لغو"
+  },
   "save": "ذخیره",
+  "@save": {
+    "description": "متن دکمه ذخیره"
+  },
   "delete": "حذف",
+  "@delete": {
+    "description": "متن دکمه حذف"
+  },
   "edit": "ویرایش",
+  "@edit": {
+    "description": "متن دکمه ویرایش"
+  },
   "add": "افزودن",
+  "@add": {
+    "description": "متن دکمه افزودن"
+  },
   "name": "نام",
+  "@name": {
+    "description": "برچسب فیلد نام"
+  },
   "type": "نوع",
+  "@type": {
+    "description": "برچسب فیلد نوع"
+  },
   "status": "وضعیت",
+  "@status": {
+    "description": "برچسب فیلد وضعیت"
+  },
   "enabled": "فعال",
+  "@enabled": {
+    "description": "وضعیت فعال"
+  },
   "disabled": "غیرفعال",
+  "@disabled": {
+    "description": "وضعیت غیرفعال"
+  },
   "running": "در حال اجرا",
+  "@running": {
+    "description": "وضعیت در حال اجرا"
+  },
   "address": "آدرس",
+  "@address": {
+    "description": "برچسب فیلد آدرس"
+  },
   "network": "شبکه",
+  "@network": {
+    "description": "برچسب فیلد شبکه"
+  },
   "interface": "اینترفیس",
+  "@interface": {
+    "description": "برچسب فیلد اینترفیس"
+  },
   "comment": "توضیحات",
+  "@comment": {
+    "description": "برچسب فیلد توضیحات"
+  },
   "noData": "داده‌ای موجود نیست",
+  "@noData": {
+    "description": "پیام عدم وجود داده"
+  },
   "error": "خطا",
+  "@error": {
+    "description": "پیام خطا"
+  },
   "success": "موفقیت",
+  "@success": {
+    "description": "پیام موفقیت"
+  },
   "warning": "هشدار",
+  "@warning": {
+    "description": "پیام هشدار"
+  },
   "info": "اطلاعات",
+  "@info": {
+    "description": "پیام اطلاعات"
+  },
   "confirm": "تایید",
+  "@confirm": {
+    "description": "اقدام تایید"
+  },
   "yes": "بله",
+  "@yes": {
+    "description": "گزینه بله"
+  },
   "no": "خیر",
-  "pleaseWait": "لطفاً صبر کنید..."
+  "@no": {
+    "description": "گزینه خیر"
+  },
+  "pleaseWait": "لطفاً صبر کنید...",
+  "@pleaseWait": {
+    "description": "پیام لطفاً صبر کنید"
+  }
 }

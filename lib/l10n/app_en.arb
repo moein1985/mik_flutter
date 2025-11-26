@@ -5,62 +5,239 @@
     "description": "Application name"
   },
   "login": "Login",
+  "@login": {
+    "description": "Login button or page title"
+  },
   "logout": "Logout",
+  "@logout": {
+    "description": "Logout action"
+  },
   "username": "Username",
+  "@username": {
+    "description": "Username field label"
+  },
   "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
   "host": "Host",
+  "@host": {
+    "description": "Host field label"
+  },
   "port": "Port",
+  "@port": {
+    "description": "Port field label"
+  },
   "rememberMe": "Remember me",
+  "@rememberMe": {
+    "description": "Remember me checkbox label"
+  },
   "loginButton": "Login",
+  "@loginButton": {
+    "description": "Login button text"
+  },
   "loginError": "Login failed",
+  "@loginError": {
+    "description": "Login error message"
+  },
   "connectionError": "Connection error",
+  "@connectionError": {
+    "description": "Connection error message"
+  },
   "invalidCredentials": "Invalid username or password",
+  "@invalidCredentials": {
+    "description": "Invalid credentials error message"
+  },
   "dashboard": "Dashboard",
+  "@dashboard": {
+    "description": "Dashboard page title"
+  },
   "interfaces": "Interfaces",
+  "@interfaces": {
+    "description": "Interfaces section title"
+  },
   "ipAddresses": "IP Addresses",
+  "@ipAddresses": {
+    "description": "IP Addresses section title"
+  },
   "dhcpServer": "DHCP Server",
+  "@dhcpServer": {
+    "description": "DHCP Server section title"
+  },
   "firewall": "Firewall",
+  "@firewall": {
+    "description": "Firewall section title"
+  },
   "settings": "Settings",
+  "@settings": {
+    "description": "Settings page title"
+  },
   "systemResources": "System Resources",
+  "@systemResources": {
+    "description": "System Resources section title"
+  },
   "uptime": "Uptime",
+  "@uptime": {
+    "description": "Uptime label"
+  },
   "version": "Version",
+  "@version": {
+    "description": "Version label"
+  },
   "cpu": "CPU",
+  "@cpu": {
+    "description": "CPU label"
+  },
   "memory": "Memory",
+  "@memory": {
+    "description": "Memory label"
+  },
   "disk": "Disk",
+  "@disk": {
+    "description": "Disk label"
+  },
   "cpuLoad": "CPU Load",
+  "@cpuLoad": {
+    "description": "CPU Load label"
+  },
   "freeMemory": "Free Memory",
+  "@freeMemory": {
+    "description": "Free Memory label"
+  },
   "totalMemory": "Total Memory",
+  "@totalMemory": {
+    "description": "Total Memory label"
+  },
   "freeDisk": "Free Disk",
+  "@freeDisk": {
+    "description": "Free Disk label"
+  },
   "totalDisk": "Total Disk",
+  "@totalDisk": {
+    "description": "Total Disk label"
+  },
   "language": "Language",
+  "@language": {
+    "description": "Language setting label"
+  },
   "english": "English",
+  "@english": {
+    "description": "English language option"
+  },
   "persian": "Persian",
+  "@persian": {
+    "description": "Persian language option"
+  },
   "changeLanguage": "Change Language",
+  "@changeLanguage": {
+    "description": "Change language action"
+  },
   "connecting": "Connecting...",
+  "@connecting": {
+    "description": "Connecting status message"
+  },
   "loading": "Loading...",
+  "@loading": {
+    "description": "Loading status message"
+  },
   "retry": "Retry",
+  "@retry": {
+    "description": "Retry button text"
+  },
   "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
   "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
   "delete": "Delete",
+  "@delete": {
+    "description": "Delete button text"
+  },
   "edit": "Edit",
+  "@edit": {
+    "description": "Edit button text"
+  },
   "add": "Add",
+  "@add": {
+    "description": "Add button text"
+  },
   "name": "Name",
+  "@name": {
+    "description": "Name field label"
+  },
   "type": "Type",
+  "@type": {
+    "description": "Type field label"
+  },
   "status": "Status",
+  "@status": {
+    "description": "Status field label"
+  },
   "enabled": "Enabled",
+  "@enabled": {
+    "description": "Enabled status"
+  },
   "disabled": "Disabled",
+  "@disabled": {
+    "description": "Disabled status"
+  },
   "running": "Running",
+  "@running": {
+    "description": "Running status"
+  },
   "address": "Address",
+  "@address": {
+    "description": "Address field label"
+  },
   "network": "Network",
+  "@network": {
+    "description": "Network field label"
+  },
   "interface": "Interface",
+  "@interface": {
+    "description": "Interface field label"
+  },
   "comment": "Comment",
+  "@comment": {
+    "description": "Comment field label"
+  },
   "noData": "No data available",
+  "@noData": {
+    "description": "No data message"
+  },
   "error": "Error",
+  "@error": {
+    "description": "Error message"
+  },
   "success": "Success",
+  "@success": {
+    "description": "Success message"
+  },
   "warning": "Warning",
+  "@warning": {
+    "description": "Warning message"
+  },
   "info": "Information",
+  "@info": {
+    "description": "Information message"
+  },
   "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm action"
+  },
   "yes": "Yes",
+  "@yes": {
+    "description": "Yes option"
+  },
   "no": "No",
-  "pleaseWait": "Please wait..."
+  "@no": {
+    "description": "No option"
+  },
+  "pleaseWait": "Please wait...",
+  "@pleaseWait": {
+    "description": "Please wait message"
+  }
 }
