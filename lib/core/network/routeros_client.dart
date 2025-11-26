@@ -96,6 +96,118 @@ class RouterOSClient {
     }
   }
 
+  /// Get system resources
+  Future<List<Map<String, String>>> getSystemResources() async {
+    return await sendCommand(['/system/resource/print']);
+  }
+
+  /// Get all interfaces
+  Future<List<Map<String, String>>> getInterfaces() async {
+    return await sendCommand(['/interface/print']);
+  }
+
+  /// Enable an interface
+  Future<bool> enableInterface(String id) async {
+    try {
+      final response = await sendCommand([
+        '/interface/enable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable an interface
+  Future<bool> disableInterface(String id) async {
+    try {
+      final response = await sendCommand([
+        '/interface/disable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get all IP addresses
+  Future<List<Map<String, String>>> getIpAddresses() async {
+    return await sendCommand(['/ip/address/print']);
+  }
+
+  /// Add IP address
+  Future<bool> addIpAddress({
+    required String address,
+    required String interfaceName,
+    String? comment,
+  }) async {
+    try {
+      final List<String> cmd = [
+        '/ip/address/add',
+        '=address=$address',
+        '=interface=$interfaceName',
+      ];
+      if (comment != null && comment.isNotEmpty) {
+        cmd.add('=comment=$comment');
+      }
+      final response = await sendCommand(cmd);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove IP address
+  Future<bool> removeIpAddress(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/address/remove',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get firewall filter rules
+  Future<List<Map<String, String>>> getFirewallRules() async {
+    return await sendCommand(['/ip/firewall/filter/print', '=stats']);
+  }
+
+  /// Enable firewall rule
+  Future<bool> enableFirewallRule(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/firewall/filter/enable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable firewall rule
+  Future<bool> disableFirewallRule(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/firewall/filter/disable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get DHCP leases
+  Future<List<Map<String, String>>> getDhcpLeases() async {
+    return await sendCommand(['/ip/dhcp-server/lease/print']);
+  }
+
   void _processBuffer() {
     while (_buffer.isNotEmpty) {
       try {

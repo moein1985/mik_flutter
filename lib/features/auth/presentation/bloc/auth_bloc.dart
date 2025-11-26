@@ -31,13 +31,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     final result = await loginUseCase(event.credentials);
 
-    result.fold(
-      (failure) => emit(AuthError(failure.message)),
+    await result.fold(
+      (failure) async {
+        emit(AuthError(failure.message));
+      },
       (session) async {
         if (event.rememberMe) {
           await saveCredentialsUseCase(event.credentials);
         }
-        emit(AuthAuthenticated(session));
+        if (!emit.isDone) {
+          emit(AuthAuthenticated(session));
+        }
       },
     );
   }

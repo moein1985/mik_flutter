@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'injection_container.dart' as di;
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/pages/login_page.dart';
+import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 
 void main() async {
@@ -17,8 +18,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<AuthBloc>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => di.sl<AuthBloc>()),
+        BlocProvider(create: (_) => di.sl<DashboardBloc>()),
+      ],
       child: MaterialApp(
         title: 'MikroTik Manager',
         debugShowCheckedModeBanner: false,

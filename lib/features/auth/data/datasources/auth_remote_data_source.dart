@@ -4,6 +4,7 @@ import '../../../../core/errors/exceptions.dart';
 abstract class AuthRemoteDataSource {
   Future<bool> login(String host, int port, String username, String password);
   Future<void> disconnect();
+  RouterOSClient? get client;
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {

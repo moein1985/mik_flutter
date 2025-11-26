@@ -12,6 +12,18 @@ import 'features/auth/domain/usecases/logout_usecase.dart';
 import 'features/auth/domain/usecases/save_credentials_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
+// Features - Dashboard
+import 'features/dashboard/data/datasources/dashboard_remote_data_source.dart';
+import 'features/dashboard/data/repositories/dashboard_repository_impl.dart';
+import 'features/dashboard/domain/repositories/dashboard_repository.dart';
+import 'features/dashboard/domain/usecases/get_system_resources_usecase.dart';
+import 'features/dashboard/domain/usecases/get_interfaces_usecase.dart';
+import 'features/dashboard/domain/usecases/toggle_interface_usecase.dart';
+import 'features/dashboard/domain/usecases/get_ip_addresses_usecase.dart';
+import 'features/dashboard/domain/usecases/get_firewall_rules_usecase.dart';
+import 'features/dashboard/domain/usecases/toggle_firewall_rule_usecase.dart';
+import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -48,6 +60,41 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(
       secureStorage: sl(),
+    ),
+  );
+
+  //! Features - Dashboard
+  // Bloc
+  sl.registerFactory(
+    () => DashboardBloc(
+      getSystemResourcesUseCase: sl(),
+      getInterfacesUseCase: sl(),
+      toggleInterfaceUseCase: sl(),
+      getIpAddressesUseCase: sl(),
+      getFirewallRulesUseCase: sl(),
+      toggleFirewallRuleUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetSystemResourcesUseCase(sl()));
+  sl.registerLazySingleton(() => GetInterfacesUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleInterfaceUseCase(sl()));
+  sl.registerLazySingleton(() => GetIpAddressesUseCase(sl()));
+  sl.registerLazySingleton(() => GetFirewallRulesUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleFirewallRuleUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<DashboardRepository>(
+    () => DashboardRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<DashboardRemoteDataSource>(
+    () => DashboardRemoteDataSourceImpl(
+      client: sl<AuthRemoteDataSource>().client!,
     ),
   );
 
