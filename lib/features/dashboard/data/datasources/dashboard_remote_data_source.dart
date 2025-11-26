@@ -1,5 +1,6 @@
 import '../../../../core/network/routeros_client.dart';
 import '../../../../core/errors/exceptions.dart';
+import '../../../auth/data/datasources/auth_remote_data_source.dart';
 import '../models/system_resource_model.dart';
 import '../models/router_interface_model.dart';
 import '../models/ip_address_model.dart';
@@ -25,15 +26,23 @@ abstract class DashboardRemoteDataSource {
 }
 
 class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
-  final RouterOSClient client;
+  final AuthRemoteDataSource authRemoteDataSource;
 
-  DashboardRemoteDataSourceImpl({required this.client});
+  DashboardRemoteDataSourceImpl({required this.authRemoteDataSource});
+
+  RouterOSClient get client {
+    if (authRemoteDataSource.client == null) {
+      throw ServerException('Not connected to router');
+    }
+    return authRemoteDataSource.client!;
+  }
 
   @override
   Future<SystemResourceModel> getSystemResources() async {
     try {
       final response = await client.getSystemResources();
-      final data = response.where((r) => r['type'] == 're').toList();
+      // Filter out the 'done' message, keep only actual data
+      final data = response.where((r) => r['type'] != 'done').toList();
       
       if (data.isEmpty) {
         throw ServerException('No system resource data received');
@@ -49,7 +58,9 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   Future<List<RouterInterfaceModel>> getInterfaces() async {
     try {
       final response = await client.getInterfaces();
-      final data = response.where((r) => r['type'] == 're').toList();
+      
+      // Filter out the 'done' message, keep only actual interface data
+      final data = response.where((r) => r['type'] != 'done').toList();
       
       return data.map((item) => RouterInterfaceModel.fromMap(item)).toList();
     } catch (e) {
@@ -79,7 +90,8 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   Future<List<IpAddressModel>> getIpAddresses() async {
     try {
       final response = await client.getIpAddresses();
-      final data = response.where((r) => r['type'] == 're').toList();
+      // Filter out the 'done' message, keep only actual data
+      final data = response.where((r) => r['type'] != 'done').toList();
       
       return data.map((item) => IpAddressModel.fromMap(item)).toList();
     } catch (e) {
@@ -117,7 +129,8 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   Future<List<FirewallRuleModel>> getFirewallRules() async {
     try {
       final response = await client.getFirewallRules();
-      final data = response.where((r) => r['type'] == 're').toList();
+      // Filter out the 'done' message, keep only actual data
+      final data = response.where((r) => r['type'] != 'done').toList();
       
       return data.map((item) => FirewallRuleModel.fromMap(item)).toList();
     } catch (e) {
@@ -147,7 +160,8 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   Future<List<DhcpLeaseModel>> getDhcpLeases() async {
     try {
       final response = await client.getDhcpLeases();
-      final data = response.where((r) => r['type'] == 're').toList();
+      // Filter out the 'done' message, keep only actual data
+      final data = response.where((r) => r['type'] != 'done').toList();
       
       return data.map((item) => DhcpLeaseModel.fromMap(item)).toList();
     } catch (e) {

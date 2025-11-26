@@ -134,7 +134,7 @@ class _InterfacesPageState extends State<InterfacesPage> {
               children: [
                 const Icon(Icons.error_outline, size: 64, color: Colors.grey),
                 const SizedBox(height: 16),
-                const Text('Unable to load interfaces'),
+                Text(state is DashboardError ? state.message : 'Unable to load interfaces'),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {

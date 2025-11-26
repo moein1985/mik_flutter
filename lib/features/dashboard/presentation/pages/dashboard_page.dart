@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../main.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../bloc/dashboard_bloc.dart';
@@ -34,11 +36,22 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MikroTik Manager'),
+        title: Text(l10n.appName),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () {
+              final currentLocale = Localizations.localeOf(context);
+              final newLocale = currentLocale.languageCode == 'en'
+                  ? const Locale('fa', '')
+                  : const Locale('en', '');
+              MyApp.of(context)?.setLocale(newLocale);
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
@@ -104,7 +117,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   Icon(Icons.router, color: theme.colorScheme.primary),
                                   const SizedBox(width: 8),
                                   Text(
-                                    'System Information',
+                                    l10n.systemResources,
                                     style: theme.textTheme.titleLarge,
                                   ),
                                 ],
@@ -144,7 +157,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
                     // Management Cards
                     Text(
-                      'Management',
+                      l10n.dashboard,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -160,7 +173,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       children: [
                         _buildManagementCard(
                           context,
-                          'Interfaces',
+                          l10n.interfaces,
                           Icons.settings_ethernet,
                           Colors.blue,
                           () {
@@ -177,7 +190,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         _buildManagementCard(
                           context,
-                          'IP Addresses',
+                          l10n.ipAddresses,
                           Icons.public,
                           Colors.green,
                           () {
@@ -194,7 +207,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         _buildManagementCard(
                           context,
-                          'Firewall',
+                          l10n.firewall,
                           Icons.security,
                           Colors.red,
                           () {
@@ -211,7 +224,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         _buildManagementCard(
                           context,
-                          'DHCP',
+                          l10n.dhcpServer,
                           Icons.dns,
                           Colors.purple,
                           () {
@@ -234,13 +247,13 @@ class _DashboardPageState extends State<DashboardPage> {
               children: [
                 const Icon(Icons.error_outline, size: 64, color: Colors.grey),
                 const SizedBox(height: 16),
-                const Text('Unable to load dashboard'),
+                Text(l10n.error),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     context.read<DashboardBloc>().add(const LoadDashboardData());
                   },
-                  child: const Text('Retry'),
+                  child: Text(l10n.confirm),
                 ),
               ],
             ),

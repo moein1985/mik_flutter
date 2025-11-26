@@ -37,5 +37,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
+  @override
   RouterOSClient? get client => _client;
 }

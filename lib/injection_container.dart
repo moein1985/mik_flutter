@@ -94,7 +94,7 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<DashboardRemoteDataSource>(
     () => DashboardRemoteDataSourceImpl(
-      client: sl<AuthRemoteDataSource>().client!,
+      authRemoteDataSource: sl(),
     ),
   );
 

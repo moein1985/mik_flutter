@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../main.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -80,6 +82,7 @@ class _LoginPageState extends State<LoginPage> {
         },
         builder: (context, state) {
           final isLoading = state is AuthLoading;
+          final l10n = AppLocalizations.of(context)!;
 
           return Center(
             child: SingleChildScrollView(
@@ -90,6 +93,24 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Language Switch Button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.language),
+                          tooltip: 'Change Language',
+                          onPressed: () {
+                            final currentLocale = Localizations.localeOf(context);
+                            final newLocale = currentLocale.languageCode == 'en'
+                                ? const Locale('fa', '')
+                                : const Locale('en', '');
+                            MyApp.of(context)?.setLocale(newLocale);
+                          },
+                        ),
+                      ],
+                    ),
+                    
                     // Logo or App Icon
                     Icon(
                       Icons.router,
@@ -100,7 +121,7 @@ class _LoginPageState extends State<LoginPage> {
                     
                     // App Title
                     Text(
-                      'MikroTik Manager',
+                      l10n.appName,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -112,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextFormField(
                       controller: _hostController,
                       decoration: InputDecoration(
-                        labelText: 'Host',
+                        labelText: l10n.host,
                         prefixIcon: const Icon(Icons.dns),
                         border: const OutlineInputBorder(),
                       ),
@@ -132,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextFormField(
                       controller: _portController,
                       decoration: InputDecoration(
-                        labelText: 'Port',
+                        labelText: l10n.port,
                         prefixIcon: const Icon(Icons.numbers),
                         border: const OutlineInputBorder(),
                       ),
@@ -156,7 +177,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextFormField(
                       controller: _usernameController,
                       decoration: InputDecoration(
-                        labelText: 'Username',
+                        labelText: l10n.username,
                         prefixIcon: const Icon(Icons.person),
                         border: const OutlineInputBorder(),
                       ),
@@ -176,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextFormField(
                       controller: _passwordController,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: l10n.password,
                         prefixIcon: const Icon(Icons.lock),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -213,7 +234,7 @@ class _LoginPageState extends State<LoginPage> {
                                 _rememberMe = value ?? false;
                               });
                             },
-                      title: const Text('Remember Me'),
+                      title: Text(l10n.rememberMe),
                       controlAffinity: ListTileControlAffinity.leading,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -231,9 +252,9 @@ class _LoginPageState extends State<LoginPage> {
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Text(
-                              'Login',
-                              style: TextStyle(fontSize: 16),
+                          : Text(
+                              l10n.loginButton,
+                              style: const TextStyle(fontSize: 16),
                             ),
                     ),
                   ],
