@@ -239,5 +239,105 @@
   "pleaseWait": "Please wait...",
   "@pleaseWait": {
     "description": "Please wait message"
+  },
+  "hotspot": "HotSpot",
+  "@hotspot": {
+    "description": "HotSpot menu title"
+  },
+  "hotspotUsers": "HotSpot Users",
+  "@hotspotUsers": {
+    "description": "HotSpot users page title"
+  },
+  "hotspotActiveUsers": "Active Users",
+  "@hotspotActiveUsers": {
+    "description": "Active HotSpot users"
+  },
+  "hotspotServers": "HotSpot Servers",
+  "@hotspotServers": {
+    "description": "HotSpot servers page title"
+  },
+  "hotspotProfiles": "User Profiles",
+  "@hotspotProfiles": {
+    "description": "HotSpot profiles page title"
+  },
+  "addUser": "Add User",
+  "@addUser": {
+    "description": "Add user button"
+  },
+  "disconnect": "Disconnect",
+  "@disconnect": {
+    "description": "Disconnect action"
+  },
+  "uptime": "Uptime",
+  "@uptime": {
+    "description": "Uptime label"
+  },
+  "bytesIn": "Bytes In",
+  "@bytesIn": {
+    "description": "Bytes received label"
+  },
+  "bytesOut": "Bytes Out",
+  "@bytesOut": {
+    "description": "Bytes sent label"
+  },
+  "packetsIn": "Packets In",
+  "@packetsIn": {
+    "description": "Packets received label"
+  },
+  "packetsOut": "Packets Out",
+  "@packetsOut": {
+    "description": "Packets sent label"
+  },
+  "macAddress": "MAC Address",
+  "@macAddress": {
+    "description": "MAC address label"
+  },
+  "loginBy": "Login By",
+  "@loginBy": {
+    "description": "Login method label"
+  },
+  "sessionTime": "Session Time",
+  "@sessionTime": {
+    "description": "Session time label"
+  },
+  "idleTime": "Idle Time",
+  "@idleTime": {
+    "description": "Idle time label"
+  },
+  "addressPool": "Address Pool",
+  "@addressPool": {
+    "description": "Address pool label"
+  },
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile label"
+  },
+  "server": "Server",
+  "@server": {
+    "description": "Server label"
+  },
+  "sessionTimeout": "Session Timeout",
+  "@sessionTimeout": {
+    "description": "Session timeout label"
+  },
+  "idleTimeout": "Idle Timeout",
+  "@idleTimeout": {
+    "description": "Idle timeout label"
+  },
+  "sharedUsers": "Shared Users",
+  "@sharedUsers": {
+    "description": "Shared users label"
+  },
+  "rateLimit": "Rate Limit",
+  "@rateLimit": {
+    "description": "Rate limit label"
+  },
+  "statusAccounting": "Status Accounting",
+  "@statusAccounting": {
+    "description": "Status accounting label"
+  },
+  "transparentProxy": "Transparent Proxy",
+  "@transparentProxy": {
+    "description": "Transparent proxy label"
   }
 }

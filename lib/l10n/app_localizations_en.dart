@@ -187,4 +187,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseWait => 'Please wait...';
+
+  @override
+  String get hotspot => 'HotSpot';
+
+  @override
+  String get hotspotUsers => 'HotSpot Users';
+
+  @override
+  String get hotspotActiveUsers => 'Active Users';
+
+  @override
+  String get hotspotServers => 'HotSpot Servers';
+
+  @override
+  String get hotspotProfiles => 'User Profiles';
+
+  @override
+  String get addUser => 'Add User';
+
+  @override
+  String get disconnect => 'Disconnect';
+
+  @override
+  String get bytesIn => 'Bytes In';
+
+  @override
+  String get bytesOut => 'Bytes Out';
+
+  @override
+  String get packetsIn => 'Packets In';
+
+  @override
+  String get packetsOut => 'Packets Out';
+
+  @override
+  String get macAddress => 'MAC Address';
+
+  @override
+  String get loginBy => 'Login By';
+
+  @override
+  String get sessionTime => 'Session Time';
+
+  @override
+  String get idleTime => 'Idle Time';
+
+  @override
+  String get addressPool => 'Address Pool';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get server => 'Server';
+
+  @override
+  String get sessionTimeout => 'Session Timeout';
+
+  @override
+  String get idleTimeout => 'Idle Timeout';
+
+  @override
+  String get sharedUsers => 'Shared Users';
+
+  @override
+  String get rateLimit => 'Rate Limit';
+
+  @override
+  String get statusAccounting => 'Status Accounting';
+
+  @override
+  String get transparentProxy => 'Transparent Proxy';
 }

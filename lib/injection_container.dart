@@ -24,6 +24,19 @@ import 'features/dashboard/domain/usecases/get_firewall_rules_usecase.dart';
 import 'features/dashboard/domain/usecases/toggle_firewall_rule_usecase.dart';
 import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
+// Features - HotSpot
+import 'features/hotspot/data/datasources/hotspot_remote_data_source.dart';
+import 'features/hotspot/data/repositories/hotspot_repository_impl.dart';
+import 'features/hotspot/domain/repositories/hotspot_repository.dart';
+import 'features/hotspot/domain/usecases/get_servers_usecase.dart';
+import 'features/hotspot/domain/usecases/get_users_usecase.dart';
+import 'features/hotspot/domain/usecases/get_active_users_usecase.dart';
+import 'features/hotspot/domain/usecases/get_profiles_usecase.dart';
+import 'features/hotspot/domain/usecases/add_user_usecase.dart';
+import 'features/hotspot/domain/usecases/toggle_user_usecase.dart';
+import 'features/hotspot/domain/usecases/disconnect_user_usecase.dart';
+import 'features/hotspot/presentation/bloc/hotspot_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -94,6 +107,43 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<DashboardRemoteDataSource>(
     () => DashboardRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - HotSpot
+  // Bloc
+  sl.registerFactory(
+    () => HotspotBloc(
+      getServersUseCase: sl(),
+      getUsersUseCase: sl(),
+      getActiveUsersUseCase: sl(),
+      getProfilesUseCase: sl(),
+      addUserUseCase: sl(),
+      toggleUserUseCase: sl(),
+      disconnectUserUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetServersUseCase(sl()));
+  sl.registerLazySingleton(() => GetUsersUseCase(sl()));
+  sl.registerLazySingleton(() => GetActiveUsersUseCase(sl()));
+  sl.registerLazySingleton(() => GetProfilesUseCase(sl()));
+  sl.registerLazySingleton(() => AddUserUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleUserUseCase(sl()));
+  sl.registerLazySingleton(() => DisconnectUserUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<HotspotRepository>(
+    () => HotspotRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<HotspotRemoteDataSource>(
+    () => HotspotRemoteDataSourceImpl(
       authRemoteDataSource: sl(),
     ),
   );

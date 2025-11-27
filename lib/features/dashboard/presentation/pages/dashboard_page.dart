@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../main.dart';
+import '../../../../injection_container.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../hotspot/presentation/bloc/hotspot_bloc.dart';
+import '../../../hotspot/presentation/pages/hotspot_page.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
@@ -230,6 +233,23 @@ class _DashboardPageState extends State<DashboardPage> {
                           () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('DHCP management coming soon')),
+                            );
+                          },
+                        ),
+                        _buildManagementCard(
+                          context,
+                          'HotSpot',
+                          Icons.wifi,
+                          Colors.orange,
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BlocProvider(
+                                  create: (_) => sl<HotspotBloc>(),
+                                  child: const HotspotPage(),
+                                ),
+                              ),
                             );
                           },
                         ),

@@ -239,5 +239,105 @@
   "pleaseWait": "لطفاً صبر کنید...",
   "@pleaseWait": {
     "description": "پیام لطفاً صبر کنید"
+  },
+  "hotspot": "هات اسپات",
+  "@hotspot": {
+    "description": "عنوان منوی هات اسپات"
+  },
+  "hotspotUsers": "کاربران هات اسپات",
+  "@hotspotUsers": {
+    "description": "عنوان صفحه کاربران هات اسپات"
+  },
+  "hotspotActiveUsers": "کاربران فعال",
+  "@hotspotActiveUsers": {
+    "description": "کاربران فعال هات اسپات"
+  },
+  "hotspotServers": "سرورهای هات اسپات",
+  "@hotspotServers": {
+    "description": "عنوان صفحه سرورهای هات اسپات"
+  },
+  "hotspotProfiles": "پروفایل‌های کاربری",
+  "@hotspotProfiles": {
+    "description": "عنوان صفحه پروفایل‌های هات اسپات"
+  },
+  "addUser": "افزودن کاربر",
+  "@addUser": {
+    "description": "دکمه افزودن کاربر"
+  },
+  "disconnect": "قطع اتصال",
+  "@disconnect": {
+    "description": "اقدام قطع اتصال"
+  },
+  "uptime": "مدت فعالیت",
+  "@uptime": {
+    "description": "برچسب مدت فعالیت"
+  },
+  "bytesIn": "بایت دریافتی",
+  "@bytesIn": {
+    "description": "برچسب بایت دریافتی"
+  },
+  "bytesOut": "بایت ارسالی",
+  "@bytesOut": {
+    "description": "برچسب بایت ارسالی"
+  },
+  "packetsIn": "بسته دریافتی",
+  "@packetsIn": {
+    "description": "برچسب بسته دریافتی"
+  },
+  "packetsOut": "بسته ارسالی",
+  "@packetsOut": {
+    "description": "برچسب بسته ارسالی"
+  },
+  "macAddress": "آدرس مک",
+  "@macAddress": {
+    "description": "برچسب آدرس مک"
+  },
+  "loginBy": "روش ورود",
+  "@loginBy": {
+    "description": "برچسب روش ورود"
+  },
+  "sessionTime": "زمان نشست",
+  "@sessionTime": {
+    "description": "برچسب زمان نشست"
+  },
+  "idleTime": "زمان بیکاری",
+  "@idleTime": {
+    "description": "برچسب زمان بیکاری"
+  },
+  "addressPool": "استخر آدرس",
+  "@addressPool": {
+    "description": "برچسب استخر آدرس"
+  },
+  "profile": "پروفایل",
+  "@profile": {
+    "description": "برچسب پروفایل"
+  },
+  "server": "سرور",
+  "@server": {
+    "description": "برچسب سرور"
+  },
+  "sessionTimeout": "تایم‌اوت نشست",
+  "@sessionTimeout": {
+    "description": "برچسب تایم‌اوت نشست"
+  },
+  "idleTimeout": "تایم‌اوت بیکاری",
+  "@idleTimeout": {
+    "description": "برچسب تایم‌اوت بیکاری"
+  },
+  "sharedUsers": "کاربران اشتراکی",
+  "@sharedUsers": {
+    "description": "برچسب کاربران اشتراکی"
+  },
+  "rateLimit": "محدودیت سرعت",
+  "@rateLimit": {
+    "description": "برچسب محدودیت سرعت"
+  },
+  "statusAccounting": "حسابداری وضعیت",
+  "@statusAccounting": {
+    "description": "برچسب حسابداری وضعیت"
+  },
+  "transparentProxy": "پروکسی شفاف",
+  "@transparentProxy": {
+    "description": "برچسب پروکسی شفاف"
   }
 }

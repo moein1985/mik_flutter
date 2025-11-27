@@ -457,6 +457,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please wait...'**
   String get pleaseWait;
+
+  /// HotSpot menu title
+  ///
+  /// In en, this message translates to:
+  /// **'HotSpot'**
+  String get hotspot;
+
+  /// HotSpot users page title
+  ///
+  /// In en, this message translates to:
+  /// **'HotSpot Users'**
+  String get hotspotUsers;
+
+  /// Active HotSpot users
+  ///
+  /// In en, this message translates to:
+  /// **'Active Users'**
+  String get hotspotActiveUsers;
+
+  /// HotSpot servers page title
+  ///
+  /// In en, this message translates to:
+  /// **'HotSpot Servers'**
+  String get hotspotServers;
+
+  /// HotSpot profiles page title
+  ///
+  /// In en, this message translates to:
+  /// **'User Profiles'**
+  String get hotspotProfiles;
+
+  /// Add user button
+  ///
+  /// In en, this message translates to:
+  /// **'Add User'**
+  String get addUser;
+
+  /// Disconnect action
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get disconnect;
+
+  /// Bytes received label
+  ///
+  /// In en, this message translates to:
+  /// **'Bytes In'**
+  String get bytesIn;
+
+  /// Bytes sent label
+  ///
+  /// In en, this message translates to:
+  /// **'Bytes Out'**
+  String get bytesOut;
+
+  /// Packets received label
+  ///
+  /// In en, this message translates to:
+  /// **'Packets In'**
+  String get packetsIn;
+
+  /// Packets sent label
+  ///
+  /// In en, this message translates to:
+  /// **'Packets Out'**
+  String get packetsOut;
+
+  /// MAC address label
+  ///
+  /// In en, this message translates to:
+  /// **'MAC Address'**
+  String get macAddress;
+
+  /// Login method label
+  ///
+  /// In en, this message translates to:
+  /// **'Login By'**
+  String get loginBy;
+
+  /// Session time label
+  ///
+  /// In en, this message translates to:
+  /// **'Session Time'**
+  String get sessionTime;
+
+  /// Idle time label
+  ///
+  /// In en, this message translates to:
+  /// **'Idle Time'**
+  String get idleTime;
+
+  /// Address pool label
+  ///
+  /// In en, this message translates to:
+  /// **'Address Pool'**
+  String get addressPool;
+
+  /// Profile label
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// Server label
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get server;
+
+  /// Session timeout label
+  ///
+  /// In en, this message translates to:
+  /// **'Session Timeout'**
+  String get sessionTimeout;
+
+  /// Idle timeout label
+  ///
+  /// In en, this message translates to:
+  /// **'Idle Timeout'**
+  String get idleTimeout;
+
+  /// Shared users label
+  ///
+  /// In en, this message translates to:
+  /// **'Shared Users'**
+  String get sharedUsers;
+
+  /// Rate limit label
+  ///
+  /// In en, this message translates to:
+  /// **'Rate Limit'**
+  String get rateLimit;
+
+  /// Status accounting label
+  ///
+  /// In en, this message translates to:
+  /// **'Status Accounting'**
+  String get statusAccounting;
+
+  /// Transparent proxy label
+  ///
+  /// In en, this message translates to:
+  /// **'Transparent Proxy'**
+  String get transparentProxy;
 }
 
 class _AppLocalizationsDelegate

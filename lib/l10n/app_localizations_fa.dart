@@ -66,7 +66,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get systemResources => 'منابع سیستم';
 
   @override
-  String get uptime => 'زمان فعالیت';
+  String get uptime => 'مدت فعالیت';
 
   @override
   String get version => 'نسخه';
@@ -187,4 +187,76 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get pleaseWait => 'لطفاً صبر کنید...';
+
+  @override
+  String get hotspot => 'هات اسپات';
+
+  @override
+  String get hotspotUsers => 'کاربران هات اسپات';
+
+  @override
+  String get hotspotActiveUsers => 'کاربران فعال';
+
+  @override
+  String get hotspotServers => 'سرورهای هات اسپات';
+
+  @override
+  String get hotspotProfiles => 'پروفایل‌های کاربری';
+
+  @override
+  String get addUser => 'افزودن کاربر';
+
+  @override
+  String get disconnect => 'قطع اتصال';
+
+  @override
+  String get bytesIn => 'بایت دریافتی';
+
+  @override
+  String get bytesOut => 'بایت ارسالی';
+
+  @override
+  String get packetsIn => 'بسته دریافتی';
+
+  @override
+  String get packetsOut => 'بسته ارسالی';
+
+  @override
+  String get macAddress => 'آدرس مک';
+
+  @override
+  String get loginBy => 'روش ورود';
+
+  @override
+  String get sessionTime => 'زمان نشست';
+
+  @override
+  String get idleTime => 'زمان بیکاری';
+
+  @override
+  String get addressPool => 'استخر آدرس';
+
+  @override
+  String get profile => 'پروفایل';
+
+  @override
+  String get server => 'سرور';
+
+  @override
+  String get sessionTimeout => 'تایم‌اوت نشست';
+
+  @override
+  String get idleTimeout => 'تایم‌اوت بیکاری';
+
+  @override
+  String get sharedUsers => 'کاربران اشتراکی';
+
+  @override
+  String get rateLimit => 'محدودیت سرعت';
+
+  @override
+  String get statusAccounting => 'حسابداری وضعیت';
+
+  @override
+  String get transparentProxy => 'پروکسی شفاف';
 }

@@ -278,4 +278,138 @@ class RouterOSClient {
       }
     }
   }
+
+  // ==================== HotSpot Management ====================
+
+  /// Get all hotspot servers
+  Future<List<Map<String, String>>> getHotspotServers() async {
+    return await sendCommand(['/ip/hotspot/print']);
+  }
+
+  /// Enable a hotspot server
+  Future<bool> enableHotspotServer(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/enable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable a hotspot server
+  Future<bool> disableHotspotServer(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/disable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get all hotspot users
+  Future<List<Map<String, String>>> getHotspotUsers() async {
+    return await sendCommand(['/ip/hotspot/user/print']);
+  }
+
+  /// Add a hotspot user
+  Future<bool> addHotspotUser({
+    required String name,
+    required String password,
+    String? profile,
+    String? server,
+    String? comment,
+  }) async {
+    try {
+      final commands = [
+        '/ip/hotspot/user/add',
+        '=name=$name',
+        '=password=$password',
+      ];
+      
+      if (profile != null) {
+        commands.add('=profile=$profile');
+      }
+      
+      if (server != null) {
+        commands.add('=server=$server');
+      }
+      
+      if (comment != null) {
+        commands.add('=comment=$comment');
+      }
+      
+      final response = await sendCommand(commands);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove a hotspot user
+  Future<bool> removeHotspotUser(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/user/remove',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Enable a hotspot user
+  Future<bool> enableHotspotUser(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/user/enable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable a hotspot user
+  Future<bool> disableHotspotUser(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/user/disable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get all active hotspot users
+  Future<List<Map<String, String>>> getHotspotActiveUsers() async {
+    return await sendCommand(['/ip/hotspot/active/print']);
+  }
+
+  /// Disconnect a hotspot user
+  Future<bool> disconnectHotspotUser(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/active/remove',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get all hotspot profiles
+  Future<List<Map<String, String>>> getHotspotProfiles() async {
+    return await sendCommand(['/ip/hotspot/user/profile/print']);
+  }
 }
