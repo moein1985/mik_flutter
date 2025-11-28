@@ -63,3 +63,18 @@ class DisconnectHotspotUser extends HotspotEvent {
   @override
   List<Object> get props => [id];
 }
+
+class SetupHotspot extends HotspotEvent {
+  final String interface;
+  final String? addressPool;
+  final String? dnsName;
+
+  const SetupHotspot({
+    required this.interface,
+    this.addressPool,
+    this.dnsName,
+  });
+
+  @override
+  List<Object?> get props => [interface, addressPool, dnsName];
+}

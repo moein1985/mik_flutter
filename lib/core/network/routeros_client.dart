@@ -2,6 +2,9 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'routeros_protocol.dart';
+import '../utils/logger.dart';
+
+final _log = AppLogger.tag('RouterOSClient');
 
 class RouterOSClient {
   final String host;
@@ -60,9 +63,11 @@ class RouterOSClient {
   /// Send a command to RouterOS
   Future<List<Map<String, String>>> sendCommand(List<String> words) async {
     if (!_isConnected || _socket == null) {
+      _log.e('Not connected to RouterOS');
       throw Exception('Not connected to RouterOS');
     }
 
+    _log.d('Sending command: ${words.first}');
     _responseData.clear();
     _currentReply = {};
 
@@ -72,12 +77,20 @@ class RouterOSClient {
     final completer = Completer<List<Map<String, String>>>();
     _activeCompleter = completer;
     
-    return await completer.future.timeout(
-      const Duration(seconds: 10),
-      onTimeout: () {
-        throw TimeoutException('Response timeout');
-      },
-    );
+    try {
+      final result = await completer.future.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          _log.w('Command timeout: ${words.first}');
+          throw TimeoutException('Response timeout');
+        },
+      );
+      _log.d('Command response: ${result.length} items');
+      return result;
+    } catch (e) {
+      _log.e('Command failed: ${words.first}', error: e);
+      rethrow;
+    }
   }
 
   /// Login to RouterOS
@@ -411,5 +424,80 @@ class RouterOSClient {
   /// Get all hotspot profiles
   Future<List<Map<String, String>>> getHotspotProfiles() async {
     return await sendCommand(['/ip/hotspot/user/profile/print']);
+  }
+
+  /// Setup HotSpot on an interface
+  /// This performs the basic hotspot setup similar to /ip hotspot setup command
+  Future<bool> setupHotspot({
+    required String interface,
+    String? addressPool,
+    String? dnsName,
+  }) async {
+    try {
+      // Step 1: Create IP pool if address pool is provided
+      String poolName = 'hs-pool-1';
+      if (addressPool != null && addressPool.isNotEmpty) {
+        final poolResponse = await sendCommand([
+          '/ip/pool/add',
+          '=name=$poolName',
+          '=ranges=$addressPool',
+        ]);
+        // Check if pool was created or already exists
+        final poolFailed = poolResponse.any((r) => 
+          r['type'] == 'trap' && !(r['message']?.contains('already') ?? false));
+        if (poolFailed) {
+          // Pool might already exist, continue
+        }
+      }
+
+      // Step 2: Create default hotspot user profile
+      await sendCommand([
+        '/ip/hotspot/user/profile/add',
+        '=name=default',
+        '=shared-users=1',
+      ]);
+      // Profile might already exist, continue
+
+      // Step 3: Create hotspot server profile
+      final serverProfileName = 'hsprof1';
+      final serverProfileCommands = [
+        '/ip/hotspot/profile/add',
+        '=name=$serverProfileName',
+        '=hotspot-address=10.5.50.1',
+        '=login-by=cookie,http-chap,http-pap',
+      ];
+      if (dnsName != null && dnsName.isNotEmpty) {
+        serverProfileCommands.add('=dns-name=$dnsName');
+      }
+      await sendCommand(serverProfileCommands);
+
+      // Step 4: Add IP address to interface if not exists
+      await sendCommand([
+        '/ip/address/add',
+        '=address=10.5.50.1/24',
+        '=interface=$interface',
+      ]);
+
+      // Step 5: Create the hotspot server
+      final hotspotCommands = [
+        '/ip/hotspot/add',
+        '=name=hotspot1',
+        '=interface=$interface',
+        '=profile=$serverProfileName',
+        '=disabled=no',
+      ];
+      
+      if (addressPool != null && addressPool.isNotEmpty) {
+        hotspotCommands.add('=address-pool=$poolName');
+      }
+      
+      final response = await sendCommand(hotspotCommands);
+      
+      // Check for success or if hotspot already exists
+      return response.any((r) => r['type'] == 'done') ||
+             response.any((r) => r['message']?.contains('already') ?? false);
+    } catch (e) {
+      return false;
+    }
   }
 }

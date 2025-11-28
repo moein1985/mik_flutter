@@ -134,4 +134,22 @@ class HotspotRepositoryImpl implements HotspotRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> setupHotspot({
+    required String interface,
+    String? addressPool,
+    String? dnsName,
+  }) async {
+    try {
+      final result = await remoteDataSource.setupHotspot(
+        interface: interface,
+        addressPool: addressPool,
+        dnsName: dnsName,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }

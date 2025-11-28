@@ -35,6 +35,7 @@ import 'features/hotspot/domain/usecases/get_profiles_usecase.dart';
 import 'features/hotspot/domain/usecases/add_user_usecase.dart';
 import 'features/hotspot/domain/usecases/toggle_user_usecase.dart';
 import 'features/hotspot/domain/usecases/disconnect_user_usecase.dart';
+import 'features/hotspot/domain/usecases/setup_hotspot_usecase.dart';
 import 'features/hotspot/presentation/bloc/hotspot_bloc.dart';
 
 final sl = GetIt.instance;
@@ -122,6 +123,7 @@ Future<void> init() async {
       addUserUseCase: sl(),
       toggleUserUseCase: sl(),
       disconnectUserUseCase: sl(),
+      setupHotspotUseCase: sl(),
     ),
   );
 
@@ -133,6 +135,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AddUserUseCase(sl()));
   sl.registerLazySingleton(() => ToggleUserUseCase(sl()));
   sl.registerLazySingleton(() => DisconnectUserUseCase(sl()));
+  sl.registerLazySingleton(() => SetupHotspotUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<HotspotRepository>(

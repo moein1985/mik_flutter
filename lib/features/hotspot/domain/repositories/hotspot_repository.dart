@@ -30,4 +30,11 @@ abstract class HotspotRepository {
 
   // Profile Management
   Future<Either<Failure, List<HotspotProfile>>> getProfiles();
+
+  // Setup
+  Future<Either<Failure, bool>> setupHotspot({
+    required String interface,
+    String? addressPool,
+    String? dnsName,
+  });
 }

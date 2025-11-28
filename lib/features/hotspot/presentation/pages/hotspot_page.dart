@@ -1,86 +1,348 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/utils/logger.dart';
+import '../bloc/hotspot_bloc.dart';
+import '../bloc/hotspot_event.dart';
+import '../bloc/hotspot_state.dart';
 import 'hotspot_users_page.dart';
 import 'hotspot_active_users_page.dart';
 import 'hotspot_servers_page.dart';
 import 'hotspot_profiles_page.dart';
 
-class HotspotPage extends StatelessWidget {
+final _log = AppLogger.tag('HotspotPage');
+
+class HotspotPage extends StatefulWidget {
   const HotspotPage({super.key});
+
+  @override
+  State<HotspotPage> createState() => _HotspotPageState();
+}
+
+class _HotspotPageState extends State<HotspotPage> {
+  @override
+  void initState() {
+    super.initState();
+    _log.i('HotspotPage initState - Loading servers');
+    // Check HotSpot status by loading servers
+    context.read<HotspotBloc>().add(const LoadHotspotServers());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('HotSpot Management'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              _log.i('Refresh button pressed');
+              context.read<HotspotBloc>().add(const LoadHotspotServers());
+            },
+          ),
+        ],
       ),
-      body: GridView.count(
+      body: BlocConsumer<HotspotBloc, HotspotState>(
+        listener: (context, state) {
+          _log.i('HotspotPage state changed: ${state.runtimeType}');
+          if (state is HotspotError) {
+            _log.e('HotspotPage error: ${state.message}');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          } else if (state is HotspotOperationSuccess) {
+            _log.i('HotspotPage success: ${state.message}');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          _log.d('HotspotPage building with state: ${state.runtimeType}');
+          
+          if (state is HotspotLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (state is HotspotError) {
+            return _buildErrorView(context, state.message);
+          }
+          
+          if (state is HotspotLoaded) {
+            final servers = state.servers ?? [];
+            _log.i('HotspotLoaded with ${servers.length} servers');
+            if (servers.isEmpty) {
+              return _buildNoHotspotView(context);
+            }
+            return _buildHotspotGrid(context, servers.length);
+          }
+          
+          // Initial state
+          _log.d('HotspotPage initial state, showing grid');
+          return _buildHotspotGrid(context, 0);
+        },
+      ),
+    );
+  }
+
+  Widget _buildNoHotspotView(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.wifi_off,
+            size: 80,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'HotSpot is not configured',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'No HotSpot server found on this router.',
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton.icon(
+            onPressed: () => _showSetupDialog(context),
+            icon: const Icon(Icons.add),
+            label: const Text('Setup HotSpot'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorView(BuildContext context, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.red[300],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Error loading HotSpot',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            style: TextStyle(color: Colors.grey[600]),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () {
+              context.read<HotspotBloc>().add(const LoadHotspotServers());
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSetupDialog(BuildContext context) {
+    final interfaceController = TextEditingController();
+    final addressPoolController = TextEditingController();
+    final dnsNameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Setup HotSpot'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'This will setup a basic HotSpot on your router. '
+                  'You can configure advanced options later.',
+                  style: TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: interfaceController,
+                  decoration: const InputDecoration(
+                    labelText: 'Interface *',
+                    hintText: 'e.g., ether1, wlan1',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: addressPoolController,
+                  decoration: const InputDecoration(
+                    labelText: 'Address Pool',
+                    hintText: 'e.g., 192.168.88.10-192.168.88.254',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: dnsNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'DNS Name',
+                    hintText: 'e.g., hotspot.local',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (interfaceController.text.isNotEmpty) {
+                  Navigator.pop(dialogContext);
+                  context.read<HotspotBloc>().add(
+                    SetupHotspot(
+                      interface: interfaceController.text,
+                      addressPool: addressPoolController.text.isEmpty 
+                          ? null 
+                          : addressPoolController.text,
+                      dnsName: dnsNameController.text.isEmpty 
+                          ? null 
+                          : dnsNameController.text,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Setup'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildHotspotGrid(BuildContext context, int serverCount) {
+    return Column(
+      children: [
+        if (serverCount > 0)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            color: Colors.green[50],
+            child: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green[700]),
+                const SizedBox(width: 12),
+                Text(
+                  '$serverCount HotSpot server(s) configured',
+                  style: TextStyle(
+                    color: Colors.green[700],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Expanded(
+          child: GridView.count(
         crossAxisCount: 2,
         padding: const EdgeInsets.all(16),
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
         children: [
-          _buildCard(
-            context,
-            icon: Icons.people,
-            title: 'Users',
-            subtitle: 'Manage hotspot users',
-            color: Colors.blue,
-            onTap: () {
-              Navigator.push(
+              _buildCard(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const HotspotUsersPage(),
-                ),
-              );
-            },
-          ),
-          _buildCard(
-            context,
-            icon: Icons.person,
-            title: 'Active Users',
-            subtitle: 'Online users',
-            color: Colors.green,
-            onTap: () {
-              Navigator.push(
+                icon: Icons.people,
+                title: 'Users',
+                subtitle: 'Manage hotspot users',
+                color: Colors.blue,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<HotspotBloc>(),
+                        child: const HotspotUsersPage(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildCard(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const HotspotActiveUsersPage(),
-                ),
-              );
-            },
-          ),
-          _buildCard(
-            context,
-            icon: Icons.router,
-            title: 'Servers',
-            subtitle: 'HotSpot servers',
-            color: Colors.orange,
-            onTap: () {
-              Navigator.push(
+                icon: Icons.person,
+                title: 'Active Users',
+                subtitle: 'Online users',
+                color: Colors.green,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<HotspotBloc>(),
+                        child: const HotspotActiveUsersPage(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildCard(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const HotspotServersPage(),
-                ),
-              );
-            },
-          ),
-          _buildCard(
-            context,
-            icon: Icons.settings,
-            title: 'Profiles',
-            subtitle: 'User profiles',
-            color: Colors.purple,
-            onTap: () {
-              Navigator.push(
+                icon: Icons.router,
+                title: 'Servers',
+                subtitle: 'HotSpot servers',
+                color: Colors.orange,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<HotspotBloc>(),
+                        child: const HotspotServersPage(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildCard(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const HotspotProfilesPage(),
-                ),
-              );
-            },
+                icon: Icons.settings,
+                title: 'Profiles',
+                subtitle: 'User profiles',
+                color: Colors.purple,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<HotspotBloc>(),
+                        child: const HotspotProfilesPage(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
