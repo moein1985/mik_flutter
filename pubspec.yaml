@@ -30,13 +30,13 @@ dependencies:
   
   # UI
   flutter_svg: ^2.0.10+1
+  mocktail: ^1.0.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   bloc_test: ^10.0.0
-  mocktail: ^1.0.4
 
 flutter:
   uses-material-design: true

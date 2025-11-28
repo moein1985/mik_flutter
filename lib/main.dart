@@ -10,6 +10,10 @@ import 'features/auth/presentation/pages/login_page.dart';
 import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 
+extension MyAppExtension on BuildContext {
+  MyAppState? get myAppState => findAncestorStateOfType<MyAppState>();
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -31,13 +35,12 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<MyApp> createState() => MyAppState();
 
-  static _MyAppState? of(BuildContext context) =>
-      context.findAncestorStateOfType<_MyAppState>();
+  static MyAppState? of(BuildContext context) => context.myAppState;
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   Locale _locale = const Locale('en', '');
 
   void setLocale(Locale locale) {

@@ -17,7 +17,7 @@ class HotspotRepositoryImpl implements HotspotRepository {
   Future<Either<Failure, List<HotspotServer>>> getServers() async {
     try {
       final servers = await remoteDataSource.getServers();
-      return Right(servers);
+      return Right(servers.map((model) => model).toList());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -47,7 +47,7 @@ class HotspotRepositoryImpl implements HotspotRepository {
   Future<Either<Failure, List<HotspotUser>>> getUsers() async {
     try {
       final users = await remoteDataSource.getUsers();
-      return Right(users);
+      return Right(users.map((model) => model).toList());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -109,7 +109,7 @@ class HotspotRepositoryImpl implements HotspotRepository {
   Future<Either<Failure, List<HotspotActiveUser>>> getActiveUsers() async {
     try {
       final users = await remoteDataSource.getActiveUsers();
-      return Right(users);
+      return Right(users.map((model) => model).toList());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -129,7 +129,7 @@ class HotspotRepositoryImpl implements HotspotRepository {
   Future<Either<Failure, List<HotspotProfile>>> getProfiles() async {
     try {
       final profiles = await remoteDataSource.getProfiles();
-      return Right(profiles);
+      return Right(profiles.map((model) => model).toList());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

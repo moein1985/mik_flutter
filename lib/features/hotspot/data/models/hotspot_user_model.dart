@@ -40,6 +40,11 @@ class HotspotUserModel extends HotspotUser {
       if (password != null) 'password': password,
       if (profile != null) 'profile': profile,
       if (server != null) 'server': server,
+      if (uptime != null) 'uptime': uptime,
+      if (bytesIn != null) 'bytes-in': bytesIn,
+      if (bytesOut != null) 'bytes-out': bytesOut,
+      if (packetsIn != null) 'packets-in': packetsIn,
+      if (packetsOut != null) 'packets-out': packetsOut,
       if (comment != null) 'comment': comment,
       'disabled': disabled ? 'true' : 'false',
     };

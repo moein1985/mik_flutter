@@ -1,4 +1,5 @@
 import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart';
 
 enum LogLevel {
   debug,
@@ -34,7 +35,9 @@ class AppLogger {
     final logMessage = '[$timestamp] $prefix $tagStr$message';
     
     // Print to console
-    print(logMessage);
+    if (kDebugMode) {
+      print(logMessage);
+    }
     
     // Also log to developer console for better debugging
     developer.log(
@@ -46,10 +49,14 @@ class AppLogger {
     );
 
     if (error != null) {
-      print('  Error: $error');
+      if (kDebugMode) {
+        print('  Error: $error');
+      }
     }
     if (stackTrace != null) {
-      print('  StackTrace: $stackTrace');
+      if (kDebugMode) {
+        print('  StackTrace: $stackTrace');
+      }
     }
   }
 

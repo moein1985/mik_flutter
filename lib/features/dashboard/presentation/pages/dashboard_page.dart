@@ -311,7 +311,7 @@ class _DashboardPageState extends State<DashboardPage> {
         const SizedBox(height: 4),
         LinearProgressIndicator(
           value: value / 100,
-          backgroundColor: color.withOpacity(0.2),
+          backgroundColor: color.withValues(alpha: 0.2),
           valueColor: AlwaysStoppedAnimation<Color>(color),
         ),
       ],
@@ -345,7 +345,7 @@ class _DashboardPageState extends State<DashboardPage> {
         const SizedBox(height: 4),
         LinearProgressIndicator(
           value: usedBytes / totalBytes,
-          backgroundColor: color.withOpacity(0.2),
+          backgroundColor: color.withValues(alpha: 0.2),
           valueColor: AlwaysStoppedAnimation<Color>(color),
         ),
         const SizedBox(height: 2),
