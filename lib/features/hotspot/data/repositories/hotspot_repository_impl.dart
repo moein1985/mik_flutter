@@ -60,6 +60,11 @@ class HotspotRepositoryImpl implements HotspotRepository {
     String? profile,
     String? server,
     String? comment,
+    // Limits
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
   }) async {
     try {
       final result = await remoteDataSource.addUser(
@@ -68,6 +73,43 @@ class HotspotRepositoryImpl implements HotspotRepository {
         profile: profile,
         server: server,
         comment: comment,
+        limitUptime: limitUptime,
+        limitBytesIn: limitBytesIn,
+        limitBytesOut: limitBytesOut,
+        limitBytesTotal: limitBytesTotal,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> editUser({
+    required String id,
+    String? name,
+    String? password,
+    String? profile,
+    String? server,
+    String? comment,
+    // Limits
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
+  }) async {
+    try {
+      final result = await remoteDataSource.editUser(
+        id: id,
+        name: name,
+        password: password,
+        profile: profile,
+        server: server,
+        comment: comment,
+        limitUptime: limitUptime,
+        limitBytesIn: limitBytesIn,
+        limitBytesOut: limitBytesOut,
+        limitBytesTotal: limitBytesTotal,
       );
       return Right(result);
     } on ServerException catch (e) {
@@ -99,6 +141,16 @@ class HotspotRepositoryImpl implements HotspotRepository {
   Future<Either<Failure, bool>> disableUser(String id) async {
     try {
       final result = await remoteDataSource.disableUser(id);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> resetUserCounters(String id) async {
+    try {
+      final result = await remoteDataSource.resetUserCounters(id);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -147,6 +199,46 @@ class HotspotRepositoryImpl implements HotspotRepository {
         addressPool: addressPool,
         dnsName: dnsName,
       );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> isHotspotPackageEnabled() async {
+    try {
+      final result = await remoteDataSource.isHotspotPackageEnabled();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Map<String, String>>>> getInterfaces() async {
+    try {
+      final result = await remoteDataSource.getInterfaces();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<Map<String, String>>>> getIpPools() async {
+    try {
+      final result = await remoteDataSource.getIpPools();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> addIpPool({required String name, required String ranges}) async {
+    try {
+      final result = await remoteDataSource.addIpPool(name: name, ranges: ranges);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

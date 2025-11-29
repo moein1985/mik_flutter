@@ -8,6 +8,7 @@ import 'hotspot_users_page.dart';
 import 'hotspot_active_users_page.dart';
 import 'hotspot_servers_page.dart';
 import 'hotspot_profiles_page.dart';
+import 'hotspot_setup_dialog.dart';
 
 final _log = AppLogger.tag('HotspotPage');
 
@@ -19,6 +20,11 @@ class HotspotPage extends StatefulWidget {
 }
 
 class _HotspotPageState extends State<HotspotPage> {
+  // Track if we've shown an error/success message to avoid duplicates
+  String? _lastShownMessage;
+  // Cache the last known server count for smooth UI
+  int _lastServerCount = 0;
+  
   @override
   void initState() {
     super.initState();
@@ -45,42 +51,98 @@ class _HotspotPageState extends State<HotspotPage> {
       body: BlocConsumer<HotspotBloc, HotspotState>(
         listener: (context, state) {
           _log.i('HotspotPage state changed: ${state.runtimeType}');
+          
+          // Update cached server count
+          if (state is HotspotLoaded && state.servers != null) {
+            _lastServerCount = state.servers!.length;
+          }
+          
           if (state is HotspotError) {
-            _log.e('HotspotPage error: ${state.message}');
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
+            // Only show if this is a new message
+            if (_lastShownMessage != state.message) {
+              _lastShownMessage = state.message;
+              _log.e('HotspotPage error: ${state.message}');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           } else if (state is HotspotOperationSuccess) {
-            _log.i('HotspotPage success: ${state.message}');
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.green,
-              ),
-            );
+            // Only show if this is a new message
+            if (_lastShownMessage != state.message) {
+              _lastShownMessage = state.message;
+              _log.i('HotspotPage success: ${state.message}');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } else {
+            // Reset message tracking for other states
+            _lastShownMessage = null;
           }
         },
         builder: (context, state) {
           _log.d('HotspotPage building with state: ${state.runtimeType}');
           
           if (state is HotspotLoading) {
+            // Show loading but keep the UI stable if we have cached data
+            if (_lastServerCount > 0) {
+              return Stack(
+                children: [
+                  _buildHotspotGrid(context, _lastServerCount),
+                  const Center(child: CircularProgressIndicator()),
+                ],
+              );
+            }
             return const Center(child: CircularProgressIndicator());
           }
           
+          if (state is HotspotPackageDisabled) {
+            return _buildPackageDisabledView(context);
+          }
+          
           if (state is HotspotError) {
+            // Check if error is related to trap (package disabled)
+            if (state.message.contains('trap')) {
+              return _buildPackageDisabledView(context);
+            }
+            // Keep showing the grid if we have servers, just show the error via snackbar
+            if (_lastServerCount > 0) {
+              return _buildHotspotGrid(context, _lastServerCount);
+            }
             return _buildErrorView(context, state.message);
           }
           
           if (state is HotspotLoaded) {
             final servers = state.servers ?? [];
             _log.i('HotspotLoaded with ${servers.length} servers');
+            _lastServerCount = servers.length;
             if (servers.isEmpty) {
               return _buildNoHotspotView(context);
             }
             return _buildHotspotGrid(context, servers.length);
+          }
+          
+          // HotspotOperationSuccess - keep showing the last known state
+          if (state is HotspotOperationSuccess) {
+            if (_lastServerCount > 0) {
+              return _buildHotspotGrid(context, _lastServerCount);
+            }
+            // Will be updated after LoadHotspotServers completes
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          // HotspotSetupDataLoaded - this is for dialog, main page continues with last known state
+          if (state is HotspotSetupDataLoaded) {
+            if (_lastServerCount > 0) {
+              return _buildHotspotGrid(context, _lastServerCount);
+            }
+            return _buildNoHotspotView(context);
           }
           
           // Initial state
@@ -125,6 +187,44 @@ class _HotspotPageState extends State<HotspotPage> {
     );
   }
 
+  Widget _buildPackageDisabledView(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 80,
+            color: Colors.orange[400],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'HotSpot Package Disabled',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              'The HotSpot package is disabled on your router. '
+              'Please enable it from System → Packages in WinBox or WebFig.',
+              style: TextStyle(color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton.icon(
+            onPressed: () {
+              context.read<HotspotBloc>().add(const CheckHotspotPackage());
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Check Again'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildErrorView(BuildContext context, String message) {
     return Center(
       child: Column(
@@ -160,82 +260,20 @@ class _HotspotPageState extends State<HotspotPage> {
   }
 
   void _showSetupDialog(BuildContext context) {
-    final interfaceController = TextEditingController();
-    final addressPoolController = TextEditingController();
-    final dnsNameController = TextEditingController();
-
     showDialog(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Setup HotSpot'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'This will setup a basic HotSpot on your router. '
-                  'You can configure advanced options later.',
-                  style: TextStyle(fontSize: 14),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: interfaceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Interface *',
-                    hintText: 'e.g., ether1, wlan1',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: addressPoolController,
-                  decoration: const InputDecoration(
-                    labelText: 'Address Pool',
-                    hintText: 'e.g., 192.168.88.10-192.168.88.254',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: dnsNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'DNS Name',
-                    hintText: 'e.g., hotspot.local',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (interfaceController.text.isNotEmpty) {
-                  Navigator.pop(dialogContext);
-                  context.read<HotspotBloc>().add(
-                    SetupHotspot(
-                      interface: interfaceController.text,
-                      addressPool: addressPoolController.text.isEmpty 
-                          ? null 
-                          : addressPoolController.text,
-                      dnsName: dnsNameController.text.isEmpty 
-                          ? null 
-                          : dnsNameController.text,
-                    ),
-                  );
-                }
-              },
-              child: const Text('Setup'),
-            ),
-          ],
+        return BlocProvider.value(
+          value: context.read<HotspotBloc>(),
+          child: const HotspotSetupDialog(),
         );
       },
-    );
+    ).then((result) {
+      if (result == true) {
+        // Reload servers after successful setup
+        context.read<HotspotBloc>().add(const LoadHotspotServers());
+      }
+    });
   }
 
   Widget _buildHotspotGrid(BuildContext context, int serverCount) {

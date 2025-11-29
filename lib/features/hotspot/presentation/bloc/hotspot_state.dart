@@ -61,9 +61,38 @@ class HotspotError extends HotspotState {
 
 class HotspotOperationSuccess extends HotspotState {
   final String message;
+  // Preserve the last loaded data to avoid losing state
+  final HotspotLoaded? previousData;
 
-  const HotspotOperationSuccess(this.message);
+  const HotspotOperationSuccess(this.message, {this.previousData});
 
   @override
-  List<Object> get props => [message];
+  List<Object?> get props => [message, previousData];
+}
+
+class HotspotPackageDisabled extends HotspotState {
+  const HotspotPackageDisabled();
+}
+
+class HotspotSetupDataLoaded extends HotspotState {
+  final List<Map<String, String>> interfaces;
+  final List<Map<String, String>> ipPools;
+
+  const HotspotSetupDataLoaded({
+    required this.interfaces,
+    required this.ipPools,
+  });
+
+  HotspotSetupDataLoaded copyWith({
+    List<Map<String, String>>? interfaces,
+    List<Map<String, String>>? ipPools,
+  }) {
+    return HotspotSetupDataLoaded(
+      interfaces: interfaces ?? this.interfaces,
+      ipPools: ipPools ?? this.ipPools,
+    );
+  }
+
+  @override
+  List<Object> get props => [interfaces, ipPools];
 }

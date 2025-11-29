@@ -2,14 +2,15 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../repositories/hotspot_repository.dart';
 
-class AddUserUseCase {
+class EditUserUseCase {
   final HotspotRepository repository;
 
-  AddUserUseCase(this.repository);
+  EditUserUseCase(this.repository);
 
   Future<Either<Failure, bool>> call({
-    required String name,
-    required String password,
+    required String id,
+    String? name,
+    String? password,
     String? profile,
     String? server,
     String? comment,
@@ -19,7 +20,8 @@ class AddUserUseCase {
     String? limitBytesOut,
     String? limitBytesTotal,
   }) async {
-    return await repository.addUser(
+    return await repository.editUser(
+      id: id,
       name: name,
       password: password,
       profile: profile,

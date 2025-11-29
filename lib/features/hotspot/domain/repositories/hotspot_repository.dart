@@ -19,10 +19,29 @@ abstract class HotspotRepository {
     String? profile,
     String? server,
     String? comment,
+    // Limits
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
+  });
+  Future<Either<Failure, bool>> editUser({
+    required String id,
+    String? name,
+    String? password,
+    String? profile,
+    String? server,
+    String? comment,
+    // Limits
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
   });
   Future<Either<Failure, bool>> removeUser(String id);
   Future<Either<Failure, bool>> enableUser(String id);
   Future<Either<Failure, bool>> disableUser(String id);
+  Future<Either<Failure, bool>> resetUserCounters(String id);
 
   // Active Users
   Future<Either<Failure, List<HotspotActiveUser>>> getActiveUsers();
@@ -37,4 +56,10 @@ abstract class HotspotRepository {
     String? addressPool,
     String? dnsName,
   });
+
+  // Package & Setup Helpers
+  Future<Either<Failure, bool>> isHotspotPackageEnabled();
+  Future<Either<Failure, List<Map<String, String>>>> getInterfaces();
+  Future<Either<Failure, List<Map<String, String>>>> getIpPools();
+  Future<Either<Failure, bool>> addIpPool({required String name, required String ranges});
 }

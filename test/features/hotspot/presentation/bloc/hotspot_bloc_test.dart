@@ -19,9 +19,13 @@ void main() {
   late MockGetActiveUsersUseCase mockGetActiveUsersUseCase;
   late MockGetProfilesUseCase mockGetProfilesUseCase;
   late MockAddUserUseCase mockAddUserUseCase;
+  late MockEditUserUseCase mockEditUserUseCase;
+  late MockDeleteUserUseCase mockDeleteUserUseCase;
+  late MockResetUserCountersUseCase mockResetUserCountersUseCase;
   late MockToggleUserUseCase mockToggleUserUseCase;
   late MockDisconnectUserUseCase mockDisconnectUserUseCase;
   late MockSetupHotspotUseCase mockSetupHotspotUseCase;
+  late MockHotspotRepository mockRepository;
 
   setUp(() {
     mockGetServersUseCase = MockGetServersUseCase();
@@ -29,9 +33,13 @@ void main() {
     mockGetActiveUsersUseCase = MockGetActiveUsersUseCase();
     mockGetProfilesUseCase = MockGetProfilesUseCase();
     mockAddUserUseCase = MockAddUserUseCase();
+    mockEditUserUseCase = MockEditUserUseCase();
+    mockDeleteUserUseCase = MockDeleteUserUseCase();
+    mockResetUserCountersUseCase = MockResetUserCountersUseCase();
     mockToggleUserUseCase = MockToggleUserUseCase();
     mockDisconnectUserUseCase = MockDisconnectUserUseCase();
     mockSetupHotspotUseCase = MockSetupHotspotUseCase();
+    mockRepository = MockHotspotRepository();
 
     bloc = HotspotBloc(
       getServersUseCase: mockGetServersUseCase,
@@ -39,9 +47,13 @@ void main() {
       getActiveUsersUseCase: mockGetActiveUsersUseCase,
       getProfilesUseCase: mockGetProfilesUseCase,
       addUserUseCase: mockAddUserUseCase,
+      editUserUseCase: mockEditUserUseCase,
+      deleteUserUseCase: mockDeleteUserUseCase,
+      resetUserCountersUseCase: mockResetUserCountersUseCase,
       toggleUserUseCase: mockToggleUserUseCase,
       disconnectUserUseCase: mockDisconnectUserUseCase,
       setupHotspotUseCase: mockSetupHotspotUseCase,
+      repository: mockRepository,
     );
   });
 

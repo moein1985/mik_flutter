@@ -8,6 +8,9 @@ import 'package:hsmik/features/hotspot/domain/usecases/get_users_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/get_active_users_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/get_profiles_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/add_user_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/edit_user_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/delete_user_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/reset_user_counters_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/toggle_user_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/disconnect_user_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/setup_hotspot_usecase.dart';
@@ -29,6 +32,12 @@ class MockGetActiveUsersUseCase extends Mock implements GetActiveUsersUseCase {}
 class MockGetProfilesUseCase extends Mock implements GetProfilesUseCase {}
 
 class MockAddUserUseCase extends Mock implements AddUserUseCase {}
+
+class MockEditUserUseCase extends Mock implements EditUserUseCase {}
+
+class MockDeleteUserUseCase extends Mock implements DeleteUserUseCase {}
+
+class MockResetUserCountersUseCase extends Mock implements ResetUserCountersUseCase {}
 
 class MockToggleUserUseCase extends Mock implements ToggleUserUseCase {}
 

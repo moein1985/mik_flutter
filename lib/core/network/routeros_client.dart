@@ -221,6 +221,51 @@ class RouterOSClient {
     return await sendCommand(['/ip/dhcp-server/lease/print']);
   }
 
+  /// Get all IP pools
+  Future<List<Map<String, String>>> getIpPools() async {
+    return await sendCommand(['/ip/pool/print']);
+  }
+
+  /// Add an IP pool
+  Future<bool> addIpPool({
+    required String name,
+    required String ranges,
+  }) async {
+    try {
+      final response = await sendCommand([
+        '/ip/pool/add',
+        '=name=$name',
+        '=ranges=$ranges',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Check if hotspot package is enabled
+  Future<bool> isHotspotPackageEnabled() async {
+    try {
+      final response = await sendCommand(['/system/package/print']);
+      final packages = response.where((r) => r['type'] != 'done').toList();
+      
+      // Look for hotspot package
+      for (final pkg in packages) {
+        if (pkg['name'] == 'hotspot') {
+          // Check if disabled field is present and equals 'true'
+          return pkg['disabled'] != 'true';
+        }
+      }
+      
+      // If hotspot package not found separately, check if it's part of routeros bundle
+      // In newer RouterOS, hotspot is bundled with routeros package
+      return true; // Assume enabled if not found as separate package
+    } catch (e) {
+      _log.e('Failed to check hotspot package', error: e);
+      return false;
+    }
+  }
+
   void _processBuffer() {
     while (_buffer.isNotEmpty) {
       try {
@@ -337,6 +382,11 @@ class RouterOSClient {
     String? profile,
     String? server,
     String? comment,
+    // Limits
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
   }) async {
     try {
       final commands = [
@@ -355,6 +405,87 @@ class RouterOSClient {
       
       if (comment != null) {
         commands.add('=comment=$comment');
+      }
+      
+      // Limits
+      if (limitUptime != null && limitUptime.isNotEmpty) {
+        commands.add('=limit-uptime=$limitUptime');
+      }
+      
+      if (limitBytesIn != null && limitBytesIn.isNotEmpty) {
+        commands.add('=limit-bytes-in=$limitBytesIn');
+      }
+      
+      if (limitBytesOut != null && limitBytesOut.isNotEmpty) {
+        commands.add('=limit-bytes-out=$limitBytesOut');
+      }
+      
+      if (limitBytesTotal != null && limitBytesTotal.isNotEmpty) {
+        commands.add('=limit-bytes-total=$limitBytesTotal');
+      }
+      
+      final response = await sendCommand(commands);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Edit a hotspot user
+  Future<bool> editHotspotUser({
+    required String id,
+    String? name,
+    String? password,
+    String? profile,
+    String? server,
+    String? comment,
+    // Limits
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
+  }) async {
+    try {
+      final commands = [
+        '/ip/hotspot/user/set',
+        '=.id=$id',
+      ];
+      
+      if (name != null) {
+        commands.add('=name=$name');
+      }
+      
+      if (password != null) {
+        commands.add('=password=$password');
+      }
+      
+      if (profile != null) {
+        commands.add('=profile=$profile');
+      }
+      
+      if (server != null) {
+        commands.add('=server=$server');
+      }
+      
+      if (comment != null) {
+        commands.add('=comment=$comment');
+      }
+      
+      // Limits - empty string means remove limit
+      if (limitUptime != null) {
+        commands.add('=limit-uptime=$limitUptime');
+      }
+      
+      if (limitBytesIn != null) {
+        commands.add('=limit-bytes-in=$limitBytesIn');
+      }
+      
+      if (limitBytesOut != null) {
+        commands.add('=limit-bytes-out=$limitBytesOut');
+      }
+      
+      if (limitBytesTotal != null) {
+        commands.add('=limit-bytes-total=$limitBytesTotal');
       }
       
       final response = await sendCommand(commands);
@@ -403,6 +534,21 @@ class RouterOSClient {
     }
   }
 
+  /// Reset hotspot user counters (statistics)
+  Future<bool> resetHotspotUserCounters(String id) async {
+    try {
+      _log.d('Resetting counters for user: $id');
+      final response = await sendCommand([
+        '/ip/hotspot/user/reset-counters',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      _log.e('Failed to reset user counters', error: e);
+      return false;
+    }
+  }
+
   /// Get all active hotspot users
   Future<List<Map<String, String>>> getHotspotActiveUsers() async {
     return await sendCommand(['/ip/hotspot/active/print']);
@@ -428,38 +574,61 @@ class RouterOSClient {
 
   /// Setup HotSpot on an interface
   /// This performs the basic hotspot setup similar to /ip hotspot setup command
+  /// 
+  /// [interface] - The interface name to setup hotspot on
+  /// [addressPool] - Either an existing pool name OR a new range like "192.168.88.10-192.168.88.254"
+  /// [dnsName] - Optional DNS name for the hotspot login page
   Future<bool> setupHotspot({
     required String interface,
     String? addressPool,
     String? dnsName,
   }) async {
     try {
-      // Step 1: Create IP pool if address pool is provided
-      String poolName = 'hs-pool-1';
+      _log.i('Starting HotSpot setup on interface: $interface');
+      
+      // Determine if addressPool is an existing pool name or a range to create
+      String? poolNameToUse;
       if (addressPool != null && addressPool.isNotEmpty) {
-        final poolResponse = await sendCommand([
-          '/ip/pool/add',
-          '=name=$poolName',
-          '=ranges=$addressPool',
-        ]);
-        // Check if pool was created or already exists
-        final poolFailed = poolResponse.any((r) => 
-          r['type'] == 'trap' && !(r['message']?.contains('already') ?? false));
-        if (poolFailed) {
-          // Pool might already exist, continue
+        // If it contains a dash and dots, it's likely a range
+        if (addressPool.contains('-') && addressPool.contains('.')) {
+          // It's a range, create a new pool
+          poolNameToUse = 'hs-pool-1';
+          _log.d('Creating new IP pool: $poolNameToUse with ranges: $addressPool');
+          final poolResponse = await sendCommand([
+            '/ip/pool/add',
+            '=name=$poolNameToUse',
+            '=ranges=$addressPool',
+          ]);
+          _log.d('Pool creation response: $poolResponse');
+          // Check for trap (error)
+          if (poolResponse.any((r) => r['type'] == 'trap')) {
+            final errorMsg = poolResponse.firstWhere(
+              (r) => r['type'] == 'trap',
+              orElse: () => {},
+            )['message'] ?? 'Unknown error';
+            if (!errorMsg.contains('already')) {
+              _log.w('Pool creation failed: $errorMsg');
+            }
+          }
+        } else {
+          // It's an existing pool name
+          poolNameToUse = addressPool;
+          _log.d('Using existing pool: $poolNameToUse');
         }
       }
 
-      // Step 2: Create default hotspot user profile
-      await sendCommand([
+      // Step 2: Create default hotspot user profile (ignore if exists)
+      _log.d('Creating default hotspot user profile...');
+      final userProfileResponse = await sendCommand([
         '/ip/hotspot/user/profile/add',
         '=name=default',
         '=shared-users=1',
       ]);
-      // Profile might already exist, continue
+      _log.d('User profile response: $userProfileResponse');
 
       // Step 3: Create hotspot server profile
       final serverProfileName = 'hsprof1';
+      _log.d('Creating hotspot server profile: $serverProfileName');
       final serverProfileCommands = [
         '/ip/hotspot/profile/add',
         '=name=$serverProfileName',
@@ -469,16 +638,20 @@ class RouterOSClient {
       if (dnsName != null && dnsName.isNotEmpty) {
         serverProfileCommands.add('=dns-name=$dnsName');
       }
-      await sendCommand(serverProfileCommands);
+      final serverProfileResponse = await sendCommand(serverProfileCommands);
+      _log.d('Server profile response: $serverProfileResponse');
 
-      // Step 4: Add IP address to interface if not exists
-      await sendCommand([
+      // Step 4: Add IP address to interface
+      _log.d('Adding IP address to interface $interface...');
+      final ipResponse = await sendCommand([
         '/ip/address/add',
         '=address=10.5.50.1/24',
         '=interface=$interface',
       ]);
+      _log.d('IP address response: $ipResponse');
 
       // Step 5: Create the hotspot server
+      _log.d('Creating hotspot server...');
       final hotspotCommands = [
         '/ip/hotspot/add',
         '=name=hotspot1',
@@ -487,16 +660,35 @@ class RouterOSClient {
         '=disabled=no',
       ];
       
-      if (addressPool != null && addressPool.isNotEmpty) {
-        hotspotCommands.add('=address-pool=$poolName');
+      if (poolNameToUse != null) {
+        hotspotCommands.add('=address-pool=$poolNameToUse');
       }
       
       final response = await sendCommand(hotspotCommands);
+      _log.d('Hotspot add response: $response');
       
-      // Check for success or if hotspot already exists
-      return response.any((r) => r['type'] == 'done') ||
-             response.any((r) => r['message']?.contains('already') ?? false);
-    } catch (e) {
+      // Check for success
+      final hasDone = response.any((r) => r['type'] == 'done');
+      final hasTrap = response.any((r) => r['type'] == 'trap');
+      
+      if (hasTrap) {
+        final errorMsg = response.firstWhere(
+          (r) => r['type'] == 'trap',
+          orElse: () => {},
+        )['message'] ?? 'Unknown error';
+        _log.e('Hotspot creation failed: $errorMsg');
+        // If it already exists, consider it success
+        if (errorMsg.contains('already')) {
+          _log.i('Hotspot already exists, considering as success');
+          return true;
+        }
+        return false;
+      }
+      
+      _log.i('Hotspot setup completed successfully');
+      return hasDone;
+    } catch (e, stackTrace) {
+      _log.e('Hotspot setup failed', error: e, stackTrace: stackTrace);
       return false;
     }
   }

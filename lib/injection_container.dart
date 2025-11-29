@@ -33,6 +33,9 @@ import 'features/hotspot/domain/usecases/get_users_usecase.dart';
 import 'features/hotspot/domain/usecases/get_active_users_usecase.dart';
 import 'features/hotspot/domain/usecases/get_profiles_usecase.dart';
 import 'features/hotspot/domain/usecases/add_user_usecase.dart';
+import 'features/hotspot/domain/usecases/edit_user_usecase.dart';
+import 'features/hotspot/domain/usecases/delete_user_usecase.dart';
+import 'features/hotspot/domain/usecases/reset_user_counters_usecase.dart';
 import 'features/hotspot/domain/usecases/toggle_user_usecase.dart';
 import 'features/hotspot/domain/usecases/disconnect_user_usecase.dart';
 import 'features/hotspot/domain/usecases/setup_hotspot_usecase.dart';
@@ -121,9 +124,13 @@ Future<void> init() async {
       getActiveUsersUseCase: sl(),
       getProfilesUseCase: sl(),
       addUserUseCase: sl(),
+      editUserUseCase: sl(),
+      deleteUserUseCase: sl(),
+      resetUserCountersUseCase: sl(),
       toggleUserUseCase: sl(),
       disconnectUserUseCase: sl(),
       setupHotspotUseCase: sl(),
+      repository: sl(),
     ),
   );
 
@@ -133,6 +140,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetActiveUsersUseCase(sl()));
   sl.registerLazySingleton(() => GetProfilesUseCase(sl()));
   sl.registerLazySingleton(() => AddUserUseCase(sl()));
+  sl.registerLazySingleton(() => EditUserUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteUserUseCase(sl()));
+  sl.registerLazySingleton(() => ResetUserCountersUseCase(sl()));
   sl.registerLazySingleton(() => ToggleUserUseCase(sl()));
   sl.registerLazySingleton(() => DisconnectUserUseCase(sl()));
   sl.registerLazySingleton(() => SetupHotspotUseCase(sl()));

@@ -21,10 +21,29 @@ abstract class HotspotRemoteDataSource {
     String? profile,
     String? server,
     String? comment,
+    // Limits
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
+  });
+  Future<bool> editUser({
+    required String id,
+    String? name,
+    String? password,
+    String? profile,
+    String? server,
+    String? comment,
+    // Limits
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
   });
   Future<bool> removeUser(String id);
   Future<bool> enableUser(String id);
   Future<bool> disableUser(String id);
+  Future<bool> resetUserCounters(String id);
   
   Future<List<HotspotActiveUserModel>> getActiveUsers();
   Future<bool> disconnectUser(String id);
@@ -36,6 +55,18 @@ abstract class HotspotRemoteDataSource {
     String? addressPool,
     String? dnsName,
   });
+
+  /// Check if hotspot package is enabled on the router
+  Future<bool> isHotspotPackageEnabled();
+
+  /// Get list of interfaces for hotspot setup
+  Future<List<Map<String, String>>> getInterfaces();
+
+  /// Get list of IP pools for hotspot setup
+  Future<List<Map<String, String>>> getIpPools();
+
+  /// Add a new IP pool
+  Future<bool> addIpPool({required String name, required String ranges});
 }
 
 class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
@@ -107,6 +138,11 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
     String? profile,
     String? server,
     String? comment,
+    // Limits
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
   }) async {
     try {
       return await client.addHotspotUser(
@@ -115,9 +151,45 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
         profile: profile,
         server: server,
         comment: comment,
+        limitUptime: limitUptime,
+        limitBytesIn: limitBytesIn,
+        limitBytesOut: limitBytesOut,
+        limitBytesTotal: limitBytesTotal,
       );
     } catch (e) {
       throw ServerException('Failed to add hotspot user: $e');
+    }
+  }
+
+  @override
+  Future<bool> editUser({
+    required String id,
+    String? name,
+    String? password,
+    String? profile,
+    String? server,
+    String? comment,
+    // Limits
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
+  }) async {
+    try {
+      return await client.editHotspotUser(
+        id: id,
+        name: name,
+        password: password,
+        profile: profile,
+        server: server,
+        comment: comment,
+        limitUptime: limitUptime,
+        limitBytesIn: limitBytesIn,
+        limitBytesOut: limitBytesOut,
+        limitBytesTotal: limitBytesTotal,
+      );
+    } catch (e) {
+      throw ServerException('Failed to edit hotspot user: $e');
     }
   }
 
@@ -145,6 +217,16 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
       return await client.disableHotspotUser(id);
     } catch (e) {
       throw ServerException('Failed to disable hotspot user: $e');
+    }
+  }
+
+  @override
+  Future<bool> resetUserCounters(String id) async {
+    try {
+      _log.i('Resetting counters for user: $id');
+      return await client.resetHotspotUserCounters(id);
+    } catch (e) {
+      throw ServerException('Failed to reset user counters: $e');
     }
   }
 
@@ -203,10 +285,68 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
         dnsName: dnsName,
       );
       _log.i('Hotspot setup result: $result');
+      if (!result) {
+        throw ServerException('HotSpot setup failed. Please check logs for details.');
+      }
       return result;
     } catch (e, stackTrace) {
       _log.e('Failed to setup hotspot', error: e, stackTrace: stackTrace);
+      if (e is ServerException) rethrow;
       throw ServerException('Failed to setup hotspot: $e');
+    }
+  }
+
+  @override
+  Future<bool> isHotspotPackageEnabled() async {
+    try {
+      _log.d('Checking if hotspot package is enabled...');
+      final result = await client.isHotspotPackageEnabled();
+      _log.i('Hotspot package enabled: $result');
+      return result;
+    } catch (e, stackTrace) {
+      _log.e('Failed to check hotspot package', error: e, stackTrace: stackTrace);
+      throw ServerException('Failed to check hotspot package: $e');
+    }
+  }
+
+  @override
+  Future<List<Map<String, String>>> getInterfaces() async {
+    try {
+      _log.d('Getting interfaces for hotspot setup...');
+      final response = await client.getInterfaces();
+      final data = response.where((r) => r['type'] != 'done').toList();
+      _log.i('Got ${data.length} interfaces');
+      return data;
+    } catch (e, stackTrace) {
+      _log.e('Failed to get interfaces', error: e, stackTrace: stackTrace);
+      throw ServerException('Failed to get interfaces: $e');
+    }
+  }
+
+  @override
+  Future<List<Map<String, String>>> getIpPools() async {
+    try {
+      _log.d('Getting IP pools...');
+      final response = await client.getIpPools();
+      final data = response.where((r) => r['type'] != 'done').toList();
+      _log.i('Got ${data.length} IP pools');
+      return data;
+    } catch (e, stackTrace) {
+      _log.e('Failed to get IP pools', error: e, stackTrace: stackTrace);
+      throw ServerException('Failed to get IP pools: $e');
+    }
+  }
+
+  @override
+  Future<bool> addIpPool({required String name, required String ranges}) async {
+    try {
+      _log.i('Adding IP pool: $name with ranges: $ranges');
+      final result = await client.addIpPool(name: name, ranges: ranges);
+      _log.i('Add IP pool result: $result');
+      return result;
+    } catch (e, stackTrace) {
+      _log.e('Failed to add IP pool', error: e, stackTrace: stackTrace);
+      throw ServerException('Failed to add IP pool: $e');
     }
   }
 }
