@@ -4,13 +4,22 @@ import 'package:get_it/get_it.dart';
 // Features - Auth
 import 'features/auth/data/datasources/auth_local_data_source.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
+import 'features/auth/data/datasources/saved_router_local_data_source.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/auth/data/repositories/saved_router_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/auth/domain/repositories/saved_router_repository.dart';
 import 'features/auth/domain/usecases/get_saved_credentials_usecase.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
 import 'features/auth/domain/usecases/logout_usecase.dart';
 import 'features/auth/domain/usecases/save_credentials_usecase.dart';
+import 'features/auth/domain/usecases/get_saved_routers_usecase.dart';
+import 'features/auth/domain/usecases/save_router_usecase.dart';
+import 'features/auth/domain/usecases/delete_router_usecase.dart';
+import 'features/auth/domain/usecases/update_router_usecase.dart';
+import 'features/auth/domain/usecases/set_default_router_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/presentation/bloc/saved_router_bloc.dart';
 
 // Features - Dashboard
 import 'features/dashboard/data/datasources/dashboard_remote_data_source.dart';
@@ -55,16 +64,37 @@ Future<void> init() async {
     ),
   );
 
+  sl.registerFactory(
+    () => SavedRouterBloc(
+      getSavedRoutersUseCase: sl(),
+      saveRouterUseCase: sl(),
+      deleteRouterUseCase: sl(),
+      updateRouterUseCase: sl(),
+      setDefaultRouterUseCase: sl(),
+    ),
+  );
+
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerLazySingleton(() => SaveCredentialsUseCase(sl()));
   sl.registerLazySingleton(() => GetSavedCredentialsUseCase(sl()));
+  sl.registerLazySingleton(() => GetSavedRoutersUseCase(sl()));
+  sl.registerLazySingleton(() => SaveRouterUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteRouterUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateRouterUseCase(sl()));
+  sl.registerLazySingleton(() => SetDefaultRouterUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
       remoteDataSource: sl(),
+      localDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<SavedRouterRepository>(
+    () => SavedRouterRepositoryImpl(
       localDataSource: sl(),
     ),
   );
@@ -78,6 +108,10 @@ Future<void> init() async {
     () => AuthLocalDataSourceImpl(
       secureStorage: sl(),
     ),
+  );
+
+  sl.registerLazySingleton<SavedRouterLocalDataSource>(
+    () => SavedRouterLocalDataSourceImpl(),
   );
 
   //! Features - Dashboard
