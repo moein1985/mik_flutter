@@ -111,3 +111,18 @@ class HotspotSetupDataLoaded extends HotspotState {
   @override
   List<Object> get props => [interfaces, ipPools];
 }
+
+// ==================== Reset HotSpot States ====================
+
+class HotspotResetInProgress extends HotspotState {
+  final String currentStep;
+
+  const HotspotResetInProgress(this.currentStep);
+
+  @override
+  List<Object> get props => [currentStep];
+}
+
+class HotspotResetSuccess extends HotspotState {
+  const HotspotResetSuccess();
+}

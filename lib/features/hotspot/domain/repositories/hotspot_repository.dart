@@ -146,4 +146,15 @@ abstract class HotspotRepository {
   Future<Either<Failure, List<Map<String, String>>>> getInterfaces();
   Future<Either<Failure, List<Map<String, String>>>> getIpPools();
   Future<Either<Failure, bool>> addIpPool({required String name, required String ranges});
+
+  // Reset HotSpot
+  Future<Either<Failure, bool>> resetHotspot({
+    bool deleteUsers = true,
+    bool deleteProfiles = true,
+    bool deleteIpBindings = true,
+    bool deleteWalledGarden = true,
+    bool deleteServers = true,
+    bool deleteServerProfiles = true,
+    bool deleteIpPools = false,
+  });
 }

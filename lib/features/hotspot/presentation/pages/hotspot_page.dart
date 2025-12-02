@@ -12,6 +12,7 @@ import 'hotspot_setup_dialog.dart';
 import 'hotspot_ip_bindings_page.dart';
 import 'hotspot_hosts_page.dart';
 import 'hotspot_walled_garden_page.dart';
+import 'hotspot_reset_dialog.dart';
 
 final _log = AppLogger.tag('HotspotPage');
 
@@ -435,11 +436,39 @@ class _HotspotPageState extends State<HotspotPage> {
                   );
                 },
               ),
+              // Reset HotSpot Card
+              _buildCard(
+                context,
+                icon: Icons.delete_forever,
+                title: 'Reset HotSpot',
+                subtitle: 'Remove & rebuild',
+                color: Colors.red,
+                onTap: () => _showResetDialog(context),
+              ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  void _showResetDialog(BuildContext context) {
+    final bloc = context.read<HotspotBloc>();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return BlocProvider.value(
+          value: bloc,
+          child: const HotspotResetDialog(),
+        );
+      },
+    ).then((result) {
+      if (result == true && mounted) {
+        // Reload servers after successful reset
+        bloc.add(const LoadHotspotServers());
+      }
+    });
   }
 
   Widget _buildCard(

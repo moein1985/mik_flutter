@@ -43,6 +43,7 @@ void main() {
   late MockAddProfileUseCase mockAddProfileUseCase;
   late MockEditProfileUseCase mockEditProfileUseCase;
   late MockDeleteProfileUseCase mockDeleteProfileUseCase;
+  late MockResetHotspotUseCase mockResetHotspotUseCase;
 
   setUp(() {
     mockGetServersUseCase = MockGetServersUseCase();
@@ -74,6 +75,7 @@ void main() {
     mockAddProfileUseCase = MockAddProfileUseCase();
     mockEditProfileUseCase = MockEditProfileUseCase();
     mockDeleteProfileUseCase = MockDeleteProfileUseCase();
+    mockResetHotspotUseCase = MockResetHotspotUseCase();
 
     bloc = HotspotBloc(
       getServersUseCase: mockGetServersUseCase,
@@ -105,6 +107,7 @@ void main() {
       addProfileUseCase: mockAddProfileUseCase,
       editProfileUseCase: mockEditProfileUseCase,
       deleteProfileUseCase: mockDeleteProfileUseCase,
+      resetHotspotUseCase: mockResetHotspotUseCase,
     );
   });
 

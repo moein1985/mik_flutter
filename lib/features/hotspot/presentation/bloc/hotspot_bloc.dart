@@ -12,6 +12,7 @@ import '../../domain/usecases/reset_user_counters_usecase.dart';
 import '../../domain/usecases/toggle_user_usecase.dart';
 import '../../domain/usecases/disconnect_user_usecase.dart';
 import '../../domain/usecases/setup_hotspot_usecase.dart';
+import '../../domain/usecases/reset_hotspot_usecase.dart';
 // New UseCases
 import '../../domain/usecases/get_ip_bindings_usecase.dart';
 import '../../domain/usecases/add_ip_binding_usecase.dart';
@@ -65,6 +66,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
   final AddProfileUseCase addProfileUseCase;
   final EditProfileUseCase editProfileUseCase;
   final DeleteProfileUseCase deleteProfileUseCase;
+  final ResetHotspotUseCase resetHotspotUseCase;
 
   HotspotBloc({
     required this.getServersUseCase,
@@ -96,6 +98,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     required this.addProfileUseCase,
     required this.editProfileUseCase,
     required this.deleteProfileUseCase,
+    required this.resetHotspotUseCase,
   }) : super(const HotspotInitial()) {
     _log.i('HotspotBloc initialized');
     on<LoadHotspotServers>(_onLoadServers);
@@ -129,6 +132,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     on<AddHotspotProfile>(_onAddProfile);
     on<EditHotspotProfile>(_onEditProfile);
     on<DeleteHotspotProfile>(_onDeleteProfile);
+    on<ResetHotspot>(_onResetHotspot);
   }
 
   Future<void> _onLoadServers(
@@ -452,8 +456,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
       (success) async {
         _log.i('HotSpot setup completed successfully');
         emit(HotspotOperationSuccess('HotSpot setup completed', previousData: previousData));
-        // Reload servers
-        add(const LoadHotspotServers());
+        // UI will handle reloading servers
       },
     );
   }
@@ -985,6 +988,38 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
         _log.i('Profile deleted successfully');
         emit(HotspotOperationSuccess('Profile deleted', previousData: previousData));
         add(const LoadHotspotProfiles());
+      },
+    );
+  }
+
+  // ==================== Reset HotSpot Handler ====================
+
+  Future<void> _onResetHotspot(
+    ResetHotspot event,
+    Emitter<HotspotState> emit,
+  ) async {
+    _log.i('Starting HotSpot reset...');
+    emit(const HotspotResetInProgress('Resetting HotSpot...'));
+
+    final result = await resetHotspotUseCase(ResetHotspotParams(
+      deleteUsers: event.deleteUsers,
+      deleteProfiles: event.deleteProfiles,
+      deleteIpBindings: event.deleteIpBindings,
+      deleteWalledGarden: event.deleteWalledGarden,
+      deleteServers: event.deleteServers,
+      deleteServerProfiles: event.deleteServerProfiles,
+      deleteIpPools: event.deleteIpPools,
+    ));
+
+    await result.fold(
+      (failure) async {
+        _log.e('Failed to reset hotspot: ${failure.message}');
+        emit(HotspotError(failure.message));
+      },
+      (success) async {
+        _log.i('HotSpot reset completed successfully');
+        emit(const HotspotResetSuccess());
+        // UI will handle reloading servers
       },
     );
   }

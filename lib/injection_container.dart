@@ -65,6 +65,7 @@ import 'features/hotspot/domain/usecases/toggle_walled_garden_usecase.dart';
 import 'features/hotspot/domain/usecases/add_profile_usecase.dart';
 import 'features/hotspot/domain/usecases/edit_profile_usecase.dart';
 import 'features/hotspot/domain/usecases/delete_profile_usecase.dart';
+import 'features/hotspot/domain/usecases/reset_hotspot_usecase.dart';
 import 'features/hotspot/presentation/bloc/hotspot_bloc.dart';
 
 final sl = GetIt.instance;
@@ -199,6 +200,7 @@ Future<void> init() async {
       addProfileUseCase: sl(),
       editProfileUseCase: sl(),
       deleteProfileUseCase: sl(),
+      resetHotspotUseCase: sl(),
     ),
   );
 
@@ -231,6 +233,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AddProfileUseCase(sl()));
   sl.registerLazySingleton(() => EditProfileUseCase(sl()));
   sl.registerLazySingleton(() => DeleteProfileUseCase(sl()));
+  sl.registerLazySingleton(() => ResetHotspotUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<HotspotRepository>(

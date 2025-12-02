@@ -31,6 +31,7 @@ import 'package:hsmik/features/hotspot/domain/usecases/toggle_walled_garden_usec
 import 'package:hsmik/features/hotspot/domain/usecases/add_profile_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/edit_profile_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/delete_profile_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/reset_hotspot_usecase.dart';
 
 class MockHotspotRepository extends Mock implements HotspotRepository {}
 
@@ -94,3 +95,5 @@ class MockAddProfileUseCase extends Mock implements AddProfileUseCase {}
 class MockEditProfileUseCase extends Mock implements EditProfileUseCase {}
 
 class MockDeleteProfileUseCase extends Mock implements DeleteProfileUseCase {}
+
+class MockResetHotspotUseCase extends Mock implements ResetHotspotUseCase {}

@@ -407,27 +407,55 @@ class RouterOSClient {
         commands.add('=comment=$comment');
       }
       
-      // Limits
+      // Limits - sanitize values (remove spaces)
       if (limitUptime != null && limitUptime.isNotEmpty) {
-        commands.add('=limit-uptime=$limitUptime');
+        final sanitized = _sanitizeTimeValue(limitUptime);
+        if (sanitized.isNotEmpty) {
+          commands.add('=limit-uptime=$sanitized');
+        }
       }
       
       if (limitBytesIn != null && limitBytesIn.isNotEmpty) {
-        commands.add('=limit-bytes-in=$limitBytesIn');
+        final sanitized = _sanitizeBytesValue(limitBytesIn);
+        if (sanitized.isNotEmpty) {
+          commands.add('=limit-bytes-in=$sanitized');
+        }
       }
       
       if (limitBytesOut != null && limitBytesOut.isNotEmpty) {
-        commands.add('=limit-bytes-out=$limitBytesOut');
+        final sanitized = _sanitizeBytesValue(limitBytesOut);
+        if (sanitized.isNotEmpty) {
+          commands.add('=limit-bytes-out=$sanitized');
+        }
       }
       
       if (limitBytesTotal != null && limitBytesTotal.isNotEmpty) {
-        commands.add('=limit-bytes-total=$limitBytesTotal');
+        final sanitized = _sanitizeBytesValue(limitBytesTotal);
+        if (sanitized.isNotEmpty) {
+          commands.add('=limit-bytes-total=$sanitized');
+        }
       }
       
+      _log.d('Adding user with commands: $commands');
+      
       final response = await sendCommand(commands);
+      _log.d('Add user response: $response');
+      
+      // Check for trap (error)
+      final trap = response.firstWhere(
+        (r) => r['type'] == 'trap',
+        orElse: () => {},
+      );
+      if (trap.isNotEmpty) {
+        final errorMessage = trap['message'] ?? 'Unknown error';
+        _log.e('Failed to add user: $errorMessage');
+        throw Exception(errorMessage);
+      }
+      
       return response.any((r) => r['type'] == 'done');
     } catch (e) {
-      return false;
+      _log.e('Failed to add user', error: e);
+      rethrow;
     }
   }
 
@@ -471,27 +499,47 @@ class RouterOSClient {
         commands.add('=comment=$comment');
       }
       
-      // Limits - empty string means remove limit
+      // Limits - empty string means remove limit, otherwise sanitize
       if (limitUptime != null) {
-        commands.add('=limit-uptime=$limitUptime');
+        final sanitized = limitUptime.isEmpty ? '' : _sanitizeTimeValue(limitUptime);
+        commands.add('=limit-uptime=$sanitized');
       }
       
       if (limitBytesIn != null) {
-        commands.add('=limit-bytes-in=$limitBytesIn');
+        final sanitized = limitBytesIn.isEmpty ? '' : _sanitizeBytesValue(limitBytesIn);
+        commands.add('=limit-bytes-in=$sanitized');
       }
       
       if (limitBytesOut != null) {
-        commands.add('=limit-bytes-out=$limitBytesOut');
+        final sanitized = limitBytesOut.isEmpty ? '' : _sanitizeBytesValue(limitBytesOut);
+        commands.add('=limit-bytes-out=$sanitized');
       }
       
       if (limitBytesTotal != null) {
-        commands.add('=limit-bytes-total=$limitBytesTotal');
+        final sanitized = limitBytesTotal.isEmpty ? '' : _sanitizeBytesValue(limitBytesTotal);
+        commands.add('=limit-bytes-total=$sanitized');
       }
       
+      _log.d('Editing user with commands: $commands');
+      
       final response = await sendCommand(commands);
+      _log.d('Edit user response: $response');
+      
+      // Check for trap (error)
+      final trap = response.firstWhere(
+        (r) => r['type'] == 'trap',
+        orElse: () => {},
+      );
+      if (trap.isNotEmpty) {
+        final errorMessage = trap['message'] ?? 'Unknown error';
+        _log.e('Failed to edit user: $errorMessage');
+        throw Exception(errorMessage);
+      }
+      
       return response.any((r) => r['type'] == 'done');
     } catch (e) {
-      return false;
+      _log.e('Failed to edit user', error: e);
+      rethrow;
     }
   }
 
@@ -502,9 +550,22 @@ class RouterOSClient {
         '/ip/hotspot/user/remove',
         '=.id=$id',
       ]);
+      
+      // Check for trap (error)
+      final trap = response.firstWhere(
+        (r) => r['type'] == 'trap',
+        orElse: () => {},
+      );
+      if (trap.isNotEmpty) {
+        final errorMessage = trap['message'] ?? 'Unknown error';
+        _log.e('Failed to remove user: $errorMessage');
+        throw Exception(errorMessage);
+      }
+      
       return response.any((r) => r['type'] == 'done');
     } catch (e) {
-      return false;
+      _log.e('Failed to remove user', error: e);
+      rethrow;
     }
   }
 
@@ -515,9 +576,22 @@ class RouterOSClient {
         '/ip/hotspot/user/enable',
         '=.id=$id',
       ]);
+      
+      // Check for trap (error)
+      final trap = response.firstWhere(
+        (r) => r['type'] == 'trap',
+        orElse: () => {},
+      );
+      if (trap.isNotEmpty) {
+        final errorMessage = trap['message'] ?? 'Unknown error';
+        _log.e('Failed to enable user: $errorMessage');
+        throw Exception(errorMessage);
+      }
+      
       return response.any((r) => r['type'] == 'done');
     } catch (e) {
-      return false;
+      _log.e('Failed to enable user', error: e);
+      rethrow;
     }
   }
 
@@ -528,9 +602,22 @@ class RouterOSClient {
         '/ip/hotspot/user/disable',
         '=.id=$id',
       ]);
+      
+      // Check for trap (error)
+      final trap = response.firstWhere(
+        (r) => r['type'] == 'trap',
+        orElse: () => {},
+      );
+      if (trap.isNotEmpty) {
+        final errorMessage = trap['message'] ?? 'Unknown error';
+        _log.e('Failed to disable user: $errorMessage');
+        throw Exception(errorMessage);
+      }
+      
       return response.any((r) => r['type'] == 'done');
     } catch (e) {
-      return false;
+      _log.e('Failed to disable user', error: e);
+      rethrow;
     }
   }
 
@@ -542,10 +629,22 @@ class RouterOSClient {
         '/ip/hotspot/user/reset-counters',
         '=.id=$id',
       ]);
+      
+      // Check for trap (error)
+      final trap = response.firstWhere(
+        (r) => r['type'] == 'trap',
+        orElse: () => {},
+      );
+      if (trap.isNotEmpty) {
+        final errorMessage = trap['message'] ?? 'Unknown error';
+        _log.e('Failed to reset counters: $errorMessage');
+        throw Exception(errorMessage);
+      }
+      
       return response.any((r) => r['type'] == 'done');
     } catch (e) {
       _log.e('Failed to reset user counters', error: e);
-      return false;
+      rethrow;
     }
   }
 
@@ -1122,5 +1221,163 @@ class RouterOSClient {
     } catch (e) {
       return false;
     }
+  }
+
+  // ==================== HotSpot Reset ====================
+
+  /// Reset HotSpot - Remove all HotSpot configuration
+  /// This removes users, profiles, servers, IP bindings, walled garden entries, etc.
+  Future<bool> resetHotspot({
+    bool deleteUsers = true,
+    bool deleteProfiles = true,
+    bool deleteIpBindings = true,
+    bool deleteWalledGarden = true,
+    bool deleteServers = true,
+    bool deleteServerProfiles = true,
+    bool deleteIpPools = false,
+  }) async {
+    try {
+      _log.i('Starting HotSpot reset...');
+      
+      // Order matters! Delete in the correct order to avoid dependency errors
+      
+      // 1. Remove all hotspot users first
+      if (deleteUsers) {
+        _log.d('Removing hotspot users...');
+        final users = await getHotspotUsers();
+        final userIds = users.where((r) => r['type'] != 'done').map((u) => u['.id']).whereType<String>().toList();
+        for (final id in userIds) {
+          await sendCommand(['/ip/hotspot/user/remove', '=.id=$id']);
+        }
+        _log.i('Removed ${userIds.length} hotspot users');
+      }
+      
+      // 2. Remove all user profiles (except 'default' which is system profile)
+      if (deleteProfiles) {
+        _log.d('Removing hotspot user profiles...');
+        final profiles = await getHotspotProfiles();
+        final profileIds = profiles
+            .where((r) => r['type'] != 'done' && r['name'] != 'default')
+            .map((p) => p['.id'])
+            .whereType<String>()
+            .toList();
+        for (final id in profileIds) {
+          await sendCommand(['/ip/hotspot/user/profile/remove', '=.id=$id']);
+        }
+        _log.i('Removed ${profileIds.length} hotspot profiles');
+      }
+      
+      // 3. Remove all IP bindings
+      if (deleteIpBindings) {
+        _log.d('Removing IP bindings...');
+        final bindings = await getHotspotIpBindings();
+        final bindingIds = bindings.where((r) => r['type'] != 'done').map((b) => b['.id']).whereType<String>().toList();
+        for (final id in bindingIds) {
+          await sendCommand(['/ip/hotspot/ip-binding/remove', '=.id=$id']);
+        }
+        _log.i('Removed ${bindingIds.length} IP bindings');
+      }
+      
+      // 4. Remove all walled garden entries
+      if (deleteWalledGarden) {
+        _log.d('Removing walled garden entries...');
+        final garden = await getWalledGarden();
+        final gardenIds = garden.where((r) => r['type'] != 'done').map((g) => g['.id']).whereType<String>().toList();
+        for (final id in gardenIds) {
+          await sendCommand(['/ip/hotspot/walled-garden/remove', '=.id=$id']);
+        }
+        _log.i('Removed ${gardenIds.length} walled garden entries');
+        
+        // Also remove walled garden IP entries
+        final gardenIp = await getWalledGardenIp();
+        final gardenIpIds = gardenIp.where((r) => r['type'] != 'done').map((g) => g['.id']).whereType<String>().toList();
+        for (final id in gardenIpIds) {
+          await sendCommand(['/ip/hotspot/walled-garden/ip/remove', '=.id=$id']);
+        }
+        _log.i('Removed ${gardenIpIds.length} walled garden IP entries');
+      }
+      
+      // 5. Remove all hotspot servers
+      if (deleteServers) {
+        _log.d('Removing hotspot servers...');
+        final servers = await getHotspotServers();
+        final serverIds = servers.where((r) => r['type'] != 'done').map((s) => s['.id']).whereType<String>().toList();
+        for (final id in serverIds) {
+          await sendCommand(['/ip/hotspot/remove', '=.id=$id']);
+        }
+        _log.i('Removed ${serverIds.length} hotspot servers');
+      }
+      
+      // 6. Remove all hotspot server profiles
+      if (deleteServerProfiles) {
+        _log.d('Removing hotspot server profiles...');
+        final serverProfiles = await sendCommand(['/ip/hotspot/profile/print']);
+        final serverProfileIds = serverProfiles
+            .where((r) => r['type'] != 'done')
+            .map((p) => p['.id'])
+            .whereType<String>()
+            .toList();
+        for (final id in serverProfileIds) {
+          await sendCommand(['/ip/hotspot/profile/remove', '=.id=$id']);
+        }
+        _log.i('Removed ${serverProfileIds.length} hotspot server profiles');
+      }
+      
+      // 7. Optionally remove hotspot-related IP pools
+      if (deleteIpPools) {
+        _log.d('Removing hotspot IP pools...');
+        final pools = await getIpPools();
+        final poolIds = pools
+            .where((r) => r['type'] != 'done')
+            .where((p) => p['name']?.contains('hs-pool') == true || p['name']?.contains('hotspot') == true)
+            .map((p) => p['.id'])
+            .whereType<String>()
+            .toList();
+        for (final id in poolIds) {
+          await sendCommand(['/ip/pool/remove', '=.id=$id']);
+        }
+        _log.i('Removed ${poolIds.length} IP pools');
+      }
+      
+      _log.i('HotSpot reset completed successfully');
+      return true;
+    } catch (e, stackTrace) {
+      _log.e('HotSpot reset failed', error: e, stackTrace: stackTrace);
+      return false;
+    }
+  }
+  
+  /// Sanitize time value for RouterOS (e.g., "1h 2m" -> "1h2m")
+  String _sanitizeTimeValue(String value) {
+    // Remove spaces between time units
+    return value.replaceAll(' ', '');
+  }
+  
+  /// Sanitize bytes value for RouterOS (e.g., "1.5 G" -> "1536M", "500M" -> "500M")
+  String _sanitizeBytesValue(String value) {
+    // Remove spaces
+    var sanitized = value.replaceAll(' ', '');
+    
+    // Handle decimal values (e.g., "1.5G" -> "1536M")
+    final decimalPattern = RegExp(r'^(\d+)\.(\d+)([KMG])$', caseSensitive: false);
+    final match = decimalPattern.firstMatch(sanitized);
+    if (match != null) {
+      final whole = int.parse(match.group(1)!);
+      final decimal = int.parse(match.group(2)!);
+      final unit = match.group(3)!.toUpperCase();
+      
+      // Convert to smaller unit
+      if (unit == 'G') {
+        // 1.5G = 1536M (1.5 * 1024)
+        final totalMB = (whole * 1024) + (decimal * 1024 ~/ 10);
+        sanitized = '${totalMB}M';
+      } else if (unit == 'M') {
+        // 1.5M = 1536K
+        final totalKB = (whole * 1024) + (decimal * 1024 ~/ 10);
+        sanitized = '${totalKB}K';
+      }
+    }
+    
+    return sanitized;
   }
 }

@@ -549,4 +549,32 @@ class HotspotRepositoryImpl implements HotspotRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  // ==================== Reset HotSpot ====================
+
+  @override
+  Future<Either<Failure, bool>> resetHotspot({
+    bool deleteUsers = true,
+    bool deleteProfiles = true,
+    bool deleteIpBindings = true,
+    bool deleteWalledGarden = true,
+    bool deleteServers = true,
+    bool deleteServerProfiles = true,
+    bool deleteIpPools = false,
+  }) async {
+    try {
+      final result = await remoteDataSource.resetHotspot(
+        deleteUsers: deleteUsers,
+        deleteProfiles: deleteProfiles,
+        deleteIpBindings: deleteIpBindings,
+        deleteWalledGarden: deleteWalledGarden,
+        deleteServers: deleteServers,
+        deleteServerProfiles: deleteServerProfiles,
+        deleteIpPools: deleteIpPools,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }

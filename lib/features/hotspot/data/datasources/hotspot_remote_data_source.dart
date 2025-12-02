@@ -153,6 +153,17 @@ abstract class HotspotRemoteDataSource {
     String? onLogout,
   });
   Future<bool> removeProfile(String id);
+
+  // ==================== Reset HotSpot ====================
+  Future<bool> resetHotspot({
+    bool deleteUsers = true,
+    bool deleteProfiles = true,
+    bool deleteIpBindings = true,
+    bool deleteWalledGarden = true,
+    bool deleteServers = true,
+    bool deleteServerProfiles = true,
+    bool deleteIpPools = false,
+  });
 }
 
 class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
@@ -736,6 +747,35 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
       return await client.removeHotspotProfile(id);
     } catch (e) {
       throw ServerException('Failed to remove profile: $e');
+    }
+  }
+
+  // ==================== Reset HotSpot ====================
+
+  @override
+  Future<bool> resetHotspot({
+    bool deleteUsers = true,
+    bool deleteProfiles = true,
+    bool deleteIpBindings = true,
+    bool deleteWalledGarden = true,
+    bool deleteServers = true,
+    bool deleteServerProfiles = true,
+    bool deleteIpPools = false,
+  }) async {
+    try {
+      _log.i('Starting HotSpot reset...');
+      return await client.resetHotspot(
+        deleteUsers: deleteUsers,
+        deleteProfiles: deleteProfiles,
+        deleteIpBindings: deleteIpBindings,
+        deleteWalledGarden: deleteWalledGarden,
+        deleteServers: deleteServers,
+        deleteServerProfiles: deleteServerProfiles,
+        deleteIpPools: deleteIpPools,
+      );
+    } catch (e, stackTrace) {
+      _log.e('Failed to reset hotspot', error: e, stackTrace: stackTrace);
+      throw ServerException('Failed to reset hotspot: $e');
     }
   }
 }

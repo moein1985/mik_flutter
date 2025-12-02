@@ -428,3 +428,36 @@ class DeleteHotspotProfile extends HotspotEvent {
   @override
   List<Object> get props => [id];
 }
+
+// ==================== Reset HotSpot Event ====================
+
+class ResetHotspot extends HotspotEvent {
+  final bool deleteUsers;
+  final bool deleteProfiles;
+  final bool deleteIpBindings;
+  final bool deleteWalledGarden;
+  final bool deleteServers;
+  final bool deleteServerProfiles;
+  final bool deleteIpPools;
+
+  const ResetHotspot({
+    this.deleteUsers = true,
+    this.deleteProfiles = true,
+    this.deleteIpBindings = true,
+    this.deleteWalledGarden = true,
+    this.deleteServers = true,
+    this.deleteServerProfiles = true,
+    this.deleteIpPools = false,
+  });
+
+  @override
+  List<Object> get props => [
+        deleteUsers,
+        deleteProfiles,
+        deleteIpBindings,
+        deleteWalledGarden,
+        deleteServers,
+        deleteServerProfiles,
+        deleteIpPools,
+      ];
+}
