@@ -3,6 +3,9 @@ import '../../domain/entities/hotspot_server.dart';
 import '../../domain/entities/hotspot_user.dart';
 import '../../domain/entities/hotspot_active_user.dart';
 import '../../domain/entities/hotspot_profile.dart';
+import '../../domain/entities/hotspot_ip_binding.dart';
+import '../../domain/entities/hotspot_host.dart';
+import '../../domain/entities/walled_garden.dart';
 
 abstract class HotspotState extends Equatable {
   const HotspotState();
@@ -24,12 +27,18 @@ class HotspotLoaded extends HotspotState {
   final List<HotspotUser>? users;
   final List<HotspotActiveUser>? activeUsers;
   final List<HotspotProfile>? profiles;
+  final List<HotspotIpBinding>? ipBindings;
+  final List<HotspotHost>? hosts;
+  final List<WalledGarden>? walledGarden;
 
   const HotspotLoaded({
     this.servers,
     this.users,
     this.activeUsers,
     this.profiles,
+    this.ipBindings,
+    this.hosts,
+    this.walledGarden,
   });
 
   HotspotLoaded copyWith({
@@ -37,17 +46,23 @@ class HotspotLoaded extends HotspotState {
     List<HotspotUser>? users,
     List<HotspotActiveUser>? activeUsers,
     List<HotspotProfile>? profiles,
+    List<HotspotIpBinding>? ipBindings,
+    List<HotspotHost>? hosts,
+    List<WalledGarden>? walledGarden,
   }) {
     return HotspotLoaded(
       servers: servers ?? this.servers,
       users: users ?? this.users,
       activeUsers: activeUsers ?? this.activeUsers,
       profiles: profiles ?? this.profiles,
+      ipBindings: ipBindings ?? this.ipBindings,
+      hosts: hosts ?? this.hosts,
+      walledGarden: walledGarden ?? this.walledGarden,
     );
   }
 
   @override
-  List<Object?> get props => [servers, users, activeUsers, profiles];
+  List<Object?> get props => [servers, users, activeUsers, profiles, ipBindings, hosts, walledGarden];
 }
 
 class HotspotError extends HotspotState {

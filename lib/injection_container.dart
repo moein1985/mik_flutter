@@ -48,6 +48,23 @@ import 'features/hotspot/domain/usecases/reset_user_counters_usecase.dart';
 import 'features/hotspot/domain/usecases/toggle_user_usecase.dart';
 import 'features/hotspot/domain/usecases/disconnect_user_usecase.dart';
 import 'features/hotspot/domain/usecases/setup_hotspot_usecase.dart';
+// New UseCases
+import 'features/hotspot/domain/usecases/get_ip_bindings_usecase.dart';
+import 'features/hotspot/domain/usecases/add_ip_binding_usecase.dart';
+import 'features/hotspot/domain/usecases/edit_ip_binding_usecase.dart';
+import 'features/hotspot/domain/usecases/delete_ip_binding_usecase.dart';
+import 'features/hotspot/domain/usecases/toggle_ip_binding_usecase.dart';
+import 'features/hotspot/domain/usecases/get_hosts_usecase.dart';
+import 'features/hotspot/domain/usecases/remove_host_usecase.dart';
+import 'features/hotspot/domain/usecases/make_host_binding_usecase.dart';
+import 'features/hotspot/domain/usecases/get_walled_garden_usecase.dart';
+import 'features/hotspot/domain/usecases/add_walled_garden_usecase.dart';
+import 'features/hotspot/domain/usecases/edit_walled_garden_usecase.dart';
+import 'features/hotspot/domain/usecases/delete_walled_garden_usecase.dart';
+import 'features/hotspot/domain/usecases/toggle_walled_garden_usecase.dart';
+import 'features/hotspot/domain/usecases/add_profile_usecase.dart';
+import 'features/hotspot/domain/usecases/edit_profile_usecase.dart';
+import 'features/hotspot/domain/usecases/delete_profile_usecase.dart';
 import 'features/hotspot/presentation/bloc/hotspot_bloc.dart';
 
 final sl = GetIt.instance;
@@ -165,6 +182,23 @@ Future<void> init() async {
       disconnectUserUseCase: sl(),
       setupHotspotUseCase: sl(),
       repository: sl(),
+      // New UseCases
+      getIpBindingsUseCase: sl(),
+      addIpBindingUseCase: sl(),
+      editIpBindingUseCase: sl(),
+      deleteIpBindingUseCase: sl(),
+      toggleIpBindingUseCase: sl(),
+      getHostsUseCase: sl(),
+      removeHostUseCase: sl(),
+      makeHostBindingUseCase: sl(),
+      getWalledGardenUseCase: sl(),
+      addWalledGardenUseCase: sl(),
+      editWalledGardenUseCase: sl(),
+      deleteWalledGardenUseCase: sl(),
+      toggleWalledGardenUseCase: sl(),
+      addProfileUseCase: sl(),
+      editProfileUseCase: sl(),
+      deleteProfileUseCase: sl(),
     ),
   );
 
@@ -180,6 +214,23 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ToggleUserUseCase(sl()));
   sl.registerLazySingleton(() => DisconnectUserUseCase(sl()));
   sl.registerLazySingleton(() => SetupHotspotUseCase(sl()));
+  // New UseCases
+  sl.registerLazySingleton(() => GetIpBindingsUseCase(sl()));
+  sl.registerLazySingleton(() => AddIpBindingUseCase(sl()));
+  sl.registerLazySingleton(() => EditIpBindingUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteIpBindingUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleIpBindingUseCase(sl()));
+  sl.registerLazySingleton(() => GetHostsUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveHostUseCase(sl()));
+  sl.registerLazySingleton(() => MakeHostBindingUseCase(sl()));
+  sl.registerLazySingleton(() => GetWalledGardenUseCase(sl()));
+  sl.registerLazySingleton(() => AddWalledGardenUseCase(sl()));
+  sl.registerLazySingleton(() => EditWalledGardenUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteWalledGardenUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleWalledGardenUseCase(sl()));
+  sl.registerLazySingleton(() => AddProfileUseCase(sl()));
+  sl.registerLazySingleton(() => EditProfileUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteProfileUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<HotspotRepository>(

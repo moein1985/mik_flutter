@@ -3,6 +3,7 @@
 /// 
 /// NOTE: To enable desktop support, add sqflite_common_ffi to pubspec.yaml:
 /// sqflite_common_ffi: ^2.4.0
+library;
 
 // Uncomment the following when you want to build for Windows/Linux:
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';

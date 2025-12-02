@@ -26,6 +26,23 @@ void main() {
   late MockDisconnectUserUseCase mockDisconnectUserUseCase;
   late MockSetupHotspotUseCase mockSetupHotspotUseCase;
   late MockHotspotRepository mockRepository;
+  // New mocks
+  late MockGetIpBindingsUseCase mockGetIpBindingsUseCase;
+  late MockAddIpBindingUseCase mockAddIpBindingUseCase;
+  late MockEditIpBindingUseCase mockEditIpBindingUseCase;
+  late MockDeleteIpBindingUseCase mockDeleteIpBindingUseCase;
+  late MockToggleIpBindingUseCase mockToggleIpBindingUseCase;
+  late MockGetHostsUseCase mockGetHostsUseCase;
+  late MockRemoveHostUseCase mockRemoveHostUseCase;
+  late MockMakeHostBindingUseCase mockMakeHostBindingUseCase;
+  late MockGetWalledGardenUseCase mockGetWalledGardenUseCase;
+  late MockAddWalledGardenUseCase mockAddWalledGardenUseCase;
+  late MockEditWalledGardenUseCase mockEditWalledGardenUseCase;
+  late MockDeleteWalledGardenUseCase mockDeleteWalledGardenUseCase;
+  late MockToggleWalledGardenUseCase mockToggleWalledGardenUseCase;
+  late MockAddProfileUseCase mockAddProfileUseCase;
+  late MockEditProfileUseCase mockEditProfileUseCase;
+  late MockDeleteProfileUseCase mockDeleteProfileUseCase;
 
   setUp(() {
     mockGetServersUseCase = MockGetServersUseCase();
@@ -40,6 +57,23 @@ void main() {
     mockDisconnectUserUseCase = MockDisconnectUserUseCase();
     mockSetupHotspotUseCase = MockSetupHotspotUseCase();
     mockRepository = MockHotspotRepository();
+    // New mocks
+    mockGetIpBindingsUseCase = MockGetIpBindingsUseCase();
+    mockAddIpBindingUseCase = MockAddIpBindingUseCase();
+    mockEditIpBindingUseCase = MockEditIpBindingUseCase();
+    mockDeleteIpBindingUseCase = MockDeleteIpBindingUseCase();
+    mockToggleIpBindingUseCase = MockToggleIpBindingUseCase();
+    mockGetHostsUseCase = MockGetHostsUseCase();
+    mockRemoveHostUseCase = MockRemoveHostUseCase();
+    mockMakeHostBindingUseCase = MockMakeHostBindingUseCase();
+    mockGetWalledGardenUseCase = MockGetWalledGardenUseCase();
+    mockAddWalledGardenUseCase = MockAddWalledGardenUseCase();
+    mockEditWalledGardenUseCase = MockEditWalledGardenUseCase();
+    mockDeleteWalledGardenUseCase = MockDeleteWalledGardenUseCase();
+    mockToggleWalledGardenUseCase = MockToggleWalledGardenUseCase();
+    mockAddProfileUseCase = MockAddProfileUseCase();
+    mockEditProfileUseCase = MockEditProfileUseCase();
+    mockDeleteProfileUseCase = MockDeleteProfileUseCase();
 
     bloc = HotspotBloc(
       getServersUseCase: mockGetServersUseCase,
@@ -54,6 +88,23 @@ void main() {
       disconnectUserUseCase: mockDisconnectUserUseCase,
       setupHotspotUseCase: mockSetupHotspotUseCase,
       repository: mockRepository,
+      // New UseCases
+      getIpBindingsUseCase: mockGetIpBindingsUseCase,
+      addIpBindingUseCase: mockAddIpBindingUseCase,
+      editIpBindingUseCase: mockEditIpBindingUseCase,
+      deleteIpBindingUseCase: mockDeleteIpBindingUseCase,
+      toggleIpBindingUseCase: mockToggleIpBindingUseCase,
+      getHostsUseCase: mockGetHostsUseCase,
+      removeHostUseCase: mockRemoveHostUseCase,
+      makeHostBindingUseCase: mockMakeHostBindingUseCase,
+      getWalledGardenUseCase: mockGetWalledGardenUseCase,
+      addWalledGardenUseCase: mockAddWalledGardenUseCase,
+      editWalledGardenUseCase: mockEditWalledGardenUseCase,
+      deleteWalledGardenUseCase: mockDeleteWalledGardenUseCase,
+      toggleWalledGardenUseCase: mockToggleWalledGardenUseCase,
+      addProfileUseCase: mockAddProfileUseCase,
+      editProfileUseCase: mockEditProfileUseCase,
+      deleteProfileUseCase: mockDeleteProfileUseCase,
     );
   });
 

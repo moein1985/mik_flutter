@@ -692,4 +692,435 @@ class RouterOSClient {
       return false;
     }
   }
+
+  // ==================== HotSpot IP Bindings ====================
+
+  /// Get all hotspot IP bindings
+  Future<List<Map<String, String>>> getHotspotIpBindings() async {
+    return await sendCommand(['/ip/hotspot/ip-binding/print']);
+  }
+
+  /// Add a hotspot IP binding
+  Future<bool> addHotspotIpBinding({
+    String? mac,
+    String? address,
+    String? toAddress,
+    String? server,
+    String type = 'regular',
+    String? comment,
+  }) async {
+    try {
+      final commands = [
+        '/ip/hotspot/ip-binding/add',
+        '=type=$type',
+      ];
+      
+      if (mac != null && mac.isNotEmpty) {
+        commands.add('=mac-address=$mac');
+      }
+      if (address != null && address.isNotEmpty) {
+        commands.add('=address=$address');
+      }
+      if (toAddress != null && toAddress.isNotEmpty) {
+        commands.add('=to-address=$toAddress');
+      }
+      if (server != null && server.isNotEmpty) {
+        commands.add('=server=$server');
+      }
+      if (comment != null && comment.isNotEmpty) {
+        commands.add('=comment=$comment');
+      }
+      
+      final response = await sendCommand(commands);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Edit a hotspot IP binding
+  Future<bool> editHotspotIpBinding({
+    required String id,
+    String? mac,
+    String? address,
+    String? toAddress,
+    String? server,
+    String? type,
+    String? comment,
+  }) async {
+    try {
+      final commands = [
+        '/ip/hotspot/ip-binding/set',
+        '=.id=$id',
+      ];
+      
+      if (mac != null) commands.add('=mac-address=$mac');
+      if (address != null) commands.add('=address=$address');
+      if (toAddress != null) commands.add('=to-address=$toAddress');
+      if (server != null) commands.add('=server=$server');
+      if (type != null) commands.add('=type=$type');
+      if (comment != null) commands.add('=comment=$comment');
+      
+      final response = await sendCommand(commands);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove a hotspot IP binding
+  Future<bool> removeHotspotIpBinding(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/ip-binding/remove',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Enable a hotspot IP binding
+  Future<bool> enableHotspotIpBinding(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/ip-binding/enable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable a hotspot IP binding
+  Future<bool> disableHotspotIpBinding(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/ip-binding/disable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ==================== HotSpot Hosts ====================
+
+  /// Get all hotspot hosts
+  Future<List<Map<String, String>>> getHotspotHosts() async {
+    return await sendCommand(['/ip/hotspot/host/print']);
+  }
+
+  /// Remove a hotspot host (kick from hotspot)
+  Future<bool> removeHotspotHost(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/host/remove',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Make a host binding from a host (bypass or block)
+  Future<bool> makeHotspotHostBinding({
+    required String id,
+    required String type, // 'bypassed' or 'blocked'
+  }) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/host/make-binding',
+        '=.id=$id',
+        '=type=$type',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ==================== Walled Garden ====================
+
+  /// Get all walled garden entries
+  Future<List<Map<String, String>>> getWalledGarden() async {
+    return await sendCommand(['/ip/hotspot/walled-garden/print']);
+  }
+
+  /// Add a walled garden entry
+  Future<bool> addWalledGarden({
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstHost,
+    String? dstPort,
+    String? path,
+    String action = 'allow',
+    String? method,
+    String? comment,
+  }) async {
+    try {
+      final commands = [
+        '/ip/hotspot/walled-garden/add',
+        '=action=$action',
+      ];
+      
+      if (server != null && server.isNotEmpty) {
+        commands.add('=server=$server');
+      }
+      if (srcAddress != null && srcAddress.isNotEmpty) {
+        commands.add('=src-address=$srcAddress');
+      }
+      if (dstAddress != null && dstAddress.isNotEmpty) {
+        commands.add('=dst-address=$dstAddress');
+      }
+      if (dstHost != null && dstHost.isNotEmpty) {
+        commands.add('=dst-host=$dstHost');
+      }
+      if (dstPort != null && dstPort.isNotEmpty) {
+        commands.add('=dst-port=$dstPort');
+      }
+      if (path != null && path.isNotEmpty) {
+        commands.add('=path=$path');
+      }
+      if (method != null && method.isNotEmpty) {
+        commands.add('=method=$method');
+      }
+      if (comment != null && comment.isNotEmpty) {
+        commands.add('=comment=$comment');
+      }
+      
+      final response = await sendCommand(commands);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Edit a walled garden entry
+  Future<bool> editWalledGarden({
+    required String id,
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstHost,
+    String? dstPort,
+    String? path,
+    String? action,
+    String? method,
+    String? comment,
+  }) async {
+    try {
+      final commands = [
+        '/ip/hotspot/walled-garden/set',
+        '=.id=$id',
+      ];
+      
+      if (server != null) commands.add('=server=$server');
+      if (srcAddress != null) commands.add('=src-address=$srcAddress');
+      if (dstAddress != null) commands.add('=dst-address=$dstAddress');
+      if (dstHost != null) commands.add('=dst-host=$dstHost');
+      if (dstPort != null) commands.add('=dst-port=$dstPort');
+      if (path != null) commands.add('=path=$path');
+      if (action != null) commands.add('=action=$action');
+      if (method != null) commands.add('=method=$method');
+      if (comment != null) commands.add('=comment=$comment');
+      
+      final response = await sendCommand(commands);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove a walled garden entry
+  Future<bool> removeWalledGarden(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/walled-garden/remove',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Enable a walled garden entry
+  Future<bool> enableWalledGarden(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/walled-garden/enable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable a walled garden entry
+  Future<bool> disableWalledGarden(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/walled-garden/disable',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get walled garden IP entries (IP-level rules)
+  Future<List<Map<String, String>>> getWalledGardenIp() async {
+    return await sendCommand(['/ip/hotspot/walled-garden/ip/print']);
+  }
+
+  /// Add a walled garden IP entry
+  Future<bool> addWalledGardenIp({
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstPort,
+    String? protocol,
+    String action = 'accept',
+    String? comment,
+  }) async {
+    try {
+      final commands = [
+        '/ip/hotspot/walled-garden/ip/add',
+        '=action=$action',
+      ];
+      
+      if (server != null && server.isNotEmpty) {
+        commands.add('=server=$server');
+      }
+      if (srcAddress != null && srcAddress.isNotEmpty) {
+        commands.add('=src-address=$srcAddress');
+      }
+      if (dstAddress != null && dstAddress.isNotEmpty) {
+        commands.add('=dst-address=$dstAddress');
+      }
+      if (dstPort != null && dstPort.isNotEmpty) {
+        commands.add('=dst-port=$dstPort');
+      }
+      if (protocol != null && protocol.isNotEmpty) {
+        commands.add('=protocol=$protocol');
+      }
+      if (comment != null && comment.isNotEmpty) {
+        commands.add('=comment=$comment');
+      }
+      
+      final response = await sendCommand(commands);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ==================== HotSpot User Profiles ====================
+
+  /// Add a hotspot user profile
+  Future<bool> addHotspotProfile({
+    required String name,
+    String? sessionTimeout,
+    String? idleTimeout,
+    String? sharedUsers,
+    String? rateLimit,
+    String? keepaliveTimeout,
+    String? statusAutorefresh,
+    String? onLogin,
+    String? onLogout,
+  }) async {
+    try {
+      final commands = [
+        '/ip/hotspot/user/profile/add',
+        '=name=$name',
+      ];
+      
+      if (sessionTimeout != null && sessionTimeout.isNotEmpty) {
+        commands.add('=session-timeout=$sessionTimeout');
+      }
+      if (idleTimeout != null && idleTimeout.isNotEmpty) {
+        commands.add('=idle-timeout=$idleTimeout');
+      }
+      if (sharedUsers != null && sharedUsers.isNotEmpty) {
+        commands.add('=shared-users=$sharedUsers');
+      }
+      if (rateLimit != null && rateLimit.isNotEmpty) {
+        commands.add('=rate-limit=$rateLimit');
+      }
+      if (keepaliveTimeout != null && keepaliveTimeout.isNotEmpty) {
+        commands.add('=keepalive-timeout=$keepaliveTimeout');
+      }
+      if (statusAutorefresh != null && statusAutorefresh.isNotEmpty) {
+        commands.add('=status-autorefresh=$statusAutorefresh');
+      }
+      if (onLogin != null && onLogin.isNotEmpty) {
+        commands.add('=on-login=$onLogin');
+      }
+      if (onLogout != null && onLogout.isNotEmpty) {
+        commands.add('=on-logout=$onLogout');
+      }
+      
+      final response = await sendCommand(commands);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Edit a hotspot user profile
+  Future<bool> editHotspotProfile({
+    required String id,
+    String? name,
+    String? sessionTimeout,
+    String? idleTimeout,
+    String? sharedUsers,
+    String? rateLimit,
+    String? keepaliveTimeout,
+    String? statusAutorefresh,
+    String? onLogin,
+    String? onLogout,
+  }) async {
+    try {
+      final commands = [
+        '/ip/hotspot/user/profile/set',
+        '=.id=$id',
+      ];
+      
+      if (name != null) commands.add('=name=$name');
+      if (sessionTimeout != null) commands.add('=session-timeout=$sessionTimeout');
+      if (idleTimeout != null) commands.add('=idle-timeout=$idleTimeout');
+      if (sharedUsers != null) commands.add('=shared-users=$sharedUsers');
+      if (rateLimit != null) commands.add('=rate-limit=$rateLimit');
+      if (keepaliveTimeout != null) commands.add('=keepalive-timeout=$keepaliveTimeout');
+      if (statusAutorefresh != null) commands.add('=status-autorefresh=$statusAutorefresh');
+      if (onLogin != null) commands.add('=on-login=$onLogin');
+      if (onLogout != null) commands.add('=on-logout=$onLogout');
+      
+      final response = await sendCommand(commands);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove a hotspot user profile
+  Future<bool> removeHotspotProfile(String id) async {
+    try {
+      final response = await sendCommand([
+        '/ip/hotspot/user/profile/remove',
+        '=.id=$id',
+      ]);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
 }

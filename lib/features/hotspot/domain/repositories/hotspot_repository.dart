@@ -4,6 +4,9 @@ import '../entities/hotspot_server.dart';
 import '../entities/hotspot_user.dart';
 import '../entities/hotspot_active_user.dart';
 import '../entities/hotspot_profile.dart';
+import '../entities/hotspot_ip_binding.dart';
+import '../entities/hotspot_host.dart';
+import '../entities/walled_garden.dart';
 
 abstract class HotspotRepository {
   // Server Management
@@ -49,6 +52,87 @@ abstract class HotspotRepository {
 
   // Profile Management
   Future<Either<Failure, List<HotspotProfile>>> getProfiles();
+  Future<Either<Failure, bool>> addProfile({
+    required String name,
+    String? sessionTimeout,
+    String? idleTimeout,
+    String? sharedUsers,
+    String? rateLimit,
+    String? keepaliveTimeout,
+    String? statusAutorefresh,
+    String? onLogin,
+    String? onLogout,
+  });
+  Future<Either<Failure, bool>> editProfile({
+    required String id,
+    String? name,
+    String? sessionTimeout,
+    String? idleTimeout,
+    String? sharedUsers,
+    String? rateLimit,
+    String? keepaliveTimeout,
+    String? statusAutorefresh,
+    String? onLogin,
+    String? onLogout,
+  });
+  Future<Either<Failure, bool>> removeProfile(String id);
+
+  // IP Binding Management
+  Future<Either<Failure, List<HotspotIpBinding>>> getIpBindings();
+  Future<Either<Failure, bool>> addIpBinding({
+    String? mac,
+    String? address,
+    String? toAddress,
+    String? server,
+    String type,
+    String? comment,
+  });
+  Future<Either<Failure, bool>> editIpBinding({
+    required String id,
+    String? mac,
+    String? address,
+    String? toAddress,
+    String? server,
+    String? type,
+    String? comment,
+  });
+  Future<Either<Failure, bool>> removeIpBinding(String id);
+  Future<Either<Failure, bool>> enableIpBinding(String id);
+  Future<Either<Failure, bool>> disableIpBinding(String id);
+
+  // Hosts Management
+  Future<Either<Failure, List<HotspotHost>>> getHosts();
+  Future<Either<Failure, bool>> removeHost(String id);
+  Future<Either<Failure, bool>> makeHostBinding({required String id, required String type});
+
+  // Walled Garden Management
+  Future<Either<Failure, List<WalledGarden>>> getWalledGarden();
+  Future<Either<Failure, bool>> addWalledGarden({
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstHost,
+    String? dstPort,
+    String? path,
+    String action,
+    String? method,
+    String? comment,
+  });
+  Future<Either<Failure, bool>> editWalledGarden({
+    required String id,
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstHost,
+    String? dstPort,
+    String? path,
+    String? action,
+    String? method,
+    String? comment,
+  });
+  Future<Either<Failure, bool>> removeWalledGarden(String id);
+  Future<Either<Failure, bool>> enableWalledGarden(String id);
+  Future<Either<Failure, bool>> disableWalledGarden(String id);
 
   // Setup
   Future<Either<Failure, bool>> setupHotspot({

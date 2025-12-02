@@ -6,6 +6,9 @@ import '../models/hotspot_server_model.dart';
 import '../models/hotspot_user_model.dart';
 import '../models/hotspot_active_user_model.dart';
 import '../models/hotspot_profile_model.dart';
+import '../models/hotspot_ip_binding_model.dart';
+import '../models/hotspot_host_model.dart';
+import '../models/walled_garden_model.dart';
 
 final _log = AppLogger.tag('HotspotDataSource');
 
@@ -67,6 +70,89 @@ abstract class HotspotRemoteDataSource {
 
   /// Add a new IP pool
   Future<bool> addIpPool({required String name, required String ranges});
+
+  // ==================== IP Bindings ====================
+  Future<List<HotspotIpBindingModel>> getIpBindings();
+  Future<bool> addIpBinding({
+    String? mac,
+    String? address,
+    String? toAddress,
+    String? server,
+    String type,
+    String? comment,
+  });
+  Future<bool> editIpBinding({
+    required String id,
+    String? mac,
+    String? address,
+    String? toAddress,
+    String? server,
+    String? type,
+    String? comment,
+  });
+  Future<bool> removeIpBinding(String id);
+  Future<bool> enableIpBinding(String id);
+  Future<bool> disableIpBinding(String id);
+
+  // ==================== Hosts ====================
+  Future<List<HotspotHostModel>> getHosts();
+  Future<bool> removeHost(String id);
+  Future<bool> makeHostBinding({required String id, required String type});
+
+  // ==================== Walled Garden ====================
+  Future<List<WalledGardenModel>> getWalledGarden();
+  Future<bool> addWalledGarden({
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstHost,
+    String? dstPort,
+    String? path,
+    String action,
+    String? method,
+    String? comment,
+  });
+  Future<bool> editWalledGarden({
+    required String id,
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstHost,
+    String? dstPort,
+    String? path,
+    String? action,
+    String? method,
+    String? comment,
+  });
+  Future<bool> removeWalledGarden(String id);
+  Future<bool> enableWalledGarden(String id);
+  Future<bool> disableWalledGarden(String id);
+
+  // ==================== User Profiles (CRUD) ====================
+  Future<bool> addProfile({
+    required String name,
+    String? sessionTimeout,
+    String? idleTimeout,
+    String? sharedUsers,
+    String? rateLimit,
+    String? keepaliveTimeout,
+    String? statusAutorefresh,
+    String? onLogin,
+    String? onLogout,
+  });
+  Future<bool> editProfile({
+    required String id,
+    String? name,
+    String? sessionTimeout,
+    String? idleTimeout,
+    String? sharedUsers,
+    String? rateLimit,
+    String? keepaliveTimeout,
+    String? statusAutorefresh,
+    String? onLogin,
+    String? onLogout,
+  });
+  Future<bool> removeProfile(String id);
 }
 
 class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
@@ -347,6 +433,309 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
     } catch (e, stackTrace) {
       _log.e('Failed to add IP pool', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to add IP pool: $e');
+    }
+  }
+
+  // ==================== IP Bindings ====================
+
+  @override
+  Future<List<HotspotIpBindingModel>> getIpBindings() async {
+    try {
+      _log.d('Getting IP bindings...');
+      final response = await client.getHotspotIpBindings();
+      final data = response.where((r) => r['type'] != 'done').toList();
+      _log.i('Got ${data.length} IP bindings');
+      return data.map((item) => HotspotIpBindingModel.fromMap(item)).toList();
+    } catch (e, stackTrace) {
+      _log.e('Failed to get IP bindings', error: e, stackTrace: stackTrace);
+      throw ServerException('Failed to get IP bindings: $e');
+    }
+  }
+
+  @override
+  Future<bool> addIpBinding({
+    String? mac,
+    String? address,
+    String? toAddress,
+    String? server,
+    String type = 'regular',
+    String? comment,
+  }) async {
+    try {
+      _log.i('Adding IP binding: $mac -> $address');
+      return await client.addHotspotIpBinding(
+        mac: mac,
+        address: address,
+        toAddress: toAddress,
+        server: server,
+        type: type,
+        comment: comment,
+      );
+    } catch (e) {
+      throw ServerException('Failed to add IP binding: $e');
+    }
+  }
+
+  @override
+  Future<bool> editIpBinding({
+    required String id,
+    String? mac,
+    String? address,
+    String? toAddress,
+    String? server,
+    String? type,
+    String? comment,
+  }) async {
+    try {
+      return await client.editHotspotIpBinding(
+        id: id,
+        mac: mac,
+        address: address,
+        toAddress: toAddress,
+        server: server,
+        type: type,
+        comment: comment,
+      );
+    } catch (e) {
+      throw ServerException('Failed to edit IP binding: $e');
+    }
+  }
+
+  @override
+  Future<bool> removeIpBinding(String id) async {
+    try {
+      return await client.removeHotspotIpBinding(id);
+    } catch (e) {
+      throw ServerException('Failed to remove IP binding: $e');
+    }
+  }
+
+  @override
+  Future<bool> enableIpBinding(String id) async {
+    try {
+      return await client.enableHotspotIpBinding(id);
+    } catch (e) {
+      throw ServerException('Failed to enable IP binding: $e');
+    }
+  }
+
+  @override
+  Future<bool> disableIpBinding(String id) async {
+    try {
+      return await client.disableHotspotIpBinding(id);
+    } catch (e) {
+      throw ServerException('Failed to disable IP binding: $e');
+    }
+  }
+
+  // ==================== Hosts ====================
+
+  @override
+  Future<List<HotspotHostModel>> getHosts() async {
+    try {
+      _log.d('Getting hotspot hosts...');
+      final response = await client.getHotspotHosts();
+      final data = response.where((r) => r['type'] != 'done').toList();
+      _log.i('Got ${data.length} hotspot hosts');
+      return data.map((item) => HotspotHostModel.fromMap(item)).toList();
+    } catch (e, stackTrace) {
+      _log.e('Failed to get hotspot hosts', error: e, stackTrace: stackTrace);
+      throw ServerException('Failed to get hotspot hosts: $e');
+    }
+  }
+
+  @override
+  Future<bool> removeHost(String id) async {
+    try {
+      return await client.removeHotspotHost(id);
+    } catch (e) {
+      throw ServerException('Failed to remove host: $e');
+    }
+  }
+
+  @override
+  Future<bool> makeHostBinding({required String id, required String type}) async {
+    try {
+      _log.i('Making host binding: $id -> $type');
+      return await client.makeHotspotHostBinding(id: id, type: type);
+    } catch (e) {
+      throw ServerException('Failed to make host binding: $e');
+    }
+  }
+
+  // ==================== Walled Garden ====================
+
+  @override
+  Future<List<WalledGardenModel>> getWalledGarden() async {
+    try {
+      _log.d('Getting walled garden entries...');
+      final response = await client.getWalledGarden();
+      final data = response.where((r) => r['type'] != 'done').toList();
+      _log.i('Got ${data.length} walled garden entries');
+      return data.map((item) => WalledGardenModel.fromMap(item)).toList();
+    } catch (e, stackTrace) {
+      _log.e('Failed to get walled garden', error: e, stackTrace: stackTrace);
+      throw ServerException('Failed to get walled garden: $e');
+    }
+  }
+
+  @override
+  Future<bool> addWalledGarden({
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstHost,
+    String? dstPort,
+    String? path,
+    String action = 'allow',
+    String? method,
+    String? comment,
+  }) async {
+    try {
+      _log.i('Adding walled garden entry: $dstHost');
+      return await client.addWalledGarden(
+        server: server,
+        srcAddress: srcAddress,
+        dstAddress: dstAddress,
+        dstHost: dstHost,
+        dstPort: dstPort,
+        path: path,
+        action: action,
+        method: method,
+        comment: comment,
+      );
+    } catch (e) {
+      throw ServerException('Failed to add walled garden: $e');
+    }
+  }
+
+  @override
+  Future<bool> editWalledGarden({
+    required String id,
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstHost,
+    String? dstPort,
+    String? path,
+    String? action,
+    String? method,
+    String? comment,
+  }) async {
+    try {
+      return await client.editWalledGarden(
+        id: id,
+        server: server,
+        srcAddress: srcAddress,
+        dstAddress: dstAddress,
+        dstHost: dstHost,
+        dstPort: dstPort,
+        path: path,
+        action: action,
+        method: method,
+        comment: comment,
+      );
+    } catch (e) {
+      throw ServerException('Failed to edit walled garden: $e');
+    }
+  }
+
+  @override
+  Future<bool> removeWalledGarden(String id) async {
+    try {
+      return await client.removeWalledGarden(id);
+    } catch (e) {
+      throw ServerException('Failed to remove walled garden: $e');
+    }
+  }
+
+  @override
+  Future<bool> enableWalledGarden(String id) async {
+    try {
+      return await client.enableWalledGarden(id);
+    } catch (e) {
+      throw ServerException('Failed to enable walled garden: $e');
+    }
+  }
+
+  @override
+  Future<bool> disableWalledGarden(String id) async {
+    try {
+      return await client.disableWalledGarden(id);
+    } catch (e) {
+      throw ServerException('Failed to disable walled garden: $e');
+    }
+  }
+
+  // ==================== User Profiles (CRUD) ====================
+
+  @override
+  Future<bool> addProfile({
+    required String name,
+    String? sessionTimeout,
+    String? idleTimeout,
+    String? sharedUsers,
+    String? rateLimit,
+    String? keepaliveTimeout,
+    String? statusAutorefresh,
+    String? onLogin,
+    String? onLogout,
+  }) async {
+    try {
+      _log.i('Adding hotspot profile: $name');
+      return await client.addHotspotProfile(
+        name: name,
+        sessionTimeout: sessionTimeout,
+        idleTimeout: idleTimeout,
+        sharedUsers: sharedUsers,
+        rateLimit: rateLimit,
+        keepaliveTimeout: keepaliveTimeout,
+        statusAutorefresh: statusAutorefresh,
+        onLogin: onLogin,
+        onLogout: onLogout,
+      );
+    } catch (e) {
+      throw ServerException('Failed to add profile: $e');
+    }
+  }
+
+  @override
+  Future<bool> editProfile({
+    required String id,
+    String? name,
+    String? sessionTimeout,
+    String? idleTimeout,
+    String? sharedUsers,
+    String? rateLimit,
+    String? keepaliveTimeout,
+    String? statusAutorefresh,
+    String? onLogin,
+    String? onLogout,
+  }) async {
+    try {
+      return await client.editHotspotProfile(
+        id: id,
+        name: name,
+        sessionTimeout: sessionTimeout,
+        idleTimeout: idleTimeout,
+        sharedUsers: sharedUsers,
+        rateLimit: rateLimit,
+        keepaliveTimeout: keepaliveTimeout,
+        statusAutorefresh: statusAutorefresh,
+        onLogin: onLogin,
+        onLogout: onLogout,
+      );
+    } catch (e) {
+      throw ServerException('Failed to edit profile: $e');
+    }
+  }
+
+  @override
+  Future<bool> removeProfile(String id) async {
+    try {
+      return await client.removeHotspotProfile(id);
+    } catch (e) {
+      throw ServerException('Failed to remove profile: $e');
     }
   }
 }

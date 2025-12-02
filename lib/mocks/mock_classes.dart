@@ -14,6 +14,23 @@ import 'package:hsmik/features/hotspot/domain/usecases/reset_user_counters_useca
 import 'package:hsmik/features/hotspot/domain/usecases/toggle_user_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/disconnect_user_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/setup_hotspot_usecase.dart';
+// New UseCases
+import 'package:hsmik/features/hotspot/domain/usecases/get_ip_bindings_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/add_ip_binding_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/edit_ip_binding_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/delete_ip_binding_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/toggle_ip_binding_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/get_hosts_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/remove_host_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/make_host_binding_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/get_walled_garden_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/add_walled_garden_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/edit_walled_garden_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/delete_walled_garden_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/toggle_walled_garden_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/add_profile_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/edit_profile_usecase.dart';
+import 'package:hsmik/features/hotspot/domain/usecases/delete_profile_usecase.dart';
 
 class MockHotspotRepository extends Mock implements HotspotRepository {}
 
@@ -44,3 +61,36 @@ class MockToggleUserUseCase extends Mock implements ToggleUserUseCase {}
 class MockDisconnectUserUseCase extends Mock implements DisconnectUserUseCase {}
 
 class MockSetupHotspotUseCase extends Mock implements SetupHotspotUseCase {}
+
+// New Mock Classes
+class MockGetIpBindingsUseCase extends Mock implements GetIpBindingsUseCase {}
+
+class MockAddIpBindingUseCase extends Mock implements AddIpBindingUseCase {}
+
+class MockEditIpBindingUseCase extends Mock implements EditIpBindingUseCase {}
+
+class MockDeleteIpBindingUseCase extends Mock implements DeleteIpBindingUseCase {}
+
+class MockToggleIpBindingUseCase extends Mock implements ToggleIpBindingUseCase {}
+
+class MockGetHostsUseCase extends Mock implements GetHostsUseCase {}
+
+class MockRemoveHostUseCase extends Mock implements RemoveHostUseCase {}
+
+class MockMakeHostBindingUseCase extends Mock implements MakeHostBindingUseCase {}
+
+class MockGetWalledGardenUseCase extends Mock implements GetWalledGardenUseCase {}
+
+class MockAddWalledGardenUseCase extends Mock implements AddWalledGardenUseCase {}
+
+class MockEditWalledGardenUseCase extends Mock implements EditWalledGardenUseCase {}
+
+class MockDeleteWalledGardenUseCase extends Mock implements DeleteWalledGardenUseCase {}
+
+class MockToggleWalledGardenUseCase extends Mock implements ToggleWalledGardenUseCase {}
+
+class MockAddProfileUseCase extends Mock implements AddProfileUseCase {}
+
+class MockEditProfileUseCase extends Mock implements EditProfileUseCase {}
+
+class MockDeleteProfileUseCase extends Mock implements DeleteProfileUseCase {}

@@ -112,7 +112,7 @@ class _HotspotSetupDialogState extends State<HotspotSetupDialog> {
                 
                 // Interface Dropdown
                 DropdownButtonFormField<String>(
-                  value: _selectedInterface,
+                  initialValue: _selectedInterface,
                   decoration: const InputDecoration(
                     labelText: 'Interface *',
                     border: OutlineInputBorder(),
@@ -167,7 +167,7 @@ class _HotspotSetupDialogState extends State<HotspotSetupDialog> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _selectedPool,
+                        initialValue: _selectedPool,
                         decoration: const InputDecoration(
                           labelText: 'Address Pool',
                           border: OutlineInputBorder(),
@@ -217,9 +217,9 @@ class _HotspotSetupDialogState extends State<HotspotSetupDialog> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                      border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

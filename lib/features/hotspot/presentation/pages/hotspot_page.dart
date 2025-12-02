@@ -9,6 +9,9 @@ import 'hotspot_active_users_page.dart';
 import 'hotspot_servers_page.dart';
 import 'hotspot_profiles_page.dart';
 import 'hotspot_setup_dialog.dart';
+import 'hotspot_ip_bindings_page.dart';
+import 'hotspot_hosts_page.dart';
+import 'hotspot_walled_garden_page.dart';
 
 final _log = AppLogger.tag('HotspotPage');
 
@@ -260,18 +263,19 @@ class _HotspotPageState extends State<HotspotPage> {
   }
 
   void _showSetupDialog(BuildContext context) {
+    final bloc = context.read<HotspotBloc>();
     showDialog(
       context: context,
       builder: (dialogContext) {
         return BlocProvider.value(
-          value: context.read<HotspotBloc>(),
+          value: bloc,
           child: const HotspotSetupDialog(),
         );
       },
     ).then((result) {
-      if (result == true) {
+      if (result == true && mounted) {
         // Reload servers after successful setup
-        context.read<HotspotBloc>().add(const LoadHotspotServers());
+        bloc.add(const LoadHotspotServers());
       }
     });
   }
@@ -372,6 +376,60 @@ class _HotspotPageState extends State<HotspotPage> {
                       builder: (_) => BlocProvider.value(
                         value: context.read<HotspotBloc>(),
                         child: const HotspotProfilesPage(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildCard(
+                context,
+                icon: Icons.link,
+                title: 'IP Bindings',
+                subtitle: 'MAC/IP bindings',
+                color: Colors.indigo,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<HotspotBloc>(),
+                        child: const HotspotIpBindingsPage(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildCard(
+                context,
+                icon: Icons.devices_other,
+                title: 'Hosts',
+                subtitle: 'Connected devices',
+                color: Colors.cyan,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<HotspotBloc>(),
+                        child: const HotspotHostsPage(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildCard(
+                context,
+                icon: Icons.fence,
+                title: 'Walled Garden',
+                subtitle: 'Allowed sites',
+                color: Colors.teal,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<HotspotBloc>(),
+                        child: const HotspotWalledGardenPage(),
                       ),
                     ),
                   );

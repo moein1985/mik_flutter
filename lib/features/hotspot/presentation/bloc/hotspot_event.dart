@@ -177,3 +177,254 @@ class AddIpPool extends HotspotEvent {
   @override
   List<Object> get props => [name, ranges];
 }
+
+// ==================== IP Binding Events ====================
+
+class LoadIpBindings extends HotspotEvent {
+  const LoadIpBindings();
+}
+
+class AddIpBinding extends HotspotEvent {
+  final String? mac;
+  final String? address;
+  final String? toAddress;
+  final String? server;
+  final String type;
+  final String? comment;
+
+  const AddIpBinding({
+    this.mac,
+    this.address,
+    this.toAddress,
+    this.server,
+    this.type = 'regular',
+    this.comment,
+  });
+
+  @override
+  List<Object?> get props => [mac, address, toAddress, server, type, comment];
+}
+
+class EditIpBinding extends HotspotEvent {
+  final String id;
+  final String? mac;
+  final String? address;
+  final String? toAddress;
+  final String? server;
+  final String? type;
+  final String? comment;
+
+  const EditIpBinding({
+    required this.id,
+    this.mac,
+    this.address,
+    this.toAddress,
+    this.server,
+    this.type,
+    this.comment,
+  });
+
+  @override
+  List<Object?> get props => [id, mac, address, toAddress, server, type, comment];
+}
+
+class DeleteIpBinding extends HotspotEvent {
+  final String id;
+
+  const DeleteIpBinding(this.id);
+
+  @override
+  List<Object> get props => [id];
+}
+
+class ToggleIpBinding extends HotspotEvent {
+  final String id;
+  final bool enable;
+
+  const ToggleIpBinding({
+    required this.id,
+    required this.enable,
+  });
+
+  @override
+  List<Object> get props => [id, enable];
+}
+
+// ==================== Hosts Events ====================
+
+class LoadHosts extends HotspotEvent {
+  const LoadHosts();
+}
+
+class RemoveHost extends HotspotEvent {
+  final String id;
+
+  const RemoveHost(this.id);
+
+  @override
+  List<Object> get props => [id];
+}
+
+class MakeHostBinding extends HotspotEvent {
+  final String id;
+  final String type; // 'bypassed' or 'blocked'
+
+  const MakeHostBinding({
+    required this.id,
+    required this.type,
+  });
+
+  @override
+  List<Object> get props => [id, type];
+}
+
+// ==================== Walled Garden Events ====================
+
+class LoadWalledGarden extends HotspotEvent {
+  const LoadWalledGarden();
+}
+
+class AddWalledGarden extends HotspotEvent {
+  final String? server;
+  final String? srcAddress;
+  final String? dstAddress;
+  final String? dstHost;
+  final String? dstPort;
+  final String? path;
+  final String action;
+  final String? method;
+  final String? comment;
+
+  const AddWalledGarden({
+    this.server,
+    this.srcAddress,
+    this.dstAddress,
+    this.dstHost,
+    this.dstPort,
+    this.path,
+    this.action = 'allow',
+    this.method,
+    this.comment,
+  });
+
+  @override
+  List<Object?> get props => [server, srcAddress, dstAddress, dstHost, dstPort, path, action, method, comment];
+}
+
+class EditWalledGarden extends HotspotEvent {
+  final String id;
+  final String? server;
+  final String? srcAddress;
+  final String? dstAddress;
+  final String? dstHost;
+  final String? dstPort;
+  final String? path;
+  final String? action;
+  final String? method;
+  final String? comment;
+
+  const EditWalledGarden({
+    required this.id,
+    this.server,
+    this.srcAddress,
+    this.dstAddress,
+    this.dstHost,
+    this.dstPort,
+    this.path,
+    this.action,
+    this.method,
+    this.comment,
+  });
+
+  @override
+  List<Object?> get props => [id, server, srcAddress, dstAddress, dstHost, dstPort, path, action, method, comment];
+}
+
+class DeleteWalledGarden extends HotspotEvent {
+  final String id;
+
+  const DeleteWalledGarden(this.id);
+
+  @override
+  List<Object> get props => [id];
+}
+
+class ToggleWalledGarden extends HotspotEvent {
+  final String id;
+  final bool enable;
+
+  const ToggleWalledGarden({
+    required this.id,
+    required this.enable,
+  });
+
+  @override
+  List<Object> get props => [id, enable];
+}
+
+// ==================== Profile CRUD Events ====================
+
+class AddHotspotProfile extends HotspotEvent {
+  final String name;
+  final String? sessionTimeout;
+  final String? idleTimeout;
+  final String? sharedUsers;
+  final String? rateLimit;
+  final String? keepaliveTimeout;
+  final String? statusAutorefresh;
+  final String? onLogin;
+  final String? onLogout;
+
+  const AddHotspotProfile({
+    required this.name,
+    this.sessionTimeout,
+    this.idleTimeout,
+    this.sharedUsers,
+    this.rateLimit,
+    this.keepaliveTimeout,
+    this.statusAutorefresh,
+    this.onLogin,
+    this.onLogout,
+  });
+
+  @override
+  List<Object?> get props => [name, sessionTimeout, idleTimeout, sharedUsers, rateLimit, keepaliveTimeout, statusAutorefresh, onLogin, onLogout];
+}
+
+class EditHotspotProfile extends HotspotEvent {
+  final String id;
+  final String? name;
+  final String? sessionTimeout;
+  final String? idleTimeout;
+  final String? sharedUsers;
+  final String? rateLimit;
+  final String? keepaliveTimeout;
+  final String? statusAutorefresh;
+  final String? onLogin;
+  final String? onLogout;
+
+  const EditHotspotProfile({
+    required this.id,
+    this.name,
+    this.sessionTimeout,
+    this.idleTimeout,
+    this.sharedUsers,
+    this.rateLimit,
+    this.keepaliveTimeout,
+    this.statusAutorefresh,
+    this.onLogin,
+    this.onLogout,
+  });
+
+  @override
+  List<Object?> get props => [id, name, sessionTimeout, idleTimeout, sharedUsers, rateLimit, keepaliveTimeout, statusAutorefresh, onLogin, onLogout];
+}
+
+class DeleteHotspotProfile extends HotspotEvent {
+  final String id;
+
+  const DeleteHotspotProfile(this.id);
+
+  @override
+  List<Object> get props => [id];
+}
