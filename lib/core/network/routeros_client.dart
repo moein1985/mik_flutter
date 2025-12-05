@@ -1409,37 +1409,82 @@ class RouterOSClient {
     }
   }
   
-  /// Sanitize time value for RouterOS (e.g., "1h 2m" -> "1h2m")
+  /// Sanitize time value for RouterOS
+  /// Converts formats like "1D", "2H", "30M" to RouterOS format "1d 00:00:00", "02:00:00", "00:30:00"
+  /// Also accepts "1d", "2h", "30m" (lowercase)
   String _sanitizeTimeValue(String value) {
-    // Remove spaces between time units
-    return value.replaceAll(' ', '');
-  }
-  
-  /// Sanitize bytes value for RouterOS (e.g., "1.5 G" -> "1536M", "500M" -> "500M")
-  String _sanitizeBytesValue(String value) {
-    // Remove spaces
-    var sanitized = value.replaceAll(' ', '');
+    // Remove spaces and convert to lowercase
+    var sanitized = value.replaceAll(' ', '').toLowerCase();
     
-    // Handle decimal values (e.g., "1.5G" -> "1536M")
-    final decimalPattern = RegExp(r'^(\d+)\.(\d+)([KMG])$', caseSensitive: false);
-    final match = decimalPattern.firstMatch(sanitized);
-    if (match != null) {
-      final whole = int.parse(match.group(1)!);
-      final decimal = int.parse(match.group(2)!);
-      final unit = match.group(3)!.toUpperCase();
-      
-      // Convert to smaller unit
-      if (unit == 'G') {
-        // 1.5G = 1536M (1.5 * 1024)
-        final totalMB = (whole * 1024) + (decimal * 1024 ~/ 10);
-        sanitized = '${totalMB}M';
-      } else if (unit == 'M') {
-        // 1.5M = 1536K
-        final totalKB = (whole * 1024) + (decimal * 1024 ~/ 10);
-        sanitized = '${totalKB}K';
+    // Parse days, hours, minutes, seconds
+    int days = 0;
+    int hours = 0;
+    int minutes = 0;
+    int seconds = 0;
+    
+    // Match patterns like "1d", "2h", "30m", "45s" or combinations like "1d2h30m"
+    final dayMatch = RegExp(r'(\d+)d').firstMatch(sanitized);
+    final hourMatch = RegExp(r'(\d+)h').firstMatch(sanitized);
+    final minMatch = RegExp(r'(\d+)m(?!s)').firstMatch(sanitized); // m but not ms
+    final secMatch = RegExp(r'(\d+)s').firstMatch(sanitized);
+    
+    if (dayMatch != null) days = int.parse(dayMatch.group(1)!);
+    if (hourMatch != null) hours = int.parse(hourMatch.group(1)!);
+    if (minMatch != null) minutes = int.parse(minMatch.group(1)!);
+    if (secMatch != null) seconds = int.parse(secMatch.group(1)!);
+    
+    // If we parsed something, format it for RouterOS
+    if (days > 0 || hours > 0 || minutes > 0 || seconds > 0) {
+      // Format: Xd HH:MM:SS or just HH:MM:SS
+      final timeStr = '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      if (days > 0) {
+        return '${days}d $timeStr';
       }
+      return timeStr;
     }
     
+    // If no pattern matched, return as-is (might be already in correct format)
+    return sanitized;
+  }
+  
+  /// Sanitize bytes value for RouterOS
+  /// Converts formats like "1G", "500M", "1.5G" to raw bytes
+  /// RouterOS expects raw byte values, not suffixed values
+  String _sanitizeBytesValue(String value) {
+    // Remove spaces and convert to lowercase
+    var sanitized = value.replaceAll(' ', '').toLowerCase();
+    
+    // Try to parse as a number with suffix
+    final pattern = RegExp(r'^(\d+(?:\.\d+)?)([kmgt]?)$', caseSensitive: false);
+    final match = pattern.firstMatch(sanitized);
+    
+    if (match != null) {
+      final numStr = match.group(1)!;
+      final unit = match.group(2)?.toLowerCase() ?? '';
+      final num = double.parse(numStr);
+      
+      int bytes;
+      switch (unit) {
+        case 'k':
+          bytes = (num * 1024).round();
+          break;
+        case 'm':
+          bytes = (num * 1024 * 1024).round();
+          break;
+        case 'g':
+          bytes = (num * 1024 * 1024 * 1024).round();
+          break;
+        case 't':
+          bytes = (num * 1024 * 1024 * 1024 * 1024).round();
+          break;
+        default:
+          bytes = num.round();
+      }
+      
+      return bytes.toString();
+    }
+    
+    // If no pattern matched, return as-is
     return sanitized;
   }
 

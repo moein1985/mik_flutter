@@ -189,11 +189,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           l10n.dhcpServer,
                           Icons.dns,
                           Colors.purple,
-                          () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('DHCP management coming soon')),
-                            );
-                          },
+                          () => context.push(AppRoutes.dhcp),
                         ),
                         _buildManagementCard(
                           context,

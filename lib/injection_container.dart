@@ -90,6 +90,12 @@ import 'features/certificates/data/repositories/certificate_repository_impl.dart
 import 'features/certificates/domain/repositories/certificate_repository.dart';
 import 'features/certificates/presentation/bloc/certificate_bloc.dart';
 
+// Features - DHCP
+import 'features/dhcp/data/datasources/dhcp_remote_data_source.dart';
+import 'features/dhcp/data/repositories/dhcp_repository_impl.dart';
+import 'features/dhcp/domain/repositories/dhcp_repository.dart';
+import 'features/dhcp/presentation/bloc/dhcp_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -343,6 +349,28 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<CertificateRemoteDataSource>(
     () => CertificateRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - DHCP
+  // Bloc
+  sl.registerFactory(
+    () => DhcpBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<DhcpRepository>(
+    () => DhcpRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<DhcpRemoteDataSource>(
+    () => DhcpRemoteDataSourceImpl(
       authRemoteDataSource: sl(),
     ),
   );

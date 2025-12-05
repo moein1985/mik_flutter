@@ -27,6 +27,8 @@ import '../../features/ip_services/presentation/bloc/ip_service_bloc.dart';
 import '../../features/ip_services/presentation/pages/ip_services_page.dart';
 import '../../features/certificates/presentation/bloc/certificate_bloc.dart';
 import '../../features/certificates/presentation/pages/certificates_page.dart';
+import '../../features/dhcp/presentation/bloc/dhcp_bloc.dart';
+import '../../features/dhcp/presentation/pages/dhcp_page.dart';
 
 /// Route names as constants
 class AppRoutes {
@@ -34,6 +36,7 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String interfaces = '/dashboard/interfaces';
   static const String ipAddresses = '/dashboard/ip-addresses';
+  static const String dhcp = '/dashboard/dhcp';
   static const String hotspot = '/dashboard/hotspot';
   static const String hotspotUsers = '/dashboard/hotspot/users';
   static const String hotspotActiveUsers = '/dashboard/hotspot/active-users';
@@ -263,6 +266,16 @@ class AppRouter {
                   },
                 ),
               ],
+            ),
+
+            // DHCP Server route
+            GoRoute(
+              path: 'dhcp',
+              name: 'dhcp',
+              builder: (context, state) => BlocProvider(
+                create: (_) => sl<DhcpBloc>(),
+                child: const DhcpPage(),
+              ),
             ),
 
             // Firewall and nested routes
