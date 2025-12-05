@@ -472,13 +472,13 @@ class _CertificatesPageState extends State<CertificatesPage> {
             color: Colors.red, 
             size: 48,
           ),
-          title: Text(isCA ? 'حذف Certificate Authority?' : 'حذف گواهی؟'),
+          title: Text(isCA ? 'Delete Certificate Authority?' : 'Delete Certificate?'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'آیا از حذف "${cert.name}" اطمینان دارید؟',
+                'Are you sure you want to delete "${cert.name}"?',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
@@ -498,7 +498,7 @@ class _CertificatesPageState extends State<CertificatesPage> {
                           Icon(Icons.warning, color: Colors.red, size: 20),
                           SizedBox(width: 8),
                           Text(
-                            'هشدار مهم!',
+                            'Important Warning!',
                             style: TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.bold,
@@ -508,19 +508,19 @@ class _CertificatesPageState extends State<CertificatesPage> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        '• این یک Certificate Authority است',
+                        '• This is a Certificate Authority',
                         style: TextStyle(fontSize: 13),
                       ),
                       Text(
-                        '• گواهی‌های امضا شده با این CA ممکن است نامعتبر شوند',
+                        '• Certificates signed by this CA may become invalid',
                         style: TextStyle(fontSize: 13),
                       ),
                       Text(
-                        '• امکان ساخت گواهی جدید تا ایجاد CA جدید وجود نخواهد داشت',
+                        '• You won\'t be able to create new certificates until a new CA is created',
                         style: TextStyle(fontSize: 13),
                       ),
                       Text(
-                        '• سرویس‌های SSL ممکن است از کار بیفتند',
+                        '• SSL services may stop working',
                         style: TextStyle(fontSize: 13),
                       ),
                     ],
@@ -529,7 +529,7 @@ class _CertificatesPageState extends State<CertificatesPage> {
                 const SizedBox(height: 12),
               ],
               const Text(
-                'این عملیات قابل بازگشت نیست.',
+                'This action cannot be undone.',
                 style: TextStyle(color: Colors.red, fontSize: 12),
               ),
             ],
@@ -537,7 +537,7 @@ class _CertificatesPageState extends State<CertificatesPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('انصراف'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -545,7 +545,7 @@ class _CertificatesPageState extends State<CertificatesPage> {
                 Navigator.pop(dialogContext);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text(isCA ? 'حذف CA' : 'حذف'),
+              child: Text(isCA ? 'Delete CA' : 'Delete'),
             ),
           ],
         );

@@ -156,6 +156,7 @@ class _IpServicesPageState extends State<IpServicesPage> {
     final hasCertificateIssue = needsCertificate && service.isCertificateMissing;
 
     return Card(
+      key: ValueKey(service.id),
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
       child: ExpansionTile(
@@ -450,10 +451,10 @@ class _IpServicesPageState extends State<IpServicesPage> {
                   ],
                   onChanged: (value) {
                     if (value != null && value != currentCert) {
-                      _log.i('User selected certificate: $value for service: ${service.id}');
+                      _log.i('User selected certificate: $value for service: ${service.name}');
                       context.read<IpServiceBloc>().add(
                         UpdateServiceCertificate(
-                          serviceId: service.id,
+                          serviceId: service.name,  // Use service name, not .id
                           certificateName: value,
                         ),
                       );

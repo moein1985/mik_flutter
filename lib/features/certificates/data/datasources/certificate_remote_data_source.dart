@@ -23,7 +23,7 @@ class CertificateException implements Exception {
     if (lowerError.contains('same subject exists') || 
         lowerError.contains('certificate with the same')) {
       return CertificateException(
-        'یک گواهی با همین Common Name قبلاً وجود دارد. لطفاً یک نام متفاوت انتخاب کنید.',
+        'A certificate with the same Common Name already exists. Please choose a different name.',
         technicalDetails: errorMessage,
       );
     }
@@ -31,7 +31,7 @@ class CertificateException implements Exception {
     // Certificate name already exists
     if (lowerError.contains('already exists') || lowerError.contains('entry already exists')) {
       return CertificateException(
-        'یک گواهی با این نام قبلاً وجود دارد. لطفاً نام دیگری انتخاب کنید.',
+        'A certificate with this name already exists. Please choose a different name.',
         technicalDetails: errorMessage,
       );
     }
@@ -39,7 +39,7 @@ class CertificateException implements Exception {
     // CA not found
     if (lowerError.contains('ca not found') || lowerError.contains('no ca')) {
       return CertificateException(
-        'CA (مرجع صدور گواهی) یافت نشد. ابتدا یک CA ایجاد کنید.',
+        'Certificate Authority (CA) not found. Please create a CA first.',
         technicalDetails: errorMessage,
       );
     }
@@ -47,7 +47,7 @@ class CertificateException implements Exception {
     // Invalid key size
     if (lowerError.contains('key-size') || lowerError.contains('invalid key')) {
       return CertificateException(
-        'اندازه کلید نامعتبر است. مقادیر مجاز: 1024, 2048, 4096',
+        'Invalid key size. Valid values: 1024, 2048, 4096',
         technicalDetails: errorMessage,
       );
     }
@@ -55,7 +55,7 @@ class CertificateException implements Exception {
     // Certificate in use
     if (lowerError.contains('in use') || lowerError.contains('cannot remove')) {
       return CertificateException(
-        'این گواهی در حال استفاده است و نمی‌توان آن را حذف کرد.',
+        'This certificate is in use and cannot be removed.',
         technicalDetails: errorMessage,
       );
     }
@@ -63,7 +63,7 @@ class CertificateException implements Exception {
     // Permission denied
     if (lowerError.contains('permission') || lowerError.contains('denied') || lowerError.contains('not allowed')) {
       return CertificateException(
-        'دسترسی رد شد. کاربر فعلی مجوز انجام این عملیات را ندارد.',
+        'Permission denied. Current user does not have permission for this operation.',
         technicalDetails: errorMessage,
       );
     }
@@ -71,7 +71,7 @@ class CertificateException implements Exception {
     // Unknown parameter (API version mismatch)
     if (lowerError.contains('unknown parameter')) {
       return CertificateException(
-        'خطای سازگاری با نسخه RouterOS. لطفاً نسخه سیستم‌عامل روتر را بررسی کنید.',
+        'RouterOS compatibility error. Please check the router OS version.',
         technicalDetails: errorMessage,
       );
     }
@@ -80,14 +80,14 @@ class CertificateException implements Exception {
     if (lowerError.contains('failure:')) {
       final cleanedMessage = errorMessage.replaceFirst(RegExp(r'failure:\s*', caseSensitive: false), '');
       return CertificateException(
-        'خطا در عملیات گواهی: $cleanedMessage',
+        'Certificate operation failed: $cleanedMessage',
         technicalDetails: errorMessage,
       );
     }
     
     // Default - return as is
     return CertificateException(
-      operation != null ? 'خطا در $operation: $errorMessage' : errorMessage,
+      operation != null ? 'Error in $operation: $errorMessage' : errorMessage,
       technicalDetails: errorMessage,
     );
   }
@@ -249,7 +249,7 @@ class CertificateRemoteDataSourceImpl implements CertificateRemoteDataSource {
     if (certId == null) {
       _log.e('Could not find certificate ID for $name');
       throw CertificateException(
-        'گواهی یافت نشد',
+        'Certificate not found',
         technicalDetails: 'Could not find certificate ID for $name',
       );
     }
@@ -283,7 +283,7 @@ class CertificateRemoteDataSourceImpl implements CertificateRemoteDataSource {
     if (verifyResponse.isEmpty) {
       _log.e('Certificate "$name" not found after creation!');
       throw CertificateException(
-        'گواهی پس از ایجاد یافت نشد',
+        'Certificate not found after creation',
         technicalDetails: 'Certificate not found after creation',
       );
     }

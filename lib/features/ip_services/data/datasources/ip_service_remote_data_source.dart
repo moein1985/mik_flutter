@@ -13,43 +13,43 @@ class ServiceException implements Exception {
 
   ServiceException(this.message, {this.technicalDetails});
 
-  /// Create exception from RouterOS error message with Persian translation
+  /// Create exception from RouterOS error message with English translation
   static ServiceException fromRouterOSError(String error) {
     final lowerError = error.toLowerCase();
     
     if (lowerError.contains('certificate') && lowerError.contains('not found')) {
       return ServiceException(
-        'گواهی مورد نظر یافت نشد',
+        'Certificate not found',
         technicalDetails: error,
       );
     }
     if (lowerError.contains('invalid') && lowerError.contains('certificate')) {
       return ServiceException(
-        'گواهی نامعتبر است. ممکن است کلید خصوصی نداشته باشد',
+        'Invalid certificate. It may not have a private key.',
         technicalDetails: error,
       );
     }
     if (lowerError.contains('port') && (lowerError.contains('in use') || lowerError.contains('already'))) {
       return ServiceException(
-        'این پورت قبلاً توسط سرویس دیگری استفاده شده است',
+        'This port is already in use by another service',
         technicalDetails: error,
       );
     }
     if (lowerError.contains('permission') || lowerError.contains('denied')) {
       return ServiceException(
-        'دسترسی برای این عملیات وجود ندارد',
+        'Permission denied for this operation',
         technicalDetails: error,
       );
     }
     if (lowerError.contains('unknown parameter')) {
       return ServiceException(
-        'خطای سازگاری با نسخه RouterOS',
+        'RouterOS compatibility error',
         technicalDetails: error,
       );
     }
     
     return ServiceException(
-      'خطا در عملیات سرویس',
+      'Service operation failed',
       technicalDetails: error,
     );
   }
@@ -108,9 +108,9 @@ class IpServiceRemoteDataSourceImpl implements IpServiceRemoteDataSource {
   Future<void> setServiceEnabled(String id, bool enabled) async {
     _log.i('Setting service "$id" enabled=$enabled');
     // For services, id is the service name (like "api-ssl", "www-ssl")
-    // Use the name directly, not =.id=
+    // Use =numbers= parameter with service name
     final command = enabled ? '/ip/service/enable' : '/ip/service/disable';
-    final response = await _client.sendCommand([command, '=$id']);
+    final response = await _client.sendCommand([command, '=numbers=$id']);
     _log.d('Enable/disable response: $response');
     
     if (response.any((r) => r['type'] == 'trap')) {
@@ -123,10 +123,10 @@ class IpServiceRemoteDataSourceImpl implements IpServiceRemoteDataSource {
   @override
   Future<void> setServicePort(String id, int port) async {
     _log.i('Setting port $port for service "$id"');
-    // Use service name directly, not =.id=
+    // Use =numbers= parameter with service name
     final response = await _client.sendCommand([
       '/ip/service/set',
-      '=$id',
+      '=numbers=$id',
       '=port=$port',
     ]);
     _log.d('Set port response: $response');
@@ -142,11 +142,11 @@ class IpServiceRemoteDataSourceImpl implements IpServiceRemoteDataSource {
   Future<void> setServiceCertificate(String id, String certificateName) async {
     _log.i('Setting certificate "$certificateName" for service "$id"');
     
-    // In RouterOS, service is identified by name (like "api-ssl", "www-ssl")
-    // not by numeric .id. Let's try using the name directly.
+    // In RouterOS API, we need to use =numbers= parameter with service name
+    // Command format: /ip/service/set =numbers=api-ssl =certificate=cert-name
     final response = await _client.sendCommand([
       '/ip/service/set',
-      '=$id',  // Use service name directly, not =.id=
+      '=numbers=$id',
       '=certificate=$certificateName',
     ]);
     _log.d('Set certificate response: $response');
@@ -176,10 +176,10 @@ class IpServiceRemoteDataSourceImpl implements IpServiceRemoteDataSource {
   @override
   Future<void> setServiceAddress(String id, String address) async {
     _log.i('Setting address "$address" for service "$id"');
-    // Use service name directly, not =.id=
+    // Use =numbers= parameter with service name
     final response = await _client.sendCommand([
       '/ip/service/set',
-      '=$id',
+      '=numbers=$id',
       '=address=$address',
     ]);
     _log.d('Set address response: $response');
@@ -274,7 +274,7 @@ class IpServiceRemoteDataSourceImpl implements IpServiceRemoteDataSource {
     if (certId == null) {
       _log.e('Could not find certificate ID for $name');
       throw CertificateException(
-        'گواهی یافت نشد',
+        'Certificate not found',
         technicalDetails: 'Could not find certificate ID for $name',
       );
     }
@@ -313,7 +313,7 @@ class IpServiceRemoteDataSourceImpl implements IpServiceRemoteDataSource {
     if (certData.isEmpty) {
       _log.e('Certificate "$name" was not found after creation!');
       throw CertificateException(
-        'ساخت گواهی ناموفق بود',
+        'Certificate creation failed',
         technicalDetails: 'Certificate creation failed - not found after signing',
       );
     }
