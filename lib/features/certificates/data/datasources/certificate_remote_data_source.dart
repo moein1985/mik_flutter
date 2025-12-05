@@ -289,7 +289,7 @@ class CertificateRemoteDataSourceImpl implements CertificateRemoteDataSource {
     }
     
     final certData = verifyResponse.firstWhere((r) => r['name'] == name, orElse: () => {});
-    final hasPrivateKey = certData['private-key'] == 'true' || certData['private-key'] == true;
+    final hasPrivateKey = certData['private-key'] == 'true';
     _log.i('Certificate "$name" created. Has private key: $hasPrivateKey');
     
     if (!hasPrivateKey) {

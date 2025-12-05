@@ -141,8 +141,8 @@ class _CertificatesPageState extends State<CertificatesPage> {
       child: ExpansionTile(
         leading: CircleAvatar(
           backgroundColor: isValid
-              ? (canUseForSsl ? Colors.green.withOpacity(0.2) : Colors.blue.withOpacity(0.2))
-              : Colors.red.withOpacity(0.2),
+              ? (canUseForSsl ? Colors.green.withAlpha(51) : Colors.blue.withAlpha(51))
+              : Colors.red.withAlpha(51),
           child: Icon(
             cert.ca ? Icons.verified : Icons.security,
             color: isValid
@@ -235,7 +235,7 @@ class _CertificatesPageState extends State<CertificatesPage> {
       margin: const EdgeInsets.only(left: 4),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withAlpha(51),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -271,7 +271,7 @@ class _CertificatesPageState extends State<CertificatesPage> {
     return Chip(
       avatar: Icon(icon, size: 16, color: color),
       label: Text(label, style: TextStyle(fontSize: 12, color: color)),
-      backgroundColor: color.withOpacity(0.1),
+      backgroundColor: color.withAlpha(26),
       side: BorderSide.none,
       padding: EdgeInsets.zero,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -316,7 +316,7 @@ class _CertificatesPageState extends State<CertificatesPage> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<int>(
-                      value: keySize,
+                      initialValue: keySize,
                       decoration: const InputDecoration(
                         labelText: 'Key Size',
                         border: OutlineInputBorder(),
@@ -334,7 +334,7 @@ class _CertificatesPageState extends State<CertificatesPage> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<int>(
-                      value: daysValid,
+                      initialValue: daysValid,
                       decoration: const InputDecoration(
                         labelText: 'Validity Period',
                         border: OutlineInputBorder(),

@@ -319,7 +319,7 @@ class IpServiceRemoteDataSourceImpl implements IpServiceRemoteDataSource {
     }
     
     final cert = certData.first;
-    final hasPrivateKey = cert['private-key'] == 'true' || cert['private-key'] == true;
+    final hasPrivateKey = cert['private-key'] == 'true';
     _log.i('Certificate "$name" created. Has private key: $hasPrivateKey');
     
     if (!hasPrivateKey) {

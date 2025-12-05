@@ -47,7 +47,7 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: _getTypeColor(rule.type).withOpacity(0.2),
+                      color: _getTypeColor(rule.type).withAlpha(51),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -107,7 +107,7 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
                     onChanged: (value) {
                       widget.onToggle(value);
                     },
-                    activeColor: Colors.green,
+                    activeThumbColor: Colors.green,
                   ),
                   // Expand icon
                   Icon(
@@ -132,7 +132,7 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
         margin: const EdgeInsets.only(left: 4),
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
+          color: color.withAlpha(51),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(

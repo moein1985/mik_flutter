@@ -287,8 +287,8 @@ class _IpServicesPageState extends State<IpServicesPage> {
 
     return CircleAvatar(
       backgroundColor: service.isEnabled 
-          ? color.withOpacity(0.2) 
-          : Colors.grey.withOpacity(0.2),
+          ? color.withAlpha(51) 
+          : Colors.grey.withAlpha(51),
       child: Icon(
         icon,
         color: service.isEnabled ? color : Colors.grey,
@@ -356,11 +356,11 @@ class _IpServicesPageState extends State<IpServicesPage> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: hasCertificate 
-            ? Colors.green.withOpacity(0.05)
-            : Colors.orange.withOpacity(0.05),
+            ? Colors.green.withAlpha(13)
+            : Colors.orange.withAlpha(13),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: hasCertificate ? Colors.green.withOpacity(0.3) : Colors.orange.withOpacity(0.3),
+          color: hasCertificate ? Colors.green.withAlpha(77) : Colors.orange.withAlpha(77),
         ),
       ),
       child: Column(
@@ -387,7 +387,7 @@ class _IpServicesPageState extends State<IpServicesPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withAlpha(26),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -413,7 +413,7 @@ class _IpServicesPageState extends State<IpServicesPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                border: Border.all(color: Colors.grey.withAlpha(77)),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: DropdownButtonHideUnderline(
@@ -470,7 +470,7 @@ class _IpServicesPageState extends State<IpServicesPage> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
+                color: Colors.amber.withAlpha(26),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Row(
@@ -708,7 +708,7 @@ class _IpServicesPageState extends State<IpServicesPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
+                  color: Colors.amber.withAlpha(26),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.amber),
                 ),
