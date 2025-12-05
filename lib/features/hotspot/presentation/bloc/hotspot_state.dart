@@ -92,24 +92,28 @@ class HotspotPackageDisabled extends HotspotState {
 class HotspotSetupDataLoaded extends HotspotState {
   final List<Map<String, String>> interfaces;
   final List<Map<String, String>> ipPools;
+  final List<Map<String, String>> ipAddresses;
 
   const HotspotSetupDataLoaded({
     required this.interfaces,
     required this.ipPools,
+    required this.ipAddresses,
   });
 
   HotspotSetupDataLoaded copyWith({
     List<Map<String, String>>? interfaces,
     List<Map<String, String>>? ipPools,
+    List<Map<String, String>>? ipAddresses,
   }) {
     return HotspotSetupDataLoaded(
       interfaces: interfaces ?? this.interfaces,
       ipPools: ipPools ?? this.ipPools,
+      ipAddresses: ipAddresses ?? this.ipAddresses,
     );
   }
 
   @override
-  List<Object> get props => [interfaces, ipPools];
+  List<Object> get props => [interfaces, ipPools, ipAddresses];
 }
 
 // ==================== Reset HotSpot States ====================

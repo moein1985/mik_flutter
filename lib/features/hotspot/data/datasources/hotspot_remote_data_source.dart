@@ -68,6 +68,9 @@ abstract class HotspotRemoteDataSource {
   /// Get list of IP pools for hotspot setup
   Future<List<Map<String, String>>> getIpPools();
 
+  /// Get list of IP addresses for validation
+  Future<List<Map<String, String>>> getIpAddresses();
+
   /// Add a new IP pool
   Future<bool> addIpPool({required String name, required String ranges});
 
@@ -417,6 +420,20 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
     } catch (e, stackTrace) {
       _log.e('Failed to get interfaces', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get interfaces: $e');
+    }
+  }
+
+  @override
+  Future<List<Map<String, String>>> getIpAddresses() async {
+    try {
+      _log.d('Getting IP addresses for validation...');
+      final response = await client.getIpAddresses();
+      final data = response.where((r) => r['type'] != 'done').toList();
+      _log.i('Got ${data.length} IP addresses');
+      return data;
+    } catch (e, stackTrace) {
+      _log.e('Failed to get IP addresses', error: e, stackTrace: stackTrace);
+      throw ServerException('Failed to get IP addresses: $e');
     }
   }
 

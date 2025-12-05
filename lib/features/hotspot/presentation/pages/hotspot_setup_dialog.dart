@@ -25,6 +25,7 @@ class _HotspotSetupDialogState extends State<HotspotSetupDialog> {
   // Cache the loaded data locally so it persists across state changes
   List<Map<String, String>> _interfaces = [];
   List<Map<String, String>> _pools = [];
+  List<Map<String, String>> _ipAddresses = [];
   bool _dataLoaded = false;
 
   @override
@@ -32,10 +33,123 @@ class _HotspotSetupDialogState extends State<HotspotSetupDialog> {
     super.initState();
     _log.i('Loading setup data...');
     context.read<HotspotBloc>().add(const LoadSetupData());
+    
+    // Add listeners to update UI when text changes
+    _newPoolNameController.addListener(_onPoolFieldsChanged);
+    _newPoolRangesController.addListener(_onPoolFieldsChanged);
+  }
+
+  void _onPoolFieldsChanged() {
+    setState(() {});
+  }
+
+  /// Check if the pool range is compatible with the selected interface's IP address
+  /// Returns null if valid, or an error message if invalid
+  String? _validatePoolRange() {
+    if (_selectedInterface == null) return 'Select an interface first';
+    if (_newPoolRangesController.text.isEmpty) return null;
+    
+    // Find IP address for the selected interface
+    final interfaceAddress = _ipAddresses.firstWhere(
+      (addr) => addr['interface'] == _selectedInterface,
+      orElse: () => {},
+    );
+    
+    if (interfaceAddress.isEmpty) {
+      return 'No IP address configured on $_selectedInterface';
+    }
+    
+    final addressWithMask = interfaceAddress['address'] ?? '';
+    // Address format is like "192.168.1.1/24"
+    final addressParts = addressWithMask.split('/');
+    if (addressParts.isEmpty) return 'Invalid interface address';
+    
+    final interfaceIp = addressParts[0];
+    final maskBits = addressParts.length > 1 ? int.tryParse(addressParts[1]) ?? 24 : 24;
+    
+    // Parse interface IP to get network
+    final interfaceOctets = interfaceIp.split('.').map((s) => int.tryParse(s) ?? 0).toList();
+    if (interfaceOctets.length != 4) return 'Invalid interface IP format';
+    
+    // Calculate network address from interface IP and mask
+    final mask = ~((1 << (32 - maskBits)) - 1) & 0xFFFFFFFF;
+    final interfaceInt = (interfaceOctets[0] << 24) | (interfaceOctets[1] << 16) | 
+                         (interfaceOctets[2] << 8) | interfaceOctets[3];
+    final networkInt = interfaceInt & mask;
+    
+    // Parse pool range (format: "192.168.1.10-192.168.1.50" or just "192.168.1.10-50")
+    final rangeText = _newPoolRangesController.text.trim();
+    final rangeParts = rangeText.split('-');
+    if (rangeParts.isEmpty) return 'Invalid range format';
+    
+    String startIp = rangeParts[0].trim();
+    String endIp = rangeParts.length > 1 ? rangeParts[1].trim() : startIp;
+    
+    // Handle short format like "192.168.1.10-50"
+    if (!endIp.contains('.') && rangeParts.length > 1) {
+      final startParts = startIp.split('.');
+      if (startParts.length == 4) {
+        endIp = '${startParts[0]}.${startParts[1]}.${startParts[2]}.$endIp';
+      }
+    }
+    
+    // Parse and validate start IP
+    final startOctets = startIp.split('.').map((s) => int.tryParse(s) ?? -1).toList();
+    if (startOctets.length != 4 || startOctets.any((o) => o < 0 || o > 255)) {
+      return 'Invalid start IP format';
+    }
+    final startInt = (startOctets[0] << 24) | (startOctets[1] << 16) | 
+                     (startOctets[2] << 8) | startOctets[3];
+    
+    // Parse and validate end IP
+    final endOctets = endIp.split('.').map((s) => int.tryParse(s) ?? -1).toList();
+    if (endOctets.length != 4 || endOctets.any((o) => o < 0 || o > 255)) {
+      return 'Invalid end IP format';
+    }
+    final endInt = (endOctets[0] << 24) | (endOctets[1] << 16) | 
+                   (endOctets[2] << 8) | endOctets[3];
+    
+    // Check if pool IPs are in the same network as interface
+    if ((startInt & mask) != networkInt) {
+      return 'Start IP not in interface network (${_formatNetwork(networkInt, maskBits)})';
+    }
+    if ((endInt & mask) != networkInt) {
+      return 'End IP not in interface network (${_formatNetwork(networkInt, maskBits)})';
+    }
+    
+    // Check that start <= end
+    if (startInt > endInt) {
+      return 'Start IP must be less than or equal to end IP';
+    }
+    
+    return null; // Valid!
+  }
+  
+  String _formatNetwork(int networkInt, int maskBits) {
+    return '${(networkInt >> 24) & 0xFF}.${(networkInt >> 16) & 0xFF}.${(networkInt >> 8) & 0xFF}.${networkInt & 0xFF}/$maskBits';
+  }
+
+  /// Get hint text showing the interface's IP address
+  String? _getInterfaceAddressHint() {
+    if (_selectedInterface == null) return 'Select an interface first';
+    
+    final interfaceAddress = _ipAddresses.firstWhere(
+      (addr) => addr['interface'] == _selectedInterface,
+      orElse: () => {},
+    );
+    
+    if (interfaceAddress.isEmpty) {
+      return 'No IP configured on $_selectedInterface';
+    }
+    
+    final address = interfaceAddress['address'] ?? '';
+    return 'Interface IP: $address - use range within this network';
   }
 
   @override
   void dispose() {
+    _newPoolNameController.removeListener(_onPoolFieldsChanged);
+    _newPoolRangesController.removeListener(_onPoolFieldsChanged);
     _dnsNameController.dispose();
     _newPoolNameController.dispose();
     _newPoolRangesController.dispose();
@@ -51,6 +165,7 @@ class _HotspotSetupDialogState extends State<HotspotSetupDialog> {
           setState(() {
             _interfaces = state.interfaces;
             _pools = state.ipPools;
+            _ipAddresses = state.ipAddresses;
             _dataLoaded = true;
           });
         } else if (state is HotspotOperationSuccess) {
@@ -241,11 +356,16 @@ class _HotspotSetupDialogState extends State<HotspotSetupDialog> {
                         const SizedBox(height: 8),
                         TextField(
                           controller: _newPoolRangesController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'IP Ranges',
                             hintText: 'e.g., 192.168.88.10-192.168.88.254',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                             isDense: true,
+                            helperText: _getInterfaceAddressHint(),
+                            helperMaxLines: 2,
+                            errorText: _newPoolRangesController.text.isNotEmpty 
+                                ? _validatePoolRange() 
+                                : null,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -253,7 +373,8 @@ class _HotspotSetupDialogState extends State<HotspotSetupDialog> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: _newPoolNameController.text.isNotEmpty &&
-                                    _newPoolRangesController.text.isNotEmpty
+                                    _newPoolRangesController.text.isNotEmpty &&
+                                    _validatePoolRange() == null
                                 ? () {
                                     context.read<HotspotBloc>().add(
                                           AddIpPool(

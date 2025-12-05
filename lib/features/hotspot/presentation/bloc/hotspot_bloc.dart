@@ -489,14 +489,16 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     LoadSetupData event,
     Emitter<HotspotState> emit,
   ) async {
-    _log.i('Loading setup data (interfaces and pools)...');
+    _log.i('Loading setup data (interfaces, pools and addresses)...');
     emit(const HotspotLoading());
 
     final interfacesResult = await repository.getInterfaces();
     final poolsResult = await repository.getIpPools();
+    final addressesResult = await repository.getIpAddresses();
 
     List<Map<String, String>> interfaces = [];
     List<Map<String, String>> pools = [];
+    List<Map<String, String>> addresses = [];
 
     interfacesResult.fold(
       (failure) {
@@ -518,7 +520,17 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
       },
     );
 
-    emit(HotspotSetupDataLoaded(interfaces: interfaces, ipPools: pools));
+    addressesResult.fold(
+      (failure) {
+        _log.e('Failed to load IP addresses: ${failure.message}');
+      },
+      (data) {
+        addresses = data;
+        _log.i('Loaded ${data.length} IP addresses');
+      },
+    );
+
+    emit(HotspotSetupDataLoaded(interfaces: interfaces, ipPools: pools, ipAddresses: addresses));
   }
 
   Future<void> _onAddIpPool(

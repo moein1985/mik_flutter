@@ -239,6 +239,16 @@ class HotspotRepositoryImpl implements HotspotRepository {
   }
 
   @override
+  Future<Either<Failure, List<Map<String, String>>>> getIpAddresses() async {
+    try {
+      final result = await remoteDataSource.getIpAddresses();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
   Future<Either<Failure, bool>> addIpPool({required String name, required String ranges}) async {
     try {
       final result = await remoteDataSource.addIpPool(name: name, ranges: ranges);

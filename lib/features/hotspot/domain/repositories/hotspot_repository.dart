@@ -145,6 +145,7 @@ abstract class HotspotRepository {
   Future<Either<Failure, bool>> isHotspotPackageEnabled();
   Future<Either<Failure, List<Map<String, String>>>> getInterfaces();
   Future<Either<Failure, List<Map<String, String>>>> getIpPools();
+  Future<Either<Failure, List<Map<String, String>>>> getIpAddresses();
   Future<Either<Failure, bool>> addIpPool({required String name, required String ranges});
 
   // Reset HotSpot
