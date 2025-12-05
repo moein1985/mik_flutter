@@ -5,10 +5,9 @@ import 'injection_container.dart' as di;
 import 'l10n/app_localizations.dart';
 import 'core/utils/logger.dart';
 import 'core/utils/bloc_observer.dart';
+import 'core/router/app_router.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
-import 'features/auth/presentation/pages/login_page.dart';
 import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
-import 'features/dashboard/presentation/pages/dashboard_page.dart';
 
 extension MyAppExtension on BuildContext {
   MyAppState? get myAppState => findAncestorStateOfType<MyAppState>();
@@ -42,6 +41,16 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   Locale _locale = const Locale('en', '');
+  late final AuthBloc _authBloc;
+  late final AppRouter _appRouter;
+
+  @override
+  void initState() {
+    super.initState();
+    // Create AuthBloc once and share it between router and providers
+    _authBloc = di.sl<AuthBloc>();
+    _appRouter = AppRouter(authBloc: _authBloc);
+  }
 
   void setLocale(Locale locale) {
     setState(() {
@@ -53,13 +62,17 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => di.sl<AuthBloc>()),
+        // Use the same AuthBloc instance that AppRouter uses
+        BlocProvider.value(value: _authBloc),
         BlocProvider(create: (_) => di.sl<DashboardBloc>()),
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         title: 'MikroTik Manager',
         debugShowCheckedModeBanner: false,
         locale: _locale,
+        
+        // Router
+        routerConfig: _appRouter.router,
         
         // Localization
         localizationsDelegates: const [
@@ -113,13 +126,6 @@ class MyAppState extends State<MyApp> {
           ),
           useMaterial3: true,
         ),
-        
-        // Routes
-        initialRoute: '/login',
-        routes: {
-          '/login': (context) => const LoginPage(),
-          '/dashboard': (context) => const DashboardPage(),
-        },
       ),
     );
   }

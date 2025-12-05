@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/utils/logger.dart';
+import '../../../../core/router/app_router.dart';
 import '../bloc/hotspot_bloc.dart';
 import '../bloc/hotspot_event.dart';
 import '../bloc/hotspot_state.dart';
-import 'hotspot_users_page.dart';
-import 'hotspot_active_users_page.dart';
-import 'hotspot_servers_page.dart';
-import 'hotspot_profiles_page.dart';
 import 'hotspot_setup_dialog.dart';
-import 'hotspot_ip_bindings_page.dart';
-import 'hotspot_hosts_page.dart';
-import 'hotspot_walled_garden_page.dart';
 import 'hotspot_reset_dialog.dart';
 
 final _log = AppLogger.tag('HotspotPage');
@@ -316,17 +311,10 @@ class _HotspotPageState extends State<HotspotPage> {
                 title: 'Users',
                 subtitle: 'Manage hotspot users',
                 color: Colors.blue,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<HotspotBloc>(),
-                        child: const HotspotUsersPage(),
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => context.push(
+                  AppRoutes.hotspotUsers,
+                  extra: context.read<HotspotBloc>(),
+                ),
               ),
               _buildCard(
                 context,
@@ -334,17 +322,10 @@ class _HotspotPageState extends State<HotspotPage> {
                 title: 'Active Users',
                 subtitle: 'Online users',
                 color: Colors.green,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<HotspotBloc>(),
-                        child: const HotspotActiveUsersPage(),
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => context.push(
+                  AppRoutes.hotspotActiveUsers,
+                  extra: context.read<HotspotBloc>(),
+                ),
               ),
               _buildCard(
                 context,
@@ -352,17 +333,10 @@ class _HotspotPageState extends State<HotspotPage> {
                 title: 'Servers',
                 subtitle: 'HotSpot servers',
                 color: Colors.orange,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<HotspotBloc>(),
-                        child: const HotspotServersPage(),
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => context.push(
+                  AppRoutes.hotspotServers,
+                  extra: context.read<HotspotBloc>(),
+                ),
               ),
               _buildCard(
                 context,
@@ -370,17 +344,10 @@ class _HotspotPageState extends State<HotspotPage> {
                 title: 'Profiles',
                 subtitle: 'User profiles',
                 color: Colors.purple,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<HotspotBloc>(),
-                        child: const HotspotProfilesPage(),
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => context.push(
+                  AppRoutes.hotspotProfiles,
+                  extra: context.read<HotspotBloc>(),
+                ),
               ),
               _buildCard(
                 context,
@@ -388,17 +355,10 @@ class _HotspotPageState extends State<HotspotPage> {
                 title: 'IP Bindings',
                 subtitle: 'MAC/IP bindings',
                 color: Colors.indigo,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<HotspotBloc>(),
-                        child: const HotspotIpBindingsPage(),
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => context.push(
+                  AppRoutes.hotspotIpBindings,
+                  extra: context.read<HotspotBloc>(),
+                ),
               ),
               _buildCard(
                 context,
@@ -406,17 +366,10 @@ class _HotspotPageState extends State<HotspotPage> {
                 title: 'Hosts',
                 subtitle: 'Connected devices',
                 color: Colors.cyan,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<HotspotBloc>(),
-                        child: const HotspotHostsPage(),
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => context.push(
+                  AppRoutes.hotspotHosts,
+                  extra: context.read<HotspotBloc>(),
+                ),
               ),
               _buildCard(
                 context,
@@ -424,17 +377,10 @@ class _HotspotPageState extends State<HotspotPage> {
                 title: 'Walled Garden',
                 subtitle: 'Allowed sites',
                 color: Colors.teal,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                        value: context.read<HotspotBloc>(),
-                        child: const HotspotWalledGardenPage(),
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => context.push(
+                  AppRoutes.hotspotWalledGarden,
+                  extra: context.read<HotspotBloc>(),
+                ),
               ),
               // Reset HotSpot Card
               _buildCard(

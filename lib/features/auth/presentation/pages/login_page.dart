@@ -27,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
   bool _obscurePassword = true;
+  bool _useSsl = false;
 
   @override
   void initState() {
@@ -50,6 +51,7 @@ class _LoginPageState extends State<LoginPage> {
         port: int.parse(_portController.text.trim()),
         username: _usernameController.text.trim(),
         password: _passwordController.text,
+        useSsl: _useSsl,
       );
 
       context.read<AuthBloc>().add(
@@ -183,6 +185,74 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  /// Show SSL certificate error dialog with options to use plain API
+  void _showSslErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          icon: const Icon(Icons.lock_open, color: Colors.orange, size: 48),
+          title: const Text('SSL Certificate Error'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'The router does not have a valid certificate configured for API-SSL.',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 16),
+              const Text('You have two options:'),
+              const SizedBox(height: 8),
+              const Text('1. Use plain API connection (without encryption)'),
+              const Text('2. Configure a certificate on the router first'),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'To configure certificate on router:\n'
+                  'IP → Services → api-ssl → Certificate',
+                  style: TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                // Switch to plain API
+                setState(() {
+                  _useSsl = false;
+                  // Change port to API port if it was SSL port
+                  if (_portController.text == '8729') {
+                    _portController.text = '8728';
+                  }
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Switched to plain API. Try connecting again.'),
+                    backgroundColor: Colors.blue,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.lock_open),
+              label: const Text('Use Plain API'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -190,20 +260,25 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthAuthenticated) {
-            Navigator.of(context).pushReplacementNamed('/dashboard');
-          } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
+          // Navigation is handled by GoRouter redirect, no need to navigate here
+          if (state is AuthError) {
+            if (state.isSslCertificateError) {
+              // Show SSL certificate error dialog with options
+              _showSslErrorDialog(context, state.message);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           } else if (state is AuthUnauthenticated && state.savedCredentials != null) {
             _hostController.text = state.savedCredentials!.host;
             _portController.text = state.savedCredentials!.port.toString();
             _usernameController.text = state.savedCredentials!.username;
             _passwordController.text = state.savedCredentials!.password;
+            _useSsl = state.savedCredentials!.useSsl;
             _rememberMe = true;
           }
         },
@@ -305,6 +380,40 @@ class _LoginPageState extends State<LoginPage> {
                         }
                         return null;
                       },
+                    ),
+                    const SizedBox(height: 8),
+
+                    // SSL Switch
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: SwitchListTile(
+                        value: _useSsl,
+                        onChanged: isLoading
+                            ? null
+                            : (value) {
+                                setState(() {
+                                  _useSsl = value;
+                                  // Auto-change port when SSL is toggled
+                                  if (value && _portController.text == '8728') {
+                                    _portController.text = '8729';
+                                  } else if (!value && _portController.text == '8729') {
+                                    _portController.text = '8728';
+                                  }
+                                });
+                              },
+                        title: const Text('Use SSL (API-SSL)'),
+                        subtitle: Text(
+                          _useSsl ? 'Encrypted connection (port 8729)' : 'Plain connection (port 8728)',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        ),
+                        secondary: Icon(
+                          _useSsl ? Icons.lock : Icons.lock_open,
+                          color: _useSsl ? Colors.green : Colors.grey,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16),
 

@@ -26,6 +26,7 @@ class AuthRepositoryImpl implements AuthRepository {
         credentials.port,
         credentials.username,
         credentials.password,
+        useSsl: credentials.useSsl,
       );
 
       final session = RouterSessionModel(
@@ -33,6 +34,7 @@ class AuthRepositoryImpl implements AuthRepository {
         port: credentials.port,
         username: credentials.username,
         connectedAt: DateTime.now(),
+        useSsl: credentials.useSsl,
       );
 
       await localDataSource.saveSession(session);
@@ -40,6 +42,8 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(session);
     } on AuthenticationException catch (e) {
       return Left(AuthenticationFailure(e.message));
+    } on SslCertificateException catch (e) {
+      return Left(SslCertificateFailure(e.message, noCertificate: e.noCertificate));
     } on ConnectionException catch (e) {
       return Left(ConnectionFailure(e.message));
     } catch (e) {

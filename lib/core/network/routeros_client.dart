@@ -3,12 +3,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'routeros_protocol.dart';
 import '../utils/logger.dart';
+import '../errors/exceptions.dart';
 
 final _log = AppLogger.tag('RouterOSClient');
 
 class RouterOSClient {
   final String host;
   final int port;
+  final bool useSsl;
   Socket? _socket;
   final List<int> _buffer = [];
   bool _isConnected = false;
@@ -20,17 +22,48 @@ class RouterOSClient {
   RouterOSClient({
     required this.host,
     required this.port,
+    this.useSsl = false,
   });
 
   bool get isConnected => _isConnected;
 
   /// Connect to RouterOS device
+  /// Uses SecureSocket for SSL connections (port 8729) or regular Socket (port 8728)
   Future<void> connect() async {
     if (_isConnected) return;
 
     try {
-      _socket = await Socket.connect(host, port, timeout: const Duration(seconds: 10));
+      if (useSsl) {
+        // SSL connection (API-SSL, typically port 8729)
+        _log.i('Connecting with SSL to $host:$port');
+        // Wrap in timeout to handle cases where SSL handshake hangs
+        // (e.g., connecting to non-SSL port with SSL enabled)
+        _socket = await SecureSocket.connect(
+          host,
+          port,
+          timeout: const Duration(seconds: 10),
+          onBadCertificate: (X509Certificate cert) {
+            // Accept self-signed certificates (common in RouterOS)
+            _log.w('Accepting self-signed certificate: ${cert.subject}');
+            return true;
+          },
+        ).timeout(
+          const Duration(seconds: 15),
+          onTimeout: () {
+            throw TimeoutException(
+              'SSL connection timed out. This may happen if you are trying to connect '
+              'with SSL to a non-SSL port, or if the router is not responding.',
+            );
+          },
+        );
+      } else {
+        // Plain connection (API, typically port 8728)
+        _log.i('Connecting without SSL to $host:$port');
+        _socket = await Socket.connect(host, port, timeout: const Duration(seconds: 10));
+      }
+      
       _isConnected = true;
+      _log.i('Connected successfully (SSL: $useSsl)');
 
       _socket!.listen(
         (data) {
@@ -46,7 +79,32 @@ class RouterOSClient {
         },
       );
     } catch (e) {
+      _log.e('Connection failed (SSL: $useSsl)', error: e);
       _isConnected = false;
+      
+      // Check for timeout (usually means wrong port for SSL)
+      if (useSsl && e is TimeoutException) {
+        throw SslCertificateException(
+          'SSL connection timed out. This may happen if you are trying to connect '
+          'with SSL enabled to a non-SSL port. Please check your port number or disable SSL.',
+          noCertificate: false,
+        );
+      }
+      
+      // Check for SSL handshake failure (usually means no certificate on router)
+      if (useSsl && e is HandshakeException) {
+        final errorMsg = e.toString();
+        if (errorMsg.contains('HANDSHAKE_FAILURE') || 
+            errorMsg.contains('CERTIFICATE') ||
+            errorMsg.contains('handshake')) {
+          throw SslCertificateException(
+            'SSL handshake failed. The router may not have a certificate configured for API-SSL. '
+            'Please go to IP → Services and configure a certificate for api-ssl, or use plain API connection.',
+            noCertificate: true,
+          );
+        }
+      }
+      
       rethrow;
     }
   }
@@ -61,7 +119,11 @@ class RouterOSClient {
   }
 
   /// Send a command to RouterOS
-  Future<List<Map<String, String>>> sendCommand(List<String> words) async {
+  /// [timeout] - optional timeout duration, defaults to 10 seconds
+  Future<List<Map<String, String>>> sendCommand(
+    List<String> words, {
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
     if (!_isConnected || _socket == null) {
       _log.e('Not connected to RouterOS');
       throw Exception('Not connected to RouterOS');
@@ -79,7 +141,7 @@ class RouterOSClient {
     
     try {
       final result = await completer.future.timeout(
-        const Duration(seconds: 10),
+        timeout,
         onTimeout: () {
           _log.w('Command timeout: ${words.first}');
           throw TimeoutException('Response timeout');
@@ -177,37 +239,6 @@ class RouterOSClient {
     try {
       final response = await sendCommand([
         '/ip/address/remove',
-        '=.id=$id',
-      ]);
-      return response.any((r) => r['type'] == 'done');
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Get firewall filter rules
-  Future<List<Map<String, String>>> getFirewallRules() async {
-    return await sendCommand(['/ip/firewall/filter/print', '=stats']);
-  }
-
-  /// Enable firewall rule
-  Future<bool> enableFirewallRule(String id) async {
-    try {
-      final response = await sendCommand([
-        '/ip/firewall/filter/enable',
-        '=.id=$id',
-      ]);
-      return response.any((r) => r['type'] == 'done');
-    } catch (e) {
-      return false;
-    }
-  }
-
-  /// Disable firewall rule
-  Future<bool> disableFirewallRule(String id) async {
-    try {
-      final response = await sendCommand([
-        '/ip/firewall/filter/disable',
         '=.id=$id',
       ]);
       return response.any((r) => r['type'] == 'done');
@@ -314,16 +345,19 @@ class RouterOSClient {
       } else if (word == '!trap') {
         if (_currentReply.isNotEmpty) {
           _responseData.add(_currentReply);
-          _currentReply = {};
         }
-        _responseData.add({'type': 'trap'});
+        // Start a new reply for trap - error details will follow
+        _currentReply = {'type': 'trap'};
       } else if (word == '!re') {
         if (_currentReply.isNotEmpty) {
           _responseData.add(_currentReply);
         }
         _currentReply = {'type': 're'};
       } else if (word == '!fatal') {
-        _responseData.add({'type': 'fatal'});
+        if (_currentReply.isNotEmpty) {
+          _responseData.add(_currentReply);
+        }
+        _currentReply = {'type': 'fatal'};
       }
     } else if (word.startsWith('=')) {
       final parts = word.substring(1).split('=');
@@ -1380,4 +1414,145 @@ class RouterOSClient {
     
     return sanitized;
   }
+
+  // ==================== FIREWALL METHODS ====================
+
+  /// Get firewall rules by path
+  /// [path] should be like '/ip/firewall/nat', '/ip/firewall/filter', etc.
+  Future<List<Map<String, String>>> getFirewallRules(String path) async {
+    _log.d('Getting firewall rules from: $path');
+    final response = await sendCommand(['$path/print']);
+    _log.d('Got ${response.length - 1} firewall rules');
+    return response;
+  }
+
+  /// Enable a firewall rule
+  Future<bool> enableFirewallRule(String path, String id) async {
+    try {
+      _log.d('Enabling firewall rule: $path $id');
+      final response = await sendCommand([
+        '$path/enable',
+        '=.id=$id',
+      ]);
+      
+      // Check for trap (error)
+      final trap = response.firstWhere(
+        (r) => r['type'] == 'trap',
+        orElse: () => {},
+      );
+      if (trap.isNotEmpty) {
+        final errorMessage = trap['message'] ?? 'Unknown error';
+        _log.e('Failed to enable rule: $errorMessage');
+        throw Exception(errorMessage);
+      }
+      
+      _log.i('Rule enabled successfully: $id');
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      _log.e('Failed to enable firewall rule', error: e);
+      rethrow;
+    }
+  }
+
+  /// Disable a firewall rule
+  Future<bool> disableFirewallRule(String path, String id) async {
+    try {
+      _log.d('Disabling firewall rule: $path $id');
+      final response = await sendCommand([
+        '$path/disable',
+        '=.id=$id',
+      ]);
+      
+      // Check for trap (error)
+      final trap = response.firstWhere(
+        (r) => r['type'] == 'trap',
+        orElse: () => {},
+      );
+      if (trap.isNotEmpty) {
+        final errorMessage = trap['message'] ?? 'Unknown error';
+        _log.e('Failed to disable rule: $errorMessage');
+        throw Exception(errorMessage);
+      }
+      
+      _log.i('Rule disabled successfully: $id');
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      _log.e('Failed to disable firewall rule', error: e);
+      rethrow;
+    }
+  }
+
+  /// Get unique address list names only (lightweight query)
+  /// Returns only the list names without all the addresses
+  Future<List<String>> getAddressListNames() async {
+    _log.d('Getting address list names only');
+    // Use proplist to get only the 'list' field - much faster for large lists
+    final response = await sendCommand(
+      ['/ip/firewall/address-list/print', '=.proplist=list'],
+      timeout: const Duration(seconds: 30),
+    );
+    
+    // Extract unique list names
+    final names = response
+        .where((r) => r['type'] == 're' && r['list'] != null)
+        .map((r) => r['list']!)
+        .toSet()
+        .toList();
+    
+    names.sort();
+    _log.d('Found ${names.length} unique address list names');
+    return names;
+  }
+
+  /// Get address list entries filtered by list name
+  /// [listName] - the name of the address list to filter by
+  Future<List<Map<String, String>>> getAddressListByName(String listName) async {
+    _log.d('Getting address list entries for: $listName');
+    final response = await sendCommand(
+      ['/ip/firewall/address-list/print', '?list=$listName'],
+      timeout: const Duration(seconds: 60),
+    );
+    _log.d('Got ${response.length - 1} entries for list: $listName');
+    return response;
+  }
+
+  /// Get address list entries with pagination
+  /// [offset] - starting position
+  /// [limit] - number of items to fetch
+  Future<List<Map<String, String>>> getAddressListPaginated({
+    int offset = 0,
+    int limit = 100,
+  }) async {
+    _log.d('Getting address list with pagination: offset=$offset, limit=$limit');
+    final response = await sendCommand(
+      [
+        '/ip/firewall/address-list/print',
+        '=.proplist=.id,list,address,disabled,dynamic,creation-time,comment',
+        '=from=$offset',
+        '=count=$limit',
+      ],
+      timeout: const Duration(seconds: 30),
+    );
+    _log.d('Got ${response.length - 1} address list entries');
+    return response;
+  }
+
+  /// Get total count of address list entries
+  Future<int> getAddressListCount() async {
+    _log.d('Getting address list count');
+    final response = await sendCommand(
+      ['/ip/firewall/address-list/print', '=count-only='],
+      timeout: const Duration(seconds: 30),
+    );
+    
+    final countStr = response.firstWhere(
+      (r) => r['type'] == 'done',
+      orElse: () => {},
+    )['ret'];
+    
+    final count = int.tryParse(countStr ?? '0') ?? 0;
+    _log.d('Total address list count: $count');
+    return count;
+  }
 }
+

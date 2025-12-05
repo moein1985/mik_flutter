@@ -37,9 +37,10 @@ class AuthUnauthenticated extends AuthState {
 
 class AuthError extends AuthState {
   final String message;
+  final bool isSslCertificateError;
 
-  const AuthError(this.message);
+  const AuthError(this.message, {this.isSslCertificateError = false});
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, isSslCertificateError];
 }

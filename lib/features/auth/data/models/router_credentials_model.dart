@@ -6,6 +6,7 @@ class RouterCredentialsModel extends RouterCredentials {
     required super.port,
     required super.username,
     required super.password,
+    super.useSsl = false,
   });
 
   factory RouterCredentialsModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +15,7 @@ class RouterCredentialsModel extends RouterCredentials {
       port: json['port'] as int,
       username: json['username'] as String,
       password: json['password'] as String,
+      useSsl: json['useSsl'] as bool? ?? false,
     );
   }
 
@@ -23,6 +25,7 @@ class RouterCredentialsModel extends RouterCredentials {
       'port': port,
       'username': username,
       'password': password,
+      'useSsl': useSsl,
     };
   }
 
@@ -32,6 +35,7 @@ class RouterCredentialsModel extends RouterCredentials {
       port: credentials.port,
       username: credentials.username,
       password: credentials.password,
+      useSsl: credentials.useSsl,
     );
   }
 }

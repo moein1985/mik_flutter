@@ -6,6 +6,7 @@ class RouterSessionModel extends RouterSession {
     required super.port,
     required super.username,
     required super.connectedAt,
+    super.useSsl = false,
   });
 
   factory RouterSessionModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +15,7 @@ class RouterSessionModel extends RouterSession {
       port: json['port'] as int,
       username: json['username'] as String,
       connectedAt: DateTime.parse(json['connectedAt'] as String),
+      useSsl: json['useSsl'] as bool? ?? false,
     );
   }
 
@@ -23,6 +25,7 @@ class RouterSessionModel extends RouterSession {
       'port': port,
       'username': username,
       'connectedAt': connectedAt.toIso8601String(),
+      'useSsl': useSsl,
     };
   }
 }

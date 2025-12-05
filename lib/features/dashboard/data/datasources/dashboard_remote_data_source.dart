@@ -128,7 +128,8 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   @override
   Future<List<FirewallRuleModel>> getFirewallRules() async {
     try {
-      final response = await client.getFirewallRules();
+      // Dashboard uses filter rules by default
+      final response = await client.getFirewallRules('/ip/firewall/filter');
       // Filter out the 'done' message, keep only actual data
       final data = response.where((r) => r['type'] != 'done').toList();
       
@@ -141,7 +142,7 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   @override
   Future<bool> enableFirewallRule(String id) async {
     try {
-      return await client.enableFirewallRule(id);
+      return await client.enableFirewallRule('/ip/firewall/filter', id);
     } catch (e) {
       throw ServerException('Failed to enable firewall rule: $e');
     }
@@ -150,7 +151,7 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   @override
   Future<bool> disableFirewallRule(String id) async {
     try {
-      return await client.disableFirewallRule(id);
+      return await client.disableFirewallRule('/ip/firewall/filter', id);
     } catch (e) {
       throw ServerException('Failed to disable firewall rule: $e');
     }

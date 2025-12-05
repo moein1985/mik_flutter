@@ -24,3 +24,13 @@ class AuthenticationFailure extends Failure {
 class CacheFailure extends Failure {
   const CacheFailure(super.message);
 }
+
+/// Failure when SSL certificate is missing or invalid on RouterOS
+class SslCertificateFailure extends Failure {
+  final bool noCertificate;
+  
+  const SslCertificateFailure(super.message, {this.noCertificate = false});
+  
+  @override
+  List<Object> get props => [message, noCertificate];
+}

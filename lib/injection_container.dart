@@ -68,6 +68,28 @@ import 'features/hotspot/domain/usecases/delete_profile_usecase.dart';
 import 'features/hotspot/domain/usecases/reset_hotspot_usecase.dart';
 import 'features/hotspot/presentation/bloc/hotspot_bloc.dart';
 
+// Features - Firewall
+import 'features/firewall/data/datasources/firewall_remote_data_source.dart';
+import 'features/firewall/data/repositories/firewall_repository_impl.dart';
+import 'features/firewall/domain/repositories/firewall_repository.dart';
+import 'features/firewall/domain/usecases/get_firewall_rules.dart' as firewall_usecases;
+import 'features/firewall/domain/usecases/toggle_firewall_rule.dart' as firewall_usecases;
+import 'features/firewall/domain/usecases/get_address_list_names.dart';
+import 'features/firewall/domain/usecases/get_address_list_by_name.dart';
+import 'features/firewall/presentation/bloc/firewall_bloc.dart';
+
+// Features - IP Services
+import 'features/ip_services/data/datasources/ip_service_remote_data_source.dart';
+import 'features/ip_services/data/repositories/ip_service_repository_impl.dart';
+import 'features/ip_services/domain/repositories/ip_service_repository.dart';
+import 'features/ip_services/presentation/bloc/ip_service_bloc.dart';
+
+// Features - Certificates
+import 'features/certificates/data/datasources/certificate_remote_data_source.dart';
+import 'features/certificates/data/repositories/certificate_repository_impl.dart';
+import 'features/certificates/domain/repositories/certificate_repository.dart';
+import 'features/certificates/presentation/bloc/certificate_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -245,6 +267,82 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<HotspotRemoteDataSource>(
     () => HotspotRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Firewall
+  // Bloc
+  sl.registerFactory(
+    () => FirewallBloc(
+      getFirewallRulesUseCase: sl(),
+      toggleFirewallRuleUseCase: sl(),
+      getAddressListNamesUseCase: sl(),
+      getAddressListByNameUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => firewall_usecases.GetFirewallRulesUseCase(sl()));
+  sl.registerLazySingleton(() => firewall_usecases.ToggleFirewallRuleUseCase(sl()));
+  sl.registerLazySingleton(() => GetAddressListNamesUseCase(sl()));
+  sl.registerLazySingleton(() => GetAddressListByNameUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<FirewallRepository>(
+    () => FirewallRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<FirewallRemoteDataSource>(
+    () => FirewallRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - IP Services
+  // Bloc
+  sl.registerFactory(
+    () => IpServiceBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<IpServiceRepository>(
+    () => IpServiceRepositoryImpl(
+      remoteDataSource: sl(),
+      certificateDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<IpServiceRemoteDataSource>(
+    () => IpServiceRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Certificates
+  // Bloc
+  sl.registerFactory(
+    () => CertificateBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<CertificateRepository>(
+    () => CertificateRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<CertificateRemoteDataSource>(
+    () => CertificateRemoteDataSourceImpl(
       authRemoteDataSource: sl(),
     ),
   );

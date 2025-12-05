@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/usecases/get_saved_credentials_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
@@ -33,7 +34,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     await result.fold(
       (failure) async {
-        emit(AuthError(failure.message));
+        // Check if it's an SSL certificate error
+        final isSslError = failure is SslCertificateFailure;
+        emit(AuthError(failure.message, isSslCertificateError: isSslError));
       },
       (session) async {
         if (event.rememberMe) {

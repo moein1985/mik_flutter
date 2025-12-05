@@ -25,6 +25,9 @@ dependencies:
   # Functional Programming
   dartz: ^0.10.1
   
+  # Routing
+  go_router: ^17.0.0
+  
   # Localization
   intl: ^0.20.2
   

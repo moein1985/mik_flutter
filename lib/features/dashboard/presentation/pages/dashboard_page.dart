@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../main.dart';
-import '../../../../injection_container.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
-import '../../../hotspot/presentation/bloc/hotspot_bloc.dart';
-import '../../../hotspot/presentation/pages/hotspot_page.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
-import 'interfaces_page.dart';
-import 'ip_addresses_page.dart';
-import 'firewall_rules_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -65,7 +61,7 @@ class _DashboardPageState extends State<DashboardPage> {
             icon: const Icon(Icons.logout),
             onPressed: () {
               context.read<AuthBloc>().add(const LogoutRequested());
-              Navigator.of(context).pushReplacementNamed('/login');
+              context.go(AppRoutes.login);
             },
           ),
         ],
@@ -179,51 +175,14 @@ class _DashboardPageState extends State<DashboardPage> {
                           l10n.interfaces,
                           Icons.settings_ethernet,
                           Colors.blue,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BlocProvider.value(
-                                  value: context.read<DashboardBloc>(),
-                                  child: const InterfacesPage(),
-                                ),
-                              ),
-                            );
-                          },
+                          () => context.push(AppRoutes.interfaces),
                         ),
                         _buildManagementCard(
                           context,
                           l10n.ipAddresses,
                           Icons.public,
                           Colors.green,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BlocProvider.value(
-                                  value: context.read<DashboardBloc>(),
-                                  child: const IpAddressesPage(),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildManagementCard(
-                          context,
-                          l10n.firewall,
-                          Icons.security,
-                          Colors.red,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BlocProvider.value(
-                                  value: context.read<DashboardBloc>(),
-                                  child: const FirewallRulesPage(),
-                                ),
-                              ),
-                            );
-                          },
+                          () => context.push(AppRoutes.ipAddresses),
                         ),
                         _buildManagementCard(
                           context,
@@ -241,17 +200,28 @@ class _DashboardPageState extends State<DashboardPage> {
                           'HotSpot',
                           Icons.wifi,
                           Colors.orange,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BlocProvider(
-                                  create: (_) => sl<HotspotBloc>(),
-                                  child: const HotspotPage(),
-                                ),
-                              ),
-                            );
-                          },
+                          () => context.push(AppRoutes.hotspot),
+                        ),
+                        _buildManagementCard(
+                          context,
+                          l10n.firewall,
+                          Icons.security,
+                          Colors.red,
+                          () => context.push(AppRoutes.firewall),
+                        ),
+                        _buildManagementCard(
+                          context,
+                          'Services',
+                          Icons.dns,
+                          Colors.teal,
+                          () => context.push(AppRoutes.services),
+                        ),
+                        _buildManagementCard(
+                          context,
+                          'Certificates',
+                          Icons.verified_user,
+                          Colors.indigo,
+                          () => context.push(AppRoutes.certificates),
                         ),
                       ],
                     ),

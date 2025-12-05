@@ -17,3 +17,15 @@ class CacheException implements Exception {
   final String message;
   CacheException(this.message);
 }
+
+/// Exception thrown when SSL/TLS handshake fails
+/// Usually indicates missing or invalid certificate on RouterOS
+class SslCertificateException implements Exception {
+  final String message;
+  final bool noCertificate;
+  
+  SslCertificateException(this.message, {this.noCertificate = false});
+  
+  @override
+  String toString() => message;
+}
