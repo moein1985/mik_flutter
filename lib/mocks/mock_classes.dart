@@ -8,6 +8,9 @@ import 'package:hsmik/features/hotspot/domain/usecases/get_users_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/get_active_users_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/get_profiles_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/add_user_usecase.dart';
+import 'package:hsmik/features/certificates/domain/repositories/certificate_repository.dart';
+import 'package:hsmik/features/certificates/data/datasources/certificate_remote_data_source.dart';
+import 'package:hsmik/features/certificates/presentation/bloc/certificate_bloc.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/edit_user_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/delete_user_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/reset_user_counters_usecase.dart';
@@ -97,3 +100,9 @@ class MockEditProfileUseCase extends Mock implements EditProfileUseCase {}
 class MockDeleteProfileUseCase extends Mock implements DeleteProfileUseCase {}
 
 class MockResetHotspotUseCase extends Mock implements ResetHotspotUseCase {}
+
+class MockCertificateRemoteDataSource extends Mock implements CertificateRemoteDataSource {}
+
+class MockCertificateRepository extends Mock implements CertificateRepository {}
+
+class MockCertificateBloc extends Mock implements CertificateBloc {}
