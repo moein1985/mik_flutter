@@ -207,6 +207,34 @@ class RouterOSClient {
     }
   }
 
+  /// Monitor interface traffic
+  /// Returns real-time traffic data for the specified interface
+  /// Response includes: rx-bits-per-second, tx-bits-per-second, rx-packets-per-second, tx-packets-per-second
+  Future<Map<String, String>> monitorTraffic(String interfaceName) async {
+    try {
+      final response = await sendCommand(
+        [
+          '/interface/monitor-traffic',
+          '=interface=$interfaceName',
+          '=once=',
+        ],
+        timeout: const Duration(seconds: 5),
+      );
+      
+      // Find the data response (not 'done' or 'trap')
+      for (final item in response) {
+        if (item['type'] != 'done' && item['type'] != 'trap') {
+          return item;
+        }
+      }
+      
+      return {};
+    } catch (e) {
+      _log.e('Monitor traffic failed for $interfaceName', error: e);
+      return {};
+    }
+  }
+
   /// Get all IP addresses
   Future<List<Map<String, String>>> getIpAddresses() async {
     return await sendCommand(['/ip/address/print']);

@@ -17,6 +17,7 @@ class SaveRouter extends SavedRouterEvent {
   final int port;
   final String username;
   final String password;
+  final bool useSsl;
   final bool isDefault;
 
   const SaveRouter({
@@ -25,11 +26,12 @@ class SaveRouter extends SavedRouterEvent {
     required this.port,
     required this.username,
     required this.password,
+    this.useSsl = false,
     this.isDefault = false,
   });
 
   @override
-  List<Object?> get props => [name, host, port, username, password, isDefault];
+  List<Object?> get props => [name, host, port, username, password, useSsl, isDefault];
 }
 
 class DeleteSavedRouter extends SavedRouterEvent {

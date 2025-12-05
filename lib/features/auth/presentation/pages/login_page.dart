@@ -69,6 +69,7 @@ class _LoginPageState extends State<LoginPage> {
       _portController.text = router.port.toString();
       _usernameController.text = router.username;
       _passwordController.text = router.password;
+      _useSsl = router.useSsl;
     });
   }
 
@@ -164,6 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                         port: int.tryParse(_portController.text) ?? 8728,
                         username: _usernameController.text,
                         password: _passwordController.text,
+                        useSsl: _useSsl,
                         isDefault: setAsDefault,
                       ));
                       Navigator.pop(dialogContext);
@@ -724,7 +726,38 @@ class _SavedRouterTile extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${router.host}:${router.port}'),
+            Row(
+              children: [
+                Text('${router.host}:${router.port}'),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: router.useSsl ? Colors.green[100] : Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        router.useSsl ? Icons.lock : Icons.lock_open,
+                        size: 12,
+                        color: router.useSsl ? Colors.green[700] : Colors.grey[600],
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        router.useSsl ? 'SSL' : 'API',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: router.useSsl ? Colors.green[700] : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
             Text(
               'User: ${router.username}',
               style: TextStyle(color: Colors.grey[600], fontSize: 12),

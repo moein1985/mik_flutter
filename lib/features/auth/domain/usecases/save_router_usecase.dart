@@ -14,6 +14,7 @@ class SaveRouterUseCase {
     required int port,
     required String username,
     required String password,
+    bool useSsl = false,
     bool isDefault = false,
   }) {
     final router = SavedRouter.create(
@@ -22,6 +23,7 @@ class SaveRouterUseCase {
       port: port,
       username: username,
       password: password,
+      useSsl: useSsl,
       isDefault: isDefault,
     );
     return repository.saveRouter(router);

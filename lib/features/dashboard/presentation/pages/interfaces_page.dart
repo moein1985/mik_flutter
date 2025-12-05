@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import '../../../auth/data/datasources/auth_remote_data_source.dart';
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/dashboard_event.dart';
 import '../bloc/dashboard_state.dart';
+import 'interface_monitoring_page.dart';
 
 class InterfacesPage extends StatefulWidget {
   const InterfacesPage({super.key});
@@ -16,6 +19,30 @@ class _InterfacesPageState extends State<InterfacesPage> {
   void initState() {
     super.initState();
     context.read<DashboardBloc>().add(const LoadInterfaces());
+  }
+
+  void _openMonitoring(BuildContext context, String interfaceName) {
+    final authDataSource = GetIt.instance<AuthRemoteDataSource>();
+    final client = authDataSource.client;
+
+    if (client == null || !client.isConnected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Not connected to router'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => InterfaceMonitoringPage(
+          interfaceName: interfaceName,
+          client: client,
+        ),
+      ),
+    );
   }
 
   @override
@@ -60,28 +87,83 @@ class _InterfacesPageState extends State<InterfacesPage> {
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: isActive ? Colors.green : Colors.grey,
-                        child: Icon(
-                          Icons.settings_ethernet,
-                          color: Colors.white,
-                        ),
-                      ),
-                      title: Text(
-                        interface.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 4),
-                          Text('Type: ${interface.type}'),
-                          if (interface.macAddress != null)
-                            Text('MAC: ${interface.macAddress}'),
-                          if (interface.comment != null)
-                            Text('Comment: ${interface.comment}'),
-                          const SizedBox(height: 4),
+                          // Header row with icon, name, and switch
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundColor: isActive ? Colors.green : Colors.grey,
+                                radius: 20,
+                                child: const Icon(
+                                  Icons.settings_ethernet,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      interface.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Type: ${interface.type}',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Switch(
+                                value: !interface.disabled,
+                                onChanged: (value) {
+                                  context.read<DashboardBloc>().add(
+                                        ToggleInterface(
+                                          id: interface.id,
+                                          enable: value,
+                                        ),
+                                      );
+                                },
+                              ),
+                            ],
+                          ),
+
+                          // Details
+                          if (interface.macAddress != null || interface.comment != null) ...[
+                            const SizedBox(height: 8),
+                            if (interface.macAddress != null)
+                              Text(
+                                'MAC: ${interface.macAddress}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            if (interface.comment != null)
+                              Text(
+                                'Comment: ${interface.comment}',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                          ],
+
+                          const SizedBox(height: 8),
+
+                          // Status chips and Monitor button row
                           Row(
                             children: [
                               if (interface.running)
@@ -106,20 +188,23 @@ class _InterfacesPageState extends State<InterfacesPage> {
                                   labelPadding: EdgeInsets.symmetric(horizontal: 4),
                                   visualDensity: VisualDensity.compact,
                                 ),
+                              const Spacer(),
+                              // Monitor button
+                              OutlinedButton.icon(
+                                onPressed: () => _openMonitoring(context, interface.name),
+                                icon: const Icon(Icons.show_chart, size: 16),
+                                label: const Text('Monitor'),
+                                style: OutlinedButton.styleFrom(
+                                  visualDensity: VisualDensity.compact,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ],
-                      ),
-                      trailing: Switch(
-                        value: !interface.disabled,
-                        onChanged: (value) {
-                          context.read<DashboardBloc>().add(
-                                ToggleInterface(
-                                  id: interface.id,
-                                  enable: value,
-                                ),
-                              );
-                        },
                       ),
                     ),
                   );

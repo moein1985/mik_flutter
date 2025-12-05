@@ -13,7 +13,7 @@ class DatabaseHelper {
   static final _log = AppLogger.tag('DatabaseHelper');
   static Database? _database;
   static const String _databaseName = 'mik_flutter.db';
-  static const int _databaseVersion = 1;
+  static const int _databaseVersion = 2;
 
   // Singleton pattern
   DatabaseHelper._();
@@ -61,6 +61,7 @@ class DatabaseHelper {
         port INTEGER NOT NULL DEFAULT 8728,
         username TEXT NOT NULL,
         password TEXT NOT NULL,
+        use_ssl INTEGER NOT NULL DEFAULT 0,
         is_default INTEGER NOT NULL DEFAULT 0,
         last_connected TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -79,7 +80,13 @@ class DatabaseHelper {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     _log.i('Upgrading database from version $oldVersion to $newVersion');
-    // Add migration logic here for future versions
+    
+    // Migration from version 1 to 2: Add use_ssl column
+    if (oldVersion < 2) {
+      _log.i('Adding use_ssl column to saved_routers table...');
+      await db.execute('ALTER TABLE saved_routers ADD COLUMN use_ssl INTEGER NOT NULL DEFAULT 0');
+      _log.i('Migration to version 2 completed');
+    }
   }
 
   Future<void> close() async {

@@ -66,6 +66,7 @@ class SavedRouterBloc extends Bloc<SavedRouterEvent, SavedRouterState> {
       port: event.port,
       username: event.username,
       password: event.password,
+      useSsl: event.useSsl,
       isDefault: event.isDefault,
     );
 
