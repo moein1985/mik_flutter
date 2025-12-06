@@ -339,5 +339,194 @@
   "transparentProxy": "پروکسی شفاف",
   "@transparentProxy": {
     "description": "برچسب پروکسی شفاف"
+  },
+  
+  "certificates": "گواهینامه‌ها",
+  "@certificates": {
+    "description": "عنوان منوی گواهینامه‌ها"
+  },
+  "localCA": "CA محلی",
+  "@localCA": {
+    "description": "عنوان تب CA محلی"
+  },
+  "letsEncrypt": "Let's Encrypt",
+  "@letsEncrypt": {
+    "description": "عنوان تب Let's Encrypt"
+  },
+  "letsEncryptCertificateActive": "گواهینامه فعال",
+  "@letsEncryptCertificateActive": {
+    "description": "گواهینامه Let's Encrypt فعال است"
+  },
+  "letsEncryptNoCertificate": "بدون گواهینامه",
+  "@letsEncryptNoCertificate": {
+    "description": "گواهینامه Let's Encrypt یافت نشد"
+  },
+  "letsEncryptCertificateIssued": "گواهینامه با موفقیت صادر شد!",
+  "@letsEncryptCertificateIssued": {
+    "description": "پیام موفقیت صدور گواهینامه"
+  },
+  "letsEncryptAutoFixSuccess": "مشکل با موفقیت برطرف شد",
+  "@letsEncryptAutoFixSuccess": {
+    "description": "پیام موفقیت رفع خودکار"
+  },
+  "letsEncryptAutoFixing": "در حال رفع مشکل...",
+  "@letsEncryptAutoFixing": {
+    "description": "در حال رفع خودکار"
+  },
+  "letsEncryptRequesting": "در حال درخواست گواهینامه...",
+  "@letsEncryptRequesting": {
+    "description": "در حال درخواست گواهینامه"
+  },
+  "letsEncryptRequestingInfo": "این کار ممکن است ۱ تا ۲ دقیقه طول بکشد. روتر باید مالکیت دامنه را از طریق پورت ۸۰ تأیید کند.",
+  "@letsEncryptRequestingInfo": {
+    "description": "اطلاعات نمایش داده شده در هنگام درخواست گواهینامه"
+  },
+  "letsEncryptCertName": "نام گواهینامه",
+  "@letsEncryptCertName": {
+    "description": "برچسب نام گواهینامه"
+  },
+  "letsEncryptExpiresAt": "تاریخ انقضا",
+  "@letsEncryptExpiresAt": {
+    "description": "برچسب تاریخ انقضا"
+  },
+  "letsEncryptDaysRemaining": "روز باقیمانده",
+  "@letsEncryptDaysRemaining": {
+    "description": "روزهای باقیمانده تا انقضا"
+  },
+  "letsEncryptExpiringSoon": "گواهینامه به زودی منقضی می‌شود. تمدید کنید.",
+  "@letsEncryptExpiringSoon": {
+    "description": "هشدار انقضای گواهینامه"
+  },
+  "letsEncryptRevoke": "حذف گواهینامه",
+  "@letsEncryptRevoke": {
+    "description": "دکمه ابطال/حذف گواهینامه"
+  },
+  "letsEncryptRenew": "تمدید گواهینامه",
+  "@letsEncryptRenew": {
+    "description": "دکمه تمدید گواهینامه"
+  },
+  "letsEncryptGetCertificate": "دریافت گواهینامه SSL رایگان",
+  "@letsEncryptGetCertificate": {
+    "description": "دکمه دریافت گواهینامه"
+  },
+  "letsEncryptInfo": "درباره Let's Encrypt",
+  "@letsEncryptInfo": {
+    "description": "عنوان بخش اطلاعات"
+  },
+  "letsEncryptInfoText": "Let's Encrypt گواهینامه‌های SSL رایگان ارائه می‌دهد که توسط همه مرورگرها معتبر شناخته می‌شوند. گواهینامه‌ها ۹۰ روز اعتبار دارند و می‌توانند به صورت خودکار تمدید شوند.",
+  "@letsEncryptInfoText": {
+    "description": "اطلاعات درباره Let's Encrypt"
+  },
+  "letsEncryptPreChecks": "بررسی‌های اولیه",
+  "@letsEncryptPreChecks": {
+    "description": "عنوان بررسی‌های اولیه"
+  },
+  "letsEncryptPreChecksDesc": "قبل از درخواست گواهینامه، باید مطمئن شویم روتر شما تمام الزامات را برآورده می‌کند.",
+  "@letsEncryptPreChecksDesc": {
+    "description": "توضیحات بررسی‌های اولیه"
+  },
+  "letsEncryptDnsName": "نام DNS شما",
+  "@letsEncryptDnsName": {
+    "description": "برچسب نام DNS"
+  },
+  "letsEncryptRequestNow": "درخواست گواهینامه",
+  "@letsEncryptRequestNow": {
+    "description": "دکمه درخواست گواهینامه"
+  },
+  "letsEncryptAutoFixAll": "رفع همه مشکلات",
+  "@letsEncryptAutoFixAll": {
+    "description": "دکمه رفع همه مشکلات"
+  },
+  "letsEncryptRecheck": "بررسی مجدد",
+  "@letsEncryptRecheck": {
+    "description": "دکمه بررسی مجدد الزامات"
+  },
+  "letsEncryptFix": "رفع",
+  "@letsEncryptFix": {
+    "description": "دکمه رفع مشکل"
+  },
+  "letsEncryptCheckCloud": "Cloud DDNS فعال",
+  "@letsEncryptCheckCloud": {
+    "description": "بررسی Cloud DDNS"
+  },
+  "letsEncryptCheckDns": "نام DNS در دسترس",
+  "@letsEncryptCheckDns": {
+    "description": "بررسی نام DNS"
+  },
+  "letsEncryptCheckPort80": "پورت ۸۰ در دسترس",
+  "@letsEncryptCheckPort80": {
+    "description": "بررسی پورت ۸۰"
+  },
+  "letsEncryptCheckFirewall": "فایروال پورت ۸۰ را مجاز می‌داند",
+  "@letsEncryptCheckFirewall": {
+    "description": "بررسی فایروال"
+  },
+  "letsEncryptCheckNat": "NAT پورت ۸۰ را ریدایرکت نمی‌کند",
+  "@letsEncryptCheckNat": {
+    "description": "بررسی NAT"
+  },
+  "letsEncryptCheckWww": "سرویس WWW روی پورت ۸۰ نیست",
+  "@letsEncryptCheckWww": {
+    "description": "بررسی سرویس WWW"
+  },
+  "letsEncryptLoadingStatus": "در حال بارگذاری وضعیت گواهینامه...",
+  "@letsEncryptLoadingStatus": {
+    "description": "پیام بارگذاری وضعیت"
+  },
+  "letsEncryptRunningPreChecks": "در حال اجرای بررسی‌های اولیه...",
+  "@letsEncryptRunningPreChecks": {
+    "description": "پیام اجرای بررسی‌های اولیه"
+  },
+  "letsEncryptErrorCloudNotEnabled": "Cloud DDNS فعال نیست. برای دریافت نام DNS آن را فعال کنید.",
+  "@letsEncryptErrorCloudNotEnabled": {
+    "description": "خطای عدم فعال بودن Cloud"
+  },
+  "letsEncryptErrorDnsNotAvailable": "نام DNS هنوز در دسترس نیست. منتظر بمانید تا MikroTik Cloud یکی اختصاص دهد.",
+  "@letsEncryptErrorDnsNotAvailable": {
+    "description": "خطای عدم دسترسی به DNS"
+  },
+  "letsEncryptErrorPort80Blocked": "پورت ۸۰ مسدود است. باید از اینترنت قابل دسترسی باشد.",
+  "@letsEncryptErrorPort80Blocked": {
+    "description": "خطای مسدود بودن پورت ۸۰"
+  },
+  "letsEncryptErrorWwwService": "سرویس WWW از پورت ۸۰ استفاده می‌کند. پورت آن را تغییر دهید یا غیرفعالش کنید.",
+  "@letsEncryptErrorWwwService": {
+    "description": "خطای سرویس WWW"
+  },
+  "letsEncryptErrorNatRule": "یک قاعده NAT پورت ۸۰ را ریدایرکت می‌کند. موقتاً غیرفعالش کنید.",
+  "@letsEncryptErrorNatRule": {
+    "description": "خطای قاعده NAT"
+  },
+  "letsEncryptErrorLoadFailed": "بارگذاری وضعیت گواهینامه ناموفق بود",
+  "@letsEncryptErrorLoadFailed": {
+    "description": "خطای بارگذاری ناموفق"
+  },
+  "letsEncryptErrorPreChecksFailed": "اجرای بررسی‌های اولیه ناموفق بود",
+  "@letsEncryptErrorPreChecksFailed": {
+    "description": "خطای بررسی‌های اولیه ناموفق"
+  },
+  "letsEncryptErrorAutoFixFailed": "رفع خودکار مشکل ناموفق بود",
+  "@letsEncryptErrorAutoFixFailed": {
+    "description": "خطای رفع خودکار ناموفق"
+  },
+  "letsEncryptErrorRequestFailed": "درخواست گواهینامه ناموفق بود. دسترسی پورت ۸۰ را بررسی کنید.",
+  "@letsEncryptErrorRequestFailed": {
+    "description": "خطای درخواست ناموفق"
+  },
+  "letsEncryptErrorRevokeFailed": "حذف گواهینامه ناموفق بود",
+  "@letsEncryptErrorRevokeFailed": {
+    "description": "خطای ابطال ناموفق"
+  },
+  "letsEncryptRevokeTitle": "حذف گواهینامه؟",
+  "@letsEncryptRevokeTitle": {
+    "description": "عنوان دیالوگ ابطال"
+  },
+  "letsEncryptRevokeDesc": "آیا مطمئن هستید می‌خواهید این گواهینامه Let's Encrypt را حذف کنید؟",
+  "@letsEncryptRevokeDesc": {
+    "description": "توضیحات دیالوگ ابطال"
+  },
+  "letsEncryptRevokeWarning": "سرویس‌هایی که از این گواهینامه استفاده می‌کنند تا صدور گواهینامه جدید کار نخواهند کرد.",
+  "@letsEncryptRevokeWarning": {
+    "description": "پیام هشدار ابطال"
   }
 }

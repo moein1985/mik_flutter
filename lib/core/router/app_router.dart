@@ -25,10 +25,13 @@ import '../../features/firewall/presentation/pages/firewall_address_list_page.da
 import '../../features/firewall/domain/entities/firewall_rule.dart';
 import '../../features/ip_services/presentation/bloc/ip_service_bloc.dart';
 import '../../features/ip_services/presentation/pages/ip_services_page.dart';
-import '../../features/certificates/presentation/bloc/certificate_bloc.dart';
-import '../../features/certificates/presentation/pages/certificates_page.dart';
+import '../../features/certificates/presentation/pages/certificates_main_page.dart';
+import '../../features/letsencrypt/presentation/bloc/letsencrypt_bloc.dart';
+import '../../features/letsencrypt/presentation/pages/letsencrypt_page.dart';
 import '../../features/dhcp/presentation/bloc/dhcp_bloc.dart';
 import '../../features/dhcp/presentation/pages/dhcp_page.dart';
+import '../../features/cloud/presentation/bloc/cloud_bloc.dart';
+import '../../features/cloud/presentation/pages/cloud_page.dart';
 
 /// Route names as constants
 class AppRoutes {
@@ -37,6 +40,7 @@ class AppRoutes {
   static const String interfaces = '/dashboard/interfaces';
   static const String ipAddresses = '/dashboard/ip-addresses';
   static const String dhcp = '/dashboard/dhcp';
+  static const String cloud = '/dashboard/cloud';
   static const String hotspot = '/dashboard/hotspot';
   static const String hotspotUsers = '/dashboard/hotspot/users';
   static const String hotspotActiveUsers = '/dashboard/hotspot/active-users';
@@ -50,6 +54,7 @@ class AppRoutes {
   static const String firewallAddressList = '/dashboard/firewall/address-list';
   static const String services = '/dashboard/services';
   static const String certificates = '/dashboard/certificates';
+  static const String letsencrypt = '/dashboard/certificates/letsencrypt';
 }
 
 /// Global navigator key for use outside of widget context
@@ -131,10 +136,18 @@ class AppRouter {
             GoRoute(
               path: 'certificates',
               name: 'certificates',
-              builder: (context, state) => BlocProvider(
-                create: (_) => sl<CertificateBloc>(),
-                child: const CertificatesPage(),
-              ),
+              builder: (context, state) => const CertificatesMainPage(),
+              routes: [
+                // Let's Encrypt (standalone route for direct navigation)
+                GoRoute(
+                  path: 'letsencrypt',
+                  name: 'letsencrypt',
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => sl<LetsEncryptBloc>(),
+                    child: const LetsEncryptPage(),
+                  ),
+                ),
+              ],
             ),
 
             // HotSpot and nested routes
@@ -275,6 +288,16 @@ class AppRouter {
               builder: (context, state) => BlocProvider(
                 create: (_) => sl<DhcpBloc>(),
                 child: const DhcpPage(),
+              ),
+            ),
+
+            // Cloud route
+            GoRoute(
+              path: 'cloud',
+              name: 'cloud',
+              builder: (context, state) => BlocProvider(
+                create: (_) => sl<CloudBloc>(),
+                child: const CloudPage(),
               ),
             ),
 

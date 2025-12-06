@@ -193,6 +193,13 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                         _buildManagementCard(
                           context,
+                          'Cloud',
+                          Icons.cloud,
+                          Colors.lightBlue,
+                          () => context.push(AppRoutes.cloud),
+                        ),
+                        _buildManagementCard(
+                          context,
                           'HotSpot',
                           Icons.wifi,
                           Colors.orange,

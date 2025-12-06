@@ -259,4 +259,159 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transparentProxy => 'Transparent Proxy';
+
+  @override
+  String get certificates => 'Certificates';
+
+  @override
+  String get localCA => 'Local CA';
+
+  @override
+  String get letsEncrypt => 'Let\'s Encrypt';
+
+  @override
+  String get letsEncryptCertificateActive => 'Certificate Active';
+
+  @override
+  String get letsEncryptNoCertificate => 'No Certificate';
+
+  @override
+  String get letsEncryptCertificateIssued => 'Certificate issued successfully!';
+
+  @override
+  String get letsEncryptAutoFixSuccess => 'Issue fixed successfully';
+
+  @override
+  String get letsEncryptAutoFixing => 'Fixing issue...';
+
+  @override
+  String get letsEncryptRequesting => 'Requesting Certificate...';
+
+  @override
+  String get letsEncryptRequestingInfo =>
+      'This may take 1-2 minutes. The router needs to verify domain ownership via port 80.';
+
+  @override
+  String get letsEncryptCertName => 'Certificate Name';
+
+  @override
+  String get letsEncryptExpiresAt => 'Expires At';
+
+  @override
+  String get letsEncryptDaysRemaining => 'Days Remaining';
+
+  @override
+  String get letsEncryptExpiringSoon =>
+      'Certificate is expiring soon. Consider renewing.';
+
+  @override
+  String get letsEncryptRevoke => 'Delete Certificate';
+
+  @override
+  String get letsEncryptRenew => 'Renew Certificate';
+
+  @override
+  String get letsEncryptGetCertificate => 'Get Free SSL Certificate';
+
+  @override
+  String get letsEncryptInfo => 'About Let\'s Encrypt';
+
+  @override
+  String get letsEncryptInfoText =>
+      'Let\'s Encrypt provides free SSL certificates that are trusted by all browsers. Certificates are valid for 90 days and can be renewed automatically.';
+
+  @override
+  String get letsEncryptPreChecks => 'Pre-flight Checks';
+
+  @override
+  String get letsEncryptPreChecksDesc =>
+      'Before requesting a certificate, we need to verify your router meets all requirements.';
+
+  @override
+  String get letsEncryptDnsName => 'Your DNS Name';
+
+  @override
+  String get letsEncryptRequestNow => 'Request Certificate';
+
+  @override
+  String get letsEncryptAutoFixAll => 'Fix All Issues';
+
+  @override
+  String get letsEncryptRecheck => 'Re-check';
+
+  @override
+  String get letsEncryptFix => 'Fix';
+
+  @override
+  String get letsEncryptCheckCloud => 'Cloud DDNS Enabled';
+
+  @override
+  String get letsEncryptCheckDns => 'DNS Name Available';
+
+  @override
+  String get letsEncryptCheckPort80 => 'Port 80 Accessible';
+
+  @override
+  String get letsEncryptCheckFirewall => 'Firewall Allows Port 80';
+
+  @override
+  String get letsEncryptCheckNat => 'No NAT Redirect on Port 80';
+
+  @override
+  String get letsEncryptCheckWww => 'WWW Service Not on Port 80';
+
+  @override
+  String get letsEncryptLoadingStatus => 'Loading certificate status...';
+
+  @override
+  String get letsEncryptRunningPreChecks => 'Running pre-flight checks...';
+
+  @override
+  String get letsEncryptErrorCloudNotEnabled =>
+      'Cloud DDNS is not enabled. Enable it to get a DNS name.';
+
+  @override
+  String get letsEncryptErrorDnsNotAvailable =>
+      'DNS name not available yet. Wait for MikroTik Cloud to assign one.';
+
+  @override
+  String get letsEncryptErrorPort80Blocked =>
+      'Port 80 is blocked. It must be accessible from the internet.';
+
+  @override
+  String get letsEncryptErrorWwwService =>
+      'WWW service is using port 80. Change its port or disable it.';
+
+  @override
+  String get letsEncryptErrorNatRule =>
+      'A NAT rule is redirecting port 80. Disable it temporarily.';
+
+  @override
+  String get letsEncryptErrorLoadFailed => 'Failed to load certificate status';
+
+  @override
+  String get letsEncryptErrorPreChecksFailed =>
+      'Failed to run pre-flight checks';
+
+  @override
+  String get letsEncryptErrorAutoFixFailed =>
+      'Failed to fix the issue automatically';
+
+  @override
+  String get letsEncryptErrorRequestFailed =>
+      'Failed to request certificate. Check port 80 accessibility.';
+
+  @override
+  String get letsEncryptErrorRevokeFailed => 'Failed to delete certificate';
+
+  @override
+  String get letsEncryptRevokeTitle => 'Delete Certificate?';
+
+  @override
+  String get letsEncryptRevokeDesc =>
+      'Are you sure you want to delete this Let\'s Encrypt certificate?';
+
+  @override
+  String get letsEncryptRevokeWarning =>
+      'Services using this certificate will stop working until a new certificate is issued.';
 }

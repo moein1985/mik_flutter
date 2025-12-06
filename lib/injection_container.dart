@@ -96,6 +96,18 @@ import 'features/dhcp/data/repositories/dhcp_repository_impl.dart';
 import 'features/dhcp/domain/repositories/dhcp_repository.dart';
 import 'features/dhcp/presentation/bloc/dhcp_bloc.dart';
 
+// Features - Cloud
+import 'features/cloud/data/datasources/cloud_remote_data_source.dart';
+import 'features/cloud/data/repositories/cloud_repository_impl.dart';
+import 'features/cloud/domain/repositories/cloud_repository.dart';
+import 'features/cloud/presentation/bloc/cloud_bloc.dart';
+
+// Features - Let's Encrypt
+import 'features/letsencrypt/data/datasources/letsencrypt_remote_data_source.dart';
+import 'features/letsencrypt/data/repositories/letsencrypt_repository_impl.dart';
+import 'features/letsencrypt/domain/repositories/letsencrypt_repository.dart';
+import 'features/letsencrypt/presentation/bloc/letsencrypt_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -371,6 +383,50 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<DhcpRemoteDataSource>(
     () => DhcpRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Cloud
+  // Bloc
+  sl.registerFactory(
+    () => CloudBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<CloudRepository>(
+    () => CloudRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<CloudRemoteDataSource>(
+    () => CloudRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Let's Encrypt
+  // Bloc
+  sl.registerFactory(
+    () => LetsEncryptBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<LetsEncryptRepository>(
+    () => LetsEncryptRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<LetsEncryptRemoteDataSource>(
+    () => LetsEncryptRemoteDataSourceImpl(
       authRemoteDataSource: sl(),
     ),
   );

@@ -601,6 +601,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Transparent Proxy'**
   String get transparentProxy;
+
+  /// Certificates menu title
+  ///
+  /// In en, this message translates to:
+  /// **'Certificates'**
+  String get certificates;
+
+  /// Local CA tab title
+  ///
+  /// In en, this message translates to:
+  /// **'Local CA'**
+  String get localCA;
+
+  /// Let's Encrypt tab title
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s Encrypt'**
+  String get letsEncrypt;
+
+  /// Let's Encrypt certificate is active
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate Active'**
+  String get letsEncryptCertificateActive;
+
+  /// No Let's Encrypt certificate found
+  ///
+  /// In en, this message translates to:
+  /// **'No Certificate'**
+  String get letsEncryptNoCertificate;
+
+  /// Certificate issued success message
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate issued successfully!'**
+  String get letsEncryptCertificateIssued;
+
+  /// Auto-fix success message
+  ///
+  /// In en, this message translates to:
+  /// **'Issue fixed successfully'**
+  String get letsEncryptAutoFixSuccess;
+
+  /// Auto-fixing in progress
+  ///
+  /// In en, this message translates to:
+  /// **'Fixing issue...'**
+  String get letsEncryptAutoFixing;
+
+  /// Requesting certificate in progress
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting Certificate...'**
+  String get letsEncryptRequesting;
+
+  /// Info shown during certificate request
+  ///
+  /// In en, this message translates to:
+  /// **'This may take 1-2 minutes. The router needs to verify domain ownership via port 80.'**
+  String get letsEncryptRequestingInfo;
+
+  /// Certificate name label
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate Name'**
+  String get letsEncryptCertName;
+
+  /// Certificate expiry date label
+  ///
+  /// In en, this message translates to:
+  /// **'Expires At'**
+  String get letsEncryptExpiresAt;
+
+  /// Days until certificate expiry
+  ///
+  /// In en, this message translates to:
+  /// **'Days Remaining'**
+  String get letsEncryptDaysRemaining;
+
+  /// Warning for expiring certificate
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate is expiring soon. Consider renewing.'**
+  String get letsEncryptExpiringSoon;
+
+  /// Revoke/delete certificate button
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Certificate'**
+  String get letsEncryptRevoke;
+
+  /// Renew certificate button
+  ///
+  /// In en, this message translates to:
+  /// **'Renew Certificate'**
+  String get letsEncryptRenew;
+
+  /// Get certificate button
+  ///
+  /// In en, this message translates to:
+  /// **'Get Free SSL Certificate'**
+  String get letsEncryptGetCertificate;
+
+  /// Info section title
+  ///
+  /// In en, this message translates to:
+  /// **'About Let\'s Encrypt'**
+  String get letsEncryptInfo;
+
+  /// Info about Let's Encrypt
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s Encrypt provides free SSL certificates that are trusted by all browsers. Certificates are valid for 90 days and can be renewed automatically.'**
+  String get letsEncryptInfoText;
+
+  /// Pre-checks title
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-flight Checks'**
+  String get letsEncryptPreChecks;
+
+  /// Pre-checks description
+  ///
+  /// In en, this message translates to:
+  /// **'Before requesting a certificate, we need to verify your router meets all requirements.'**
+  String get letsEncryptPreChecksDesc;
+
+  /// DNS name label
+  ///
+  /// In en, this message translates to:
+  /// **'Your DNS Name'**
+  String get letsEncryptDnsName;
+
+  /// Request certificate button
+  ///
+  /// In en, this message translates to:
+  /// **'Request Certificate'**
+  String get letsEncryptRequestNow;
+
+  /// Fix all issues button
+  ///
+  /// In en, this message translates to:
+  /// **'Fix All Issues'**
+  String get letsEncryptAutoFixAll;
+
+  /// Re-check requirements button
+  ///
+  /// In en, this message translates to:
+  /// **'Re-check'**
+  String get letsEncryptRecheck;
+
+  /// Fix single issue button
+  ///
+  /// In en, this message translates to:
+  /// **'Fix'**
+  String get letsEncryptFix;
+
+  /// Cloud DDNS check
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud DDNS Enabled'**
+  String get letsEncryptCheckCloud;
+
+  /// DNS name check
+  ///
+  /// In en, this message translates to:
+  /// **'DNS Name Available'**
+  String get letsEncryptCheckDns;
+
+  /// Port 80 check
+  ///
+  /// In en, this message translates to:
+  /// **'Port 80 Accessible'**
+  String get letsEncryptCheckPort80;
+
+  /// Firewall check
+  ///
+  /// In en, this message translates to:
+  /// **'Firewall Allows Port 80'**
+  String get letsEncryptCheckFirewall;
+
+  /// NAT check
+  ///
+  /// In en, this message translates to:
+  /// **'No NAT Redirect on Port 80'**
+  String get letsEncryptCheckNat;
+
+  /// WWW service check
+  ///
+  /// In en, this message translates to:
+  /// **'WWW Service Not on Port 80'**
+  String get letsEncryptCheckWww;
+
+  /// Loading status message
+  ///
+  /// In en, this message translates to:
+  /// **'Loading certificate status...'**
+  String get letsEncryptLoadingStatus;
+
+  /// Running pre-checks message
+  ///
+  /// In en, this message translates to:
+  /// **'Running pre-flight checks...'**
+  String get letsEncryptRunningPreChecks;
+
+  /// Cloud not enabled error
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud DDNS is not enabled. Enable it to get a DNS name.'**
+  String get letsEncryptErrorCloudNotEnabled;
+
+  /// DNS not available error
+  ///
+  /// In en, this message translates to:
+  /// **'DNS name not available yet. Wait for MikroTik Cloud to assign one.'**
+  String get letsEncryptErrorDnsNotAvailable;
+
+  /// Port 80 blocked error
+  ///
+  /// In en, this message translates to:
+  /// **'Port 80 is blocked. It must be accessible from the internet.'**
+  String get letsEncryptErrorPort80Blocked;
+
+  /// WWW service error
+  ///
+  /// In en, this message translates to:
+  /// **'WWW service is using port 80. Change its port or disable it.'**
+  String get letsEncryptErrorWwwService;
+
+  /// NAT rule error
+  ///
+  /// In en, this message translates to:
+  /// **'A NAT rule is redirecting port 80. Disable it temporarily.'**
+  String get letsEncryptErrorNatRule;
+
+  /// Load failed error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load certificate status'**
+  String get letsEncryptErrorLoadFailed;
+
+  /// Pre-checks failed error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to run pre-flight checks'**
+  String get letsEncryptErrorPreChecksFailed;
+
+  /// Auto-fix failed error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to fix the issue automatically'**
+  String get letsEncryptErrorAutoFixFailed;
+
+  /// Request failed error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to request certificate. Check port 80 accessibility.'**
+  String get letsEncryptErrorRequestFailed;
+
+  /// Revoke failed error
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete certificate'**
+  String get letsEncryptErrorRevokeFailed;
+
+  /// Revoke dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Certificate?'**
+  String get letsEncryptRevokeTitle;
+
+  /// Revoke dialog description
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this Let\'s Encrypt certificate?'**
+  String get letsEncryptRevokeDesc;
+
+  /// Revoke warning message
+  ///
+  /// In en, this message translates to:
+  /// **'Services using this certificate will stop working until a new certificate is issued.'**
+  String get letsEncryptRevokeWarning;
 }
 
 class _AppLocalizationsDelegate
