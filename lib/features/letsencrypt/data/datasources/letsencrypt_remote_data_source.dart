@@ -43,21 +43,40 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
     try {
       _log.d('Getting Let\'s Encrypt certificate status...');
       
-      // Look for Let's Encrypt certificates (issued by Let's Encrypt or R3/R10/R11)
+      // Look for Let's Encrypt certificates
       final response = await client.sendCommand(['/certificate/print']);
       
       for (var item in response) {
         if (item['type'] == 're') {
           final issuer = item['issuer']?.toString().toLowerCase() ?? '';
+          final ca = item['ca']?.toString().toLowerCase() ?? '';
           final name = item['name']?.toString().toLowerCase() ?? '';
+          final commonName = item['common-name']?.toString().toLowerCase() ?? '';
+          
+          // Log certificate details for debugging
+          _log.d('Certificate: name=$name, issuer=$issuer, ca=$ca, common-name=$commonName');
           
           // Check if this is a Let's Encrypt certificate
-          if (issuer.contains('let\'s encrypt') ||
+          // Let's Encrypt issuer contains R3, R10, R11, E5, E6 etc
+          // Or the common-name contains mynetname.net (MikroTik's DDNS)
+          final isLetsEncrypt = 
+              issuer.contains('let\'s encrypt') ||
               issuer.contains('letsencrypt') ||
               issuer.contains('r3') ||
               issuer.contains('r10') ||
               issuer.contains('r11') ||
-              name.contains('letsencrypt')) {
+              issuer.contains('e5') ||
+              issuer.contains('e6') ||
+              ca.contains('let\'s encrypt') ||
+              ca.contains('letsencrypt') ||
+              ca.contains('r3') ||
+              ca.contains('r10') ||
+              ca.contains('r11') ||
+              name.contains('letsencrypt') ||
+              commonName.contains('mynetname.net') ||
+              commonName.contains('sn.mynetname');
+              
+          if (isLetsEncrypt) {
             _log.i('Found Let\'s Encrypt certificate: ${item['name']}');
             return LetsEncryptStatusModel.fromCertificate(item);
           }
@@ -146,21 +165,22 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
         ));
       }
 
-      // 3. Check www service
+      // 3. Check www service - MUST be enabled on port 80 for Let's Encrypt
       try {
         final wwwCheck = await _checkWwwService();
         checks.add(PreCheckItemModel(
           type: PreCheckType.www,
           passed: wwwCheck,
-          errorMessage: wwwCheck ? null : 'wwwServiceUsingPort80',
-          canAutoFix: false, // User needs to handle this
+          errorMessage: wwwCheck ? null : 'wwwServiceNotOnPort80',
+          canAutoFix: true, // Can auto-fix by enabling www on port 80
         ));
       } catch (e) {
         _log.w('Failed to check www service: $e');
-        // Assume it's OK if we can't check
+        // Assume it's not OK if we can't check
         checks.add(const PreCheckItemModel(
           type: PreCheckType.www,
-          passed: true,
+          passed: false,
+          errorMessage: 'wwwServiceCheckFailed',
         ));
       }
 
@@ -268,14 +288,15 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
         final disabled = item['disabled'] == 'true';
         final port = item['port']?.toString() ?? '80';
         
-        // If www service is enabled on port 80, it might interfere
+        // WWW service MUST be enabled on port 80 for Let's Encrypt to work
+        // Let's Encrypt sends challenge to port 80 and www service must respond
         if (!disabled && port == '80') {
-          return false;
+          return true; // Good: www is enabled on port 80
         }
       }
     }
     
-    return true;
+    return false; // Bad: www is either disabled or not on port 80
   }
 
   /// Check if there's a NAT rule redirecting port 80 elsewhere
@@ -310,6 +331,8 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
         case PreCheckType.firewallRule:
           final ruleId = await addTemporaryFirewallRule();
           return ruleId.isNotEmpty;
+        case PreCheckType.www:
+          return await _enableWwwOnPort80();
         default:
           throw ServerException('Cannot auto-fix issue type: $checkType');
       }
@@ -318,6 +341,26 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
       if (e is ServerException) rethrow;
       throw ServerException('Failed to auto-fix: $e');
     }
+  }
+
+  /// Enable www service on port 80
+  Future<bool> _enableWwwOnPort80() async {
+    _log.i('Enabling www service on port 80...');
+    
+    final response = await client.sendCommand([
+      '/ip/service/set',
+      '=numbers=www',
+      '=port=80',
+      '=disabled=no',
+    ]);
+    
+    final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
+    if (trap.isNotEmpty) {
+      throw ServerException(trap['message'] ?? 'Failed to enable www on port 80');
+    }
+    
+    _log.i('WWW service enabled on port 80');
+    return true;
   }
 
   Future<bool> _enableCloudDdns() async {
@@ -535,12 +578,39 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
         timeout: const Duration(seconds: 90),
       );
       
-      // Check for errors
+      // Log the full response for debugging - important to see Let's Encrypt's actual response
+      _log.i('=== Let\'s Encrypt Response (${response.length} items) ===');
+      for (int i = 0; i < response.length; i++) {
+        final item = response[i];
+        // Log each item - this will show ACME errors, rate limits, sanctions, etc.
+        _log.i('[$i] ${item.toString()}');
+      }
+      _log.i('=== End of Let\'s Encrypt Response ===');
+      
+      // Check for errors - trap message indicates failure
       final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
       if (trap.isNotEmpty) {
         final message = trap['message'] ?? 'Unknown error';
-        _log.e('Certificate request failed: $message');
+        _log.e('Certificate request failed (trap): $message');
         throw ServerException(message);
+      }
+      
+      // Check for error messages in progress field (MikroTik reports errors here)
+      for (var item in response) {
+        final progress = item['progress']?.toString() ?? '';
+        final progressLower = progress.toLowerCase();
+        final message = item['message']?.toString() ?? '';
+        final messageLower = message.toLowerCase();
+        
+        // Check both progress and message fields for errors
+        if (progressLower.contains('[error]') || progressLower.contains('failed') || progressLower.contains('failure') ||
+            messageLower.contains('error') || messageLower.contains('failed') || messageLower.contains('failure')) {
+          
+          // Analyze error and provide user-friendly message
+          final errorKey = _analyzeAcmeError(progress, message);
+          _log.e('Certificate request error: $progress $message -> $errorKey');
+          throw ServerException(errorKey);
+        }
       }
       
       _log.i('Certificate request completed successfully');
@@ -550,6 +620,49 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
       if (e is ServerException) rethrow;
       throw ServerException('Failed to request certificate: $e');
     }
+  }
+
+  /// Analyze ACME error and return a user-friendly error key
+  String _analyzeAcmeError(String progress, String message) {
+    final combined = '$progress $message'.toLowerCase();
+    
+    // Connection/Network errors - likely sanctions or firewall
+    if (combined.contains('connecting to') && combined.contains('failed')) {
+      return 'acmeConnectionFailed';
+    }
+    
+    // DNS resolution errors
+    if (combined.contains('resolving') && combined.contains('failed')) {
+      return 'acmeDnsResolutionFailed';
+    }
+    
+    // SSL certificate update failed (generic)
+    if (combined.contains('failed to update ssl certificate')) {
+      return 'acmeSslUpdateFailed';
+    }
+    
+    // Rate limit errors
+    if (combined.contains('rate') && combined.contains('limit')) {
+      return 'acmeRateLimited';
+    }
+    
+    // Authorization errors
+    if (combined.contains('unauthorized') || combined.contains('authorization')) {
+      return 'acmeAuthorizationFailed';
+    }
+    
+    // Challenge validation errors
+    if (combined.contains('challenge') || combined.contains('validation')) {
+      return 'acmeChallengeValidationFailed';
+    }
+    
+    // Timeout errors
+    if (combined.contains('timeout') || combined.contains('timed out')) {
+      return 'acmeTimeout';
+    }
+    
+    // Generic error with original message
+    return 'acmeGenericError:$progress';
   }
 
   @override

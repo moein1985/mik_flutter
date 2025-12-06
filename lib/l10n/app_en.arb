@@ -365,6 +365,14 @@
   "@letsEncryptCertificateIssued": {
     "description": "Certificate issued success message"
   },
+  "letsEncryptSuccessDescription": "Your Let's Encrypt certificate has been issued and configured. You can now use HTTPS with your router.",
+  "@letsEncryptSuccessDescription": {
+    "description": "Success description after certificate is issued"
+  },
+  "viewCertificate": "View Certificate",
+  "@viewCertificate": {
+    "description": "Button to view certificate details"
+  },
   "letsEncryptAutoFixSuccess": "Issue fixed successfully",
   "@letsEncryptAutoFixSuccess": {
     "description": "Auto-fix success message"
@@ -489,9 +497,50 @@
   "@letsEncryptErrorPort80Blocked": {
     "description": "Port 80 blocked error"
   },
-  "letsEncryptErrorWwwService": "WWW service is using port 80. Change its port or disable it.",
-  "@letsEncryptErrorWwwService": {
-    "description": "WWW service error"
+  "letsEncryptErrorWwwNotOnPort80": "WWW service must be enabled on port 80 for Let's Encrypt to work.",
+  "@letsEncryptErrorWwwNotOnPort80": {
+    "description": "Error when www service is not on port 80"
+  },
+  "letsEncryptErrorWwwCheckFailed": "Could not check WWW service status.",
+  "@letsEncryptErrorWwwCheckFailed": {
+    "description": "Error when www service check fails"
+  },
+  "letsEncryptErrorAcmeConnectionFailed": "Cannot connect to Let's Encrypt servers. This may be due to internet restrictions or sanctions in your region. Try using a VPN on your router.",
+  "@letsEncryptErrorAcmeConnectionFailed": {
+    "description": "Error when router cannot connect to ACME server"
+  },
+  "letsEncryptErrorAcmeDnsResolutionFailed": "Cannot resolve Let's Encrypt server address. Check your router's DNS settings.",
+  "@letsEncryptErrorAcmeDnsResolutionFailed": {
+    "description": "Error when DNS resolution fails"
+  },
+  "letsEncryptErrorAcmeSslUpdateFailed": "Failed to obtain SSL certificate. The router could not complete the Let's Encrypt verification process.",
+  "@letsEncryptErrorAcmeSslUpdateFailed": {
+    "description": "Generic SSL update failure"
+  },
+  "letsEncryptErrorAcmeRateLimited": "Too many certificate requests. Let's Encrypt has rate limits. Please wait a few hours and try again.",
+  "@letsEncryptErrorAcmeRateLimited": {
+    "description": "Rate limit error"
+  },
+  "letsEncryptErrorAcmeAuthorizationFailed": "Domain verification failed. Make sure port 80 is accessible from the internet and your domain points to this router.",
+  "@letsEncryptErrorAcmeAuthorizationFailed": {
+    "description": "Authorization/verification failure"
+  },
+  "letsEncryptErrorAcmeChallengeValidationFailed": "Challenge validation failed. Let's Encrypt could not verify your domain ownership. Ensure port 80 is forwarded correctly.",
+  "@letsEncryptErrorAcmeChallengeValidationFailed": {
+    "description": "Challenge validation error"
+  },
+  "letsEncryptErrorAcmeTimeout": "Connection to Let's Encrypt timed out. Check your internet connection and try again.",
+  "@letsEncryptErrorAcmeTimeout": {
+    "description": "Timeout error"
+  },
+  "letsEncryptErrorAcmeGeneric": "Let's Encrypt error: {error}",
+  "@letsEncryptErrorAcmeGeneric": {
+    "description": "Generic ACME error with details",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
   "letsEncryptErrorNatRule": "A NAT rule is redirecting port 80. Disable it temporarily.",
   "@letsEncryptErrorNatRule": {

@@ -638,6 +638,18 @@ abstract class AppLocalizations {
   /// **'Certificate issued successfully!'**
   String get letsEncryptCertificateIssued;
 
+  /// Success description after certificate is issued
+  ///
+  /// In en, this message translates to:
+  /// **'Your Let\'s Encrypt certificate has been issued and configured. You can now use HTTPS with your router.'**
+  String get letsEncryptSuccessDescription;
+
+  /// Button to view certificate details
+  ///
+  /// In en, this message translates to:
+  /// **'View Certificate'**
+  String get viewCertificate;
+
   /// Auto-fix success message
   ///
   /// In en, this message translates to:
@@ -824,11 +836,65 @@ abstract class AppLocalizations {
   /// **'Port 80 is blocked. It must be accessible from the internet.'**
   String get letsEncryptErrorPort80Blocked;
 
-  /// WWW service error
+  /// Error when www service is not on port 80
   ///
   /// In en, this message translates to:
-  /// **'WWW service is using port 80. Change its port or disable it.'**
-  String get letsEncryptErrorWwwService;
+  /// **'WWW service must be enabled on port 80 for Let\'s Encrypt to work.'**
+  String get letsEncryptErrorWwwNotOnPort80;
+
+  /// Error when www service check fails
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check WWW service status.'**
+  String get letsEncryptErrorWwwCheckFailed;
+
+  /// Error when router cannot connect to ACME server
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot connect to Let\'s Encrypt servers. This may be due to internet restrictions or sanctions in your region. Try using a VPN on your router.'**
+  String get letsEncryptErrorAcmeConnectionFailed;
+
+  /// Error when DNS resolution fails
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot resolve Let\'s Encrypt server address. Check your router\'s DNS settings.'**
+  String get letsEncryptErrorAcmeDnsResolutionFailed;
+
+  /// Generic SSL update failure
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to obtain SSL certificate. The router could not complete the Let\'s Encrypt verification process.'**
+  String get letsEncryptErrorAcmeSslUpdateFailed;
+
+  /// Rate limit error
+  ///
+  /// In en, this message translates to:
+  /// **'Too many certificate requests. Let\'s Encrypt has rate limits. Please wait a few hours and try again.'**
+  String get letsEncryptErrorAcmeRateLimited;
+
+  /// Authorization/verification failure
+  ///
+  /// In en, this message translates to:
+  /// **'Domain verification failed. Make sure port 80 is accessible from the internet and your domain points to this router.'**
+  String get letsEncryptErrorAcmeAuthorizationFailed;
+
+  /// Challenge validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge validation failed. Let\'s Encrypt could not verify your domain ownership. Ensure port 80 is forwarded correctly.'**
+  String get letsEncryptErrorAcmeChallengeValidationFailed;
+
+  /// Timeout error
+  ///
+  /// In en, this message translates to:
+  /// **'Connection to Let\'s Encrypt timed out. Check your internet connection and try again.'**
+  String get letsEncryptErrorAcmeTimeout;
+
+  /// Generic ACME error with details
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s Encrypt error: {error}'**
+  String letsEncryptErrorAcmeGeneric(String error);
 
   /// NAT rule error
   ///

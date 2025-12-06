@@ -93,6 +93,10 @@ class _LetsEncryptPageState extends State<LetsEncryptPage> {
             );
           }
 
+          if (state is CertificateRequestSuccess) {
+            return _buildSuccessState(context, l10n, theme);
+          }
+
           if (state is LetsEncryptError) {
             return _buildErrorState(context, l10n, theme, state);
           }
@@ -100,6 +104,52 @@ class _LetsEncryptPageState extends State<LetsEncryptPage> {
           // Initial state - show loading
           return _buildLoadingState(l10n, null);
         },
+      ),
+    );
+  }
+
+  Widget _buildSuccessState(
+    BuildContext context,
+    AppLocalizations l10n,
+    ThemeData theme,
+  ) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.check_circle,
+              size: 80,
+              color: Colors.green,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              l10n.letsEncryptCertificateIssued,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              l10n.letsEncryptSuccessDescription,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: Colors.grey.shade600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () {
+                context.read<LetsEncryptBloc>().add(const LoadLetsEncryptStatus());
+              },
+              icon: const Icon(Icons.visibility),
+              label: Text(l10n.viewCertificate),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -443,10 +493,9 @@ class _LetsEncryptPageState extends State<LetsEncryptPage> {
           ] else if (result.hasAutoFixableIssues) ...[
             ElevatedButton.icon(
               onPressed: () {
-                // Fix all auto-fixable issues
-                for (final check in result.autoFixableChecks) {
-                  context.read<LetsEncryptBloc>().add(AutoFixIssue(check.type));
-                }
+                // Fix all auto-fixable issues at once
+                final checkTypes = result.autoFixableChecks.map((c) => c.type).toList();
+                context.read<LetsEncryptBloc>().add(AutoFixAll(checkTypes));
               },
               icon: const Icon(Icons.auto_fix_high),
               label: Text(l10n.letsEncryptAutoFixAll),
@@ -574,8 +623,10 @@ class _LetsEncryptPageState extends State<LetsEncryptPage> {
         return l10n.letsEncryptErrorDnsNotAvailable;
       case 'port80BlockedByFirewall':
         return l10n.letsEncryptErrorPort80Blocked;
-      case 'wwwServiceUsingPort80':
-        return l10n.letsEncryptErrorWwwService;
+      case 'wwwServiceNotOnPort80':
+        return l10n.letsEncryptErrorWwwNotOnPort80;
+      case 'wwwServiceCheckFailed':
+        return l10n.letsEncryptErrorWwwCheckFailed;
       case 'natRuleBlockingPort80':
         return l10n.letsEncryptErrorNatRule;
       case 'loadStatusFailed':
@@ -588,7 +639,27 @@ class _LetsEncryptPageState extends State<LetsEncryptPage> {
         return l10n.letsEncryptErrorRequestFailed;
       case 'revokeFailed':
         return l10n.letsEncryptErrorRevokeFailed;
+      // ACME/Let's Encrypt specific errors
+      case 'acmeConnectionFailed':
+        return l10n.letsEncryptErrorAcmeConnectionFailed;
+      case 'acmeDnsResolutionFailed':
+        return l10n.letsEncryptErrorAcmeDnsResolutionFailed;
+      case 'acmeSslUpdateFailed':
+        return l10n.letsEncryptErrorAcmeSslUpdateFailed;
+      case 'acmeRateLimited':
+        return l10n.letsEncryptErrorAcmeRateLimited;
+      case 'acmeAuthorizationFailed':
+        return l10n.letsEncryptErrorAcmeAuthorizationFailed;
+      case 'acmeChallengeValidationFailed':
+        return l10n.letsEncryptErrorAcmeChallengeValidationFailed;
+      case 'acmeTimeout':
+        return l10n.letsEncryptErrorAcmeTimeout;
       default:
+        // Handle generic ACME errors with details
+        if (key.startsWith('acmeGenericError:')) {
+          final errorDetail = key.substring('acmeGenericError:'.length);
+          return l10n.letsEncryptErrorAcmeGeneric(errorDetail);
+        }
         return key;
     }
   }

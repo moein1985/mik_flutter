@@ -279,6 +279,13 @@ class AppLocalizationsFa extends AppLocalizations {
   String get letsEncryptCertificateIssued => 'گواهینامه با موفقیت صادر شد!';
 
   @override
+  String get letsEncryptSuccessDescription =>
+      'گواهینامه Let\'s Encrypt شما صادر و پیکربندی شده است. اکنون می‌توانید از HTTPS با روتر خود استفاده کنید.';
+
+  @override
+  String get viewCertificate => 'مشاهده گواهینامه';
+
+  @override
   String get letsEncryptAutoFixSuccess => 'مشکل با موفقیت برطرف شد';
 
   @override
@@ -379,8 +386,45 @@ class AppLocalizationsFa extends AppLocalizations {
       'پورت ۸۰ مسدود است. باید از اینترنت قابل دسترسی باشد.';
 
   @override
-  String get letsEncryptErrorWwwService =>
-      'سرویس WWW از پورت ۸۰ استفاده می‌کند. پورت آن را تغییر دهید یا غیرفعالش کنید.';
+  String get letsEncryptErrorWwwNotOnPort80 =>
+      'سرویس WWW باید روی پورت ۸۰ فعال باشد تا Let\'s Encrypt کار کند.';
+
+  @override
+  String get letsEncryptErrorWwwCheckFailed =>
+      'بررسی وضعیت سرویس WWW ممکن نشد.';
+
+  @override
+  String get letsEncryptErrorAcmeConnectionFailed =>
+      'امکان اتصال به سرورهای Let\'s Encrypt وجود ندارد. این ممکن است به دلیل محدودیت‌های اینترنتی یا تحریم در منطقه شما باشد. از VPN روی روتر استفاده کنید.';
+
+  @override
+  String get letsEncryptErrorAcmeDnsResolutionFailed =>
+      'امکان پیدا کردن آدرس سرور Let\'s Encrypt وجود ندارد. تنظیمات DNS روتر را بررسی کنید.';
+
+  @override
+  String get letsEncryptErrorAcmeSslUpdateFailed =>
+      'دریافت گواهینامه SSL ناموفق بود. روتر نتوانست فرآیند تأیید Let\'s Encrypt را تکمیل کند.';
+
+  @override
+  String get letsEncryptErrorAcmeRateLimited =>
+      'تعداد درخواست‌های گواهینامه بیش از حد مجاز است. Let\'s Encrypt محدودیت دارد. لطفاً چند ساعت صبر کنید و دوباره تلاش کنید.';
+
+  @override
+  String get letsEncryptErrorAcmeAuthorizationFailed =>
+      'تأیید دامنه ناموفق بود. مطمئن شوید پورت ۸۰ از اینترنت قابل دسترسی است و دامنه شما به این روتر اشاره می‌کند.';
+
+  @override
+  String get letsEncryptErrorAcmeChallengeValidationFailed =>
+      'اعتبارسنجی چالش ناموفق بود. Let\'s Encrypt نتوانست مالکیت دامنه شما را تأیید کند. مطمئن شوید پورت ۸۰ به درستی فوروارد شده است.';
+
+  @override
+  String get letsEncryptErrorAcmeTimeout =>
+      'اتصال به Let\'s Encrypt منقضی شد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.';
+
+  @override
+  String letsEncryptErrorAcmeGeneric(String error) {
+    return 'خطای Let\'s Encrypt: $error';
+  }
 
   @override
   String get letsEncryptErrorNatRule =>

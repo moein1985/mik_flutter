@@ -365,6 +365,14 @@
   "@letsEncryptCertificateIssued": {
     "description": "پیام موفقیت صدور گواهینامه"
   },
+  "letsEncryptSuccessDescription": "گواهینامه Let's Encrypt شما صادر و پیکربندی شده است. اکنون می‌توانید از HTTPS با روتر خود استفاده کنید.",
+  "@letsEncryptSuccessDescription": {
+    "description": "توضیحات صفحه موفقیت"
+  },
+  "viewCertificate": "مشاهده گواهینامه",
+  "@viewCertificate": {
+    "description": "دکمه مشاهده گواهینامه"
+  },
   "letsEncryptAutoFixSuccess": "مشکل با موفقیت برطرف شد",
   "@letsEncryptAutoFixSuccess": {
     "description": "پیام موفقیت رفع خودکار"
@@ -489,9 +497,50 @@
   "@letsEncryptErrorPort80Blocked": {
     "description": "خطای مسدود بودن پورت ۸۰"
   },
-  "letsEncryptErrorWwwService": "سرویس WWW از پورت ۸۰ استفاده می‌کند. پورت آن را تغییر دهید یا غیرفعالش کنید.",
-  "@letsEncryptErrorWwwService": {
-    "description": "خطای سرویس WWW"
+  "letsEncryptErrorWwwNotOnPort80": "سرویس WWW باید روی پورت ۸۰ فعال باشد تا Let's Encrypt کار کند.",
+  "@letsEncryptErrorWwwNotOnPort80": {
+    "description": "خطا وقتی سرویس www روی پورت ۸۰ نیست"
+  },
+  "letsEncryptErrorWwwCheckFailed": "بررسی وضعیت سرویس WWW ممکن نشد.",
+  "@letsEncryptErrorWwwCheckFailed": {
+    "description": "خطا وقتی بررسی www ناموفقه"
+  },
+  "letsEncryptErrorAcmeConnectionFailed": "امکان اتصال به سرورهای Let's Encrypt وجود ندارد. این ممکن است به دلیل محدودیت‌های اینترنتی یا تحریم در منطقه شما باشد. از VPN روی روتر استفاده کنید.",
+  "@letsEncryptErrorAcmeConnectionFailed": {
+    "description": "خطا وقتی روتر نمیتونه به سرور ACME وصل بشه"
+  },
+  "letsEncryptErrorAcmeDnsResolutionFailed": "امکان پیدا کردن آدرس سرور Let's Encrypt وجود ندارد. تنظیمات DNS روتر را بررسی کنید.",
+  "@letsEncryptErrorAcmeDnsResolutionFailed": {
+    "description": "خطای DNS resolution"
+  },
+  "letsEncryptErrorAcmeSslUpdateFailed": "دریافت گواهینامه SSL ناموفق بود. روتر نتوانست فرآیند تأیید Let's Encrypt را تکمیل کند.",
+  "@letsEncryptErrorAcmeSslUpdateFailed": {
+    "description": "خطای عمومی بروزرسانی SSL"
+  },
+  "letsEncryptErrorAcmeRateLimited": "تعداد درخواست‌های گواهینامه بیش از حد مجاز است. Let's Encrypt محدودیت دارد. لطفاً چند ساعت صبر کنید و دوباره تلاش کنید.",
+  "@letsEncryptErrorAcmeRateLimited": {
+    "description": "خطای rate limit"
+  },
+  "letsEncryptErrorAcmeAuthorizationFailed": "تأیید دامنه ناموفق بود. مطمئن شوید پورت ۸۰ از اینترنت قابل دسترسی است و دامنه شما به این روتر اشاره می‌کند.",
+  "@letsEncryptErrorAcmeAuthorizationFailed": {
+    "description": "خطای تأیید/احراز هویت"
+  },
+  "letsEncryptErrorAcmeChallengeValidationFailed": "اعتبارسنجی چالش ناموفق بود. Let's Encrypt نتوانست مالکیت دامنه شما را تأیید کند. مطمئن شوید پورت ۸۰ به درستی فوروارد شده است.",
+  "@letsEncryptErrorAcmeChallengeValidationFailed": {
+    "description": "خطای اعتبارسنجی چالش"
+  },
+  "letsEncryptErrorAcmeTimeout": "اتصال به Let's Encrypt منقضی شد. اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.",
+  "@letsEncryptErrorAcmeTimeout": {
+    "description": "خطای timeout"
+  },
+  "letsEncryptErrorAcmeGeneric": "خطای Let's Encrypt: {error}",
+  "@letsEncryptErrorAcmeGeneric": {
+    "description": "خطای عمومی ACME با جزئیات",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
   "letsEncryptErrorNatRule": "یک قاعده NAT پورت ۸۰ را ریدایرکت می‌کند. موقتاً غیرفعالش کنید.",
   "@letsEncryptErrorNatRule": {

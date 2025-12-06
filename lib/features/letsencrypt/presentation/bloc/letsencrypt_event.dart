@@ -29,6 +29,16 @@ class AutoFixIssue extends LetsEncryptEvent {
   List<Object?> get props => [checkType];
 }
 
+/// Auto-fix all fixable issues at once
+class AutoFixAll extends LetsEncryptEvent {
+  final List<PreCheckType> checkTypes;
+
+  const AutoFixAll(this.checkTypes);
+
+  @override
+  List<Object?> get props => [checkTypes];
+}
+
 /// Request a Let's Encrypt certificate
 class RequestCertificate extends LetsEncryptEvent {
   final String dnsName;

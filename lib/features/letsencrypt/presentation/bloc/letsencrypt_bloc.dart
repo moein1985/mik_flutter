@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/logger.dart';
+import '../../domain/entities/precheck_result.dart';
 import '../../domain/repositories/letsencrypt_repository.dart';
 import 'letsencrypt_event.dart';
 import 'letsencrypt_state.dart';
@@ -13,6 +14,7 @@ class LetsEncryptBloc extends Bloc<LetsEncryptEvent, LetsEncryptState> {
     on<LoadLetsEncryptStatus>(_onLoadStatus);
     on<RunPreChecks>(_onRunPreChecks);
     on<AutoFixIssue>(_onAutoFix);
+    on<AutoFixAll>(_onAutoFixAll);
     on<RequestCertificate>(_onRequestCertificate);
     on<RevokeCertificate>(_onRevokeCertificate);
     on<ResetWizard>(_onResetWizard);
@@ -82,10 +84,45 @@ class LetsEncryptBloc extends Bloc<LetsEncryptEvent, LetsEncryptState> {
           checkType: event.checkType,
           message: 'autoFixSuccess',
         ));
-        // Re-run pre-checks after auto-fix
+        // Re-run pre-checks after single auto-fix
         add(const RunPreChecks());
       },
     );
+  }
+
+  Future<void> _onAutoFixAll(
+    AutoFixAll event,
+    Emitter<LetsEncryptState> emit,
+  ) async {
+    _log.i('Auto-fixing all ${event.checkTypes.length} issues...');
+    
+    for (final checkType in event.checkTypes) {
+      emit(AutoFixInProgress(checkType));
+      _log.i('Auto-fixing: $checkType');
+
+      final result = await repository.autoFix(checkType);
+
+      final failed = result.fold(
+        (failure) {
+          _log.e('Auto-fix failed for $checkType: ${failure.message}');
+          emit(LetsEncryptError(failure.message, errorKey: 'autoFixFailed'));
+          return true;
+        },
+        (success) {
+          _log.i('Auto-fix successful for $checkType');
+          return false;
+        },
+      );
+      
+      if (failed) return; // Stop on first failure
+    }
+    
+    // All fixes successful, run pre-checks once
+    emit(const AutoFixSuccess(
+      checkType: PreCheckType.cloudEnabled, // dummy, won't be shown
+      message: 'allIssuesFixed',
+    ));
+    add(const RunPreChecks());
   }
 
   Future<void> _onRequestCertificate(

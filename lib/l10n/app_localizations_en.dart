@@ -279,6 +279,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get letsEncryptCertificateIssued => 'Certificate issued successfully!';
 
   @override
+  String get letsEncryptSuccessDescription =>
+      'Your Let\'s Encrypt certificate has been issued and configured. You can now use HTTPS with your router.';
+
+  @override
+  String get viewCertificate => 'View Certificate';
+
+  @override
   String get letsEncryptAutoFixSuccess => 'Issue fixed successfully';
 
   @override
@@ -379,8 +386,45 @@ class AppLocalizationsEn extends AppLocalizations {
       'Port 80 is blocked. It must be accessible from the internet.';
 
   @override
-  String get letsEncryptErrorWwwService =>
-      'WWW service is using port 80. Change its port or disable it.';
+  String get letsEncryptErrorWwwNotOnPort80 =>
+      'WWW service must be enabled on port 80 for Let\'s Encrypt to work.';
+
+  @override
+  String get letsEncryptErrorWwwCheckFailed =>
+      'Could not check WWW service status.';
+
+  @override
+  String get letsEncryptErrorAcmeConnectionFailed =>
+      'Cannot connect to Let\'s Encrypt servers. This may be due to internet restrictions or sanctions in your region. Try using a VPN on your router.';
+
+  @override
+  String get letsEncryptErrorAcmeDnsResolutionFailed =>
+      'Cannot resolve Let\'s Encrypt server address. Check your router\'s DNS settings.';
+
+  @override
+  String get letsEncryptErrorAcmeSslUpdateFailed =>
+      'Failed to obtain SSL certificate. The router could not complete the Let\'s Encrypt verification process.';
+
+  @override
+  String get letsEncryptErrorAcmeRateLimited =>
+      'Too many certificate requests. Let\'s Encrypt has rate limits. Please wait a few hours and try again.';
+
+  @override
+  String get letsEncryptErrorAcmeAuthorizationFailed =>
+      'Domain verification failed. Make sure port 80 is accessible from the internet and your domain points to this router.';
+
+  @override
+  String get letsEncryptErrorAcmeChallengeValidationFailed =>
+      'Challenge validation failed. Let\'s Encrypt could not verify your domain ownership. Ensure port 80 is forwarded correctly.';
+
+  @override
+  String get letsEncryptErrorAcmeTimeout =>
+      'Connection to Let\'s Encrypt timed out. Check your internet connection and try again.';
+
+  @override
+  String letsEncryptErrorAcmeGeneric(String error) {
+    return 'Let\'s Encrypt error: $error';
+  }
 
   @override
   String get letsEncryptErrorNatRule =>
