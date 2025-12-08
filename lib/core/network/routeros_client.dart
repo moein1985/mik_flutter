@@ -1645,7 +1645,7 @@ class RouterOSClient {
         '=address=$address',
         '=count=$count',
         '=interval=$interval',
-      ], timeout: Duration(seconds: timeout ~/ 1000 + count * 2));
+      ], timeout: Duration(seconds: (timeout ~/ 1000 + count * 2).clamp(10, 120)));
 
       _log.d('Ping completed, got ${response.length} responses');
       return response;
@@ -1668,7 +1668,7 @@ class RouterOSClient {
         '/tool/traceroute',
         '=address=$address',
         '=max-hops=$maxHops',
-      ], timeout: Duration(seconds: timeout ~/ 1000 + maxHops * 2));
+      ], timeout: Duration(seconds: (timeout ~/ 1000 + maxHops * 3).clamp(30, 180)));
 
       _log.d('Traceroute completed, got ${response.length} responses');
       return response;
@@ -1689,7 +1689,7 @@ class RouterOSClient {
       final response = await sendCommand([
         '/tool/dns-lookup',
         '=name=$name',
-      ], timeout: Duration(seconds: timeout ~/ 1000));
+      ], timeout: Duration(seconds: (timeout ~/ 1000 + 5).clamp(10, 60)));
 
       _log.d('DNS lookup completed, got ${response.length} responses');
       return response;
