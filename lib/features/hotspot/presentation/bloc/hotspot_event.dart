@@ -120,6 +120,13 @@ class ResetHotspotUserCounters extends HotspotEvent {
   List<Object> get props => [id];
 }
 
+class ResetAllUserCounters extends HotspotEvent {
+  const ResetAllUserCounters();
+
+  @override
+  List<Object> get props => [];
+}
+
 class ToggleHotspotUser extends HotspotEvent {
   final String id;
   final bool enable;

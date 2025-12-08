@@ -109,6 +109,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     on<EditHotspotUser>(_onEditUser);
     on<DeleteHotspotUser>(_onDeleteUser);
     on<ResetHotspotUserCounters>(_onResetUserCounters);
+    on<ResetAllUserCounters>(_onResetAllUserCounters);
     on<ToggleHotspotUser>(_onToggleUser);
     on<DisconnectHotspotUser>(_onDisconnectUser);
     on<SetupHotspot>(_onSetupHotspot);
@@ -390,6 +391,61 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
         add(const LoadHotspotUsers());
       },
     );
+  }
+
+  Future<void> _onResetAllUserCounters(
+    ResetAllUserCounters event,
+    Emitter<HotspotState> emit,
+  ) async {
+    _log.i('Resetting counters for all users');
+    final previousData = state is HotspotLoaded ? state as HotspotLoaded : null;
+    
+    if (previousData == null || previousData.users == null || previousData.users!.isEmpty) {
+      emit(const HotspotError('No users found'));
+      return;
+    }
+
+    emit(const HotspotLoading());
+
+    int successCount = 0;
+    int failureCount = 0;
+    
+    // Reset counters for all users with statistics
+    for (final user in previousData.users!) {
+      if (user.hasStatistics) {
+        final result = await resetUserCountersUseCase(user.id);
+        result.fold(
+          (failure) {
+            _log.e('Failed to reset counters for user ${user.name}: ${failure.message}');
+            failureCount++;
+          },
+          (success) {
+            _log.d('Counters reset for user ${user.name}');
+            successCount++;
+          },
+        );
+      }
+    }
+
+    if (failureCount > 0 && successCount == 0) {
+      _log.e('Failed to reset all counters');
+      emit(HotspotError('Failed to reset counters for all users'));
+    } else if (failureCount > 0) {
+      _log.w('Partially reset counters: $successCount succeeded, $failureCount failed');
+      emit(HotspotOperationSuccess(
+        'Reset $successCount users, $failureCount failed',
+        previousData: previousData,
+      ));
+    } else {
+      _log.i('All user counters reset successfully: $successCount users');
+      emit(HotspotOperationSuccess(
+        'Successfully reset statistics for $successCount users',
+        previousData: previousData,
+      ));
+    }
+    
+    // Reload users to reflect changes
+    add(const LoadHotspotUsers());
   }
 
   Future<void> _onToggleUser(

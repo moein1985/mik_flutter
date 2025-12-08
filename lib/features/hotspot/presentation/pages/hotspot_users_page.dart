@@ -52,10 +52,7 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddUserDialog(context),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: _buildSpeedDialFAB(context),
       body: BlocConsumer<HotspotBloc, HotspotState>(
         listener: (context, state) {
           if (state is HotspotOperationSuccess) {
@@ -565,6 +562,82 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
                 foregroundColor: Colors.white,
               ),
               child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSpeedDialFAB(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Reset All Counters Button
+        BlocBuilder<HotspotBloc, HotspotState>(
+          builder: (context, state) {
+            final users = state is HotspotLoaded ? state.users : null;
+            final hasStats = users?.any((u) => u.hasStatistics) ?? false;
+
+            if (!hasStats) return const SizedBox.shrink();
+
+            return FloatingActionButton.small(
+              heroTag: 'reset_all',
+              onPressed: () => _showResetAllCountersDialog(context),
+              backgroundColor: Colors.orange,
+              child: const Icon(Icons.restore, size: 20),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        // Add User Button
+        FloatingActionButton(
+          heroTag: 'add_user',
+          onPressed: () => _showAddUserDialog(context),
+          child: const Icon(Icons.add),
+        ),
+      ],
+    );
+  }
+
+  void _showResetAllCountersDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+              SizedBox(width: 8),
+              Text('Reset All Counters'),
+            ],
+          ),
+          content: const Text(
+            'Are you sure you want to reset usage statistics for ALL users?\n\n'
+            'This will reset:\n'
+            '• Uptime counters\n'
+            '• Downloaded bytes\n'
+            '• Uploaded bytes\n\n'
+            'This action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.read<HotspotBloc>().add(
+                      const ResetAllUserCounters(),
+                    );
+                Navigator.pop(dialogContext);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Reset All'),
             ),
           ],
         );
