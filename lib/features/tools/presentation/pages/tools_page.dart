@@ -286,10 +286,11 @@ class _ToolsPageState extends State<ToolsPage> {
     final targetController = TextEditingController();
     final countController = TextEditingController(text: '4');
     final timeoutController = TextEditingController(text: '1000');
+    final toolsBloc = context.read<ToolsBloc>();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(l10n.pingTest),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -319,7 +320,7 @@ class _ToolsPageState extends State<ToolsPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
@@ -329,12 +330,12 @@ class _ToolsPageState extends State<ToolsPage> {
               final timeout = int.tryParse(timeoutController.text) ?? 1000;
 
               if (target.isNotEmpty) {
-                context.read<ToolsBloc>().add(StartPing(
+                toolsBloc.add(StartPing(
                   target: target,
                   count: count,
                   timeout: timeout,
                 ));
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               }
             },
             child: Text(l10n.startPing),
@@ -348,10 +349,11 @@ class _ToolsPageState extends State<ToolsPage> {
     final targetController = TextEditingController();
     final maxHopsController = TextEditingController(text: '30');
     final timeoutController = TextEditingController(text: '1000');
+    final toolsBloc = context.read<ToolsBloc>();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(l10n.tracerouteTest),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -381,7 +383,7 @@ class _ToolsPageState extends State<ToolsPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
@@ -391,12 +393,12 @@ class _ToolsPageState extends State<ToolsPage> {
               final timeout = int.tryParse(timeoutController.text) ?? 1000;
 
               if (target.isNotEmpty) {
-                context.read<ToolsBloc>().add(StartTraceroute(
+                toolsBloc.add(StartTraceroute(
                   target: target,
                   maxHops: maxHops,
                   timeout: timeout,
                 ));
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               }
             },
             child: Text(l10n.startTraceroute),
@@ -409,10 +411,11 @@ class _ToolsPageState extends State<ToolsPage> {
   void _showDnsLookupDialog(BuildContext context, AppLocalizations l10n) {
     final domainController = TextEditingController();
     final timeoutController = TextEditingController(text: '5000');
+    final toolsBloc = context.read<ToolsBloc>();
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(l10n.dnsLookupTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -435,7 +438,7 @@ class _ToolsPageState extends State<ToolsPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
@@ -444,11 +447,11 @@ class _ToolsPageState extends State<ToolsPage> {
               final timeout = int.tryParse(timeoutController.text) ?? 5000;
 
               if (domain.isNotEmpty) {
-                context.read<ToolsBloc>().add(StartDnsLookup(
+                toolsBloc.add(StartDnsLookup(
                   domain: domain,
                   timeout: timeout,
                 ));
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               }
             },
             child: Text(l10n.lookupDns),
