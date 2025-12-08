@@ -1,0 +1,22 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/failures.dart';
+import '../entities/log_entry.dart';
+import '../repositories/logs_repository.dart';
+
+/// Use case for following logs in real-time
+class FollowLogsUseCase {
+  final LogsRepository repository;
+
+  FollowLogsUseCase(this.repository);
+
+  /// Follow logs in real-time with optional filtering
+  Stream<Either<Failure, LogEntry>> call({
+    String? topics,
+    Duration? timeout,
+  }) {
+    return repository.followLogs(
+      topics: topics,
+      timeout: timeout,
+    );
+  }
+}

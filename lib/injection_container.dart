@@ -1,6 +1,12 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
+// Core
+import 'core/network/routeros_client.dart';
+import 'core/network/clients/system_routeros_client.dart';
+import 'core/network/clients/wireless_routeros_client.dart';
+import 'core/network/clients/backup_routeros_client.dart';
+
 // Features - Auth
 import 'features/auth/data/datasources/auth_local_data_source.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
@@ -95,6 +101,55 @@ import 'features/dhcp/data/datasources/dhcp_remote_data_source.dart';
 import 'features/dhcp/data/repositories/dhcp_repository_impl.dart';
 import 'features/dhcp/domain/repositories/dhcp_repository.dart';
 import 'features/dhcp/presentation/bloc/dhcp_bloc.dart';
+
+// Features - Tools
+import 'features/tools/data/repositories/tools_repository_impl.dart';
+import 'features/tools/domain/repositories/tools_repository.dart';
+import 'features/tools/domain/usecases/ping_usecase.dart';
+import 'features/tools/domain/usecases/traceroute_usecase.dart';
+import 'features/tools/domain/usecases/dns_lookup_usecase.dart';
+import 'features/tools/presentation/bloc/tools_bloc.dart';
+
+// Features - Wireless
+import 'features/wireless/data/datasources/wireless_remote_data_source.dart';
+import 'features/wireless/data/repositories/wireless_repository_impl.dart';
+import 'features/wireless/domain/repositories/wireless_repository.dart';
+import 'features/wireless/domain/usecases/get_wireless_interfaces_usecase.dart';
+import 'features/wireless/domain/usecases/get_wireless_registrations_usecase.dart';
+import 'features/wireless/domain/usecases/get_security_profiles_usecase.dart';
+import 'features/wireless/presentation/bloc/wireless_bloc.dart';
+
+// Features - Logs
+import 'features/logs/data/datasources/logs_remote_data_source.dart';
+import 'features/logs/data/repositories/logs_repository_impl.dart';
+import 'features/logs/domain/repositories/logs_repository.dart';
+import 'features/logs/domain/usecases/get_logs_usecase.dart';
+import 'features/logs/domain/usecases/follow_logs_usecase.dart';
+import 'features/logs/domain/usecases/clear_logs_usecase.dart';
+import 'features/logs/domain/usecases/search_logs_usecase.dart';
+import 'features/logs/presentation/bloc/logs_bloc.dart';
+
+// Features - Backup
+import 'features/backup/data/datasources/backup_remote_data_source.dart';
+import 'features/backup/data/repositories/backup_repository_impl.dart';
+import 'features/backup/domain/repositories/backup_repository.dart';
+import 'features/backup/domain/usecases/get_backups_usecase.dart';
+import 'features/backup/domain/usecases/create_backup_usecase.dart';
+import 'features/backup/domain/usecases/delete_backup_usecase.dart';
+import 'features/backup/domain/usecases/restore_backup_usecase.dart';
+import 'features/backup/domain/usecases/download_backup_usecase.dart';
+import 'features/backup/presentation/bloc/backup_bloc.dart';
+
+// Features - Queues
+import 'features/queues/data/repositories/queues_repository_impl.dart';
+import 'features/queues/domain/repositories/queues_repository.dart';
+import 'features/queues/domain/usecases/get_queues_usecase.dart';
+import 'features/queues/domain/usecases/add_queue_usecase.dart';
+import 'features/queues/domain/usecases/edit_queue_usecase.dart';
+import 'features/queues/domain/usecases/delete_queue_usecase.dart';
+import 'features/queues/domain/usecases/toggle_queue_usecase.dart';
+import 'features/queues/domain/usecases/get_queue_by_id_usecase.dart';
+import 'features/queues/presentation/bloc/queues_bloc.dart';
 
 // Features - Cloud
 import 'features/cloud/data/datasources/cloud_remote_data_source.dart';
@@ -431,8 +486,179 @@ Future<void> init() async {
     ),
   );
 
+  //! Features - Tools
+  // Bloc
+  sl.registerFactory(
+    () => ToolsBloc(
+      pingUseCase: sl(),
+      tracerouteUseCase: sl(),
+      dnsLookupUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => PingUseCase(sl()));
+  sl.registerLazySingleton(() => TracerouteUseCase(sl()));
+  sl.registerLazySingleton(() => DnsLookupUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<ToolsRepository>(
+    () => ToolsRepositoryImpl(
+      routerOsClient: sl(),
+    ),
+  );
+
+  //! Features - Queues
+  // Bloc
+  sl.registerFactory(
+    () => QueuesBloc(
+      getQueuesUseCase: sl(),
+      getQueueByIdUseCase: sl(),
+      addQueueUseCase: sl(),
+      editQueueUseCase: sl(),
+      deleteQueueUseCase: sl(),
+      toggleQueueUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetQueuesUseCase(sl()));
+  sl.registerLazySingleton(() => GetQueueByIdUseCase(sl()));
+  sl.registerLazySingleton(() => AddQueueUseCase(sl()));
+  sl.registerLazySingleton(() => EditQueueUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteQueueUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleQueueUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<QueuesRepository>(
+    () => QueuesRepositoryImpl(
+      routerOsClient: sl(),
+    ),
+  );
+
+  //! Features - Wireless
+  // Data sources
+  sl.registerLazySingleton<WirelessRemoteDataSource>(
+    () => WirelessRemoteDataSourceImpl(sl()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<WirelessRepository>(
+    () => WirelessRepositoryImpl(sl()),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetWirelessInterfacesUseCase(sl()));
+  sl.registerLazySingleton(() => GetWirelessRegistrationsUseCase(sl()));
+  sl.registerLazySingleton(() => GetRegistrationsByInterfaceUseCase(sl()));
+  sl.registerLazySingleton(() => DisconnectClientUseCase(sl()));
+  sl.registerLazySingleton(() => GetSecurityProfilesUseCase(sl()));
+  sl.registerLazySingleton(() => EnableWirelessInterfaceUseCase(sl()));
+  sl.registerLazySingleton(() => DisableWirelessInterfaceUseCase(sl()));
+  sl.registerLazySingleton(() => CreateSecurityProfileUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateSecurityProfileUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteSecurityProfileUseCase(sl()));
+
+  // Bloc
+  sl.registerFactory(
+    () => WirelessBloc(
+      getWirelessInterfacesUseCase: sl(),
+      getWirelessRegistrationsUseCase: sl(),
+      getRegistrationsByInterfaceUseCase: sl(),
+      disconnectClientUseCase: sl(),
+      getSecurityProfilesUseCase: sl(),
+      enableWirelessInterfaceUseCase: sl(),
+      disableWirelessInterfaceUseCase: sl(),
+      createSecurityProfileUseCase: sl(),
+      updateSecurityProfileUseCase: sl(),
+      deleteSecurityProfileUseCase: sl(),
+    ),
+  );
+
+  //! Features - Logs
+  // Bloc
+  sl.registerFactory(
+    () => LogsBloc(
+      getLogsUseCase: sl(),
+      followLogsUseCase: sl(),
+      clearLogsUseCase: sl(),
+      searchLogsUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetLogsUseCase(sl()));
+  sl.registerLazySingleton(() => FollowLogsUseCase(sl()));
+  sl.registerLazySingleton(() => ClearLogsUseCase(sl()));
+  sl.registerLazySingleton(() => SearchLogsUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<LogsRepository>(
+    () => LogsRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<LogsRemoteDataSource>(
+    () => LogsRemoteDataSourceImpl(
+      sl(),
+    ),
+  );
+
+  //! Features - Backup
+  // Bloc
+  sl.registerFactory(
+    () => BackupBloc(
+      getBackupsUseCase: sl(),
+      createBackupUseCase: sl(),
+      deleteBackupUseCase: sl(),
+      restoreBackupUseCase: sl(),
+      downloadBackupUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetBackupsUseCase(sl()));
+  sl.registerLazySingleton(() => CreateBackupUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteBackupUseCase(sl()));
+  sl.registerLazySingleton(() => RestoreBackupUseCase(sl()));
+  sl.registerLazySingleton(() => DownloadBackupUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<BackupRepository>(
+    () => BackupRepositoryImpl(
+      sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<BackupRemoteDataSource>(
+    () => BackupRemoteDataSourceImpl(
+      sl(),
+    ),
+  );
+
   //! Core
   sl.registerLazySingleton(() => const FlutterSecureStorage());
+  
+  // RouterOS Client - gets the client from auth remote data source
+  sl.registerLazySingleton<RouterOSClient>(
+    () => sl<AuthRemoteDataSource>().client!,
+  );
+
+  // Domain-specific RouterOS Clients
+  sl.registerLazySingleton<SystemRouterOSClient>(
+    () => SystemRouterOSClient(sl<RouterOSClient>()),
+  );
+
+  sl.registerLazySingleton<WirelessRouterOSClient>(
+    () => WirelessRouterOSClient(sl<RouterOSClient>()),
+  );
+
+  sl.registerLazySingleton<BackupRouterOSClient>(
+    () => BackupRouterOSClient(sl<RouterOSClient>()),
+  );
 
   //! External
 }

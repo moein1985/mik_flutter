@@ -577,5 +577,469 @@
   "letsEncryptRevokeWarning": "Services using this certificate will stop working until a new certificate is issued.",
   "@letsEncryptRevokeWarning": {
     "description": "Revoke warning message"
+  },
+  "networkTools": "Network Tools",
+  "@networkTools": {
+    "description": "Network Tools page title"
+  },
+  "diagnosticTools": "Network Diagnostic Tools",
+  "@diagnosticTools": {
+    "description": "Diagnostic tools section title"
+  },
+  "testConnectivity": "Test connectivity and resolve network issues",
+  "@testConnectivity": {
+    "description": "Tools description"
+  },
+  "ping": "Ping",
+  "@ping": {
+    "description": "Ping tool name"
+  },
+  "pingTest": "Ping Test",
+  "@pingTest": {
+    "description": "Ping test dialog title"
+  },
+  "pingConnectivity": "Test connectivity to a host",
+  "@pingConnectivity": {
+    "description": "Ping tool description"
+  },
+  "traceroute": "Traceroute",
+  "@traceroute": {
+    "description": "Traceroute tool name"
+  },
+  "tracerouteTest": "Traceroute Test",
+  "@tracerouteTest": {
+    "description": "Traceroute test dialog title"
+  },
+  "tracePath": "Trace network path to a host",
+  "@tracePath": {
+    "description": "Traceroute tool description"
+  },
+  "dnsLookup": "DNS Lookup",
+  "@dnsLookup": {
+    "description": "DNS lookup tool name"
+  },
+  "dnsLookupTitle": "DNS Lookup",
+  "@dnsLookupTitle": {
+    "description": "DNS lookup dialog title"
+  },
+  "resolveDomains": "Resolve domain names to IP addresses",
+  "@resolveDomains": {
+    "description": "DNS lookup tool description"
+  },
+  "clearResults": "Clear Results",
+  "@clearResults": {
+    "description": "Clear results action"
+  },
+  "clearAllResults": "Clear all diagnostic results",
+  "@clearAllResults": {
+    "description": "Clear results description"
+  },
+  "targetHost": "Target Host/IP",
+  "@targetHost": {
+    "description": "Target host input label"
+  },
+  "packetCount": "Packet Count",
+  "@packetCount": {
+    "description": "Ping packet count label"
+  },
+  "timeoutMs": "Timeout (ms)",
+  "@timeoutMs": {
+    "description": "Timeout input label"
+  },
+  "maxHops": "Max Hops",
+  "@maxHops": {
+    "description": "Traceroute max hops label"
+  },
+  "domainName": "Domain Name",
+  "@domainName": {
+    "description": "Domain name input label"
+  },
+  "startPing": "Start Ping",
+  "@startPing": {
+    "description": "Start ping button"
+  },
+  "startTraceroute": "Start Traceroute",
+  "@startTraceroute": {
+    "description": "Start traceroute button"
+  },
+  "lookupDns": "Lookup DNS",
+  "@lookupDns": {
+    "description": "DNS lookup button"
+  },
+  "pingResults": "Ping Results",
+  "@pingResults": {
+    "description": "Ping results section title"
+  },
+  "tracerouteResults": "Traceroute Results",
+  "@tracerouteResults": {
+    "description": "Traceroute results section title"
+  },
+  "dnsResults": "DNS Lookup Results",
+  "@dnsResults": {
+    "description": "DNS lookup results section title"
+  },
+  "packetsSent": "Packets sent",
+  "@packetsSent": {
+    "description": "Packets sent label"
+  },
+  "packetsReceived": "Packets received",
+  "@packetsReceived": {
+    "description": "Packets received label"
+  },
+  "packetLoss": "Packet Loss",
+  "@packetLoss": {
+    "description": "Packet loss label"
+  },
+  "rtt": "RTT",
+  "@rtt": {
+    "description": "Round trip time label"
+  },
+  "ipv4Addresses": "IPv4 Addresses",
+  "@ipv4Addresses": {
+    "description": "IPv4 addresses label"
+  },
+  "ipv6Addresses": "IPv6 Addresses",
+  "@ipv6Addresses": {
+    "description": "IPv6 addresses label"
+  },
+  "responseTime": "Response Time",
+  "@responseTime": {
+    "description": "Response time label"
+  },
+  "noResults": "No results found",
+  "@noResults": {
+    "description": "No results message"
+  },
+  "queues": "Queues",
+  "@queues": {
+    "description": "Queues page title"
+  },
+  "simpleQueues": "Simple Queues",
+  "@simpleQueues": {
+    "description": "Simple queues section title"
+  },
+  "queueManagement": "Manage bandwidth queues and traffic shaping",
+  "@queueManagement": {
+    "description": "Queue management description"
+  },
+  "addQueue": "Add Queue",
+  "@addQueue": {
+    "description": "Add queue button text"
+  },
+  "queueName": "Queue Name",
+  "@queueName": {
+    "description": "Queue name field label"
+  },
+  "target": "Target",
+  "@target": {
+    "description": "Target field label"
+  },
+  "maxLimit": "Max Limit",
+  "@maxLimit": {
+    "description": "Max limit field label"
+  },
+  "burstLimit": "Burst Limit",
+  "@burstLimit": {
+    "description": "Burst limit field label"
+  },
+  "burstThreshold": "Burst Threshold",
+  "@burstThreshold": {
+    "description": "Burst threshold field label"
+  },
+  "burstTime": "Burst Time",
+  "@burstTime": {
+    "description": "Burst time field label"
+  },
+  "priority": "Priority",
+  "@priority": {
+    "description": "Priority field label"
+  },
+  "parent": "Parent",
+  "@parent": {
+    "description": "Parent field label"
+  },
+  "advancedSettings": "Advanced Settings",
+  "@advancedSettings": {
+    "description": "Advanced settings section title"
+  },
+  "limitAt": "Limit At",
+  "@limitAt": {
+    "description": "Limit at field label"
+  },
+  "queueType": "Queue Type",
+  "@queueType": {
+    "description": "Queue type field label"
+  },
+  "totalQueueLimit": "Total Queue Limit",
+  "@totalQueueLimit": {
+    "description": "Total queue limit field label"
+  },
+  "totalMaxLimit": "Total Max Limit",
+  "@totalMaxLimit": {
+    "description": "Total max limit field label"
+  },
+  "totalBurstLimit": "Total Burst Limit",
+  "@totalBurstLimit": {
+    "description": "Total burst limit field label"
+  },
+  "totalBurstThreshold": "Total Burst Threshold",
+  "@totalBurstThreshold": {
+    "description": "Total burst threshold field label"
+  },
+  "totalBurstTime": "Total Burst Time",
+  "@totalBurstTime": {
+    "description": "Total burst time field label"
+  },
+  "totalLimitAt": "Total Limit At",
+  "@totalLimitAt": {
+    "description": "Total limit at field label"
+  },
+  "bucketSize": "Bucket Size",
+  "@bucketSize": {
+    "description": "Bucket size field label"
+  },
+  "saveQueue": "Save Queue",
+  "@saveQueue": {
+    "description": "Save queue button text"
+  },
+  "deleteQueue": "Delete Queue",
+  "@deleteQueue": {
+    "description": "Delete queue button text"
+  },
+  "deleteQueueConfirm": "Are you sure you want to delete this queue?",
+  "@deleteQueueConfirm": {
+    "description": "Delete queue confirmation message"
+  },
+  "toggleQueue": "Toggle Queue",
+  "@toggleQueue": {
+    "description": "Toggle queue button text"
+  },
+  "queueEnabled": "Queue enabled",
+  "@queueEnabled": {
+    "description": "Queue enabled status message"
+  },
+  "queueDisabled": "Queue disabled",
+  "@queueDisabled": {
+    "description": "Queue disabled status message"
+  },
+  "loadingQueues": "Loading queues...",
+  "@loadingQueues": {
+    "description": "Loading queues message"
+  },
+  "noQueues": "No queues found",
+  "@noQueues": {
+    "description": "No queues found message"
+  },
+  "queueAdded": "Queue added successfully",
+  "@queueAdded": {
+    "description": "Queue added success message"
+  },
+  "queueUpdated": "Queue updated successfully",
+  "@queueUpdated": {
+    "description": "Queue updated success message"
+  },
+  "queueDeleted": "Queue deleted successfully",
+  "@queueDeleted": {
+    "description": "Queue deleted success message"
+  },
+  "queueToggled": "Queue status changed",
+  "@queueToggled": {
+    "description": "Queue toggled success message"
+  },
+  "errorLoadingQueues": "Error loading queues",
+  "@errorLoadingQueues": {
+    "description": "Error loading queues message"
+  },
+  "errorAddingQueue": "Error adding queue",
+  "@errorAddingQueue": {
+    "description": "Error adding queue message"
+  },
+  "errorUpdatingQueue": "Error updating queue",
+  "@errorUpdatingQueue": {
+    "description": "Error updating queue message"
+  },
+  "errorDeletingQueue": "Error deleting queue",
+  "@errorDeletingQueue": {
+    "description": "Error deleting queue message"
+  },
+  "errorTogglingQueue": "Error changing queue status",
+  "@errorTogglingQueue": {
+    "description": "Error toggling queue message"
+  },
+  "wirelessManagement": "Wireless Management",
+  "@wirelessManagement": {
+    "description": "Wireless management page title"
+  },
+  "interfaces": "Interfaces",
+  "@interfaces": {
+    "description": "Wireless interfaces tab"
+  },
+  "clients": "Clients",
+  "@clients": {
+    "description": "Connected clients tab"
+  },
+  "securityProfiles": "Security Profiles",
+  "@securityProfiles": {
+    "description": "Security profiles tab"
+  },
+  "noWirelessInterfaces": "No wireless interfaces found",
+  "@noWirelessInterfaces": {
+    "description": "Message when no wireless interfaces are available"
+  },
+  "noConnectedClients": "No connected clients found",
+  "@noConnectedClients": {
+    "description": "Message when no clients are connected"
+  },
+  "noSecurityProfiles": "No security profiles found",
+  "@noSecurityProfiles": {
+    "description": "Message when no security profiles are available"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button text"
+  },
+  "enabled": "Enabled",
+  "@enabled": {
+    "description": "Status indicator for enabled items"
+  },
+  "disabled": "Disabled",
+  "@disabled": {
+    "description": "Status indicator for disabled items"
+  },
+  "connected": "Connected",
+  "@connected": {
+    "description": "Status indicator for connected clients"
+  },
+  "systemLogs": "System Logs",
+  "@systemLogs": {
+    "description": "System logs page title"
+  },
+  "logs": "Logs",
+  "@logs": {
+    "description": "Logs tab"
+  },
+  "follow": "Follow",
+  "@follow": {
+    "description": "Follow logs tab"
+  },
+  "search": "Search",
+  "@search": {
+    "description": "Search button/action"
+  },
+  "searchLogs": "Search logs...",
+  "@searchLogs": {
+    "description": "Search logs hint text"
+  },
+  "clearLogs": "Clear Logs",
+  "@clearLogs": {
+    "description": "Clear logs action"
+  },
+  "clearLogsConfirmation": "Are you sure you want to clear all logs?",
+  "@clearLogsConfirmation": {
+    "description": "Clear logs confirmation message"
+  },
+  "clear": "Clear",
+  "@clear": {
+    "description": "Clear action"
+  },
+  "filterLogs": "Filter Logs",
+  "@filterLogs": {
+    "description": "Filter logs title"
+  },
+  "topics": "Topics",
+  "@topics": {
+    "description": "Topics filter label"
+  },
+  "applyFilter": "Apply Filter",
+  "@applyFilter": {
+    "description": "Apply filter button"
+  },
+  "clearFilter": "Clear Filter",
+  "@clearFilter": {
+    "description": "Clear filter button"
+  },
+  "commonTopics": "Common Topics:",
+  "@commonTopics": {
+    "description": "Common topics label"
+  },
+  "noLogsFound": "No logs found",
+  "@noLogsFound": {
+    "description": "Message when no logs are found"
+  },
+  "noLiveLogs": "No live logs available",
+  "@noLiveLogs": {
+    "description": "Message when no live logs are available"
+  },
+  "logsCleared": "Logs cleared successfully",
+  "@logsCleared": {
+    "description": "Success message when logs are cleared"
+  },
+  "backupRestore": "Backup & Restore",
+  "@backupRestore": {
+    "description": "Backup & Restore section title"
+  },
+  "createBackup": "Create Backup",
+  "@createBackup": {
+    "description": "Create backup button/action"
+  },
+  "backupName": "Backup Name",
+  "@backupName": {
+    "description": "Backup name field label"
+  },
+  "backupNameRequired": "Backup name is required",
+  "@backupNameRequired": {
+    "description": "Validation message for required backup name"
+  },
+  "backupNameNoSpaces": "Backup name cannot contain spaces",
+  "@backupNameNoSpaces": {
+    "description": "Validation message for backup name containing spaces"
+  },
+  "backupDescription": "Create a backup of the current RouterOS configuration.",
+  "@backupDescription": {
+    "description": "Description text for backup creation"
+  },
+  "create": "Create",
+  "@create": {
+    "description": "Generic create button text"
+  },
+  "noBackupsFound": "No backups found",
+  "@noBackupsFound": {
+    "description": "Message when no backups are found"
+  },
+  "restore": "Restore",
+  "@restore": {
+    "description": "Restore action/button text"
+  },
+  "confirmRestore": "Confirm Restore",
+  "@confirmRestore": {
+    "description": "Confirm restore dialog title"
+  },
+  "restoreBackupWarning": "Are you sure you want to restore from this backup? This will overwrite current configuration.",
+  "@restoreBackupWarning": {
+    "description": "Warning message for backup restore operation"
+  },
+  "confirmDelete": "Confirm Delete",
+  "@confirmDelete": {
+    "description": "Confirm delete dialog title"
+  },
+  "deleteBackupWarning": "Are you sure you want to delete this backup?",
+  "@deleteBackupWarning": {
+    "description": "Warning message for backup delete operation"
+  },
+  "networkManagement": "Network Management",
+  "@networkManagement": {
+    "description": "Network Management section title"
+  },
+  "securityAccess": "Security & Access",
+  "@securityAccess": {
+    "description": "Security & Access section title"
+  },
+  "monitoringTools": "Monitoring & Tools",
+  "@monitoringTools": {
+    "description": "Monitoring & Tools section title"
+  },
+  "advancedFeatures": "Advanced Features",
+  "@advancedFeatures": {
+    "description": "Advanced Features section title"
   }
 }

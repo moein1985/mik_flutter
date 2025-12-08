@@ -32,6 +32,17 @@ import '../../features/dhcp/presentation/bloc/dhcp_bloc.dart';
 import '../../features/dhcp/presentation/pages/dhcp_page.dart';
 import '../../features/cloud/presentation/bloc/cloud_bloc.dart';
 import '../../features/cloud/presentation/pages/cloud_page.dart';
+import '../../features/tools/presentation/pages/tools_page.dart';
+import '../../features/tools/presentation/bloc/tools_bloc.dart';
+import '../../features/queues/presentation/bloc/queues_bloc.dart';
+import '../../features/queues/presentation/pages/queues_page.dart';
+import '../../features/queues/presentation/pages/add_edit_queue_page.dart';
+import '../../features/wireless/presentation/bloc/wireless_bloc.dart';
+import '../../features/wireless/presentation/pages/wireless_page.dart';
+import '../../features/logs/presentation/bloc/logs_bloc.dart';
+import '../../features/logs/presentation/pages/logs_page.dart';
+import '../../features/backup/presentation/bloc/backup_bloc.dart';
+import '../../features/backup/presentation/pages/backup_page.dart';
 
 /// Route names as constants
 class AppRoutes {
@@ -55,6 +66,13 @@ class AppRoutes {
   static const String services = '/dashboard/services';
   static const String certificates = '/dashboard/certificates';
   static const String letsencrypt = '/dashboard/certificates/letsencrypt';
+  static const String tools = '/dashboard/tools';
+  static const String queues = '/dashboard/queues';
+  static const String addQueue = '/dashboard/queues/add';
+  static const String editQueue = '/dashboard/queues/edit/:id';
+  static const String wireless = '/dashboard/wireless';
+  static const String logs = '/dashboard/logs';
+  static const String backup = '/dashboard/backup';
 }
 
 /// Global navigator key for use outside of widget context
@@ -298,6 +316,77 @@ class AppRouter {
               builder: (context, state) => BlocProvider(
                 create: (_) => sl<CloudBloc>(),
                 child: const CloudPage(),
+              ),
+            ),
+
+            // Tools route
+            GoRoute(
+              path: 'tools',
+              name: 'tools',
+              builder: (context, state) => BlocProvider(
+                create: (_) => sl<ToolsBloc>(),
+                child: const ToolsPage(),
+              ),
+            ),
+
+            // Queues route
+            GoRoute(
+              path: 'queues',
+              name: 'queues',
+              builder: (context, state) => BlocProvider(
+                create: (_) => sl<QueuesBloc>(),
+                child: const QueuesPage(),
+              ),
+              routes: [
+                GoRoute(
+                  path: 'add',
+                  name: 'add-queue',
+                  builder: (context, state) => BlocProvider.value(
+                    value: context.read<QueuesBloc>(),
+                    child: const AddEditQueuePage(),
+                  ),
+                ),
+                GoRoute(
+                  path: 'edit/:id',
+                  name: 'edit-queue',
+                  builder: (context, state) {
+                    final queueId = state.pathParameters['id']!;
+                    return BlocProvider.value(
+                      value: context.read<QueuesBloc>(),
+                      child: AddEditQueuePage(queueId: queueId),
+                    );
+                  },
+                ),
+              ],
+            ),
+
+            // Wireless route
+            GoRoute(
+              path: 'wireless',
+              name: 'wireless',
+              builder: (context, state) => BlocProvider(
+                create: (_) => sl<WirelessBloc>(),
+                child: const WirelessPage(),
+              ),
+            ),
+
+            // Logs route
+            GoRoute(
+              path: 'logs',
+              name: 'logs',
+              builder: (context, state) => BlocProvider(
+                create: (_) => sl<LogsBloc>(),
+                child: const LogsPage(),
+              ),
+            ),
+
+            // Backup route
+            GoRoute(
+              path: 'backup',
+              name: 'backup',
+              builder: (context, state) => BlocProvider(
+                create: (_) => sl<BackupBloc>(),
+                child: const BackupPage(),
               ),
             ),
 

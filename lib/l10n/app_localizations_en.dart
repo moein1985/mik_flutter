@@ -458,4 +458,345 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get letsEncryptRevokeWarning =>
       'Services using this certificate will stop working until a new certificate is issued.';
+
+  @override
+  String get networkTools => 'Network Tools';
+
+  @override
+  String get diagnosticTools => 'Network Diagnostic Tools';
+
+  @override
+  String get testConnectivity => 'Test connectivity and resolve network issues';
+
+  @override
+  String get ping => 'Ping';
+
+  @override
+  String get pingTest => 'Ping Test';
+
+  @override
+  String get pingConnectivity => 'Test connectivity to a host';
+
+  @override
+  String get traceroute => 'Traceroute';
+
+  @override
+  String get tracerouteTest => 'Traceroute Test';
+
+  @override
+  String get tracePath => 'Trace network path to a host';
+
+  @override
+  String get dnsLookup => 'DNS Lookup';
+
+  @override
+  String get dnsLookupTitle => 'DNS Lookup';
+
+  @override
+  String get resolveDomains => 'Resolve domain names to IP addresses';
+
+  @override
+  String get clearResults => 'Clear Results';
+
+  @override
+  String get clearAllResults => 'Clear all diagnostic results';
+
+  @override
+  String get targetHost => 'Target Host/IP';
+
+  @override
+  String get packetCount => 'Packet Count';
+
+  @override
+  String get timeoutMs => 'Timeout (ms)';
+
+  @override
+  String get maxHops => 'Max Hops';
+
+  @override
+  String get domainName => 'Domain Name';
+
+  @override
+  String get startPing => 'Start Ping';
+
+  @override
+  String get startTraceroute => 'Start Traceroute';
+
+  @override
+  String get lookupDns => 'Lookup DNS';
+
+  @override
+  String get pingResults => 'Ping Results';
+
+  @override
+  String get tracerouteResults => 'Traceroute Results';
+
+  @override
+  String get dnsResults => 'DNS Lookup Results';
+
+  @override
+  String get packetsSent => 'Packets sent';
+
+  @override
+  String get packetsReceived => 'Packets received';
+
+  @override
+  String get packetLoss => 'Packet Loss';
+
+  @override
+  String get rtt => 'RTT';
+
+  @override
+  String get ipv4Addresses => 'IPv4 Addresses';
+
+  @override
+  String get ipv6Addresses => 'IPv6 Addresses';
+
+  @override
+  String get responseTime => 'Response Time';
+
+  @override
+  String get noResults => 'No results found';
+
+  @override
+  String get queues => 'Queues';
+
+  @override
+  String get simpleQueues => 'Simple Queues';
+
+  @override
+  String get queueManagement => 'Manage bandwidth queues and traffic shaping';
+
+  @override
+  String get addQueue => 'Add Queue';
+
+  @override
+  String get queueName => 'Queue Name';
+
+  @override
+  String get target => 'Target';
+
+  @override
+  String get maxLimit => 'Max Limit';
+
+  @override
+  String get burstLimit => 'Burst Limit';
+
+  @override
+  String get burstThreshold => 'Burst Threshold';
+
+  @override
+  String get burstTime => 'Burst Time';
+
+  @override
+  String get priority => 'Priority';
+
+  @override
+  String get parent => 'Parent';
+
+  @override
+  String get advancedSettings => 'Advanced Settings';
+
+  @override
+  String get limitAt => 'Limit At';
+
+  @override
+  String get queueType => 'Queue Type';
+
+  @override
+  String get totalQueueLimit => 'Total Queue Limit';
+
+  @override
+  String get totalMaxLimit => 'Total Max Limit';
+
+  @override
+  String get totalBurstLimit => 'Total Burst Limit';
+
+  @override
+  String get totalBurstThreshold => 'Total Burst Threshold';
+
+  @override
+  String get totalBurstTime => 'Total Burst Time';
+
+  @override
+  String get totalLimitAt => 'Total Limit At';
+
+  @override
+  String get bucketSize => 'Bucket Size';
+
+  @override
+  String get saveQueue => 'Save Queue';
+
+  @override
+  String get deleteQueue => 'Delete Queue';
+
+  @override
+  String get deleteQueueConfirm =>
+      'Are you sure you want to delete this queue?';
+
+  @override
+  String get toggleQueue => 'Toggle Queue';
+
+  @override
+  String get queueEnabled => 'Queue enabled';
+
+  @override
+  String get queueDisabled => 'Queue disabled';
+
+  @override
+  String get loadingQueues => 'Loading queues...';
+
+  @override
+  String get noQueues => 'No queues found';
+
+  @override
+  String get queueAdded => 'Queue added successfully';
+
+  @override
+  String get queueUpdated => 'Queue updated successfully';
+
+  @override
+  String get queueDeleted => 'Queue deleted successfully';
+
+  @override
+  String get queueToggled => 'Queue status changed';
+
+  @override
+  String get errorLoadingQueues => 'Error loading queues';
+
+  @override
+  String get errorAddingQueue => 'Error adding queue';
+
+  @override
+  String get errorUpdatingQueue => 'Error updating queue';
+
+  @override
+  String get errorDeletingQueue => 'Error deleting queue';
+
+  @override
+  String get errorTogglingQueue => 'Error changing queue status';
+
+  @override
+  String get wirelessManagement => 'Wireless Management';
+
+  @override
+  String get clients => 'Clients';
+
+  @override
+  String get securityProfiles => 'Security Profiles';
+
+  @override
+  String get noWirelessInterfaces => 'No wireless interfaces found';
+
+  @override
+  String get noConnectedClients => 'No connected clients found';
+
+  @override
+  String get noSecurityProfiles => 'No security profiles found';
+
+  @override
+  String get connected => 'Connected';
+
+  @override
+  String get systemLogs => 'System Logs';
+
+  @override
+  String get logs => 'Logs';
+
+  @override
+  String get follow => 'Follow';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get searchLogs => 'Search logs...';
+
+  @override
+  String get clearLogs => 'Clear Logs';
+
+  @override
+  String get clearLogsConfirmation =>
+      'Are you sure you want to clear all logs?';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get filterLogs => 'Filter Logs';
+
+  @override
+  String get topics => 'Topics';
+
+  @override
+  String get applyFilter => 'Apply Filter';
+
+  @override
+  String get clearFilter => 'Clear Filter';
+
+  @override
+  String get commonTopics => 'Common Topics:';
+
+  @override
+  String get noLogsFound => 'No logs found';
+
+  @override
+  String get noLiveLogs => 'No live logs available';
+
+  @override
+  String get logsCleared => 'Logs cleared successfully';
+
+  @override
+  String get backupRestore => 'Backup & Restore';
+
+  @override
+  String get createBackup => 'Create Backup';
+
+  @override
+  String get backupName => 'Backup Name';
+
+  @override
+  String get backupNameRequired => 'Backup name is required';
+
+  @override
+  String get backupNameNoSpaces => 'Backup name cannot contain spaces';
+
+  @override
+  String get backupDescription =>
+      'Create a backup of the current RouterOS configuration.';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get noBackupsFound => 'No backups found';
+
+  @override
+  String get restore => 'Restore';
+
+  @override
+  String get confirmRestore => 'Confirm Restore';
+
+  @override
+  String get restoreBackupWarning =>
+      'Are you sure you want to restore from this backup? This will overwrite current configuration.';
+
+  @override
+  String get confirmDelete => 'Confirm Delete';
+
+  @override
+  String get deleteBackupWarning =>
+      'Are you sure you want to delete this backup?';
+
+  @override
+  String get networkManagement => 'Network Management';
+
+  @override
+  String get securityAccess => 'Security & Access';
+
+  @override
+  String get monitoringTools => 'Monitoring & Tools';
+
+  @override
+  String get advancedFeatures => 'Advanced Features';
 }

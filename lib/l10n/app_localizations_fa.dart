@@ -48,7 +48,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dashboard => 'داشبورد';
 
   @override
-  String get interfaces => 'اینترفیس‌ها';
+  String get interfaces => 'رابط‌ها';
 
   @override
   String get ipAddresses => 'آدرس‌های IP';
@@ -458,4 +458,344 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get letsEncryptRevokeWarning =>
       'سرویس‌هایی که از این گواهینامه استفاده می‌کنند تا صدور گواهینامه جدید کار نخواهند کرد.';
+
+  @override
+  String get networkTools => 'ابزارهای شبکه';
+
+  @override
+  String get diagnosticTools => 'ابزارهای تشخیصی شبکه';
+
+  @override
+  String get testConnectivity => 'تست اتصال و حل مشکلات شبکه';
+
+  @override
+  String get ping => 'پینگ';
+
+  @override
+  String get pingTest => 'تست پینگ';
+
+  @override
+  String get pingConnectivity => 'تست اتصال به یک میزبان';
+
+  @override
+  String get traceroute => 'Traceroute';
+
+  @override
+  String get tracerouteTest => 'تست Traceroute';
+
+  @override
+  String get tracePath => 'ردیابی مسیر شبکه به یک میزبان';
+
+  @override
+  String get dnsLookup => 'جستجوی DNS';
+
+  @override
+  String get dnsLookupTitle => 'جستجوی DNS';
+
+  @override
+  String get resolveDomains => 'تبدیل نام دامنه به آدرس IP';
+
+  @override
+  String get clearResults => 'پاک کردن نتایج';
+
+  @override
+  String get clearAllResults => 'پاک کردن تمام نتایج تشخیصی';
+
+  @override
+  String get targetHost => 'میزبان هدف/IP';
+
+  @override
+  String get packetCount => 'تعداد بسته';
+
+  @override
+  String get timeoutMs => 'زمان انتظار (ms)';
+
+  @override
+  String get maxHops => 'حداکثر Hop';
+
+  @override
+  String get domainName => 'نام دامنه';
+
+  @override
+  String get startPing => 'شروع پینگ';
+
+  @override
+  String get startTraceroute => 'شروع Traceroute';
+
+  @override
+  String get lookupDns => 'جستجوی DNS';
+
+  @override
+  String get pingResults => 'نتایج پینگ';
+
+  @override
+  String get tracerouteResults => 'نتایج Traceroute';
+
+  @override
+  String get dnsResults => 'نتایج جستجوی DNS';
+
+  @override
+  String get packetsSent => 'بسته‌های ارسال شده';
+
+  @override
+  String get packetsReceived => 'بسته‌های دریافت شده';
+
+  @override
+  String get packetLoss => 'از دست دادن بسته';
+
+  @override
+  String get rtt => 'RTT';
+
+  @override
+  String get ipv4Addresses => 'آدرس‌های IPv4';
+
+  @override
+  String get ipv6Addresses => 'آدرس‌های IPv6';
+
+  @override
+  String get responseTime => 'زمان پاسخ';
+
+  @override
+  String get noResults => 'نتیجه‌ای یافت نشد';
+
+  @override
+  String get queues => 'صف‌ها';
+
+  @override
+  String get simpleQueues => 'صف‌های ساده';
+
+  @override
+  String get queueManagement => 'مدیریت صف‌های پهنای باند و شکل‌دهی ترافیک';
+
+  @override
+  String get addQueue => 'افزودن صف';
+
+  @override
+  String get queueName => 'نام صف';
+
+  @override
+  String get target => 'هدف';
+
+  @override
+  String get maxLimit => 'حداکثر محدودیت';
+
+  @override
+  String get burstLimit => 'محدودیت انفجار';
+
+  @override
+  String get burstThreshold => 'آستانه انفجار';
+
+  @override
+  String get burstTime => 'زمان انفجار';
+
+  @override
+  String get priority => 'اولویت';
+
+  @override
+  String get parent => 'والد';
+
+  @override
+  String get advancedSettings => 'تنظیمات پیشرفته';
+
+  @override
+  String get limitAt => 'محدودیت در';
+
+  @override
+  String get queueType => 'نوع صف';
+
+  @override
+  String get totalQueueLimit => 'محدودیت کل صف';
+
+  @override
+  String get totalMaxLimit => 'حداکثر محدودیت کل';
+
+  @override
+  String get totalBurstLimit => 'محدودیت انفجار کل';
+
+  @override
+  String get totalBurstThreshold => 'آستانه انفجار کل';
+
+  @override
+  String get totalBurstTime => 'زمان انفجار کل';
+
+  @override
+  String get totalLimitAt => 'محدودیت کل در';
+
+  @override
+  String get bucketSize => 'اندازه سطل';
+
+  @override
+  String get saveQueue => 'ذخیره صف';
+
+  @override
+  String get deleteQueue => 'حذف صف';
+
+  @override
+  String get deleteQueueConfirm =>
+      'آیا مطمئن هستید می‌خواهید این صف را حذف کنید؟';
+
+  @override
+  String get toggleQueue => 'تغییر وضعیت صف';
+
+  @override
+  String get queueEnabled => 'صف فعال شد';
+
+  @override
+  String get queueDisabled => 'صف غیرفعال شد';
+
+  @override
+  String get loadingQueues => 'در حال بارگذاری صف‌ها...';
+
+  @override
+  String get noQueues => 'صف‌ای یافت نشد';
+
+  @override
+  String get queueAdded => 'صف با موفقیت اضافه شد';
+
+  @override
+  String get queueUpdated => 'صف با موفقیت به‌روزرسانی شد';
+
+  @override
+  String get queueDeleted => 'صف با موفقیت حذف شد';
+
+  @override
+  String get queueToggled => 'وضعیت صف تغییر کرد';
+
+  @override
+  String get errorLoadingQueues => 'خطا در بارگذاری صف‌ها';
+
+  @override
+  String get errorAddingQueue => 'خطا در افزودن صف';
+
+  @override
+  String get errorUpdatingQueue => 'خطا در به‌روزرسانی صف';
+
+  @override
+  String get errorDeletingQueue => 'خطا در حذف صف';
+
+  @override
+  String get errorTogglingQueue => 'خطا در تغییر وضعیت صف';
+
+  @override
+  String get wirelessManagement => 'مدیریت بی‌سیم';
+
+  @override
+  String get clients => 'کلاینت‌ها';
+
+  @override
+  String get securityProfiles => 'پروفایل‌های امنیتی';
+
+  @override
+  String get noWirelessInterfaces => 'هیچ رابط بی‌سیمی یافت نشد';
+
+  @override
+  String get noConnectedClients => 'هیچ کلاینتی متصل نیست';
+
+  @override
+  String get noSecurityProfiles => 'هیچ پروفایل امنیتی یافت نشد';
+
+  @override
+  String get connected => 'متصل';
+
+  @override
+  String get systemLogs => 'لاگ‌های سیستم';
+
+  @override
+  String get logs => 'لاگ‌ها';
+
+  @override
+  String get follow => 'پیگیری';
+
+  @override
+  String get search => 'جستجو';
+
+  @override
+  String get searchLogs => 'جستجو در لاگ‌ها...';
+
+  @override
+  String get clearLogs => 'پاک کردن لاگ‌ها';
+
+  @override
+  String get clearLogsConfirmation =>
+      'آیا مطمئن هستید که می‌خواهید تمام لاگ‌ها را پاک کنید؟';
+
+  @override
+  String get clear => 'پاک کردن';
+
+  @override
+  String get filterLogs => 'فیلتر لاگ‌ها';
+
+  @override
+  String get topics => 'موضوعات';
+
+  @override
+  String get applyFilter => 'اعمال فیلتر';
+
+  @override
+  String get clearFilter => 'پاک کردن فیلتر';
+
+  @override
+  String get commonTopics => 'موضوعات رایج:';
+
+  @override
+  String get noLogsFound => 'هیچ لاگی یافت نشد';
+
+  @override
+  String get noLiveLogs => 'هیچ لاگ زنده‌ای موجود نیست';
+
+  @override
+  String get logsCleared => 'لاگ‌ها با موفقیت پاک شدند';
+
+  @override
+  String get backupRestore => 'پشتیبان‌گیری و بازیابی';
+
+  @override
+  String get createBackup => 'ایجاد پشتیبان';
+
+  @override
+  String get backupName => 'نام پشتیبان';
+
+  @override
+  String get backupNameRequired => 'نام پشتیبان الزامی است';
+
+  @override
+  String get backupNameNoSpaces => 'نام پشتیبان نمی‌تواند شامل فاصله باشد';
+
+  @override
+  String get backupDescription => 'ایجاد پشتیبان از تنظیمات فعلی RouterOS.';
+
+  @override
+  String get create => 'ایجاد';
+
+  @override
+  String get noBackupsFound => 'هیچ پشتیبانی یافت نشد';
+
+  @override
+  String get restore => 'بازیابی';
+
+  @override
+  String get confirmRestore => 'تأیید بازیابی';
+
+  @override
+  String get restoreBackupWarning =>
+      'آیا مطمئن هستید که می‌خواهید از این پشتیبان بازیابی کنید؟ این کار تنظیمات فعلی را بازنویسی خواهد کرد.';
+
+  @override
+  String get confirmDelete => 'تأیید حذف';
+
+  @override
+  String get deleteBackupWarning =>
+      'آیا مطمئن هستید که می‌خواهید این پشتیبان را حذف کنید؟';
+
+  @override
+  String get networkManagement => 'مدیریت شبکه';
+
+  @override
+  String get securityAccess => 'امنیت و دسترسی';
+
+  @override
+  String get monitoringTools => 'مانیتورینگ و ابزارها';
+
+  @override
+  String get advancedFeatures => 'ویژگی‌های پیشرفته';
 }

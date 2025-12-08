@@ -176,7 +176,7 @@ abstract class AppLocalizations {
   /// **'Dashboard'**
   String get dashboard;
 
-  /// Interfaces section title
+  /// Wireless interfaces tab
   ///
   /// In en, this message translates to:
   /// **'Interfaces'**
@@ -362,13 +362,13 @@ abstract class AppLocalizations {
   /// **'Status'**
   String get status;
 
-  /// Enabled status
+  /// Status indicator for enabled items
   ///
   /// In en, this message translates to:
   /// **'Enabled'**
   String get enabled;
 
-  /// Disabled status
+  /// Status indicator for disabled items
   ///
   /// In en, this message translates to:
   /// **'Disabled'**
@@ -949,6 +949,678 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Services using this certificate will stop working until a new certificate is issued.'**
   String get letsEncryptRevokeWarning;
+
+  /// Network Tools page title
+  ///
+  /// In en, this message translates to:
+  /// **'Network Tools'**
+  String get networkTools;
+
+  /// Diagnostic tools section title
+  ///
+  /// In en, this message translates to:
+  /// **'Network Diagnostic Tools'**
+  String get diagnosticTools;
+
+  /// Tools description
+  ///
+  /// In en, this message translates to:
+  /// **'Test connectivity and resolve network issues'**
+  String get testConnectivity;
+
+  /// Ping tool name
+  ///
+  /// In en, this message translates to:
+  /// **'Ping'**
+  String get ping;
+
+  /// Ping test dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Ping Test'**
+  String get pingTest;
+
+  /// Ping tool description
+  ///
+  /// In en, this message translates to:
+  /// **'Test connectivity to a host'**
+  String get pingConnectivity;
+
+  /// Traceroute tool name
+  ///
+  /// In en, this message translates to:
+  /// **'Traceroute'**
+  String get traceroute;
+
+  /// Traceroute test dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Traceroute Test'**
+  String get tracerouteTest;
+
+  /// Traceroute tool description
+  ///
+  /// In en, this message translates to:
+  /// **'Trace network path to a host'**
+  String get tracePath;
+
+  /// DNS lookup tool name
+  ///
+  /// In en, this message translates to:
+  /// **'DNS Lookup'**
+  String get dnsLookup;
+
+  /// DNS lookup dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'DNS Lookup'**
+  String get dnsLookupTitle;
+
+  /// DNS lookup tool description
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve domain names to IP addresses'**
+  String get resolveDomains;
+
+  /// Clear results action
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Results'**
+  String get clearResults;
+
+  /// Clear results description
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all diagnostic results'**
+  String get clearAllResults;
+
+  /// Target host input label
+  ///
+  /// In en, this message translates to:
+  /// **'Target Host/IP'**
+  String get targetHost;
+
+  /// Ping packet count label
+  ///
+  /// In en, this message translates to:
+  /// **'Packet Count'**
+  String get packetCount;
+
+  /// Timeout input label
+  ///
+  /// In en, this message translates to:
+  /// **'Timeout (ms)'**
+  String get timeoutMs;
+
+  /// Traceroute max hops label
+  ///
+  /// In en, this message translates to:
+  /// **'Max Hops'**
+  String get maxHops;
+
+  /// Domain name input label
+  ///
+  /// In en, this message translates to:
+  /// **'Domain Name'**
+  String get domainName;
+
+  /// Start ping button
+  ///
+  /// In en, this message translates to:
+  /// **'Start Ping'**
+  String get startPing;
+
+  /// Start traceroute button
+  ///
+  /// In en, this message translates to:
+  /// **'Start Traceroute'**
+  String get startTraceroute;
+
+  /// DNS lookup button
+  ///
+  /// In en, this message translates to:
+  /// **'Lookup DNS'**
+  String get lookupDns;
+
+  /// Ping results section title
+  ///
+  /// In en, this message translates to:
+  /// **'Ping Results'**
+  String get pingResults;
+
+  /// Traceroute results section title
+  ///
+  /// In en, this message translates to:
+  /// **'Traceroute Results'**
+  String get tracerouteResults;
+
+  /// DNS lookup results section title
+  ///
+  /// In en, this message translates to:
+  /// **'DNS Lookup Results'**
+  String get dnsResults;
+
+  /// Packets sent label
+  ///
+  /// In en, this message translates to:
+  /// **'Packets sent'**
+  String get packetsSent;
+
+  /// Packets received label
+  ///
+  /// In en, this message translates to:
+  /// **'Packets received'**
+  String get packetsReceived;
+
+  /// Packet loss label
+  ///
+  /// In en, this message translates to:
+  /// **'Packet Loss'**
+  String get packetLoss;
+
+  /// Round trip time label
+  ///
+  /// In en, this message translates to:
+  /// **'RTT'**
+  String get rtt;
+
+  /// IPv4 addresses label
+  ///
+  /// In en, this message translates to:
+  /// **'IPv4 Addresses'**
+  String get ipv4Addresses;
+
+  /// IPv6 addresses label
+  ///
+  /// In en, this message translates to:
+  /// **'IPv6 Addresses'**
+  String get ipv6Addresses;
+
+  /// Response time label
+  ///
+  /// In en, this message translates to:
+  /// **'Response Time'**
+  String get responseTime;
+
+  /// No results message
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get noResults;
+
+  /// Queues page title
+  ///
+  /// In en, this message translates to:
+  /// **'Queues'**
+  String get queues;
+
+  /// Simple queues section title
+  ///
+  /// In en, this message translates to:
+  /// **'Simple Queues'**
+  String get simpleQueues;
+
+  /// Queue management description
+  ///
+  /// In en, this message translates to:
+  /// **'Manage bandwidth queues and traffic shaping'**
+  String get queueManagement;
+
+  /// Add queue button text
+  ///
+  /// In en, this message translates to:
+  /// **'Add Queue'**
+  String get addQueue;
+
+  /// Queue name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Queue Name'**
+  String get queueName;
+
+  /// Target field label
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get target;
+
+  /// Max limit field label
+  ///
+  /// In en, this message translates to:
+  /// **'Max Limit'**
+  String get maxLimit;
+
+  /// Burst limit field label
+  ///
+  /// In en, this message translates to:
+  /// **'Burst Limit'**
+  String get burstLimit;
+
+  /// Burst threshold field label
+  ///
+  /// In en, this message translates to:
+  /// **'Burst Threshold'**
+  String get burstThreshold;
+
+  /// Burst time field label
+  ///
+  /// In en, this message translates to:
+  /// **'Burst Time'**
+  String get burstTime;
+
+  /// Priority field label
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get priority;
+
+  /// Parent field label
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get parent;
+
+  /// Advanced settings section title
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Settings'**
+  String get advancedSettings;
+
+  /// Limit at field label
+  ///
+  /// In en, this message translates to:
+  /// **'Limit At'**
+  String get limitAt;
+
+  /// Queue type field label
+  ///
+  /// In en, this message translates to:
+  /// **'Queue Type'**
+  String get queueType;
+
+  /// Total queue limit field label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Queue Limit'**
+  String get totalQueueLimit;
+
+  /// Total max limit field label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Max Limit'**
+  String get totalMaxLimit;
+
+  /// Total burst limit field label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Burst Limit'**
+  String get totalBurstLimit;
+
+  /// Total burst threshold field label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Burst Threshold'**
+  String get totalBurstThreshold;
+
+  /// Total burst time field label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Burst Time'**
+  String get totalBurstTime;
+
+  /// Total limit at field label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Limit At'**
+  String get totalLimitAt;
+
+  /// Bucket size field label
+  ///
+  /// In en, this message translates to:
+  /// **'Bucket Size'**
+  String get bucketSize;
+
+  /// Save queue button text
+  ///
+  /// In en, this message translates to:
+  /// **'Save Queue'**
+  String get saveQueue;
+
+  /// Delete queue button text
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Queue'**
+  String get deleteQueue;
+
+  /// Delete queue confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this queue?'**
+  String get deleteQueueConfirm;
+
+  /// Toggle queue button text
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle Queue'**
+  String get toggleQueue;
+
+  /// Queue enabled status message
+  ///
+  /// In en, this message translates to:
+  /// **'Queue enabled'**
+  String get queueEnabled;
+
+  /// Queue disabled status message
+  ///
+  /// In en, this message translates to:
+  /// **'Queue disabled'**
+  String get queueDisabled;
+
+  /// Loading queues message
+  ///
+  /// In en, this message translates to:
+  /// **'Loading queues...'**
+  String get loadingQueues;
+
+  /// No queues found message
+  ///
+  /// In en, this message translates to:
+  /// **'No queues found'**
+  String get noQueues;
+
+  /// Queue added success message
+  ///
+  /// In en, this message translates to:
+  /// **'Queue added successfully'**
+  String get queueAdded;
+
+  /// Queue updated success message
+  ///
+  /// In en, this message translates to:
+  /// **'Queue updated successfully'**
+  String get queueUpdated;
+
+  /// Queue deleted success message
+  ///
+  /// In en, this message translates to:
+  /// **'Queue deleted successfully'**
+  String get queueDeleted;
+
+  /// Queue toggled success message
+  ///
+  /// In en, this message translates to:
+  /// **'Queue status changed'**
+  String get queueToggled;
+
+  /// Error loading queues message
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading queues'**
+  String get errorLoadingQueues;
+
+  /// Error adding queue message
+  ///
+  /// In en, this message translates to:
+  /// **'Error adding queue'**
+  String get errorAddingQueue;
+
+  /// Error updating queue message
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating queue'**
+  String get errorUpdatingQueue;
+
+  /// Error deleting queue message
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting queue'**
+  String get errorDeletingQueue;
+
+  /// Error toggling queue message
+  ///
+  /// In en, this message translates to:
+  /// **'Error changing queue status'**
+  String get errorTogglingQueue;
+
+  /// Wireless management page title
+  ///
+  /// In en, this message translates to:
+  /// **'Wireless Management'**
+  String get wirelessManagement;
+
+  /// Connected clients tab
+  ///
+  /// In en, this message translates to:
+  /// **'Clients'**
+  String get clients;
+
+  /// Security profiles tab
+  ///
+  /// In en, this message translates to:
+  /// **'Security Profiles'**
+  String get securityProfiles;
+
+  /// Message when no wireless interfaces are available
+  ///
+  /// In en, this message translates to:
+  /// **'No wireless interfaces found'**
+  String get noWirelessInterfaces;
+
+  /// Message when no clients are connected
+  ///
+  /// In en, this message translates to:
+  /// **'No connected clients found'**
+  String get noConnectedClients;
+
+  /// Message when no security profiles are available
+  ///
+  /// In en, this message translates to:
+  /// **'No security profiles found'**
+  String get noSecurityProfiles;
+
+  /// Status indicator for connected clients
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get connected;
+
+  /// System logs page title
+  ///
+  /// In en, this message translates to:
+  /// **'System Logs'**
+  String get systemLogs;
+
+  /// Logs tab
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get logs;
+
+  /// Follow logs tab
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get follow;
+
+  /// Search button/action
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// Search logs hint text
+  ///
+  /// In en, this message translates to:
+  /// **'Search logs...'**
+  String get searchLogs;
+
+  /// Clear logs action
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Logs'**
+  String get clearLogs;
+
+  /// Clear logs confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to clear all logs?'**
+  String get clearLogsConfirmation;
+
+  /// Clear action
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// Filter logs title
+  ///
+  /// In en, this message translates to:
+  /// **'Filter Logs'**
+  String get filterLogs;
+
+  /// Topics filter label
+  ///
+  /// In en, this message translates to:
+  /// **'Topics'**
+  String get topics;
+
+  /// Apply filter button
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Filter'**
+  String get applyFilter;
+
+  /// Clear filter button
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Filter'**
+  String get clearFilter;
+
+  /// Common topics label
+  ///
+  /// In en, this message translates to:
+  /// **'Common Topics:'**
+  String get commonTopics;
+
+  /// Message when no logs are found
+  ///
+  /// In en, this message translates to:
+  /// **'No logs found'**
+  String get noLogsFound;
+
+  /// Message when no live logs are available
+  ///
+  /// In en, this message translates to:
+  /// **'No live logs available'**
+  String get noLiveLogs;
+
+  /// Success message when logs are cleared
+  ///
+  /// In en, this message translates to:
+  /// **'Logs cleared successfully'**
+  String get logsCleared;
+
+  /// Backup & Restore section title
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & Restore'**
+  String get backupRestore;
+
+  /// Create backup button/action
+  ///
+  /// In en, this message translates to:
+  /// **'Create Backup'**
+  String get createBackup;
+
+  /// Backup name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Backup Name'**
+  String get backupName;
+
+  /// Validation message for required backup name
+  ///
+  /// In en, this message translates to:
+  /// **'Backup name is required'**
+  String get backupNameRequired;
+
+  /// Validation message for backup name containing spaces
+  ///
+  /// In en, this message translates to:
+  /// **'Backup name cannot contain spaces'**
+  String get backupNameNoSpaces;
+
+  /// Description text for backup creation
+  ///
+  /// In en, this message translates to:
+  /// **'Create a backup of the current RouterOS configuration.'**
+  String get backupDescription;
+
+  /// Generic create button text
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// Message when no backups are found
+  ///
+  /// In en, this message translates to:
+  /// **'No backups found'**
+  String get noBackupsFound;
+
+  /// Restore action/button text
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restore;
+
+  /// Confirm restore dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Restore'**
+  String get confirmRestore;
+
+  /// Warning message for backup restore operation
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to restore from this backup? This will overwrite current configuration.'**
+  String get restoreBackupWarning;
+
+  /// Confirm delete dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Delete'**
+  String get confirmDelete;
+
+  /// Warning message for backup delete operation
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this backup?'**
+  String get deleteBackupWarning;
+
+  /// Network Management section title
+  ///
+  /// In en, this message translates to:
+  /// **'Network Management'**
+  String get networkManagement;
+
+  /// Security & Access section title
+  ///
+  /// In en, this message translates to:
+  /// **'Security & Access'**
+  String get securityAccess;
+
+  /// Monitoring & Tools section title
+  ///
+  /// In en, this message translates to:
+  /// **'Monitoring & Tools'**
+  String get monitoringTools;
+
+  /// Advanced Features section title
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Features'**
+  String get advancedFeatures;
 }
 
 class _AppLocalizationsDelegate

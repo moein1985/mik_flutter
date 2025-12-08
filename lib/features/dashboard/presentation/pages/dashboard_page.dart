@@ -102,7 +102,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // System Info Card
+                    // System Info Card (Full Width)
                     if (systemResource != null) ...[
                       Card(
                         elevation: 2,
@@ -151,80 +151,136 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
                     ],
 
-                    // Management Cards
-                    Text(
-                      l10n.dashboard,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 1.2,
-                      children: [
-                        _buildManagementCard(
+                    // Sectioned Dashboard Layout
+                    _buildDashboardSection(
+                      context,
+                      l10n.networkManagement,
+                      Icons.settings_ethernet,
+                      Colors.blue,
+                      [
+                        _buildSectionCard(
                           context,
                           l10n.interfaces,
                           Icons.settings_ethernet,
-                          Colors.blue,
+                          Colors.blue.shade100,
                           () => context.push(AppRoutes.interfaces),
                         ),
-                        _buildManagementCard(
+                        _buildSectionCard(
                           context,
                           l10n.ipAddresses,
                           Icons.public,
-                          Colors.green,
+                          Colors.green.shade100,
                           () => context.push(AppRoutes.ipAddresses),
                         ),
-                        _buildManagementCard(
+                        _buildSectionCard(
                           context,
                           l10n.dhcpServer,
                           Icons.dns,
-                          Colors.purple,
+                          Colors.purple.shade100,
                           () => context.push(AppRoutes.dhcp),
                         ),
-                        _buildManagementCard(
-                          context,
-                          'Cloud',
-                          Icons.cloud,
-                          Colors.lightBlue,
-                          () => context.push(AppRoutes.cloud),
-                        ),
-                        _buildManagementCard(
-                          context,
-                          'HotSpot',
-                          Icons.wifi,
-                          Colors.orange,
-                          () => context.push(AppRoutes.hotspot),
-                        ),
-                        _buildManagementCard(
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    _buildDashboardSection(
+                      context,
+                      l10n.securityAccess,
+                      Icons.security,
+                      Colors.red,
+                      [
+                        _buildSectionCard(
                           context,
                           l10n.firewall,
                           Icons.security,
-                          Colors.red,
+                          Colors.red.shade100,
                           () => context.push(AppRoutes.firewall),
                         ),
-                        _buildManagementCard(
+                        _buildSectionCard(
                           context,
-                          'Services',
-                          Icons.dns,
-                          Colors.teal,
-                          () => context.push(AppRoutes.services),
+                          'HotSpot',
+                          Icons.wifi,
+                          Colors.orange.shade100,
+                          () => context.push(AppRoutes.hotspot),
                         ),
-                        _buildManagementCard(
+                        _buildSectionCard(
                           context,
                           'Certificates',
                           Icons.verified_user,
-                          Colors.indigo,
+                          Colors.indigo.shade100,
                           () => context.push(AppRoutes.certificates),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    _buildDashboardSection(
+                      context,
+                      l10n.monitoringTools,
+                      Icons.monitor,
+                      Colors.purple,
+                      [
+                        _buildSectionCard(
+                          context,
+                          'Network Tools',
+                          Icons.build,
+                          Colors.indigo.shade100,
+                          () => context.push(AppRoutes.tools),
+                        ),
+                        _buildSectionCard(
+                          context,
+                          l10n.systemLogs,
+                          Icons.article,
+                          Colors.blueGrey.shade100,
+                          () => context.push(AppRoutes.logs),
+                        ),
+                        _buildSectionCard(
+                          context,
+                          'Cloud',
+                          Icons.cloud,
+                          Colors.lightBlue.shade100,
+                          () => context.push(AppRoutes.cloud),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    _buildDashboardSection(
+                      context,
+                      l10n.advancedFeatures,
+                      Icons.settings,
+                      Colors.teal,
+                      [
+                        _buildSectionCard(
+                          context,
+                          l10n.queues,
+                          Icons.queue,
+                          Colors.deepOrange.shade100,
+                          () => context.push(AppRoutes.queues),
+                        ),
+                        _buildSectionCard(
+                          context,
+                          l10n.wirelessManagement,
+                          Icons.wifi,
+                          Colors.cyan.shade100,
+                          () => context.push(AppRoutes.wireless),
+                        ),
+                        _buildSectionCard(
+                          context,
+                          'Backup & Restore',
+                          Icons.backup,
+                          Colors.amber.shade100,
+                          () => context.push(AppRoutes.backup),
+                        ),
+                        _buildSectionCard(
+                          context,
+                          'Services',
+                          Icons.dns,
+                          Colors.teal.shade100,
+                          () => context.push(AppRoutes.services),
                         ),
                       ],
                     ),
@@ -330,32 +386,70 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildManagementCard(
+  Widget _buildDashboardSection(
     BuildContext context,
     String title,
     IconData icon,
     Color color,
+    List<Widget> cards,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 3,
+          mainAxisSpacing: 8,
+          crossAxisSpacing: 8,
+          childAspectRatio: 1.0,
+          children: cards,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color backgroundColor,
     VoidCallback onTap,
   ) {
     return Card(
-      elevation: 2,
+      elevation: 1,
+      color: backgroundColor,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(8),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 32, color: color),
-              const SizedBox(height: 8),
+              Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(height: 4),
               Flexible(
                 child: Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 2,

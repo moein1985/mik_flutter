@@ -577,5 +577,469 @@
   "letsEncryptRevokeWarning": "سرویس‌هایی که از این گواهینامه استفاده می‌کنند تا صدور گواهینامه جدید کار نخواهند کرد.",
   "@letsEncryptRevokeWarning": {
     "description": "پیام هشدار ابطال"
+  },
+  "networkTools": "ابزارهای شبکه",
+  "@networkTools": {
+    "description": "عنوان صفحه ابزارهای شبکه"
+  },
+  "diagnosticTools": "ابزارهای تشخیصی شبکه",
+  "@diagnosticTools": {
+    "description": "عنوان بخش ابزارهای تشخیصی"
+  },
+  "testConnectivity": "تست اتصال و حل مشکلات شبکه",
+  "@testConnectivity": {
+    "description": "توضیح ابزارها"
+  },
+  "ping": "پینگ",
+  "@ping": {
+    "description": "نام ابزار پینگ"
+  },
+  "pingTest": "تست پینگ",
+  "@pingTest": {
+    "description": "عنوان دیالوگ تست پینگ"
+  },
+  "pingConnectivity": "تست اتصال به یک میزبان",
+  "@pingConnectivity": {
+    "description": "توضیح ابزار پینگ"
+  },
+  "traceroute": "Traceroute",
+  "@traceroute": {
+    "description": "نام ابزار traceroute"
+  },
+  "tracerouteTest": "تست Traceroute",
+  "@tracerouteTest": {
+    "description": "عنوان دیالوگ تست traceroute"
+  },
+  "tracePath": "ردیابی مسیر شبکه به یک میزبان",
+  "@tracePath": {
+    "description": "توضیح ابزار traceroute"
+  },
+  "dnsLookup": "جستجوی DNS",
+  "@dnsLookup": {
+    "description": "نام ابزار جستجوی DNS"
+  },
+  "dnsLookupTitle": "جستجوی DNS",
+  "@dnsLookupTitle": {
+    "description": "عنوان دیالوگ جستجوی DNS"
+  },
+  "resolveDomains": "تبدیل نام دامنه به آدرس IP",
+  "@resolveDomains": {
+    "description": "توضیح ابزار جستجوی DNS"
+  },
+  "clearResults": "پاک کردن نتایج",
+  "@clearResults": {
+    "description": "اقدام پاک کردن نتایج"
+  },
+  "clearAllResults": "پاک کردن تمام نتایج تشخیصی",
+  "@clearAllResults": {
+    "description": "توضیح پاک کردن نتایج"
+  },
+  "targetHost": "میزبان هدف/IP",
+  "@targetHost": {
+    "description": "برچسب ورودی میزبان هدف"
+  },
+  "packetCount": "تعداد بسته",
+  "@packetCount": {
+    "description": "برچسب تعداد بسته پینگ"
+  },
+  "timeoutMs": "زمان انتظار (ms)",
+  "@timeoutMs": {
+    "description": "برچسب ورودی زمان انتظار"
+  },
+  "maxHops": "حداکثر Hop",
+  "@maxHops": {
+    "description": "برچسب حداکثر hop traceroute"
+  },
+  "domainName": "نام دامنه",
+  "@domainName": {
+    "description": "برچسب ورودی نام دامنه"
+  },
+  "startPing": "شروع پینگ",
+  "@startPing": {
+    "description": "دکمه شروع پینگ"
+  },
+  "startTraceroute": "شروع Traceroute",
+  "@startTraceroute": {
+    "description": "دکمه شروع traceroute"
+  },
+  "lookupDns": "جستجوی DNS",
+  "@lookupDns": {
+    "description": "دکمه جستجوی DNS"
+  },
+  "pingResults": "نتایج پینگ",
+  "@pingResults": {
+    "description": "عنوان بخش نتایج پینگ"
+  },
+  "tracerouteResults": "نتایج Traceroute",
+  "@tracerouteResults": {
+    "description": "عنوان بخش نتایج traceroute"
+  },
+  "dnsResults": "نتایج جستجوی DNS",
+  "@dnsResults": {
+    "description": "عنوان بخش نتایج جستجوی DNS"
+  },
+  "packetsSent": "بسته‌های ارسال شده",
+  "@packetsSent": {
+    "description": "برچسب بسته‌های ارسال شده"
+  },
+  "packetsReceived": "بسته‌های دریافت شده",
+  "@packetsReceived": {
+    "description": "برچسب بسته‌های دریافت شده"
+  },
+  "packetLoss": "از دست دادن بسته",
+  "@packetLoss": {
+    "description": "برچسب از دست دادن بسته"
+  },
+  "rtt": "RTT",
+  "@rtt": {
+    "description": "برچسب زمان رفت و برگشت"
+  },
+  "ipv4Addresses": "آدرس‌های IPv4",
+  "@ipv4Addresses": {
+    "description": "برچسب آدرس‌های IPv4"
+  },
+  "ipv6Addresses": "آدرس‌های IPv6",
+  "@ipv6Addresses": {
+    "description": "برچسب آدرس‌های IPv6"
+  },
+  "responseTime": "زمان پاسخ",
+  "@responseTime": {
+    "description": "برچسب زمان پاسخ"
+  },
+  "noResults": "نتیجه‌ای یافت نشد",
+  "@noResults": {
+    "description": "پیام عدم وجود نتیجه"
+  },
+  "queues": "صف‌ها",
+  "@queues": {
+    "description": "عنوان صفحه صف‌ها"
+  },
+  "simpleQueues": "صف‌های ساده",
+  "@simpleQueues": {
+    "description": "عنوان بخش صف‌های ساده"
+  },
+  "queueManagement": "مدیریت صف‌های پهنای باند و شکل‌دهی ترافیک",
+  "@queueManagement": {
+    "description": "توضیح مدیریت صف"
+  },
+  "addQueue": "افزودن صف",
+  "@addQueue": {
+    "description": "متن دکمه افزودن صف"
+  },
+  "queueName": "نام صف",
+  "@queueName": {
+    "description": "برچسب فیلد نام صف"
+  },
+  "target": "هدف",
+  "@target": {
+    "description": "برچسب فیلد هدف"
+  },
+  "maxLimit": "حداکثر محدودیت",
+  "@maxLimit": {
+    "description": "برچسب فیلد حداکثر محدودیت"
+  },
+  "burstLimit": "محدودیت انفجار",
+  "@burstLimit": {
+    "description": "برچسب فیلد محدودیت انفجار"
+  },
+  "burstThreshold": "آستانه انفجار",
+  "@burstThreshold": {
+    "description": "برچسب فیلد آستانه انفجار"
+  },
+  "burstTime": "زمان انفجار",
+  "@burstTime": {
+    "description": "برچسب فیلد زمان انفجار"
+  },
+  "priority": "اولویت",
+  "@priority": {
+    "description": "برچسب فیلد اولویت"
+  },
+  "parent": "والد",
+  "@parent": {
+    "description": "برچسب فیلد والد"
+  },
+  "advancedSettings": "تنظیمات پیشرفته",
+  "@advancedSettings": {
+    "description": "عنوان بخش تنظیمات پیشرفته"
+  },
+  "limitAt": "محدودیت در",
+  "@limitAt": {
+    "description": "برچسب فیلد محدودیت در"
+  },
+  "queueType": "نوع صف",
+  "@queueType": {
+    "description": "برچسب فیلد نوع صف"
+  },
+  "totalQueueLimit": "محدودیت کل صف",
+  "@totalQueueLimit": {
+    "description": "برچسب فیلد محدودیت کل صف"
+  },
+  "totalMaxLimit": "حداکثر محدودیت کل",
+  "@totalMaxLimit": {
+    "description": "برچسب فیلد حداکثر محدودیت کل"
+  },
+  "totalBurstLimit": "محدودیت انفجار کل",
+  "@totalBurstLimit": {
+    "description": "برچسب فیلد محدودیت انفجار کل"
+  },
+  "totalBurstThreshold": "آستانه انفجار کل",
+  "@totalBurstThreshold": {
+    "description": "برچسب فیلد آستانه انفجار کل"
+  },
+  "totalBurstTime": "زمان انفجار کل",
+  "@totalBurstTime": {
+    "description": "برچسب فیلد زمان انفجار کل"
+  },
+  "totalLimitAt": "محدودیت کل در",
+  "@totalLimitAt": {
+    "description": "برچسب فیلد محدودیت کل در"
+  },
+  "bucketSize": "اندازه سطل",
+  "@bucketSize": {
+    "description": "برچسب فیلد اندازه سطل"
+  },
+  "saveQueue": "ذخیره صف",
+  "@saveQueue": {
+    "description": "متن دکمه ذخیره صف"
+  },
+  "deleteQueue": "حذف صف",
+  "@deleteQueue": {
+    "description": "متن دکمه حذف صف"
+  },
+  "deleteQueueConfirm": "آیا مطمئن هستید می‌خواهید این صف را حذف کنید؟",
+  "@deleteQueueConfirm": {
+    "description": "پیام تأیید حذف صف"
+  },
+  "toggleQueue": "تغییر وضعیت صف",
+  "@toggleQueue": {
+    "description": "متن دکمه تغییر وضعیت صف"
+  },
+  "queueEnabled": "صف فعال شد",
+  "@queueEnabled": {
+    "description": "پیام وضعیت فعال صف"
+  },
+  "queueDisabled": "صف غیرفعال شد",
+  "@queueDisabled": {
+    "description": "پیام وضعیت غیرفعال صف"
+  },
+  "loadingQueues": "در حال بارگذاری صف‌ها...",
+  "@loadingQueues": {
+    "description": "پیام بارگذاری صف‌ها"
+  },
+  "noQueues": "صف‌ای یافت نشد",
+  "@noQueues": {
+    "description": "پیام عدم وجود صف"
+  },
+  "queueAdded": "صف با موفقیت اضافه شد",
+  "@queueAdded": {
+    "description": "پیام موفقیت افزودن صف"
+  },
+  "queueUpdated": "صف با موفقیت به‌روزرسانی شد",
+  "@queueUpdated": {
+    "description": "پیام موفقیت به‌روزرسانی صف"
+  },
+  "queueDeleted": "صف با موفقیت حذف شد",
+  "@queueDeleted": {
+    "description": "پیام موفقیت حذف صف"
+  },
+  "queueToggled": "وضعیت صف تغییر کرد",
+  "@queueToggled": {
+    "description": "پیام موفقیت تغییر وضعیت صف"
+  },
+  "errorLoadingQueues": "خطا در بارگذاری صف‌ها",
+  "@errorLoadingQueues": {
+    "description": "پیام خطا بارگذاری صف‌ها"
+  },
+  "errorAddingQueue": "خطا در افزودن صف",
+  "@errorAddingQueue": {
+    "description": "پیام خطا افزودن صف"
+  },
+  "errorUpdatingQueue": "خطا در به‌روزرسانی صف",
+  "@errorUpdatingQueue": {
+    "description": "پیام خطا به‌روزرسانی صف"
+  },
+  "errorDeletingQueue": "خطا در حذف صف",
+  "@errorDeletingQueue": {
+    "description": "پیام خطا حذف صف"
+  },
+  "errorTogglingQueue": "خطا در تغییر وضعیت صف",
+  "@errorTogglingQueue": {
+    "description": "پیام خطا تغییر وضعیت صف"
+  },
+  "wirelessManagement": "مدیریت بی‌سیم",
+  "@wirelessManagement": {
+    "description": "عنوان صفحه مدیریت بی‌سیم"
+  },
+  "interfaces": "رابط‌ها",
+  "@interfaces": {
+    "description": "تب رابط‌های بی‌سیم"
+  },
+  "clients": "کلاینت‌ها",
+  "@clients": {
+    "description": "تب کلاینت‌های متصل"
+  },
+  "securityProfiles": "پروفایل‌های امنیتی",
+  "@securityProfiles": {
+    "description": "تب پروفایل‌های امنیتی"
+  },
+  "noWirelessInterfaces": "هیچ رابط بی‌سیمی یافت نشد",
+  "@noWirelessInterfaces": {
+    "description": "پیام زمانی که هیچ رابط بی‌سیمی موجود نیست"
+  },
+  "noConnectedClients": "هیچ کلاینتی متصل نیست",
+  "@noConnectedClients": {
+    "description": "پیام زمانی که هیچ کلاینتی متصل نیست"
+  },
+  "noSecurityProfiles": "هیچ پروفایل امنیتی یافت نشد",
+  "@noSecurityProfiles": {
+    "description": "پیام زمانی که هیچ پروفایل امنیتی موجود نیست"
+  },
+  "retry": "تلاش مجدد",
+  "@retry": {
+    "description": "متن دکمه تلاش مجدد"
+  },
+  "enabled": "فعال",
+  "@enabled": {
+    "description": "نشانگر وضعیت برای آیتم‌های فعال"
+  },
+  "disabled": "غیرفعال",
+  "@disabled": {
+    "description": "نشانگر وضعیت برای آیتم‌های غیرفعال"
+  },
+  "connected": "متصل",
+  "@connected": {
+    "description": "نشانگر وضعیت برای کلاینت‌های متصل"
+  },
+  "systemLogs": "لاگ‌های سیستم",
+  "@systemLogs": {
+    "description": "عنوان صفحه لاگ‌های سیستم"
+  },
+  "logs": "لاگ‌ها",
+  "@logs": {
+    "description": "تب لاگ‌ها"
+  },
+  "follow": "پیگیری",
+  "@follow": {
+    "description": "تب پیگیری لاگ‌ها"
+  },
+  "search": "جستجو",
+  "@search": {
+    "description": "دکمه/اقدام جستجو"
+  },
+  "searchLogs": "جستجو در لاگ‌ها...",
+  "@searchLogs": {
+    "description": "متن راهنما جستجو در لاگ‌ها"
+  },
+  "clearLogs": "پاک کردن لاگ‌ها",
+  "@clearLogs": {
+    "description": "اقدام پاک کردن لاگ‌ها"
+  },
+  "clearLogsConfirmation": "آیا مطمئن هستید که می‌خواهید تمام لاگ‌ها را پاک کنید؟",
+  "@clearLogsConfirmation": {
+    "description": "پیام تأیید پاک کردن لاگ‌ها"
+  },
+  "clear": "پاک کردن",
+  "@clear": {
+    "description": "اقدام پاک کردن"
+  },
+  "filterLogs": "فیلتر لاگ‌ها",
+  "@filterLogs": {
+    "description": "عنوان فیلتر لاگ‌ها"
+  },
+  "topics": "موضوعات",
+  "@topics": {
+    "description": "برچسب فیلتر موضوعات"
+  },
+  "applyFilter": "اعمال فیلتر",
+  "@applyFilter": {
+    "description": "دکمه اعمال فیلتر"
+  },
+  "clearFilter": "پاک کردن فیلتر",
+  "@clearFilter": {
+    "description": "دکمه پاک کردن فیلتر"
+  },
+  "commonTopics": "موضوعات رایج:",
+  "@commonTopics": {
+    "description": "برچسب موضوعات رایج"
+  },
+  "noLogsFound": "هیچ لاگی یافت نشد",
+  "@noLogsFound": {
+    "description": "پیام زمانی که هیچ لاگی یافت نشد"
+  },
+  "noLiveLogs": "هیچ لاگ زنده‌ای موجود نیست",
+  "@noLiveLogs": {
+    "description": "پیام زمانی که هیچ لاگ زنده‌ای موجود نیست"
+  },
+  "logsCleared": "لاگ‌ها با موفقیت پاک شدند",
+  "@logsCleared": {
+    "description": "پیام موفقیت پاک کردن لاگ‌ها"
+  },
+  "backupRestore": "پشتیبان‌گیری و بازیابی",
+  "@backupRestore": {
+    "description": "عنوان بخش پشتیبان‌گیری و بازیابی"
+  },
+  "createBackup": "ایجاد پشتیبان",
+  "@createBackup": {
+    "description": "دکمه/عمل ایجاد پشتیبان"
+  },
+  "backupName": "نام پشتیبان",
+  "@backupName": {
+    "description": "برچسب فیلد نام پشتیبان"
+  },
+  "backupNameRequired": "نام پشتیبان الزامی است",
+  "@backupNameRequired": {
+    "description": "پیام اعتبارسنجی برای نام پشتیبان الزامی"
+  },
+  "backupNameNoSpaces": "نام پشتیبان نمی‌تواند شامل فاصله باشد",
+  "@backupNameNoSpaces": {
+    "description": "پیام اعتبارسنجی برای نام پشتیبان شامل فاصله"
+  },
+  "backupDescription": "ایجاد پشتیبان از تنظیمات فعلی RouterOS.",
+  "@backupDescription": {
+    "description": "متن توضیحی برای ایجاد پشتیبان"
+  },
+  "create": "ایجاد",
+  "@create": {
+    "description": "متن دکمه ایجاد عمومی"
+  },
+  "noBackupsFound": "هیچ پشتیبانی یافت نشد",
+  "@noBackupsFound": {
+    "description": "پیام زمانی که هیچ پشتیبانی یافت نشد"
+  },
+  "restore": "بازیابی",
+  "@restore": {
+    "description": "متن دکمه/عمل بازیابی"
+  },
+  "confirmRestore": "تأیید بازیابی",
+  "@confirmRestore": {
+    "description": "عنوان دیالوگ تأیید بازیابی"
+  },
+  "restoreBackupWarning": "آیا مطمئن هستید که می‌خواهید از این پشتیبان بازیابی کنید؟ این کار تنظیمات فعلی را بازنویسی خواهد کرد.",
+  "@restoreBackupWarning": {
+    "description": "پیام هشدار برای عملیات بازیابی پشتیبان"
+  },
+  "confirmDelete": "تأیید حذف",
+  "@confirmDelete": {
+    "description": "عنوان دیالوگ تأیید حذف"
+  },
+  "deleteBackupWarning": "آیا مطمئن هستید که می‌خواهید این پشتیبان را حذف کنید؟",
+  "@deleteBackupWarning": {
+    "description": "پیام هشدار برای عملیات حذف پشتیبان"
+  },
+  "networkManagement": "مدیریت شبکه",
+  "@networkManagement": {
+    "description": "عنوان بخش مدیریت شبکه"
+  },
+  "securityAccess": "امنیت و دسترسی",
+  "@securityAccess": {
+    "description": "عنوان بخش امنیت و دسترسی"
+  },
+  "monitoringTools": "مانیتورینگ و ابزارها",
+  "@monitoringTools": {
+    "description": "عنوان بخش مانیتورینگ و ابزارها"
+  },
+  "advancedFeatures": "ویژگی‌های پیشرفته",
+  "@advancedFeatures": {
+    "description": "عنوان بخش ویژگی‌های پیشرفته"
   }
 }

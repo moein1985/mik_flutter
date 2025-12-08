@@ -1627,5 +1627,515 @@ class RouterOSClient {
     _log.d('Total address list count: $count');
     return count;
   }
+
+  // ==================== DIAGNOSTIC TOOLS ====================
+
+  /// Perform ping operation
+  /// Returns real-time ping results
+  Future<List<Map<String, String>>> ping({
+    required String address,
+    int count = 4,
+    int interval = 1,
+    int timeout = 1000,
+  }) async {
+    try {
+      _log.d('Starting ping to: $address (count: $count)');
+      final response = await sendCommand([
+        '/tool/ping',
+        '=address=$address',
+        '=count=$count',
+        '=interval=$interval',
+      ], timeout: Duration(seconds: timeout ~/ 1000 + count * 2));
+
+      _log.d('Ping completed, got ${response.length} responses');
+      return response;
+    } catch (e) {
+      _log.e('Ping failed for $address', error: e);
+      rethrow;
+    }
+  }
+
+  /// Perform traceroute operation
+  /// Returns hop-by-hop routing information
+  Future<List<Map<String, String>>> traceroute({
+    required String address,
+    int maxHops = 30,
+    int timeout = 1000,
+  }) async {
+    try {
+      _log.d('Starting traceroute to: $address (max-hops: $maxHops)');
+      final response = await sendCommand([
+        '/tool/traceroute',
+        '=address=$address',
+        '=max-hops=$maxHops',
+      ], timeout: Duration(seconds: timeout ~/ 1000 + maxHops * 2));
+
+      _log.d('Traceroute completed, got ${response.length} responses');
+      return response;
+    } catch (e) {
+      _log.e('Traceroute failed for $address', error: e);
+      rethrow;
+    }
+  }
+
+  /// Perform DNS lookup
+  /// Resolves domain names to IP addresses
+  Future<List<Map<String, String>>> dnsLookup({
+    required String name,
+    int timeout = 5000,
+  }) async {
+    try {
+      _log.d('Starting DNS lookup for: $name');
+      final response = await sendCommand([
+        '/tool/dns-lookup',
+        '=name=$name',
+      ], timeout: Duration(seconds: timeout ~/ 1000));
+
+      _log.d('DNS lookup completed, got ${response.length} responses');
+      return response;
+    } catch (e) {
+      _log.e('DNS lookup failed for $name', error: e);
+      rethrow;
+    }
+  }
+
+  /// Get all simple queues
+  Future<List<Map<String, String>>> getSimpleQueues() async {
+    try {
+      _log.d('Getting simple queues');
+      final response = await sendCommand(['/queue/simple/print']);
+      _log.d('Got ${response.length} queues');
+      return response;
+    } catch (e) {
+      _log.e('Failed to get simple queues', error: e);
+      rethrow;
+    }
+  }
+
+  /// Add a new simple queue
+  Future<Map<String, String>> addSimpleQueue(Map<String, String> params) async {
+    try {
+      _log.d('Adding simple queue with params: $params');
+      final command = ['/queue/simple/add'];
+      params.forEach((key, value) {
+        command.add('=$key=$value');
+      });
+
+      final response = await sendCommand(command);
+      _log.d('Queue added successfully');
+      return response.isNotEmpty ? response.first : {};
+    } catch (e) {
+      _log.e('Failed to add simple queue', error: e);
+      rethrow;
+    }
+  }
+
+  /// Update an existing simple queue
+  Future<void> updateSimpleQueue(String queueId, Map<String, String> params) async {
+    try {
+      _log.d('Updating simple queue $queueId with params: $params');
+      final command = ['/queue/simple/set', '=.id=$queueId'];
+      params.forEach((key, value) {
+        command.add('=$key=$value');
+      });
+
+      await sendCommand(command);
+      _log.d('Queue updated successfully');
+    } catch (e) {
+      _log.e('Failed to update simple queue $queueId', error: e);
+      rethrow;
+    }
+  }
+
+  /// Delete a simple queue
+  Future<void> deleteSimpleQueue(String queueId) async {
+    try {
+      _log.d('Deleting simple queue $queueId');
+      await sendCommand([
+        '/queue/simple/remove',
+        '=.id=$queueId',
+      ]);
+      _log.d('Queue deleted successfully');
+    } catch (e) {
+      _log.e('Failed to delete simple queue $queueId', error: e);
+      rethrow;
+    }
+  }
+
+  /// Enable a simple queue
+  Future<void> enableSimpleQueue(String queueId) async {
+    try {
+      _log.d('Enabling simple queue $queueId');
+      await sendCommand([
+        '/queue/simple/enable',
+        '=.id=$queueId',
+      ]);
+      _log.d('Queue enabled successfully');
+    } catch (e) {
+      _log.e('Failed to enable simple queue $queueId', error: e);
+      rethrow;
+    }
+  }
+
+  /// Disable a simple queue
+  Future<void> disableSimpleQueue(String queueId) async {
+    try {
+      _log.d('Disabling simple queue $queueId');
+      await sendCommand([
+        '/queue/simple/disable',
+        '=.id=$queueId',
+      ]);
+      _log.d('Queue disabled successfully');
+    } catch (e) {
+      _log.e('Failed to disable simple queue $queueId', error: e);
+      rethrow;
+    }
+  }
+
+  // ===== WIRELESS METHODS =====
+
+  /// Get all wireless interfaces
+  Future<List<Map<String, String>>> getWirelessInterfaces() async {
+    try {
+      _log.d('Getting wireless interfaces');
+      final result = await sendCommand(['/interface/wireless/print']);
+      _log.d('Retrieved ${result.length} wireless interfaces');
+      return result;
+    } catch (e) {
+      _log.e('Failed to get wireless interfaces', error: e);
+      rethrow;
+    }
+  }
+
+  /// Enable a wireless interface
+  Future<void> enableWirelessInterface(String interfaceId) async {
+    try {
+      _log.d('Enabling wireless interface $interfaceId');
+      await sendCommand([
+        '/interface/wireless/enable',
+        '=.id=$interfaceId',
+      ]);
+      _log.d('Wireless interface enabled successfully');
+    } catch (e) {
+      _log.e('Failed to enable wireless interface $interfaceId', error: e);
+      rethrow;
+    }
+  }
+
+  /// Disable a wireless interface
+  Future<void> disableWirelessInterface(String interfaceId) async {
+    try {
+      _log.d('Disabling wireless interface $interfaceId');
+      await sendCommand([
+        '/interface/wireless/disable',
+        '=.id=$interfaceId',
+      ]);
+      _log.d('Wireless interface disabled successfully');
+    } catch (e) {
+      _log.e('Failed to disable wireless interface $interfaceId', error: e);
+      rethrow;
+    }
+  }
+
+  /// Update a wireless interface
+  Future<void> updateWirelessInterface(String interfaceId, Map<String, dynamic> data) async {
+    try {
+      _log.d('Updating wireless interface $interfaceId');
+      final command = ['/interface/wireless/set', '=.id=$interfaceId'];
+      data.forEach((key, value) {
+        command.add('=$key=$value');
+      });
+      await sendCommand(command);
+      _log.d('Wireless interface updated successfully');
+    } catch (e) {
+      _log.e('Failed to update wireless interface $interfaceId', error: e);
+      rethrow;
+    }
+  }
+
+  /// Get wireless registration table (connected clients)
+  Future<List<Map<String, String>>> getWirelessRegistrations() async {
+    try {
+      _log.d('Getting wireless registrations');
+      final result = await sendCommand(['/interface/wireless/registration-table/print']);
+      _log.d('Retrieved ${result.length} wireless registrations');
+      return result;
+    } catch (e) {
+      _log.e('Failed to get wireless registrations', error: e);
+      rethrow;
+    }
+  }
+
+  /// Disconnect a wireless client
+  Future<void> disconnectWirelessClient(String macAddress, String interfaceName) async {
+    try {
+      _log.d('Disconnecting wireless client $macAddress from $interfaceName');
+      await sendCommand([
+        '/interface/wireless/registration-table/remove',
+        '=.id=$macAddress@$interfaceName',
+      ]);
+      _log.d('Wireless client disconnected successfully');
+    } catch (e) {
+      _log.e('Failed to disconnect wireless client $macAddress', error: e);
+      rethrow;
+    }
+  }
+
+  /// Get wireless security profiles
+  Future<List<Map<String, String>>> getWirelessSecurityProfiles() async {
+    try {
+      _log.d('Getting wireless security profiles');
+      final result = await sendCommand(['/interface/wireless/security-profiles/print']);
+      _log.d('Retrieved ${result.length} wireless security profiles');
+      return result;
+    } catch (e) {
+      _log.e('Failed to get wireless security profiles', error: e);
+      rethrow;
+    }
+  }
+
+  /// Create a wireless security profile
+  Future<void> createWirelessSecurityProfile(Map<String, dynamic> data) async {
+    try {
+      _log.d('Creating wireless security profile');
+      final command = ['/interface/wireless/security-profiles/add'];
+      data.forEach((key, value) {
+        command.add('=$key=$value');
+      });
+      await sendCommand(command);
+      _log.d('Wireless security profile created successfully');
+    } catch (e) {
+      _log.e('Failed to create wireless security profile', error: e);
+      rethrow;
+    }
+  }
+
+  /// Update a wireless security profile
+  Future<void> updateWirelessSecurityProfile(String profileId, Map<String, dynamic> data) async {
+    try {
+      _log.d('Updating wireless security profile $profileId');
+      final command = ['/interface/wireless/security-profiles/set', '=.id=$profileId'];
+      data.forEach((key, value) {
+        command.add('=$key=$value');
+      });
+      await sendCommand(command);
+      _log.d('Wireless security profile updated successfully');
+    } catch (e) {
+      _log.e('Failed to update wireless security profile $profileId', error: e);
+      rethrow;
+    }
+  }
+
+  /// Delete a wireless security profile
+  Future<void> deleteWirelessSecurityProfile(String profileId) async {
+    try {
+      _log.d('Deleting wireless security profile $profileId');
+      await sendCommand([
+        '/interface/wireless/security-profiles/remove',
+        '=.id=$profileId',
+      ]);
+      _log.d('Wireless security profile deleted successfully');
+    } catch (e) {
+      _log.e('Failed to delete wireless security profile $profileId', error: e);
+      rethrow;
+    }
+  }
+
+  /// Get wireless access list
+  Future<List<Map<String, String>>> getWirelessAccessList() async {
+    try {
+      _log.d('Getting wireless access list');
+      final result = await sendCommand(['/interface/wireless/access-list/print']);
+      _log.d('Retrieved ${result.length} wireless access list entries');
+      return result;
+    } catch (e) {
+      _log.e('Failed to get wireless access list', error: e);
+      rethrow;
+    }
+  }
+
+  /// Add to wireless access list
+  Future<void> addToWirelessAccessList(Map<String, dynamic> data) async {
+    try {
+      _log.d('Adding to wireless access list');
+      final command = ['/interface/wireless/access-list/add'];
+      data.forEach((key, value) {
+        command.add('=$key=$value');
+      });
+      await sendCommand(command);
+      _log.d('Added to wireless access list successfully');
+    } catch (e) {
+      _log.e('Failed to add to wireless access list', error: e);
+      rethrow;
+    }
+  }
+
+  /// Remove from wireless access list
+  Future<void> removeFromWirelessAccessList(String entryId) async {
+    try {
+      _log.d('Removing from wireless access list $entryId');
+      await sendCommand([
+        '/interface/wireless/access-list/remove',
+        '=.id=$entryId',
+      ]);
+      _log.d('Removed from wireless access list successfully');
+    } catch (e) {
+      _log.e('Failed to remove from wireless access list $entryId', error: e);
+      rethrow;
+    }
+  }
+
+  /// Get system logs
+  Future<List<Map<String, String>>> getLogs({
+    int? count,
+    String? topics,
+    String? since,
+    String? until,
+  }) async {
+    try {
+      final command = ['/log/print'];
+      if (count != null) {
+        command.addAll(['count=$count']);
+      }
+      if (topics != null && topics.isNotEmpty) {
+        command.addAll(['topics=$topics']);
+      }
+      if (since != null && since.isNotEmpty) {
+        command.addAll(['since=$since']);
+      }
+      if (until != null && until.isNotEmpty) {
+        command.addAll(['until=$until']);
+      }
+
+      final result = await sendCommand(command);
+      _log.d('Retrieved ${result.length} log entries');
+      return result;
+    } catch (e) {
+      _log.e('Failed to get logs', error: e);
+      rethrow;
+    }
+  }
+
+  /// Follow logs in real-time (streaming)
+  Stream<Map<String, String>> followLogs({
+    String? topics,
+    Duration? timeout,
+  }) async* {
+    try {
+      final command = ['/log/print', '=follow=yes'];
+      if (topics != null && topics.isNotEmpty) {
+        command.add('=topics=$topics');
+      }
+
+      // For streaming logs, we'll use a periodic approach since RouterOS API
+      // doesn't support true streaming over the current connection
+      final startTime = DateTime.now();
+
+      while (timeout == null || DateTime.now().difference(startTime) < timeout) {
+        try {
+          final result = await sendCommand(command);
+          for (final logEntry in result) {
+            yield logEntry;
+          }
+          // Wait a bit before checking for new logs
+          await Future.delayed(const Duration(seconds: 1));
+        } catch (e) {
+          _log.e('Error while following logs', error: e);
+          break;
+        }
+      }
+    } catch (e) {
+      _log.e('Failed to follow logs', error: e);
+      rethrow;
+    }
+  }
+
+  /// Clear all logs
+  Future<void> clearLogs() async {
+    try {
+      await sendCommand(['/log/warning/clear']);
+      _log.d('Cleared all logs successfully');
+    } catch (e) {
+      _log.e('Failed to clear logs', error: e);
+      rethrow;
+    }
+  }
+
+  /// Search logs by text
+  Future<List<Map<String, String>>> searchLogs({
+    required String query,
+    int? count,
+    String? topics,
+  }) async {
+    try {
+      final command = ['/log/print'];
+      if (count != null) {
+        command.addAll(['count=$count']);
+      }
+      if (topics != null && topics.isNotEmpty) {
+        command.addAll(['topics=$topics']);
+      }
+
+      final result = await sendCommand(command);
+
+      // Filter results containing the query
+      final filteredResult = result.where((logEntry) {
+        final message = logEntry['message'] ?? '';
+        final topics = logEntry['topics'] ?? '';
+        return message.toLowerCase().contains(query.toLowerCase()) ||
+               topics.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+
+      _log.d('Found ${filteredResult.length} log entries matching "$query"');
+      return filteredResult;
+    } catch (e) {
+      _log.e('Failed to search logs', error: e);
+      rethrow;
+    }
+  }
+
+  /// Get list of backup files
+  Future<List<Map<String, String>>> getBackups() async {
+    try {
+      _log.d('Getting backup files list');
+      return await sendCommand(['/system/backup/print']);
+    } catch (e) {
+      _log.e('Failed to get backups', error: e);
+      rethrow;
+    }
+  }
+
+  /// Create a new backup
+  Future<void> createBackup(String name) async {
+    try {
+      _log.d('Creating backup: $name');
+      await sendCommand(['/system/backup/save', '=name=$name']);
+    } catch (e) {
+      _log.e('Failed to create backup', error: e);
+      rethrow;
+    }
+  }
+
+  /// Delete a backup file
+  Future<void> deleteBackup(String name) async {
+    try {
+      _log.d('Deleting backup: $name');
+      await sendCommand(['/system/backup/remove', '=name=$name']);
+    } catch (e) {
+      _log.e('Failed to delete backup', error: e);
+      rethrow;
+    }
+  }
+
+  /// Restore from backup
+  Future<void> restoreBackup(String name) async {
+    try {
+      _log.d('Restoring from backup: $name');
+      await sendCommand(['/system/backup/load', '=name=$name']);
+    } catch (e) {
+      _log.e('Failed to restore backup', error: e);
+      rethrow;
+    }
+  }
 }
 

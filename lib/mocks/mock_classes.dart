@@ -11,6 +11,8 @@ import 'package:hsmik/features/hotspot/domain/usecases/add_user_usecase.dart';
 import 'package:hsmik/features/certificates/domain/repositories/certificate_repository.dart';
 import 'package:hsmik/features/certificates/data/datasources/certificate_remote_data_source.dart';
 import 'package:hsmik/features/certificates/presentation/bloc/certificate_bloc.dart';
+import 'package:hsmik/features/wireless/domain/repositories/wireless_repository.dart';
+import 'package:hsmik/features/wireless/data/datasources/wireless_remote_data_source.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/edit_user_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/delete_user_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/reset_user_counters_usecase.dart';
@@ -106,3 +108,7 @@ class MockCertificateRemoteDataSource extends Mock implements CertificateRemoteD
 class MockCertificateRepository extends Mock implements CertificateRepository {}
 
 class MockCertificateBloc extends Mock implements CertificateBloc {}
+
+class MockWirelessRepository extends Mock implements WirelessRepository {}
+
+class MockWirelessRemoteDataSource extends Mock implements WirelessRemoteDataSource {}
