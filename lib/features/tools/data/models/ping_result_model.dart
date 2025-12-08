@@ -27,10 +27,10 @@ class PingResultModel extends PingResult {
     final packets = <PingPacket>[];
 
     for (final item in response) {
-      // Skip protocol messages
-      if (item.containsKey('type')) continue;
+      // Skip done message
+      if (item['type'] == 'done') continue;
 
-      // Parse ping statistics
+      // Parse ping statistics from each response
       if (item.containsKey('sent')) {
         packetsSent = int.tryParse(item['sent'] ?? '0') ?? 0;
       }
@@ -51,10 +51,8 @@ class PingResultModel extends PingResult {
       final seq = int.tryParse(item['seq'] ?? '');
       if (seq != null) {
         final rtt = item['time'] != null ? _parseDuration(item['time']!) : null;
-        final received = item['status'] == 'received' || rtt != null;
-        final error = item['status'] != 'received' && item['status'] != null
-            ? item['status']
-            : null;
+        final received = rtt != null;
+        final error = received ? null : 'timeout';
 
         packets.add(PingPacket(
           sequence: seq,
