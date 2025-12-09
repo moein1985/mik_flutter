@@ -466,13 +466,14 @@ class AppLocalizationsFa extends AppLocalizations {
   String get diagnosticTools => 'ابزارهای تشخیصی شبکه';
 
   @override
-  String get testConnectivity => 'آزمایش اتصال و رفع مشکلات شبکه';
+  String get testConnectivity => 'تست اتصال و حل مشکلات شبکه';
 
   @override
   String get toolsInfoTitle => 'ابزارهای شبکه لحظه‌ای';
 
   @override
-  String get toolsInfoDescription => 'تمام ابزارهای تشخیصی نتایج را به صورت زنده و هم‌زمان با دریافت از روتر نمایش می‌دهند.';
+  String get toolsInfoDescription =>
+      'تمام ابزارهای تشخیصی نتایج را به صورت زنده و هم‌زمان با دریافت از روتر نمایش می‌دهند.';
 
   @override
   String get pingInfoText => 'پینگ: نمایش لحظه‌ای ارسال و دریافت بسته‌ها';

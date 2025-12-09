@@ -590,6 +590,30 @@
   "@testConnectivity": {
     "description": "توضیح ابزارها"
   },
+  "toolsInfoTitle": "ابزارهای شبکه لحظه‌ای",
+  "@toolsInfoTitle": {
+    "description": "عنوان دیالوگ اطلاعات ابزارها"
+  },
+  "toolsInfoDescription": "تمام ابزارهای تشخیصی نتایج را به صورت زنده و هم‌زمان با دریافت از روتر نمایش می‌دهند.",
+  "@toolsInfoDescription": {
+    "description": "توضیح دیالوگ اطلاعات ابزارها"
+  },
+  "pingInfoText": "پینگ: نمایش لحظه‌ای ارسال و دریافت بسته‌ها",
+  "@pingInfoText": {
+    "description": "متن اطلاعات پینگ"
+  },
+  "tracerouteInfoText": "مسیریابی: نمایش گام‌به‌گام مسیر شبکه",
+  "@tracerouteInfoText": {
+    "description": "متن اطلاعات مسیریابی"
+  },
+  "dnsLookupInfoText": "جستجوی DNS: شناسایی سریع آدرس IP",
+  "@dnsLookupInfoText": {
+    "description": "متن اطلاعات جستجوی DNS"
+  },
+  "stopPing": "توقف",
+  "@stopPing": {
+    "description": "متن دکمه توقف"
+  },
   "ping": "پینگ",
   "@ping": {
     "description": "نام ابزار پینگ"

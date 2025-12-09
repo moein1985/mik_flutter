@@ -590,6 +590,30 @@
   "@testConnectivity": {
     "description": "Tools description"
   },
+  "toolsInfoTitle": "Real-time Network Tools",
+  "@toolsInfoTitle": {
+    "description": "Tools info dialog title"
+  },
+  "toolsInfoDescription": "All diagnostic tools display results in real-time as they are received from the router.",
+  "@toolsInfoDescription": {
+    "description": "Tools info dialog description"
+  },
+  "pingInfoText": "Ping: Real-time packet transmission display",
+  "@pingInfoText": {
+    "description": "Ping info text"
+  },
+  "tracerouteInfoText": "Traceroute: Step-by-step network path display",
+  "@tracerouteInfoText": {
+    "description": "Traceroute info text"
+  },
+  "dnsLookupInfoText": "DNS Lookup: Fast IP address resolution",
+  "@dnsLookupInfoText": {
+    "description": "DNS Lookup info text"
+  },
+  "stopPing": "Stop",
+  "@stopPing": {
+    "description": "Stop button text"
+  },
   "ping": "Ping",
   "@ping": {
     "description": "Ping tool name"

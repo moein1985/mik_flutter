@@ -472,13 +472,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toolsInfoTitle => 'Real-time Network Tools';
 
   @override
-  String get toolsInfoDescription => 'All diagnostic tools display results in real-time as they are received from the router.';
+  String get toolsInfoDescription =>
+      'All diagnostic tools display results in real-time as they are received from the router.';
 
   @override
   String get pingInfoText => 'Ping: Real-time packet transmission display';
 
   @override
-  String get tracerouteInfoText => 'Traceroute: Step-by-step network path display';
+  String get tracerouteInfoText =>
+      'Traceroute: Step-by-step network path display';
 
   @override
   String get dnsLookupInfoText => 'DNS Lookup: Fast IP address resolution';
