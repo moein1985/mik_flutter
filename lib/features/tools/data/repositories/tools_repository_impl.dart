@@ -59,21 +59,37 @@ class ToolsRepositoryImpl implements ToolsRepository {
         timeout: timeout,
       );
 
-      // Filter: only parse first section (section=0) to avoid duplicates
-      // RouterOS sends multiple sections when count > 1, we only want the first trace
-      final hops = <TracerouteHop>[];
-      for (var i = 0; i < response.length; i++) {
-        final data = response[i];
+      // RouterOS sends real-time updates for each probe
+      // We need to keep only the LAST update for each unique hop (address)
+      // Group by address and keep the one with highest 'sent' count
+      final hopMap = <String, Map<String, String>>{};
+      var hopIndex = 0;
+      
+      for (final data in response) {
         // Skip done messages
         if (data['type'] == 'done') continue;
-        // Only parse first section - check both string '0' and ensure it exists
-        final section = data['.section'];
-        if (section != '0' && section != null) continue;
-        // Also stop if we see section 1 (moved to next trace)
-        if (section == '1') break;
         
-        hops.add(TracerouteHopModel.fromRouterOS(data, hops.length).toEntity());
+        // Create unique key: address or index for empty addresses
+        final address = data['address'] ?? '';
+        final key = address.isNotEmpty ? address : 'hop_$hopIndex';
+        
+        // Keep this update if it's new or has higher 'sent' count
+        final currentSent = int.tryParse(data['sent'] ?? '0') ?? 0;
+        final existingSent = int.tryParse(hopMap[key]?['sent'] ?? '0') ?? 0;
+        
+        if (!hopMap.containsKey(key) || currentSent > existingSent) {
+          hopMap[key] = data;
+          if (address.isEmpty) hopIndex++;
+        }
       }
+      
+      // Convert to hops list in order
+      final hops = hopMap.values
+          .toList()
+          .asMap()
+          .entries
+          .map((e) => TracerouteHopModel.fromRouterOS(e.value, e.key).toEntity())
+          .toList();
 
       return Right(hops);
     } on ServerException {
