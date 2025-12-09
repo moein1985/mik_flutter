@@ -66,8 +66,11 @@ class ToolsRepositoryImpl implements ToolsRepository {
         final data = response[i];
         // Skip done messages
         if (data['type'] == 'done') continue;
-        // Only parse first section (first complete traceroute)
-        if (data['.section'] != '0') continue;
+        // Only parse first section - check both string '0' and ensure it exists
+        final section = data['.section'];
+        if (section != '0' && section != null) continue;
+        // Also stop if we see section 1 (moved to next trace)
+        if (section == '1') break;
         
         hops.add(TracerouteHopModel.fromRouterOS(data, hops.length).toEntity());
       }
