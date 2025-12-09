@@ -1664,13 +1664,13 @@ class RouterOSClient {
   }) async {
     try {
       _log.d('Starting traceroute to: $address (max-hops: $maxHops)');
-      // Note: RouterOS traceroute sends 'count' total packets, not per-hop
-      // So count=3 means 3 packets total, not 3 per hop
-      // We'll use a reasonable total packet count
+      
+      // Note: count parameter makes RouterOS repeat the entire traceroute that many times
+      // We'll filter to only show the first section in the parser
       final response = await sendCommand([
         '/tool/traceroute',
         '=address=$address',
-        '=count=$maxHops',  // Total packets to send
+        '=count=3',  // Run traceroute 3 times for better statistics per hop
       ], timeout: Duration(seconds: (maxHops * 3 + 30).clamp(60, 180)));
 
       _log.d('Traceroute completed, got ${response.length} responses');

@@ -59,14 +59,17 @@ class ToolsRepositoryImpl implements ToolsRepository {
         timeout: timeout,
       );
 
-      // Filter out 'done' messages and parse with hop index
+      // Filter: only parse first section (section=0) to avoid duplicates
+      // RouterOS sends multiple sections when count > 1, we only want the first trace
       final hops = <TracerouteHop>[];
       for (var i = 0; i < response.length; i++) {
         final data = response[i];
-        // Skip the 'done' message
+        // Skip done messages
         if (data['type'] == 'done') continue;
+        // Only parse first section (first complete traceroute)
+        if (data['.section'] != '0') continue;
         
-        hops.add(TracerouteHopModel.fromRouterOS(data, i).toEntity());
+        hops.add(TracerouteHopModel.fromRouterOS(data, hops.length).toEntity());
       }
 
       return Right(hops);
