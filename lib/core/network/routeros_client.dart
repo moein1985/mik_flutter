@@ -1664,11 +1664,14 @@ class RouterOSClient {
   }) async {
     try {
       _log.d('Starting traceroute to: $address (max-hops: $maxHops)');
+      // Use duration parameter to speed up traceroute (time to wait for each hop response)
+      // Also increase overall timeout significantly as traceroute can take very long
       final response = await sendCommand([
         '/tool/traceroute',
         '=address=$address',
         '=max-hops=$maxHops',
-      ], timeout: Duration(seconds: (maxHops * 4 + 30).clamp(60, 240)));
+        '=duration=${timeout}ms',
+      ], timeout: Duration(seconds: (maxHops * 6 + 60).clamp(90, 300)));
 
       _log.d('Traceroute completed, got ${response.length} responses');
       return response;
