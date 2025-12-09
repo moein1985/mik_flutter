@@ -59,9 +59,15 @@ class ToolsRepositoryImpl implements ToolsRepository {
         timeout: timeout,
       );
 
-      final hops = response
-          .map((data) => TracerouteHopModel.fromRouterOS(data).toEntity())
-          .toList();
+      // Filter out 'done' messages and parse with hop index
+      final hops = <TracerouteHop>[];
+      for (var i = 0; i < response.length; i++) {
+        final data = response[i];
+        // Skip the 'done' message
+        if (data['type'] == 'done') continue;
+        
+        hops.add(TracerouteHopModel.fromRouterOS(data, i).toEntity());
+      }
 
       return Right(hops);
     } on ServerException {

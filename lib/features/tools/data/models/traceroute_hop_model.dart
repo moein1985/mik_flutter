@@ -13,24 +13,24 @@ class TracerouteHopModel extends TracerouteHop {
     super.status,
   });
 
-  /// Create model from RouterOS traceroute response
-  factory TracerouteHopModel.fromRouterOS(Map<String, String> data) {
-    final hopNumber = int.tryParse(data['hop'] ?? '') ?? 0;
+  /// Create model from RouterOS traceroute response with hop index
+  factory TracerouteHopModel.fromRouterOS(Map<String, String> data, int hopIndex) {
     final ipAddress = data['address'];
     final hostname = data['name'];
     final status = data['status'];
 
-    // Parse RTT values (they come as strings like "10ms", "1.5s", etc.)
+    // RouterOS returns RTT values as: best, avg, worst, last (all in milliseconds as numbers)
     Duration? rtt1, rtt2, rtt3;
 
-    if (data.containsKey('rtt1') && data['rtt1'] != null) {
-      rtt1 = _parseDuration(data['rtt1']!);
+    // Use 'best', 'avg', 'worst' fields (they are millisecond values without suffix)
+    if (data.containsKey('best') && data['best'] != null && data['best']!.isNotEmpty) {
+      rtt1 = _parseMilliseconds(data['best']!);
     }
-    if (data.containsKey('rtt2') && data['rtt2'] != null) {
-      rtt2 = _parseDuration(data['rtt2']!);
+    if (data.containsKey('avg') && data['avg'] != null && data['avg']!.isNotEmpty) {
+      rtt2 = _parseMilliseconds(data['avg']!);
     }
-    if (data.containsKey('rtt3') && data['rtt3'] != null) {
-      rtt3 = _parseDuration(data['rtt3']!);
+    if (data.containsKey('worst') && data['worst'] != null && data['worst']!.isNotEmpty) {
+      rtt3 = _parseMilliseconds(data['worst']!);
     }
 
     // Determine if hop is reachable
@@ -38,46 +38,22 @@ class TracerouteHopModel extends TracerouteHop {
                        (rtt1 != null || rtt2 != null || rtt3 != null);
 
     return TracerouteHopModel(
-      hopNumber: hopNumber,
-      ipAddress: ipAddress,
-      hostname: hostname,
+      hopNumber: hopIndex + 1, // Hop numbers start from 1
+      ipAddress: ipAddress?.isNotEmpty == true ? ipAddress : null,
+      hostname: hostname?.isNotEmpty == true ? hostname : null,
       rtt1: rtt1,
       rtt2: rtt2,
       rtt3: rtt3,
       isReachable: isReachable,
-      status: status,
+      status: status?.isNotEmpty == true ? status : null,
     );
   }
 
-  /// Parse duration string like "410us", "10ms", "95ms894us" or "1.5s" to Duration
-  static Duration _parseDuration(String durationStr) {
-    // Handle RouterOS format: "95ms894us" (milliseconds + microseconds)
-    if (durationStr.contains('ms') && durationStr.contains('us')) {
-      final parts = durationStr.split('ms');
-      final ms = int.tryParse(parts[0]) ?? 0;
-      final us = int.tryParse(parts[1].replaceAll('us', '')) ?? 0;
-      return Duration(microseconds: ms * 1000 + us);
-    }
-    // Handle microseconds only: "410us"
-    else if (durationStr.endsWith('us')) {
-      final us = int.tryParse(durationStr.substring(0, durationStr.length - 2)) ?? 0;
-      return Duration(microseconds: us);
-    }
-    // Handle milliseconds: "10ms"
-    else if (durationStr.endsWith('ms')) {
-      final ms = double.tryParse(durationStr.substring(0, durationStr.length - 2)) ?? 0;
-      return Duration(microseconds: (ms * 1000).round());
-    }
-    // Handle seconds: "1.5s"
-    else if (durationStr.endsWith('s')) {
-      final s = double.tryParse(durationStr.substring(0, durationStr.length - 1)) ?? 0;
-      return Duration(microseconds: (s * 1000000).round());
-    }
-    // Assume milliseconds if no unit
-    else {
-      final ms = double.tryParse(durationStr) ?? 0;
-      return Duration(microseconds: (ms * 1000).round());
-    }
+  /// Parse milliseconds value (can be integer or decimal like "0.3", "1", "10.5")
+  static Duration? _parseMilliseconds(String value) {
+    final ms = double.tryParse(value);
+    if (ms == null) return null;
+    return Duration(microseconds: (ms * 1000).round());
   }
 
   /// Convert to entity
