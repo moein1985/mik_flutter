@@ -26,4 +26,18 @@ class PingUseCase {
   Future<Either<Failure, void>> stop() async {
     return await repository.stopPing();
   }
+
+  /// Execute continuous ping operation with streaming updates
+  /// Returns a stream that emits ping results as packets arrive
+  Stream<PingResult> callStream({
+    required String target,
+    int interval = 1,
+    int timeout = 1000,
+  }) {
+    return repository.pingStream(
+      target: target,
+      interval: interval,
+      timeout: timeout,
+    );
+  }
 }

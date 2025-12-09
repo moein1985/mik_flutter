@@ -968,6 +968,42 @@ abstract class AppLocalizations {
   /// **'Test connectivity and resolve network issues'**
   String get testConnectivity;
 
+  /// Tools info dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Real-time Network Tools'**
+  String get toolsInfoTitle;
+
+  /// Tools info dialog description
+  ///
+  /// In en, this message translates to:
+  /// **'All diagnostic tools display results in real-time as they are received from the router.'**
+  String get toolsInfoDescription;
+
+  /// Ping info text
+  ///
+  /// In en, this message translates to:
+  /// **'Ping: Real-time packet transmission display'**
+  String get pingInfoText;
+
+  /// Traceroute info text
+  ///
+  /// In en, this message translates to:
+  /// **'Traceroute: Step-by-step network path display'**
+  String get tracerouteInfoText;
+
+  /// DNS Lookup info text
+  ///
+  /// In en, this message translates to:
+  /// **'DNS Lookup: Fast IP address resolution'**
+  String get dnsLookupInfoText;
+
+  /// Stop button text
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get stopPing;
+
   /// Ping tool name
   ///
   /// In en, this message translates to:

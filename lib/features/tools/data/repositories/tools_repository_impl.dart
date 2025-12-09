@@ -39,10 +39,83 @@ class ToolsRepositoryImpl implements ToolsRepository {
   @override
   Future<Either<Failure, void>> stopPing() async {
     try {
-      // TODO: Implement stop ping command
+      // Stop is handled by cancelling the stream subscription
       return const Right(null);
     } on ServerException {
       return Left(const ServerFailure('Failed to stop ping'));
+    }
+  }
+
+  @override
+  Stream<PingResult> pingStream({
+    required String target,
+    int interval = 1,
+    int timeout = 1000,
+  }) async* {
+    try {
+      int packetsSent = 0;
+      int packetsReceived = 0;
+      Duration minRtt = Duration.zero;
+      Duration avgRtt = Duration.zero;
+      Duration maxRtt = Duration.zero;
+      final packets = <PingPacket>[];
+      
+      await for (final data in routerOsClient.pingStream(
+        address: target,
+        interval: interval,
+        timeout: timeout,
+      )) {
+        // Update statistics from each packet
+        if (data.containsKey('sent')) {
+          packetsSent = int.tryParse(data['sent'] ?? '0') ?? 0;
+        }
+        if (data.containsKey('received')) {
+          packetsReceived = int.tryParse(data['received'] ?? '0') ?? 0;
+        }
+        if (data.containsKey('min-rtt') && data['min-rtt'] != null) {
+          minRtt = PingResultModel.parseDuration(data['min-rtt']!);
+        }
+        if (data.containsKey('avg-rtt') && data['avg-rtt'] != null) {
+          avgRtt = PingResultModel.parseDuration(data['avg-rtt']!);
+        }
+        if (data.containsKey('max-rtt') && data['max-rtt'] != null) {
+          maxRtt = PingResultModel.parseDuration(data['max-rtt']!);
+        }
+
+        // Add packet to list
+        final seq = int.tryParse(data['seq'] ?? '');
+        if (seq != null) {
+          final rtt = data['time'] != null ? PingResultModel.parseDuration(data['time']!) : null;
+          final received = rtt != null;
+          final error = received ? null : 'timeout';
+
+          packets.add(PingPacket(
+            sequence: seq,
+            rtt: rtt,
+            received: received,
+            error: error,
+          ));
+        }
+
+        final packetLossPercent = packetsSent > 0
+            ? ((packetsSent - packetsReceived) / packetsSent * 100).round()
+            : 0;
+
+        // Yield updated result
+        yield PingResult(
+          target: target,
+          packetsSent: packetsSent,
+          packetsReceived: packetsReceived,
+          packetLossPercent: packetLossPercent,
+          minRtt: minRtt,
+          avgRtt: avgRtt,
+          maxRtt: maxRtt,
+          isRunning: true,
+          packets: List.from(packets),
+        );
+      }
+    } catch (e) {
+      throw ServerException('Failed to perform streaming ping: $e');
     }
   }
 

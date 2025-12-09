@@ -21,6 +21,16 @@ class PingInProgress extends ToolsState {
   const PingInProgress();
 }
 
+/// State when ping operation is updating with new packets
+class PingUpdating extends ToolsState {
+  final PingResult result;
+
+  const PingUpdating(this.result);
+
+  @override
+  List<Object?> get props => [result];
+}
+
 /// State when ping operation is completed
 class PingCompleted extends ToolsState {
   final PingResult result;

@@ -16,6 +16,14 @@ abstract class ToolsRepository {
   /// Stop ongoing ping operation
   Future<Either<Failure, void>> stopPing();
 
+  /// Perform continuous ping operation with streaming updates
+  /// Emits ping results as packets arrive in real-time
+  Stream<PingResult> pingStream({
+    required String target,
+    int interval = 1,
+    int timeout = 1000,
+  });
+
   /// Perform traceroute operation
   Future<Either<Failure, List<TracerouteHop>>> traceroute({
     required String target,

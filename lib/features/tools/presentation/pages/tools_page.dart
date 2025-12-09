@@ -23,6 +23,13 @@ class _ToolsPageState extends State<ToolsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.networkTools),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () => _showToolsInfoDialog(context, l10n),
+            tooltip: l10n.toolsInfoTitle,
+          ),
+        ],
       ),
       body: BlocConsumer<ToolsBloc, ToolsState>(
         listener: (context, state) {
@@ -175,7 +182,10 @@ class _ToolsPageState extends State<ToolsPage> {
   }
 
   Widget _buildResultsSection(ToolsState state, AppLocalizations l10n) {
-    if (state is PingCompleted) {
+    if (state is PingUpdating) {
+      // Show partial results as they arrive (real-time)
+      return _buildPingResults(state.result, l10n, isUpdating: true);
+    } else if (state is PingCompleted) {
       return _buildPingResults(state.result, l10n);
     } else if (state is TracerouteUpdating) {
       // Show partial results as they arrive (real-time)
@@ -188,7 +198,7 @@ class _ToolsPageState extends State<ToolsPage> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildPingResults(PingResult result, AppLocalizations l10n) {
+  Widget _buildPingResults(PingResult result, AppLocalizations l10n, {bool isUpdating = false}) {
     final isSuccess = result.packetsReceived > 0;
     final packetLoss = result.packetLossPercent;
     
@@ -203,18 +213,42 @@ class _ToolsPageState extends State<ToolsPage> {
             Row(
               children: [
                 Icon(
-                  isSuccess ? Icons.check_circle : Icons.error,
-                  color: isSuccess ? Colors.green : Colors.red,
+                  isUpdating ? Icons.sensors : (isSuccess ? Icons.check_circle : Icons.error),
+                  color: isUpdating ? Colors.orange : (isSuccess ? Colors.green : Colors.red),
                   size: 24,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  l10n.pingResults,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    l10n.pingResults,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
+                if (isUpdating) ...[
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      context.read<ToolsBloc>().add(const StopPing());
+                    },
+                    icon: const Icon(Icons.stop, size: 18),
+                    label: Text(l10n.stopPing),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                  ),
+                ],
               ],
             ),
             const Divider(height: 24),
@@ -1082,6 +1116,82 @@ class _ToolsPageState extends State<ToolsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  /// Show info dialog explaining real-time tools
+  void _showToolsInfoDialog(BuildContext context, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.info_outline, color: Colors.blue[700]),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(l10n.toolsInfoTitle),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.toolsInfoDescription,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 16),
+            _buildInfoItem(
+              icon: Icons.send,
+              text: l10n.pingInfoText,
+              color: Colors.blue,
+            ),
+            const SizedBox(height: 12),
+            _buildInfoItem(
+              icon: Icons.route,
+              text: l10n.tracerouteInfoText,
+              color: Colors.green,
+            ),
+            const SizedBox(height: 12),
+            _buildInfoItem(
+              icon: Icons.dns,
+              text: l10n.dnsLookupInfoText,
+              color: Colors.orange,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String text,
+    required Color color,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: color),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+      ],
     );
   }
 }

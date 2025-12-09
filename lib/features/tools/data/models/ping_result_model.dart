@@ -38,19 +38,19 @@ class PingResultModel extends PingResult {
         packetsReceived = int.tryParse(item['received'] ?? '0') ?? 0;
       }
       if (item.containsKey('min-rtt') && item['min-rtt'] != null) {
-        minRtt = _parseDuration(item['min-rtt']!);
+        minRtt = parseDuration(item['min-rtt']!);
       }
       if (item.containsKey('avg-rtt') && item['avg-rtt'] != null) {
-        avgRtt = _parseDuration(item['avg-rtt']!);
+        avgRtt = parseDuration(item['avg-rtt']!);
       }
       if (item.containsKey('max-rtt') && item['max-rtt'] != null) {
-        maxRtt = _parseDuration(item['max-rtt']!);
+        maxRtt = parseDuration(item['max-rtt']!);
       }
 
       // Parse individual packet results
       final seq = int.tryParse(item['seq'] ?? '');
       if (seq != null) {
-        final rtt = item['time'] != null ? _parseDuration(item['time']!) : null;
+        final rtt = item['time'] != null ? parseDuration(item['time']!) : null;
         final received = rtt != null;
         final error = received ? null : 'timeout';
 
@@ -80,7 +80,7 @@ class PingResultModel extends PingResult {
   }
 
   /// Parse duration string like "410us", "10ms", "95ms894us" or "1.5s" to Duration
-  static Duration _parseDuration(String durationStr) {
+  static Duration parseDuration(String durationStr) {
     // Handle RouterOS format: "95ms894us" (milliseconds + microseconds)
     if (durationStr.contains('ms') && durationStr.contains('us')) {
       final parts = durationStr.split('ms');

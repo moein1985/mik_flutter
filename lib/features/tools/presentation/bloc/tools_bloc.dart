@@ -33,16 +33,23 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
     emit(const PingInProgress());
 
     try {
-      final result = await pingUseCase.call(
-        target: event.target,
-        count: event.count,
-        timeout: event.timeout,
+      // Stream ping updates as they arrive
+      await emit.forEach(
+        pingUseCase.callStream(
+          target: event.target,
+          timeout: event.timeout,
+        ),
+        onData: (result) {
+          // Emit updated result with new packet
+          return PingUpdating(result);
+        },
+        onError: (error, stackTrace) {
+          return PingFailed(error.toString());
+        },
       );
-
-      result.fold(
-        (failure) => emit(PingFailed(failure.message)),
-        (pingResult) => emit(PingCompleted(pingResult)),
-      );
+      
+      // If stream completes naturally (shouldn't happen for continuous ping)
+      // Keep the last state
     } catch (e) {
       emit(PingFailed(e.toString()));
     }
@@ -50,7 +57,12 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
 
   void _onStopPing(StopPing event, Emitter<ToolsState> emit) {
     _pingSubscription?.cancel();
-    emit(const ToolsInitial());
+    // Keep the last ping result when stopping
+    if (state is PingUpdating) {
+      emit(PingCompleted((state as PingUpdating).result));
+    } else {
+      emit(const ToolsInitial());
+    }
   }
 
   Future<void> _onStartTraceroute(
