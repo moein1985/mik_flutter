@@ -21,4 +21,18 @@ class TracerouteUseCase {
       timeout: timeout,
     );
   }
+
+  /// Execute traceroute operation with streaming updates
+  /// Returns a stream that emits hops as they are discovered
+  Stream<TracerouteHop> callStream({
+    required String target,
+    int maxHops = 30,
+    int timeout = 1000,
+  }) {
+    return repository.tracerouteStream(
+      target: target,
+      maxHops: maxHops,
+      timeout: timeout,
+    );
+  }
 }

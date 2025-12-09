@@ -177,6 +177,9 @@ class _ToolsPageState extends State<ToolsPage> {
   Widget _buildResultsSection(ToolsState state, AppLocalizations l10n) {
     if (state is PingCompleted) {
       return _buildPingResults(state.result, l10n);
+    } else if (state is TracerouteUpdating) {
+      // Show partial results as they arrive (real-time)
+      return _buildTracerouteResults(state.hops, l10n, isUpdating: true);
     } else if (state is TracerouteCompleted) {
       return _buildTracerouteResults(state.hops, l10n);
     } else if (state is DnsLookupCompleted) {
@@ -490,7 +493,7 @@ class _ToolsPageState extends State<ToolsPage> {
     );
   }
 
-  Widget _buildTracerouteResults(List<TracerouteHop> hops, AppLocalizations l10n) {
+  Widget _buildTracerouteResults(List<TracerouteHop> hops, AppLocalizations l10n, {bool isUpdating = false}) {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -501,9 +504,9 @@ class _ToolsPageState extends State<ToolsPage> {
           children: [
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.route,
-                  color: Colors.green,
+                  color: isUpdating ? Colors.orange : Colors.green,
                   size: 24,
                 ),
                 const SizedBox(width: 8),
@@ -514,6 +517,25 @@ class _ToolsPageState extends State<ToolsPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                if (isUpdating) ...[
+                  const SizedBox(width: 8),
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Updating...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.orange[700],
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
               ],
             ),
             const Divider(height: 24),

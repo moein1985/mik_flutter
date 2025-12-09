@@ -46,6 +46,16 @@ class TracerouteInProgress extends ToolsState {
   const TracerouteInProgress();
 }
 
+/// State when traceroute operation is updating with new hops
+class TracerouteUpdating extends ToolsState {
+  final List<TracerouteHop> hops;
+
+  const TracerouteUpdating(this.hops);
+
+  @override
+  List<Object?> get props => [hops];
+}
+
 /// State when traceroute operation is completed
 class TracerouteCompleted extends ToolsState {
   final List<TracerouteHop> hops;

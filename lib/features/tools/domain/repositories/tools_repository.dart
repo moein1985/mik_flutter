@@ -23,6 +23,14 @@ abstract class ToolsRepository {
     int timeout = 1000,
   });
 
+  /// Perform traceroute operation with streaming updates
+  /// Emits hop information as it arrives in real-time
+  Stream<TracerouteHop> tracerouteStream({
+    required String target,
+    int maxHops = 30,
+    int timeout = 1000,
+  });
+
   /// Perform DNS lookup
   Future<Either<Failure, DnsLookupResult>> dnsLookup({
     required String domain,

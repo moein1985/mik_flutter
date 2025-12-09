@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/entities/traceroute_hop.dart';
 import '../../domain/usecases/dns_lookup_usecase.dart';
 import '../../domain/usecases/ping_usecase.dart';
 import '../../domain/usecases/traceroute_usecase.dart';
@@ -59,16 +60,29 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
     emit(const TracerouteInProgress());
 
     try {
-      final result = await tracerouteUseCase.call(
-        target: event.target,
-        maxHops: event.maxHops,
-        timeout: event.timeout,
+      final hops = <TracerouteHop>[];
+      
+      // Stream hop updates as they arrive
+      await emit.forEach(
+        tracerouteUseCase.callStream(
+          target: event.target,
+          maxHops: event.maxHops,
+          timeout: event.timeout,
+        ),
+        onData: (hop) {
+          hops.add(hop);
+          // Emit updated list with new hop
+          return TracerouteUpdating(List.from(hops));
+        },
+        onError: (error, stackTrace) {
+          return TracerouteFailed(error.toString());
+        },
       );
-
-      result.fold(
-        (failure) => emit(TracerouteFailed(failure.message)),
-        (tracerouteHops) => emit(TracerouteCompleted(tracerouteHops)),
-      );
+      
+      // Final state when all hops received
+      if (hops.isNotEmpty) {
+        emit(TracerouteCompleted(hops));
+      }
     } catch (e) {
       emit(TracerouteFailed(e.toString()));
     }

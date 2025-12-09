@@ -1681,6 +1681,139 @@ class RouterOSClient {
     }
   }
 
+  /// Perform traceroute operation with streaming updates
+  /// Emits hop information as it arrives in real-time (like SSH terminal)
+  Stream<Map<String, String>> tracerouteStream({
+    required String address,
+    int maxHops = 30,
+    int timeout = 1000,
+  }) async* {
+    try {
+      _log.d('Starting streaming traceroute to: $address (max-hops: $maxHops)');
+      
+      if (!_isConnected || _socket == null) {
+        _log.e('Not connected to RouterOS');
+        throw Exception('Not connected to RouterOS');
+      }
+
+      _responseData.clear();
+      _currentReply = {};
+
+      final encoded = RouterOSProtocol.encodeSentence([
+        '/tool/traceroute',
+        '=address=$address',
+        '=count=3',
+      ]);
+      _socket!.add(encoded);
+
+      final controller = StreamController<Map<String, String>>();
+      final completer = Completer<void>();
+      _activeCompleter = Completer<List<Map<String, String>>>();
+
+      // Track which hops we've already emitted (by address)
+      final emittedHops = <String, Map<String, String>>{};
+      var hopIndex = 0;
+
+      // Listen to socket data and emit hop updates
+      final subscription = _socket!.listen(
+        (data) {
+          _buffer.addAll(data);
+          
+          // Process buffer and check for new hop data
+          while (_buffer.isNotEmpty) {
+            try {
+              final (length, bytesRead) = RouterOSProtocol.decodeLength(_buffer);
+
+              if (bytesRead + length > _buffer.length) {
+                break;
+              }
+
+              if (length == 0) {
+                _buffer.removeRange(0, bytesRead);
+                
+                if (_responseData.isNotEmpty) {
+                  final lastItem = _responseData.last;
+                  final lastType = lastItem['type'];
+                  
+                  // Check if this is a hop update (type: re)
+                  if (lastType == 're') {
+                    final address = lastItem['address'] ?? '';
+                    final key = address.isNotEmpty ? address : 'hop_$hopIndex';
+                    final currentSent = int.tryParse(lastItem['sent'] ?? '0') ?? 0;
+                    final existingSent = int.tryParse(emittedHops[key]?['sent'] ?? '0') ?? 0;
+                    
+                    // Emit if new hop or better statistics
+                    if (!emittedHops.containsKey(key) || currentSent > existingSent) {
+                      emittedHops[key] = lastItem;
+                      controller.add(lastItem);
+                      if (address.isEmpty) hopIndex++;
+                    }
+                  }
+                  
+                  // Check if traceroute completed
+                  if (lastType == 'done' || lastType == 'trap') {
+                    controller.close();
+                    completer.complete();
+                    if (!_activeCompleter!.isCompleted) {
+                      _activeCompleter!.complete(List.from(_responseData));
+                      _responseData.clear();
+                      _activeCompleter = null;
+                    }
+                  }
+                }
+                continue;
+              }
+
+              final word = String.fromCharCodes(_buffer.sublist(bytesRead, bytesRead + length));
+              _buffer.removeRange(0, bytesRead + length);
+
+              if (word.startsWith('!')) {
+                _currentReply['type'] = word.substring(1);
+                if (_currentReply.isNotEmpty) {
+                  _responseData.add(Map.from(_currentReply));
+                }
+                _currentReply = {'type': word.substring(1)};
+              } else if (word.startsWith('=')) {
+                final parts = word.substring(1).split('=');
+                if (parts.length == 2) {
+                  _currentReply[parts[0]] = parts[1];
+                }
+              }
+            } catch (e) {
+              _log.e('Error processing stream buffer', error: e);
+              break;
+            }
+          }
+        },
+        onError: (error) {
+          controller.addError(error);
+          controller.close();
+          completer.completeError(error);
+        },
+        cancelOnError: true,
+      );
+
+      // Stream hop updates to caller
+      await for (final hop in controller.stream) {
+        yield hop;
+      }
+
+      // Cleanup
+      await subscription.cancel();
+      await completer.future.timeout(
+        Duration(seconds: (maxHops * 3 + 30).clamp(60, 180)),
+        onTimeout: () {
+          _log.w('Streaming traceroute timeout');
+        },
+      );
+      
+      _log.d('Streaming traceroute completed');
+    } catch (e) {
+      _log.e('Streaming traceroute failed for $address', error: e);
+      rethrow;
+    }
+  }
+
   /// Perform DNS lookup
   /// Resolves domain names to IP addresses
   Future<List<Map<String, String>>> dnsLookup({

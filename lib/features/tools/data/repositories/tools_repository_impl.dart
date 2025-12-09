@@ -98,6 +98,30 @@ class ToolsRepositoryImpl implements ToolsRepository {
   }
 
   @override
+  Stream<TracerouteHop> tracerouteStream({
+    required String target,
+    int maxHops = 30,
+    int timeout = 1000,
+  }) async* {
+    try {
+      var hopIndex = 0;
+      
+      await for (final data in routerOsClient.tracerouteStream(
+        address: target,
+        maxHops: maxHops,
+        timeout: timeout,
+      )) {
+        // Convert each hop update to entity and yield it
+        final hop = TracerouteHopModel.fromRouterOS(data, hopIndex).toEntity();
+        yield hop;
+        hopIndex++;
+      }
+    } catch (e) {
+      throw ServerException('Failed to perform streaming traceroute: $e');
+    }
+  }
+
+  @override
   Future<Either<Failure, DnsLookupResult>> dnsLookup({
     required String domain,
     int timeout = 5000,
