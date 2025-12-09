@@ -63,7 +63,6 @@ class ToolsRepositoryImpl implements ToolsRepository {
       await for (final data in routerOsClient.pingStream(
         address: target,
         interval: interval,
-        timeout: timeout,
       )) {
         // Update statistics from each packet
         if (data.containsKey('sent')) {
@@ -182,7 +181,6 @@ class ToolsRepositoryImpl implements ToolsRepository {
       await for (final data in routerOsClient.tracerouteStream(
         address: target,
         maxHops: maxHops,
-        timeout: timeout,
       )) {
         // Convert each hop update to entity and yield it
         final hop = TracerouteHopModel.fromRouterOS(data, hopIndex).toEntity();

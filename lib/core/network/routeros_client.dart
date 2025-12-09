@@ -19,6 +19,10 @@ class RouterOSClient {
   Map<String, String> _currentReply = {};
   Completer<List<Map<String, String>>>? _activeCompleter;
 
+  // Streaming support
+  String? _activeStreamingTag; // Track which command is streaming
+  final Map<String, StreamController<Map<String, String>>> _streamControllers = {};
+
   RouterOSClient({
     required this.host,
     required this.port,
@@ -73,9 +77,28 @@ class RouterOSClient {
         onError: (error) {
           _isConnected = false;
           _activeCompleter?.completeError(error);
+          
+          // Close all active streams on connection error
+          for (final controller in _streamControllers.values) {
+            if (!controller.isClosed) {
+              controller.addError(error);
+              controller.close();
+            }
+          }
+          _streamControllers.clear();
+          _activeStreamingTag = null;
         },
         onDone: () {
           _isConnected = false;
+          
+          // Close all active streams when connection closes
+          for (final controller in _streamControllers.values) {
+            if (!controller.isClosed) {
+              controller.close();
+            }
+          }
+          _streamControllers.clear();
+          _activeStreamingTag = null;
         },
       );
     } catch (e) {
@@ -111,6 +134,15 @@ class RouterOSClient {
 
   /// Disconnect from RouterOS device
   Future<void> disconnect() async {
+    // Close all active streams
+    for (final controller in _streamControllers.values) {
+      if (!controller.isClosed) {
+        controller.close();
+      }
+    }
+    _streamControllers.clear();
+    _activeStreamingTag = null;
+    
     if (_socket != null) {
       await _socket!.close();
       _socket = null;
@@ -337,13 +369,40 @@ class RouterOSClient {
         if (length == 0) {
           _buffer.removeRange(0, bytesRead);
           
-          if (_responseData.isNotEmpty && _activeCompleter != null) {
+          if (_responseData.isNotEmpty) {
             final lastType = _responseData.last['type'];
-            if (lastType == 'done' || lastType == 'trap') {
-              if (!_activeCompleter!.isCompleted) {
-                _activeCompleter!.complete(List.from(_responseData));
+            
+            // Check if we have an active stream
+            if (_activeStreamingTag != null && _streamControllers.containsKey(_activeStreamingTag)) {
+              final controller = _streamControllers[_activeStreamingTag];
+              
+              // Emit data responses (!re) to stream
+              for (final item in _responseData) {
+                if (item['type'] == 're') {
+                  controller?.add(item);
+                }
+              }
+              
+              // If done or trap, close the stream
+              if (lastType == 'done' || lastType == 'trap') {
+                if (lastType == 'trap') {
+                  final errorMsg = _responseData.last['message'] ?? 'Unknown error';
+                  controller?.addError(Exception(errorMsg));
+                }
+                controller?.close();
+                _streamControllers.remove(_activeStreamingTag);
+                _activeStreamingTag = null;
                 _responseData.clear();
-                _activeCompleter = null;
+              }
+            } 
+            // Otherwise use the regular completer pattern
+            else if (_activeCompleter != null) {
+              if (lastType == 'done' || lastType == 'trap') {
+                if (!_activeCompleter!.isCompleted) {
+                  _activeCompleter!.complete(List.from(_responseData));
+                  _responseData.clear();
+                  _activeCompleter = null;
+                }
               }
             }
           }
@@ -1655,114 +1714,57 @@ class RouterOSClient {
     }
   }
 
-  /// Perform continuous ping operation with streaming updates
-  /// Emits ping packet results as they arrive in real-time (like RouterOS terminal)
-  /// Continues indefinitely until the stream is cancelled
+  /// Perform streaming ping operation
+  /// Returns a stream that emits ping results in real-time as packets are sent/received
   Stream<Map<String, String>> pingStream({
     required String address,
+    int count = 100,
     int interval = 1,
-    int timeout = 1000,
-  }) async* {
-    try {
-      _log.d('Starting streaming ping to: $address');
-      
-      if (!_isConnected || _socket == null) {
-        _log.e('Not connected to RouterOS');
-        throw Exception('Not connected to RouterOS');
-      }
+  }) {
+    final tag = 'ping_${DateTime.now().millisecondsSinceEpoch}';
+    final controller = StreamController<Map<String, String>>();
+    
+    _streamControllers[tag] = controller;
+    _activeStreamingTag = tag;
 
-      _responseData.clear();
-      _currentReply = {};
+    _log.i('Starting streaming ping to: $address');
 
-      // Send ping command without count parameter = continuous ping
-      final encoded = RouterOSProtocol.encodeSentence([
-        '/tool/ping',
-        '=address=$address',
-        '=interval=$interval',
-      ]);
+    // Send ping command
+    final encoded = RouterOSProtocol.encodeSentence([
+      '/tool/ping',
+      '=address=$address',
+      '=count=$count',
+      '=interval=$interval',
+    ]);
+    
+    if (_socket != null && _isConnected) {
       _socket!.add(encoded);
+    } else {
+      controller.addError(Exception('Not connected to RouterOS'));
+      controller.close();
+      _streamControllers.remove(tag);
+      _activeStreamingTag = null;
+    }
 
-      final controller = StreamController<Map<String, String>>();
-      _activeCompleter = Completer<List<Map<String, String>>>();
+    return controller.stream;
+  }
 
-      // Listen to socket data and emit ping packet updates
-      final subscription = _socket!.listen(
-        (data) {
-          _buffer.addAll(data);
-          
-          // Process buffer and check for new ping data
-          while (_buffer.isNotEmpty) {
-            try {
-              final (length, bytesRead) = RouterOSProtocol.decodeLength(_buffer);
-
-              if (bytesRead + length > _buffer.length) {
-                break;
-              }
-
-              if (length == 0) {
-                _buffer.removeRange(0, bytesRead);
-                
-                if (_responseData.isNotEmpty) {
-                  final lastItem = _responseData.last;
-                  final lastType = lastItem['type'];
-                  
-                  // Check if this is a ping response (type: re)
-                  if (lastType == 're') {
-                    controller.add(Map.from(lastItem));
-                  }
-                  
-                  // Check if ping stopped/completed
-                  if (lastType == 'done' || lastType == 'trap') {
-                    controller.close();
-                    if (!_activeCompleter!.isCompleted) {
-                      _activeCompleter!.complete(List.from(_responseData));
-                      _responseData.clear();
-                      _activeCompleter = null;
-                    }
-                  }
-                }
-                continue;
-              }
-
-              final word = String.fromCharCodes(_buffer.sublist(bytesRead, bytesRead + length));
-              _buffer.removeRange(0, bytesRead + length);
-
-              if (word.startsWith('!')) {
-                _currentReply['type'] = word.substring(1);
-                if (_currentReply.isNotEmpty && _currentReply.length > 1) {
-                  _responseData.add(Map.from(_currentReply));
-                }
-                _currentReply = {'type': word.substring(1)};
-              } else if (word.startsWith('=')) {
-                final parts = word.substring(1).split('=');
-                if (parts.length == 2) {
-                  _currentReply[parts[0]] = parts[1];
-                }
-              }
-            } catch (e) {
-              _log.e('Error processing ping stream buffer', error: e);
-              break;
-            }
-          }
-        },
-        onError: (error) {
-          controller.addError(error);
-          controller.close();
-        },
-        cancelOnError: true,
-      );
-
-      // Stream ping packet updates to caller
-      await for (final packet in controller.stream) {
-        yield packet;
+  /// Stop an active streaming operation
+  void stopStreaming() {
+    if (_activeStreamingTag != null && _streamControllers.containsKey(_activeStreamingTag)) {
+      _log.i('Stopping streaming operation: $_activeStreamingTag');
+      
+      // Send cancel command
+      if (_socket != null && _isConnected) {
+        final encoded = RouterOSProtocol.encodeSentence(['/cancel']);
+        _socket!.add(encoded);
       }
-
-      // Cleanup
-      await subscription.cancel();
-      _log.d('Streaming ping completed');
-    } catch (e) {
-      _log.e('Streaming ping failed for $address', error: e);
-      rethrow;
+      
+      // Close the stream
+      _streamControllers[_activeStreamingTag]?.close();
+      _streamControllers.remove(_activeStreamingTag);
+      _activeStreamingTag = null;
+      _responseData.clear();
     }
   }
 
@@ -1792,137 +1794,37 @@ class RouterOSClient {
     }
   }
 
-  /// Perform traceroute operation with streaming updates
-  /// Emits hop information as it arrives in real-time (like SSH terminal)
+  /// Perform streaming traceroute operation
+  /// Returns a stream that emits hop information in real-time as each hop is discovered
   Stream<Map<String, String>> tracerouteStream({
     required String address,
     int maxHops = 30,
-    int timeout = 1000,
-  }) async* {
-    try {
-      _log.d('Starting streaming traceroute to: $address (max-hops: $maxHops)');
-      
-      if (!_isConnected || _socket == null) {
-        _log.e('Not connected to RouterOS');
-        throw Exception('Not connected to RouterOS');
-      }
+  }) {
+    final tag = 'traceroute_${DateTime.now().millisecondsSinceEpoch}';
+    final controller = StreamController<Map<String, String>>();
+    
+    _streamControllers[tag] = controller;
+    _activeStreamingTag = tag;
 
-      _responseData.clear();
-      _currentReply = {};
+    _log.i('Starting streaming traceroute to: $address');
 
-      final encoded = RouterOSProtocol.encodeSentence([
-        '/tool/traceroute',
-        '=address=$address',
-        '=count=3',
-      ]);
+    // Send traceroute command
+    final encoded = RouterOSProtocol.encodeSentence([
+      '/tool/traceroute',
+      '=address=$address',
+      '=count=3',  // Run 3 probes per hop for better statistics
+    ]);
+    
+    if (_socket != null && _isConnected) {
       _socket!.add(encoded);
-
-      final controller = StreamController<Map<String, String>>();
-      final completer = Completer<void>();
-      _activeCompleter = Completer<List<Map<String, String>>>();
-
-      // Track which hops we've already emitted (by address)
-      final emittedHops = <String, Map<String, String>>{};
-      var hopIndex = 0;
-
-      // Listen to socket data and emit hop updates
-      final subscription = _socket!.listen(
-        (data) {
-          _buffer.addAll(data);
-          
-          // Process buffer and check for new hop data
-          while (_buffer.isNotEmpty) {
-            try {
-              final (length, bytesRead) = RouterOSProtocol.decodeLength(_buffer);
-
-              if (bytesRead + length > _buffer.length) {
-                break;
-              }
-
-              if (length == 0) {
-                _buffer.removeRange(0, bytesRead);
-                
-                if (_responseData.isNotEmpty) {
-                  final lastItem = _responseData.last;
-                  final lastType = lastItem['type'];
-                  
-                  // Check if this is a hop update (type: re)
-                  if (lastType == 're') {
-                    final address = lastItem['address'] ?? '';
-                    final key = address.isNotEmpty ? address : 'hop_$hopIndex';
-                    final currentSent = int.tryParse(lastItem['sent'] ?? '0') ?? 0;
-                    final existingSent = int.tryParse(emittedHops[key]?['sent'] ?? '0') ?? 0;
-                    
-                    // Emit if new hop or better statistics
-                    if (!emittedHops.containsKey(key) || currentSent > existingSent) {
-                      emittedHops[key] = lastItem;
-                      controller.add(lastItem);
-                      if (address.isEmpty) hopIndex++;
-                    }
-                  }
-                  
-                  // Check if traceroute completed
-                  if (lastType == 'done' || lastType == 'trap') {
-                    controller.close();
-                    completer.complete();
-                    if (!_activeCompleter!.isCompleted) {
-                      _activeCompleter!.complete(List.from(_responseData));
-                      _responseData.clear();
-                      _activeCompleter = null;
-                    }
-                  }
-                }
-                continue;
-              }
-
-              final word = String.fromCharCodes(_buffer.sublist(bytesRead, bytesRead + length));
-              _buffer.removeRange(0, bytesRead + length);
-
-              if (word.startsWith('!')) {
-                _currentReply['type'] = word.substring(1);
-                if (_currentReply.isNotEmpty) {
-                  _responseData.add(Map.from(_currentReply));
-                }
-                _currentReply = {'type': word.substring(1)};
-              } else if (word.startsWith('=')) {
-                final parts = word.substring(1).split('=');
-                if (parts.length == 2) {
-                  _currentReply[parts[0]] = parts[1];
-                }
-              }
-            } catch (e) {
-              _log.e('Error processing stream buffer', error: e);
-              break;
-            }
-          }
-        },
-        onError: (error) {
-          controller.addError(error);
-          controller.close();
-          completer.completeError(error);
-        },
-        cancelOnError: true,
-      );
-
-      // Stream hop updates to caller
-      await for (final hop in controller.stream) {
-        yield hop;
-      }
-
-      // Cleanup
-      await subscription.cancel();
-      await completer.future.timeout(
-        Duration(seconds: (maxHops * 3 + 30).clamp(60, 180)),
-        onTimeout: () {
-          _log.w('Streaming traceroute timeout');
-        },
-      );
-      
-      _log.d('Streaming traceroute completed');
-    } catch (e) {
-      _log.e('Streaming traceroute failed for $address', error: e);
-      rethrow;
+    } else {
+      controller.addError(Exception('Not connected to RouterOS'));
+      controller.close();
+      _streamControllers.remove(tag);
+      _activeStreamingTag = null;
     }
+
+    return controller.stream;
   }
 
   /// Perform DNS lookup
