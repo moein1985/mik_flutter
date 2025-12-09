@@ -1668,7 +1668,7 @@ class RouterOSClient {
         '/tool/traceroute',
         '=address=$address',
         '=max-hops=$maxHops',
-      ], timeout: Duration(seconds: (timeout ~/ 1000 + maxHops * 3).clamp(30, 180)));
+      ], timeout: Duration(seconds: (maxHops * 4 + 30).clamp(60, 240)));
 
       _log.d('Traceroute completed, got ${response.length} responses');
       return response;

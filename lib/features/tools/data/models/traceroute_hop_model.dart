@@ -49,18 +49,34 @@ class TracerouteHopModel extends TracerouteHop {
     );
   }
 
-  /// Parse duration string like "10ms" or "1.5s" to Duration
+  /// Parse duration string like "410us", "10ms", "95ms894us" or "1.5s" to Duration
   static Duration _parseDuration(String durationStr) {
-    if (durationStr.endsWith('ms')) {
-      final ms = double.tryParse(durationStr.substring(0, durationStr.length - 2));
-      return Duration(microseconds: (ms! * 1000).round());
-    } else if (durationStr.endsWith('s')) {
-      final s = double.tryParse(durationStr.substring(0, durationStr.length - 1));
-      return Duration(microseconds: (s! * 1000000).round());
-    } else {
-      // Assume milliseconds if no unit
-      final ms = double.tryParse(durationStr);
-      return Duration(microseconds: (ms! * 1000).round());
+    // Handle RouterOS format: "95ms894us" (milliseconds + microseconds)
+    if (durationStr.contains('ms') && durationStr.contains('us')) {
+      final parts = durationStr.split('ms');
+      final ms = int.tryParse(parts[0]) ?? 0;
+      final us = int.tryParse(parts[1].replaceAll('us', '')) ?? 0;
+      return Duration(microseconds: ms * 1000 + us);
+    }
+    // Handle microseconds only: "410us"
+    else if (durationStr.endsWith('us')) {
+      final us = int.tryParse(durationStr.substring(0, durationStr.length - 2)) ?? 0;
+      return Duration(microseconds: us);
+    }
+    // Handle milliseconds: "10ms"
+    else if (durationStr.endsWith('ms')) {
+      final ms = double.tryParse(durationStr.substring(0, durationStr.length - 2)) ?? 0;
+      return Duration(microseconds: (ms * 1000).round());
+    }
+    // Handle seconds: "1.5s"
+    else if (durationStr.endsWith('s')) {
+      final s = double.tryParse(durationStr.substring(0, durationStr.length - 1)) ?? 0;
+      return Duration(microseconds: (s * 1000000).round());
+    }
+    // Assume milliseconds if no unit
+    else {
+      final ms = double.tryParse(durationStr) ?? 0;
+      return Duration(microseconds: (ms * 1000).round());
     }
   }
 
