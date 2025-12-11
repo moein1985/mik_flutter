@@ -195,7 +195,7 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
 
                   // Priority
                   DropdownButtonFormField<String>(
-                    value: _priorityController.text,
+                    initialValue: _priorityController.text,
                     decoration: InputDecoration(
                       labelText: l10n.priority,
                       border: const OutlineInputBorder(),

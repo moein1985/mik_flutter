@@ -489,6 +489,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stopPing => 'Stop';
 
   @override
+  String get stopTraceroute => 'Stop';
+
+  @override
   String get ping => 'Ping';
 
   @override
@@ -725,6 +728,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get follow => 'Follow';
+
+  @override
+  String get liveLog => 'Live Log';
+
+  @override
+  String get logsTabInfo =>
+      'Shows all router system logs. Logs are displayed from oldest (top) to newest (bottom). Use the filter button to narrow down logs by topics. Pull down to refresh.';
+
+  @override
+  String get liveLogTabInfo =>
+      'Shows real-time log updates as they occur on the router. Starts empty and displays only new logs (max 500). Logs are displayed from oldest (top) to newest (bottom).';
+
+  @override
+  String get close => 'Close';
 
   @override
   String get search => 'Search';

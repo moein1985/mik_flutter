@@ -29,6 +29,11 @@ class StopPing extends ToolsEvent {
   const StopPing();
 }
 
+/// Event to stop traceroute operation
+class StopTraceroute extends ToolsEvent {
+  const StopTraceroute();
+}
+
 /// Event to start traceroute operation
 class StartTraceroute extends ToolsEvent {
   final String target;

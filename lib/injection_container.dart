@@ -493,6 +493,7 @@ Future<void> init() async {
       pingUseCase: sl(),
       tracerouteUseCase: sl(),
       dnsLookupUseCase: sl(),
+      routerOsClient: sl(),
     ),
   );
 
@@ -532,7 +533,7 @@ Future<void> init() async {
   // Repository
   sl.registerLazySingleton<QueuesRepository>(
     () => QueuesRepositoryImpl(
-      routerOsClient: sl(),
+      authRemoteDataSource: sl(),
     ),
   );
 

@@ -12,7 +12,7 @@ void main() {
       const errorMessage = 'same subject exists';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'یک گواهی با همین Common Name قبلاً وجود دارد. لطفاً یک نام متفاوت انتخاب کنید.');
+      expect(exception.message, 'A certificate with the same Common Name already exists. Please choose a different name.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -20,7 +20,7 @@ void main() {
       const errorMessage = 'certificate with the same common name already exists';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'یک گواهی با همین Common Name قبلاً وجود دارد. لطفاً یک نام متفاوت انتخاب کنید.');
+      expect(exception.message, 'A certificate with the same Common Name already exists. Please choose a different name.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -28,7 +28,7 @@ void main() {
       const errorMessage = 'already exists';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'یک گواهی با این نام قبلاً وجود دارد. لطفاً نام دیگری انتخاب کنید.');
+      expect(exception.message, 'A certificate with this name already exists. Please choose a different name.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -36,7 +36,7 @@ void main() {
       const errorMessage = 'entry already exists';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'یک گواهی با این نام قبلاً وجود دارد. لطفاً نام دیگری انتخاب کنید.');
+      expect(exception.message, 'A certificate with this name already exists. Please choose a different name.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -44,7 +44,7 @@ void main() {
       const errorMessage = 'ca not found';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'CA (مرجع صدور گواهی) یافت نشد. ابتدا یک CA ایجاد کنید.');
+      expect(exception.message, 'Certificate Authority (CA) not found. Please create a CA first.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -52,7 +52,7 @@ void main() {
       const errorMessage = 'no ca available';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'CA (مرجع صدور گواهی) یافت نشد. ابتدا یک CA ایجاد کنید.');
+      expect(exception.message, 'Certificate Authority (CA) not found. Please create a CA first.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -60,7 +60,7 @@ void main() {
       const errorMessage = 'invalid key-size';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'اندازه کلید نامعتبر است. مقادیر مجاز: 1024, 2048, 4096');
+      expect(exception.message, 'Invalid key size. Valid values: 1024, 2048, 4096');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -68,7 +68,7 @@ void main() {
       const errorMessage = 'invalid key parameter';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'اندازه کلید نامعتبر است. مقادیر مجاز: 1024, 2048, 4096');
+      expect(exception.message, 'Invalid key size. Valid values: 1024, 2048, 4096');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -76,7 +76,7 @@ void main() {
       const errorMessage = 'certificate is in use';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'این گواهی در حال استفاده است و نمی‌توان آن را حذف کرد.');
+      expect(exception.message, 'This certificate is in use and cannot be removed.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -84,7 +84,7 @@ void main() {
       const errorMessage = 'cannot remove certificate';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'این گواهی در حال استفاده است و نمی‌توان آن را حذف کرد.');
+      expect(exception.message, 'This certificate is in use and cannot be removed.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -92,7 +92,7 @@ void main() {
       const errorMessage = 'permission denied';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'دسترسی رد شد. کاربر فعلی مجوز انجام این عملیات را ندارد.');
+      expect(exception.message, 'Permission denied. Current user does not have permission for this operation.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -100,7 +100,7 @@ void main() {
       const errorMessage = 'access denied';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'دسترسی رد شد. کاربر فعلی مجوز انجام این عملیات را ندارد.');
+      expect(exception.message, 'Permission denied. Current user does not have permission for this operation.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -108,7 +108,7 @@ void main() {
       const errorMessage = 'operation not allowed';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'دسترسی رد شد. کاربر فعلی مجوز انجام این عملیات را ندارد.');
+      expect(exception.message, 'Permission denied. Current user does not have permission for this operation.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -116,7 +116,7 @@ void main() {
       const errorMessage = 'unknown parameter';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'خطای سازگاری با نسخه RouterOS. لطفاً نسخه سیستم‌عامل روتر را بررسی کنید.');
+      expect(exception.message, 'RouterOS compatibility error. Please check the router OS version.');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -124,15 +124,15 @@ void main() {
       const errorMessage = 'failure: invalid certificate';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'خطا در عملیات گواهی: invalid certificate');
+      expect(exception.message, 'Certificate operation failed: invalid certificate');
       expect(exception.technicalDetails, errorMessage);
     });
 
     test('should handle unknown error with operation', () {
       const errorMessage = 'some unknown error';
-      final exception = CertificateException.fromRouterOSError(errorMessage, operation: 'ایجاد گواهی');
+      final exception = CertificateException.fromRouterOSError(errorMessage, operation: 'creating certificate');
 
-      expect(exception.message, 'خطا در ایجاد گواهی: some unknown error');
+      expect(exception.message, 'Error in creating certificate: some unknown error');
       expect(exception.technicalDetails, errorMessage);
     });
 
@@ -148,7 +148,7 @@ void main() {
       const errorMessage = 'SAME SUBJECT EXISTS';
       final exception = CertificateException.fromRouterOSError(errorMessage);
 
-      expect(exception.message, 'یک گواهی با همین Common Name قبلاً وجود دارد. لطفاً یک نام متفاوت انتخاب کنید.');
+      expect(exception.message, 'A certificate with the same Common Name already exists. Please choose a different name.');
     });
   });
 }

@@ -283,7 +283,7 @@ class _ServerDialogState extends State<_ServerDialog> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _selectedInterface,
+                  initialValue: _selectedInterface,
                   decoration: const InputDecoration(
                     labelText: 'Interface *',
                     border: OutlineInputBorder(),
@@ -296,7 +296,7 @@ class _ServerDialogState extends State<_ServerDialog> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _selectedPool,
+                  initialValue: _selectedPool,
                   decoration: const InputDecoration(
                     labelText: 'Address Pool',
                     border: OutlineInputBorder(),

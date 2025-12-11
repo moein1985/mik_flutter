@@ -23,6 +23,6 @@ class AddQueueUseCase {
       priority: int.tryParse(queueData['priority']?.toString() ?? '8') ?? 8,
       comment: queueData['comment'] ?? '',
     );
-    return await repository.addQueue(queue).then((result) => result.map((_) => null));
+    return await repository.addQueue(queue);
   }
 }

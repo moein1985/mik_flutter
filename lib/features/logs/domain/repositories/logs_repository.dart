@@ -14,8 +14,10 @@ abstract class LogsRepository {
   /// Follow logs in real-time (streaming)
   Stream<Either<Failure, LogEntry>> followLogs({
     String? topics,
-    Duration? timeout,
   });
+
+  /// Stop following logs
+  void stopFollowingLogs();
 
   /// Clear all logs
   Future<Either<Failure, void>> clearLogs();

@@ -41,14 +41,12 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   Future<SystemResourceModel> getSystemResources() async {
     try {
       final response = await client.getSystemResources();
-      // Filter out the 'done' message, keep only actual data
-      final data = response.where((r) => r['type'] != 'done').toList();
       
-      if (data.isEmpty) {
+      if (response.isEmpty) {
         throw ServerException('No system resource data received');
       }
       
-      return SystemResourceModel.fromMap(data.first);
+      return SystemResourceModel.fromMap(response.first);
     } catch (e) {
       throw ServerException('Failed to get system resources: $e');
     }
@@ -59,10 +57,7 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
     try {
       final response = await client.getInterfaces();
       
-      // Filter out the 'done' message, keep only actual interface data
-      final data = response.where((r) => r['type'] != 'done').toList();
-      
-      return data.map((item) => RouterInterfaceModel.fromMap(item)).toList();
+      return response.map((item) => RouterInterfaceModel.fromMap(item)).toList();
     } catch (e) {
       throw ServerException('Failed to get interfaces: $e');
     }
@@ -90,10 +85,8 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   Future<List<IpAddressModel>> getIpAddresses() async {
     try {
       final response = await client.getIpAddresses();
-      // Filter out the 'done' message, keep only actual data
-      final data = response.where((r) => r['type'] != 'done').toList();
       
-      return data.map((item) => IpAddressModel.fromMap(item)).toList();
+      return response.map((item) => IpAddressModel.fromMap(item)).toList();
     } catch (e) {
       throw ServerException('Failed to get IP addresses: $e');
     }
@@ -130,10 +123,8 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
     try {
       // Dashboard uses filter rules by default
       final response = await client.getFirewallRules('/ip/firewall/filter');
-      // Filter out the 'done' message, keep only actual data
-      final data = response.where((r) => r['type'] != 'done').toList();
       
-      return data.map((item) => FirewallRuleModel.fromMap(item)).toList();
+      return response.map((item) => FirewallRuleModel.fromMap(item)).toList();
     } catch (e) {
       throw ServerException('Failed to get firewall rules: $e');
     }
@@ -161,10 +152,8 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   Future<List<DhcpLeaseModel>> getDhcpLeases() async {
     try {
       final response = await client.getDhcpLeases();
-      // Filter out the 'done' message, keep only actual data
-      final data = response.where((r) => r['type'] != 'done').toList();
       
-      return data.map((item) => DhcpLeaseModel.fromMap(item)).toList();
+      return response.map((item) => DhcpLeaseModel.fromMap(item)).toList();
     } catch (e) {
       throw ServerException('Failed to get DHCP leases: $e');
     }

@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/log_entry.dart';
 import '../../domain/usecases/clear_logs_usecase.dart';
 import '../../domain/usecases/follow_logs_usecase.dart';
@@ -34,7 +36,7 @@ class LogsBloc extends Bloc<LogsEvent, LogsState> {
     emit(const LogsLoading());
 
     final result = await getLogsUseCase.call(
-      count: event.count,
+      count: event.count, // بدون محدودیت - همه لاگ‌ها
       topics: event.topics,
       since: event.since,
       until: event.until,
@@ -42,10 +44,14 @@ class LogsBloc extends Bloc<LogsEvent, LogsState> {
 
     result.fold(
       (failure) => emit(LogsError(failure.message)),
-      (logs) => emit(LogsLoaded(
-        logs: logs,
-        currentFilter: event.topics,
-      )),
+      (logs) {
+        // معکوس کردن لیست: قدیمی‌ترین بالا، جدیدترین پایین
+        final reversedLogs = logs.reversed.toList();
+        emit(LogsLoaded(
+          logs: reversedLogs,
+          currentFilter: event.topics,
+        ));
+      },
     );
   }
 
@@ -53,51 +59,107 @@ class LogsBloc extends Bloc<LogsEvent, LogsState> {
     // Stop any existing subscription
     await _logsSubscription?.cancel();
 
-    final currentLogs = state is LogsLoaded
-        ? (state as LogsLoaded).logs
-        : <LogEntry>[];
-
+    // شروع با لیست خالی - فقط لاگ‌های جدید نمایش داده می‌شوند
     emit(LogsFollowing(
-      logs: currentLogs,
+      logs: <LogEntry>[],
       currentFilter: event.topics,
     ));
 
-    _logsSubscription = followLogsUseCase.call(
-      topics: event.topics,
-      timeout: event.timeout,
-    ).listen(
-      (result) {
-        result.fold(
-          (failure) {
-            add(const StopFollowingLogs());
-            emit(LogsError(failure.message));
-          },
-          (logEntry) {
-            if (state is LogsFollowing) {
-              final currentState = state as LogsFollowing;
-              final updatedLogs = [logEntry, ...currentState.logs];
-              emit(LogsFollowing(
-                logs: updatedLogs,
-                currentFilter: currentState.currentFilter,
-              ));
-            }
-          },
+    // Create batched stream using buffer + periodic timer
+    // Reduced to 100ms for faster response while still batching
+    final logsStream = followLogsUseCase.call(topics: event.topics);
+    final batchedStream = _batchLogStream(logsStream, const Duration(milliseconds: 100));
+
+    // Use emit.forEach to properly handle stream emissions with batching
+    await emit.forEach<List<Either<Failure, LogEntry>>>(
+      batchedStream,
+      onData: (batch) {
+        if (state is! LogsFollowing) return state;
+        
+        final currentState = state as LogsFollowing;
+        final newLogs = <LogEntry>[];
+        
+        // Process all items in batch
+        for (final result in batch) {
+          result.fold(
+            (failure) => null, // Skip errors in batch
+            (logEntry) => newLogs.add(logEntry),
+          );
+        }
+        
+        if (newLogs.isEmpty) return state;
+        
+        // اضافه همه لاگ‌های جدید به انتها (پایین)
+        var updatedLogs = [...currentState.logs, ...newLogs];
+        
+        // محدود کردن به 500 لاگ (حذف قدیمی‌ترین از بالا)
+        if (updatedLogs.length > 500) {
+          updatedLogs = updatedLogs.sublist(updatedLogs.length - 500);
+        }
+        
+        return LogsFollowing(
+          logs: updatedLogs,
+          currentFilter: currentState.currentFilter,
         );
       },
-      onError: (error) {
-        add(const StopFollowingLogs());
-        emit(const LogsError('Failed to follow logs'));
-      },
-      onDone: () {
-        add(const StopFollowingLogs());
+      onError: (error, stackTrace) {
+        return const LogsError('Failed to follow logs');
       },
     );
   }
 
+  // Helper method to batch stream items
+  Stream<List<T>> _batchLogStream<T>(Stream<T> source, Duration duration) async* {
+    final buffer = <T>[];
+    Timer? debounceTimer;
+    Timer? maxWaitTimer;
+    final controller = StreamController<List<T>>();
+    
+    void emitBuffer() {
+      debounceTimer?.cancel();
+      maxWaitTimer?.cancel();
+      if (buffer.isNotEmpty) {
+        controller.add(List<T>.from(buffer));
+        buffer.clear();
+      }
+    }
+    
+    source.listen(
+      (item) {
+        final isFirstItem = buffer.isEmpty;
+        buffer.add(item);
+        
+        // Reset debounce timer on each new item
+        debounceTimer?.cancel();
+        debounceTimer = Timer(duration, emitBuffer);
+        
+        // Set max wait timer only for first item in batch
+        // This ensures we emit even if items keep coming slowly
+        if (isFirstItem) {
+          maxWaitTimer = Timer(duration * 2, emitBuffer);
+        }
+      },
+      onError: (error) => controller.addError(error),
+      onDone: () {
+        debounceTimer?.cancel();
+        maxWaitTimer?.cancel();
+        emitBuffer();
+        controller.close();
+      },
+      cancelOnError: false,
+    );
+    
+    yield* controller.stream;
+  }
+
   Future<void> _onStopFollowingLogs(StopFollowingLogs event, Emitter<LogsState> emit) async {
+    // Stop the stream from RouterOS
+    followLogsUseCase.stop();
+    
+    // Cancel subscription
     await _logsSubscription?.cancel();
     _logsSubscription = null;
-
+    
     if (state is LogsFollowing) {
       final currentState = state as LogsFollowing;
       emit(LogsLoaded(
@@ -140,6 +202,13 @@ class LogsBloc extends Bloc<LogsEvent, LogsState> {
   }
 
   Future<void> _onRefreshLogs(RefreshLogs event, Emitter<LogsState> emit) async {
+    // If following, stop it first before refreshing
+    if (state is LogsFollowing) {
+      followLogsUseCase.stop();
+      await _logsSubscription?.cancel();
+      _logsSubscription = null;
+    }
+    
     add(const LoadLogs());
   }
 

@@ -1004,6 +1004,12 @@ abstract class AppLocalizations {
   /// **'Stop'**
   String get stopPing;
 
+  /// Stop traceroute button text
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get stopTraceroute;
+
   /// Ping tool name
   ///
   /// In en, this message translates to:
@@ -1477,6 +1483,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Follow'**
   String get follow;
+
+  /// Live log tab - shows real-time log updates
+  ///
+  /// In en, this message translates to:
+  /// **'Live Log'**
+  String get liveLog;
+
+  /// Information about Logs tab functionality
+  ///
+  /// In en, this message translates to:
+  /// **'Shows all router system logs. Logs are displayed from oldest (top) to newest (bottom). Use the filter button to narrow down logs by topics. Pull down to refresh.'**
+  String get logsTabInfo;
+
+  /// Information about Live Log tab functionality
+  ///
+  /// In en, this message translates to:
+  /// **'Shows real-time log updates as they occur on the router. Starts empty and displays only new logs (max 500). Logs are displayed from oldest (top) to newest (bottom).'**
+  String get liveLogTabInfo;
+
+  /// Close button
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 
   /// Search button/action
   ///

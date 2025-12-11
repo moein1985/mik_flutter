@@ -465,9 +465,8 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
     try {
       _log.d('Getting IP pools...');
       final response = await client.getIpPools();
-      final pools = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${pools.length} IP pools');
-      return pools;
+      _log.i('Got ${response.length} IP pools');
+      return response;
     } catch (e, stackTrace) {
       _log.e('Failed to get IP pools', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get IP pools: $e');
@@ -479,9 +478,8 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
     try {
       _log.d('Getting interfaces...');
       final response = await client.getInterfaces();
-      final interfaces = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${interfaces.length} interfaces');
-      return interfaces;
+      _log.i('Got ${response.length} interfaces');
+      return response;
     } catch (e, stackTrace) {
       _log.e('Failed to get interfaces', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get interfaces: $e');

@@ -544,15 +544,16 @@ class _ToolsPageState extends State<ToolsPage> {
                   size: 24,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  l10n.tracerouteResults,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    l10n.tracerouteResults,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 if (isUpdating) ...[
-                  const SizedBox(width: 8),
                   const SizedBox(
                     width: 16,
                     height: 16,
@@ -560,13 +561,17 @@ class _ToolsPageState extends State<ToolsPage> {
                       strokeWidth: 2,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Updating...',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.orange[700],
-                      fontStyle: FontStyle.italic,
+                  const SizedBox(width: 12),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      context.read<ToolsBloc>().add(const StopTraceroute());
+                    },
+                    icon: const Icon(Icons.stop, size: 18),
+                    label: Text(l10n.stopTraceroute),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
                   ),
                 ],

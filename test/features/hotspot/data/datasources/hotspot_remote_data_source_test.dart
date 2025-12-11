@@ -23,13 +23,13 @@ void main() {
       // Arrange
       final tResponse = [
         {
+          'type': 're',
           '.id': '*1',
           'name': 'hotspot1',
           'interface': 'ether1',
           'address-pool': 'hs-pool',
           'disabled': 'false',
         },
-        {'type': 'done'},
       ];
       when(() => mockAuthRemoteDataSource.client).thenReturn(mockClient);
       when(() => mockClient.getHotspotServers()).thenAnswer((_) async => tResponse);

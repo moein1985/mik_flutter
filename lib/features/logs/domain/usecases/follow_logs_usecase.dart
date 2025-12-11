@@ -12,11 +12,14 @@ class FollowLogsUseCase {
   /// Follow logs in real-time with optional filtering
   Stream<Either<Failure, LogEntry>> call({
     String? topics,
-    Duration? timeout,
   }) {
     return repository.followLogs(
       topics: topics,
-      timeout: timeout,
     );
+  }
+
+  /// Stop following logs
+  void stop() {
+    repository.stopFollowingLogs();
   }
 }

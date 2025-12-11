@@ -22,6 +22,7 @@ class RouterOSClient {
   // Streaming support
   String? _activeStreamingTag; // Track which command is streaming
   final Map<String, StreamController<Map<String, String>>> _streamControllers = {};
+  final Set<String> _cancelledTags = {}; // Tags that have been cancelled (ignore their done/trap)
 
   RouterOSClient({
     required this.host,
@@ -150,6 +151,17 @@ class RouterOSClient {
     }
   }
 
+  /// Filter out protocol messages (done, trap, fatal) from response
+  /// Note: 're' is NOT filtered as it contains actual data
+  List<Map<String, String>> _filterProtocolMessages(List<Map<String, String>> response) {
+    return response.where((item) {
+      final type = item['type'];
+      // Keep items with no type, or type='re' (actual data)
+      // Remove type='done', 'trap', 'fatal' (protocol messages)
+      return type == null || type == 're' || (type != 'done' && type != 'trap' && type != 'fatal');
+    }).toList();
+  }
+
   /// Send a command to RouterOS
   /// [timeout] - optional timeout duration, defaults to 10 seconds
   Future<List<Map<String, String>>> sendCommand(
@@ -205,12 +217,14 @@ class RouterOSClient {
 
   /// Get system resources
   Future<List<Map<String, String>>> getSystemResources() async {
-    return await sendCommand(['/system/resource/print']);
+    final response = await sendCommand(['/system/resource/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Get all interfaces
   Future<List<Map<String, String>>> getInterfaces() async {
-    return await sendCommand(['/interface/print']);
+    final response = await sendCommand(['/interface/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Enable an interface
@@ -269,7 +283,8 @@ class RouterOSClient {
 
   /// Get all IP addresses
   Future<List<Map<String, String>>> getIpAddresses() async {
-    return await sendCommand(['/ip/address/print']);
+    final response = await sendCommand(['/ip/address/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Add IP address
@@ -309,12 +324,14 @@ class RouterOSClient {
 
   /// Get DHCP leases
   Future<List<Map<String, String>>> getDhcpLeases() async {
-    return await sendCommand(['/ip/dhcp-server/lease/print']);
+    final response = await sendCommand(['/ip/dhcp-server/lease/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Get all IP pools
   Future<List<Map<String, String>>> getIpPools() async {
-    return await sendCommand(['/ip/pool/print']);
+    final response = await sendCommand(['/ip/pool/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Add an IP pool
@@ -372,6 +389,15 @@ class RouterOSClient {
           if (_responseData.isNotEmpty) {
             final lastType = _responseData.last['type'];
             
+            // Check if this is a response from a cancelled tag (ignore it)
+            if (_cancelledTags.isNotEmpty && (lastType == 'done' || lastType == 'trap')) {
+              // This is likely a response from a cancelled streaming operation
+              // Just clear it and remove from cancelled set
+              _cancelledTags.clear();
+              _responseData.clear();
+              continue;
+            }
+            
             // Check if we have an active stream
             if (_activeStreamingTag != null && _streamControllers.containsKey(_activeStreamingTag)) {
               final controller = _streamControllers[_activeStreamingTag];
@@ -392,8 +418,9 @@ class RouterOSClient {
                 controller?.close();
                 _streamControllers.remove(_activeStreamingTag);
                 _activeStreamingTag = null;
-                _responseData.clear();
               }
+              // Clear response data after processing for streaming
+              _responseData.clear();
             } 
             // Otherwise use the regular completer pattern
             else if (_activeCompleter != null) {
@@ -462,7 +489,8 @@ class RouterOSClient {
 
   /// Get all hotspot servers
   Future<List<Map<String, String>>> getHotspotServers() async {
-    return await sendCommand(['/ip/hotspot/print']);
+    final response = await sendCommand(['/ip/hotspot/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Enable a hotspot server
@@ -493,7 +521,8 @@ class RouterOSClient {
 
   /// Get all hotspot users
   Future<List<Map<String, String>>> getHotspotUsers() async {
-    return await sendCommand(['/ip/hotspot/user/print']);
+    final response = await sendCommand(['/ip/hotspot/user/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Add a hotspot user
@@ -771,7 +800,8 @@ class RouterOSClient {
 
   /// Get all active hotspot users
   Future<List<Map<String, String>>> getHotspotActiveUsers() async {
-    return await sendCommand(['/ip/hotspot/active/print']);
+    final response = await sendCommand(['/ip/hotspot/active/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Disconnect a hotspot user
@@ -917,7 +947,8 @@ class RouterOSClient {
 
   /// Get all hotspot IP bindings
   Future<List<Map<String, String>>> getHotspotIpBindings() async {
-    return await sendCommand(['/ip/hotspot/ip-binding/print']);
+    final response = await sendCommand(['/ip/hotspot/ip-binding/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Add a hotspot IP binding
@@ -1031,7 +1062,8 @@ class RouterOSClient {
 
   /// Get all hotspot hosts
   Future<List<Map<String, String>>> getHotspotHosts() async {
-    return await sendCommand(['/ip/hotspot/host/print']);
+    final response = await sendCommand(['/ip/hotspot/host/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Remove a hotspot host (kick from hotspot)
@@ -1068,7 +1100,8 @@ class RouterOSClient {
 
   /// Get all walled garden entries
   Future<List<Map<String, String>>> getWalledGarden() async {
-    return await sendCommand(['/ip/hotspot/walled-garden/print']);
+    final response = await sendCommand(['/ip/hotspot/walled-garden/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Add a walled garden entry
@@ -1198,7 +1231,8 @@ class RouterOSClient {
 
   /// Get walled garden IP entries (IP-level rules)
   Future<List<Map<String, String>>> getWalledGardenIp() async {
-    return await sendCommand(['/ip/hotspot/walled-garden/ip/print']);
+    final response = await sendCommand(['/ip/hotspot/walled-garden/ip/print']);
+    return _filterProtocolMessages(response);
   }
 
   /// Add a walled garden IP entry
@@ -1554,8 +1588,9 @@ class RouterOSClient {
   Future<List<Map<String, String>>> getFirewallRules(String path) async {
     _log.d('Getting firewall rules from: $path');
     final response = await sendCommand(['$path/print']);
-    _log.d('Got ${response.length - 1} firewall rules');
-    return response;
+    final filtered = _filterProtocolMessages(response);
+    _log.d('Got ${filtered.length} firewall rules');
+    return filtered;
   }
 
   /// Enable a firewall rule
@@ -1644,8 +1679,9 @@ class RouterOSClient {
       ['/ip/firewall/address-list/print', '?list=$listName'],
       timeout: const Duration(seconds: 60),
     );
-    _log.d('Got ${response.length - 1} entries for list: $listName');
-    return response;
+    final filtered = _filterProtocolMessages(response);
+    _log.d('Got ${filtered.length} entries for list: $listName');
+    return filtered;
   }
 
   /// Get address list entries with pagination
@@ -1665,8 +1701,9 @@ class RouterOSClient {
       ],
       timeout: const Duration(seconds: 30),
     );
-    _log.d('Got ${response.length - 1} address list entries');
-    return response;
+    final filtered = _filterProtocolMessages(response);
+    _log.d('Got ${filtered.length} address list entries');
+    return filtered;
   }
 
   /// Get total count of address list entries
@@ -1754,17 +1791,20 @@ class RouterOSClient {
     if (_activeStreamingTag != null && _streamControllers.containsKey(_activeStreamingTag)) {
       _log.i('Stopping streaming operation: $_activeStreamingTag');
       
+      // Add to cancelled tags so we ignore the /cancel response
+      _cancelledTags.add(_activeStreamingTag!);
+      
+      // Close the stream first
+      _streamControllers[_activeStreamingTag]?.close();
+      _streamControllers.remove(_activeStreamingTag);
+      _activeStreamingTag = null;
+      _responseData.clear();
+      
       // Send cancel command
       if (_socket != null && _isConnected) {
         final encoded = RouterOSProtocol.encodeSentence(['/cancel']);
         _socket!.add(encoded);
       }
-      
-      // Close the stream
-      _streamControllers[_activeStreamingTag]?.close();
-      _streamControllers.remove(_activeStreamingTag);
-      _activeStreamingTag = null;
-      _responseData.clear();
     }
   }
 
@@ -1853,8 +1893,13 @@ class RouterOSClient {
     try {
       _log.d('Getting simple queues');
       final response = await sendCommand(['/queue/simple/print']);
-      _log.d('Got ${response.length} queues');
-      return response;
+      // Filter out protocol messages (done, trap, re, fatal)
+      final queues = response.where((item) {
+        final type = item['type'];
+        return type == null || (type != 'done' && type != 'trap' && type != 're' && type != 'fatal');
+      }).toList();
+      _log.d('Got ${queues.length} queues');
+      return queues;
     } catch (e) {
       _log.e('Failed to get simple queues', error: e);
       rethrow;
@@ -1948,8 +1993,9 @@ class RouterOSClient {
     try {
       _log.d('Getting wireless interfaces');
       final result = await sendCommand(['/interface/wireless/print']);
-      _log.d('Retrieved ${result.length} wireless interfaces');
-      return result;
+      final filtered = _filterProtocolMessages(result);
+      _log.d('Retrieved ${filtered.length} wireless interfaces');
+      return filtered;
     } catch (e) {
       _log.e('Failed to get wireless interfaces', error: e);
       rethrow;
@@ -2007,8 +2053,9 @@ class RouterOSClient {
     try {
       _log.d('Getting wireless registrations');
       final result = await sendCommand(['/interface/wireless/registration-table/print']);
-      _log.d('Retrieved ${result.length} wireless registrations');
-      return result;
+      final filtered = _filterProtocolMessages(result);
+      _log.d('Retrieved ${filtered.length} wireless registrations');
+      return filtered;
     } catch (e) {
       _log.e('Failed to get wireless registrations', error: e);
       rethrow;
@@ -2035,8 +2082,9 @@ class RouterOSClient {
     try {
       _log.d('Getting wireless security profiles');
       final result = await sendCommand(['/interface/wireless/security-profiles/print']);
-      _log.d('Retrieved ${result.length} wireless security profiles');
-      return result;
+      final filtered = _filterProtocolMessages(result);
+      _log.d('Retrieved ${filtered.length} wireless security profiles');
+      return filtered;
     } catch (e) {
       _log.e('Failed to get wireless security profiles', error: e);
       rethrow;
@@ -2095,8 +2143,9 @@ class RouterOSClient {
     try {
       _log.d('Getting wireless access list');
       final result = await sendCommand(['/interface/wireless/access-list/print']);
-      _log.d('Retrieved ${result.length} wireless access list entries');
-      return result;
+      final filtered = _filterProtocolMessages(result);
+      _log.d('Retrieved ${filtered.length} wireless access list entries');
+      return filtered;
     } catch (e) {
       _log.e('Failed to get wireless access list', error: e);
       rethrow;
@@ -2157,8 +2206,9 @@ class RouterOSClient {
       }
 
       final result = await sendCommand(command);
-      _log.d('Retrieved ${result.length} log entries');
-      return result;
+      final filtered = _filterProtocolMessages(result);
+      _log.d('Retrieved ${filtered.length} log entries');
+      return filtered;
     } catch (e) {
       _log.e('Failed to get logs', error: e);
       rethrow;
@@ -2166,37 +2216,39 @@ class RouterOSClient {
   }
 
   /// Follow logs in real-time (streaming)
+  /// Returns a stream that emits log entries as they appear in RouterOS
   Stream<Map<String, String>> followLogs({
     String? topics,
-    Duration? timeout,
-  }) async* {
-    try {
-      final command = ['/log/print', '=follow=yes'];
-      if (topics != null && topics.isNotEmpty) {
-        command.add('=topics=$topics');
-      }
+  }) {
+    final tag = 'logs_${DateTime.now().millisecondsSinceEpoch}';
+    final controller = StreamController<Map<String, String>>();
+    
+    _streamControllers[tag] = controller;
+    _activeStreamingTag = tag;
 
-      // For streaming logs, we'll use a periodic approach since RouterOS API
-      // doesn't support true streaming over the current connection
-      final startTime = DateTime.now();
+    _log.i('Starting to follow logs${topics != null ? " (topics: $topics)" : ""}');
 
-      while (timeout == null || DateTime.now().difference(startTime) < timeout) {
-        try {
-          final result = await sendCommand(command);
-          for (final logEntry in result) {
-            yield logEntry;
-          }
-          // Wait a bit before checking for new logs
-          await Future.delayed(const Duration(seconds: 1));
-        } catch (e) {
-          _log.e('Error while following logs', error: e);
-          break;
-        }
-      }
-    } catch (e) {
-      _log.e('Failed to follow logs', error: e);
-      rethrow;
+    // Send log follow-only command (only new logs, not existing ones)
+    final command = [
+      '/log/print',
+      '=follow-only=',
+    ];
+    if (topics != null && topics.isNotEmpty) {
+      command.add('=topics=$topics');
     }
+    
+    final encoded = RouterOSProtocol.encodeSentence(command);
+    
+    if (_socket != null && _isConnected) {
+      _socket!.add(encoded);
+    } else {
+      controller.addError(Exception('Not connected to RouterOS'));
+      controller.close();
+      _streamControllers.remove(tag);
+      _activeStreamingTag = null;
+    }
+
+    return controller.stream;
   }
 
   /// Clear all logs
@@ -2226,9 +2278,10 @@ class RouterOSClient {
       }
 
       final result = await sendCommand(command);
+      final filtered = _filterProtocolMessages(result);
 
       // Filter results containing the query
-      final filteredResult = result.where((logEntry) {
+      final filteredResult = filtered.where((logEntry) {
         final message = logEntry['message'] ?? '';
         final topics = logEntry['topics'] ?? '';
         return message.toLowerCase().contains(query.toLowerCase()) ||
@@ -2247,7 +2300,8 @@ class RouterOSClient {
   Future<List<Map<String, String>>> getBackups() async {
     try {
       _log.d('Getting backup files list');
-      return await sendCommand(['/system/backup/print']);
+      final response = await sendCommand(['/system/backup/print']);
+      return _filterProtocolMessages(response);
     } catch (e) {
       _log.e('Failed to get backups', error: e);
       rethrow;

@@ -12,8 +12,9 @@ abstract class LogsRemoteDataSource {
 
   Stream<LogEntry> followLogs({
     String? topics,
-    Duration? timeout,
   });
+
+  void stopFollowingLogs();
 
   Future<void> clearLogs();
 
@@ -48,14 +49,28 @@ class LogsRemoteDataSourceImpl implements LogsRemoteDataSource {
   @override
   Stream<LogEntry> followLogs({
     String? topics,
-    Duration? timeout,
   }) async* {
+    print('LogsRemoteDataSource: followLogs started');
     await for (final logMap in client.followLogs(
       topics: topics,
-      timeout: timeout,
     )) {
+      print('LogsRemoteDataSource: received logMap: ${logMap.keys}');
+      // Skip dead/deleted log entries (they only have .id and .dead fields)
+      if (logMap['.dead'] == 'true') {
+        continue;
+      }
+      // Skip entries without message (invalid logs)
+      if (logMap['message'] == null) {
+        continue;
+      }
       yield LogEntryModel.fromJson(logMap);
     }
+    print('LogsRemoteDataSource: followLogs stream ended');
+  }
+
+  @override
+  void stopFollowingLogs() {
+    client.stopStreaming();
   }
 
   @override

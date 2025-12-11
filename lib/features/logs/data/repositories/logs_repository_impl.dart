@@ -34,18 +34,21 @@ class LogsRepositoryImpl implements LogsRepository {
   @override
   Stream<Either<Failure, LogEntry>> followLogs({
     String? topics,
-    Duration? timeout,
   }) async* {
     try {
       await for (final logEntry in remoteDataSource.followLogs(
         topics: topics,
-        timeout: timeout,
       )) {
         yield Right(logEntry);
       }
     } catch (e) {
       yield Left(const ServerFailure('Failed to follow logs'));
     }
+  }
+
+  @override
+  void stopFollowingLogs() {
+    remoteDataSource.stopFollowingLogs();
   }
 
   @override

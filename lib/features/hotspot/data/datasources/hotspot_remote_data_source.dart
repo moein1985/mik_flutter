@@ -187,10 +187,9 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
       _log.d('Getting hotspot servers...');
       final response = await client.getHotspotServers();
       _log.d('Raw response: $response');
-      final data = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${data.length} hotspot servers');
+      _log.i('Got ${response.length} hotspot servers');
       
-      return data.map((item) => HotspotServerModel.fromMap(item)).toList();
+      return response.map((item) => HotspotServerModel.fromMap(item)).toList();
     } catch (e, stackTrace) {
       _log.e('Failed to get hotspot servers', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get hotspot servers: $e');
@@ -221,10 +220,9 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
       _log.d('Getting hotspot users...');
       final response = await client.getHotspotUsers();
       _log.d('Raw response: $response');
-      final data = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${data.length} hotspot users');
+      _log.i('Got ${response.length} hotspot users');
       
-      return data.map((item) => HotspotUserModel.fromMap(item)).toList();
+      return response.map((item) => HotspotUserModel.fromMap(item)).toList();
     } catch (e, stackTrace) {
       _log.e('Failed to get hotspot users', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get hotspot users: $e');
@@ -336,10 +334,9 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
       _log.d('Getting active hotspot users...');
       final response = await client.getHotspotActiveUsers();
       _log.d('Raw response: $response');
-      final data = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${data.length} active hotspot users');
+      _log.i('Got ${response.length} active hotspot users');
       
-      return data.map((item) => HotspotActiveUserModel.fromMap(item)).toList();
+      return response.map((item) => HotspotActiveUserModel.fromMap(item)).toList();
     } catch (e, stackTrace) {
       _log.e('Failed to get active hotspot users', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get active hotspot users: $e');
@@ -361,10 +358,9 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
       _log.d('Getting hotspot profiles...');
       final response = await client.getHotspotProfiles();
       _log.d('Raw response: $response');
-      final data = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${data.length} hotspot profiles');
+      _log.i('Got ${response.length} hotspot profiles');
       
-      return data.map((item) => HotspotProfileModel.fromMap(item)).toList();
+      return response.map((item) => HotspotProfileModel.fromMap(item)).toList();
     } catch (e, stackTrace) {
       _log.e('Failed to get hotspot profiles', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get hotspot profiles: $e');
@@ -414,9 +410,8 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
     try {
       _log.d('Getting interfaces for hotspot setup...');
       final response = await client.getInterfaces();
-      final data = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${data.length} interfaces');
-      return data;
+      _log.i('Got ${response.length} interfaces');
+      return response;
     } catch (e, stackTrace) {
       _log.e('Failed to get interfaces', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get interfaces: $e');
@@ -428,9 +423,8 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
     try {
       _log.d('Getting IP addresses for validation...');
       final response = await client.getIpAddresses();
-      final data = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${data.length} IP addresses');
-      return data;
+      _log.i('Got ${response.length} IP addresses');
+      return response;
     } catch (e, stackTrace) {
       _log.e('Failed to get IP addresses', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get IP addresses: $e');
@@ -442,9 +436,8 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
     try {
       _log.d('Getting IP pools...');
       final response = await client.getIpPools();
-      final data = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${data.length} IP pools');
-      return data;
+      _log.i('Got ${response.length} IP pools');
+      return response;
     } catch (e, stackTrace) {
       _log.e('Failed to get IP pools', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get IP pools: $e');
@@ -471,9 +464,8 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
     try {
       _log.d('Getting IP bindings...');
       final response = await client.getHotspotIpBindings();
-      final data = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${data.length} IP bindings');
-      return data.map((item) => HotspotIpBindingModel.fromMap(item)).toList();
+      _log.i('Got ${response.length} IP bindings');
+      return response.map((item) => HotspotIpBindingModel.fromMap(item)).toList();
     } catch (e, stackTrace) {
       _log.e('Failed to get IP bindings', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get IP bindings: $e');
@@ -563,9 +555,8 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
     try {
       _log.d('Getting hotspot hosts...');
       final response = await client.getHotspotHosts();
-      final data = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${data.length} hotspot hosts');
-      return data.map((item) => HotspotHostModel.fromMap(item)).toList();
+      _log.i('Got ${response.length} hotspot hosts');
+      return response.map((item) => HotspotHostModel.fromMap(item)).toList();
     } catch (e, stackTrace) {
       _log.e('Failed to get hotspot hosts', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get hotspot hosts: $e');
@@ -598,9 +589,8 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
     try {
       _log.d('Getting walled garden entries...');
       final response = await client.getWalledGarden();
-      final data = response.where((r) => r['type'] != 'done').toList();
-      _log.i('Got ${data.length} walled garden entries');
-      return data.map((item) => WalledGardenModel.fromMap(item)).toList();
+      _log.i('Got ${response.length} walled garden entries');
+      return response.map((item) => WalledGardenModel.fromMap(item)).toList();
     } catch (e, stackTrace) {
       _log.e('Failed to get walled garden', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get walled garden: $e');

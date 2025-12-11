@@ -23,6 +23,6 @@ class EditQueueUseCase {
       priority: int.tryParse(queueData['priority']?.toString() ?? '8') ?? 8,
       comment: queueData['comment'] ?? '',
     );
-    return await repository.updateQueue(queue).then((result) => result.map((_) => null));
+    return await repository.updateQueue(queue);
   }
 }

@@ -614,6 +614,10 @@
   "@stopPing": {
     "description": "Stop button text"
   },
+  "stopTraceroute": "Stop",
+  "@stopTraceroute": {
+    "description": "Stop traceroute button text"
+  },
   "ping": "Ping",
   "@ping": {
     "description": "Ping tool name"
@@ -945,6 +949,22 @@
   "follow": "Follow",
   "@follow": {
     "description": "Follow logs tab"
+  },
+  "liveLog": "Live Log",
+  "@liveLog": {
+    "description": "Live log tab - shows real-time log updates"
+  },
+  "logsTabInfo": "Shows all router system logs. Logs are displayed from oldest (top) to newest (bottom). Use the filter button to narrow down logs by topics. Pull down to refresh.",
+  "@logsTabInfo": {
+    "description": "Information about Logs tab functionality"
+  },
+  "liveLogTabInfo": "Shows real-time log updates as they occur on the router. Starts empty and displays only new logs (max 500). Logs are displayed from oldest (top) to newest (bottom).",
+  "@liveLogTabInfo": {
+    "description": "Information about Live Log tab functionality"
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Close button"
   },
   "search": "Search",
   "@search": {

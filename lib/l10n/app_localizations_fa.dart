@@ -488,6 +488,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get stopPing => 'توقف';
 
   @override
+  String get stopTraceroute => 'توقف';
+
+  @override
   String get ping => 'پینگ';
 
   @override
@@ -724,6 +727,20 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get follow => 'پیگیری';
+
+  @override
+  String get liveLog => 'لاگ زنده';
+
+  @override
+  String get logsTabInfo =>
+      'نمایش تمام لاگ‌های سیستم روتر. لاگ‌ها از قدیمی‌ترین (بالا) به جدیدترین (پایین) نمایش داده می‌شوند. از دکمه فیلتر برای محدود کردن لاگ‌ها بر اساس موضوع استفاده کنید. برای بروزرسانی به پایین بکشید.';
+
+  @override
+  String get liveLogTabInfo =>
+      'نمایش بروزرسانی‌های زنده لاگ‌ها به محض رخ دادن در روتر. با لیست خالی شروع می‌شود و فقط لاگ‌های جدید را نمایش می‌دهد (حداکثر 500). لاگ‌ها از قدیمی‌ترین (بالا) به جدیدترین (پایین) نمایش داده می‌شوند.';
+
+  @override
+  String get close => 'بستن';
 
   @override
   String get search => 'جستجو';

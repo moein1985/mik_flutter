@@ -26,15 +26,13 @@ class LoadLogs extends LogsEvent {
 
 class StartFollowingLogs extends LogsEvent {
   final String? topics;
-  final Duration? timeout;
 
   const StartFollowingLogs({
     this.topics,
-    this.timeout,
   });
 
   @override
-  List<Object?> get props => [topics, timeout];
+  List<Object?> get props => [topics];
 }
 
 class StopFollowingLogs extends LogsEvent {

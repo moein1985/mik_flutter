@@ -4,18 +4,26 @@ import '../../../../core/errors/failures.dart';
 import '../../domain/entities/simple_queue.dart';
 import '../../domain/repositories/queues_repository.dart';
 import '../../../../core/network/routeros_client.dart';
+import '../../../auth/data/datasources/auth_remote_data_source.dart';
 import '../models/simple_queue_model.dart';
 
 /// Implementation of QueuesRepository
 class QueuesRepositoryImpl implements QueuesRepository {
-  final RouterOSClient routerOsClient;
+  final AuthRemoteDataSource authRemoteDataSource;
 
-  QueuesRepositoryImpl({required this.routerOsClient});
+  QueuesRepositoryImpl({required this.authRemoteDataSource});
+
+  RouterOSClient get _client {
+    if (authRemoteDataSource.client == null) {
+      throw ServerException('Not connected to router');
+    }
+    return authRemoteDataSource.client!;
+  }
 
   @override
   Future<Either<Failure, List<SimpleQueue>>> getQueues() async {
     try {
-      final response = await routerOsClient.getSimpleQueues();
+      final response = await _client.getSimpleQueues();
       final models = SimpleQueueModel.fromRouterOSList(response);
       final entities = models.map((model) => model.toEntity()).toList();
       return Right(entities);
@@ -27,7 +35,7 @@ class QueuesRepositoryImpl implements QueuesRepository {
   @override
   Future<Either<Failure, SimpleQueue>> getQueueById(String queueId) async {
     try {
-      final response = await routerOsClient.getSimpleQueues();
+      final response = await _client.getSimpleQueues();
       final models = SimpleQueueModel.fromRouterOSList(response);
       final model = models.firstWhere(
         (queue) => queue.id == queueId,
@@ -44,7 +52,7 @@ class QueuesRepositoryImpl implements QueuesRepository {
     try {
       final model = SimpleQueueModel.fromEntity(queue);
       final params = model.toRouterOSParams();
-      await routerOsClient.addSimpleQueue(params);
+      await _client.addSimpleQueue(params);
       return const Right(null);
     } on ServerException {
       return Left(const ServerFailure('Failed to add queue'));
@@ -55,7 +63,7 @@ class QueuesRepositoryImpl implements QueuesRepository {
   Future<Either<Failure, void>> updateQueue(SimpleQueue queue) async {
     try {
       final params = SimpleQueueModel.fromEntity(queue).toRouterOSParams();
-      await routerOsClient.updateSimpleQueue(queue.id, params);
+      await _client.updateSimpleQueue(queue.id, params);
       return const Right(null);
     } on ServerException {
       return Left(const ServerFailure('Failed to update queue'));
@@ -65,7 +73,7 @@ class QueuesRepositoryImpl implements QueuesRepository {
   @override
   Future<Either<Failure, void>> deleteQueue(String queueId) async {
     try {
-      await routerOsClient.deleteSimpleQueue(queueId);
+      await _client.deleteSimpleQueue(queueId);
       return const Right(null);
     } on ServerException {
       return Left(const ServerFailure('Failed to delete queue'));
@@ -75,7 +83,7 @@ class QueuesRepositoryImpl implements QueuesRepository {
   @override
   Future<Either<Failure, void>> enableQueue(String queueId) async {
     try {
-      await routerOsClient.enableSimpleQueue(queueId);
+      await _client.enableSimpleQueue(queueId);
       return const Right(null);
     } on ServerException {
       return Left(const ServerFailure('Failed to enable queue'));
@@ -85,7 +93,7 @@ class QueuesRepositoryImpl implements QueuesRepository {
   @override
   Future<Either<Failure, void>> disableQueue(String queueId) async {
     try {
-      await routerOsClient.disableSimpleQueue(queueId);
+      await _client.disableSimpleQueue(queueId);
       return const Right(null);
     } on ServerException {
       return Left(const ServerFailure('Failed to disable queue'));
