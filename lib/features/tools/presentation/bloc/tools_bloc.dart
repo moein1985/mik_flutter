@@ -200,6 +200,8 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
       final result = await dnsLookupUseCase.call(
         domain: event.domain,
         timeout: event.timeout,
+        recordType: event.recordType,
+        dnsServer: event.dnsServer,
       );
 
       result.fold(

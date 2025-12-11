@@ -694,6 +694,82 @@
   "@lookupDns": {
     "description": "دکمه جستجوی DNS"
   },
+  "lookingUp": "در حال جستجو...",
+  "@lookingUp": {
+    "description": "پیام جستجوی DNS در حال انجام"
+  },
+  "pleaseEnterDomainName": "لطفاً نام دامنه را وارد کنید",
+  "@pleaseEnterDomainName": {
+    "description": "پیام اعتبارسنجی هنگام خالی بودن نام دامنه"
+  },
+  "recordType": "نوع رکورد",
+  "@recordType": {
+    "description": "برچسب انتخاب نوع رکورد DNS"
+  },
+  "dnsServer": "سرور DNS",
+  "@dnsServer": {
+    "description": "برچسب ورودی سرور DNS سفارشی"
+  },
+  "dnsServerHelper": "برای استفاده از DNS روتر خالی بگذارید",
+  "@dnsServerHelper": {
+    "description": "متن راهنما برای فیلد سرور DNS"
+  },
+  "dnsServerHelpText": "یک سرور DNS سفارشی برای پرس‌وجو مشخص کنید (مثلاً 8.8.8.8 برای Google DNS یا 1.1.1.1 برای Cloudflare). برای استفاده از سرورهای DNS تنظیم‌شده روتر خالی بگذارید.",
+  "@dnsServerHelpText": {
+    "description": "متن راهنما توضیح فیلد سرور DNS"
+  },
+  "dnsLookupHelpText": "جستجوی DNS نام‌های دامنه را به آدرس‌های IP تبدیل می‌کند. یک نوع رکورد انتخاب کنید تا رکوردهای خاص DNS مانند A (IPv4)، AAAA (IPv6)، MX (سرورهای ایمیل) یا رکوردهای TXT را پرس‌وجو کنید.",
+  "@dnsLookupHelpText": {
+    "description": "متن راهنما توضیح ویژگی جستجوی DNS"
+  },
+  "timeoutHelpText": "حداکثر زمان انتظار برای پاسخ از سرور DNS. در صورت خطای timeout افزایش دهید.",
+  "@timeoutHelpText": {
+    "description": "متن راهنما توضیح فیلد timeout"
+  },
+  "records": "رکوردها",
+  "@records": {
+    "description": "عنوان بخش رکوردهای DNS"
+  },
+  "recordTypeHelp": "انواع رکورد DNS",
+  "@recordTypeHelp": {
+    "description": "عنوان راهنمای انواع رکورد DNS"
+  },
+  "recordTypeADesc": "آدرس IPv4 دامنه را برمی‌گرداند. رایج‌ترین نوع رکورد برای جستجوی وب‌سایت.",
+  "@recordTypeADesc": {
+    "description": "توضیح نوع رکورد A"
+  },
+  "recordTypeAAAADesc": "آدرس IPv6 دامنه را برمی‌گرداند. برای شبکه‌های مدرن IPv6 استفاده می‌شود.",
+  "@recordTypeAAAADesc": {
+    "description": "توضیح نوع رکورد AAAA"
+  },
+  "recordTypeMXDesc": "تبادل ایمیل - به سرورهای ایمیل که ایمیل دامنه را مدیریت می‌کنند اشاره می‌کند.",
+  "@recordTypeMXDesc": {
+    "description": "توضیح نوع رکورد MX"
+  },
+  "recordTypeTXTDesc": "رکوردهای متنی - شامل متن دلخواه، اغلب برای تأیید دامنه و امنیت ایمیل SPF/DKIM استفاده می‌شود.",
+  "@recordTypeTXTDesc": {
+    "description": "توضیح نوع رکورد TXT"
+  },
+  "recordTypeCNAMEDesc": "نام متعارف - یک نام مستعار از یک دامنه به دامنه دیگر ایجاد می‌کند (مثل www به دامنه اصلی).",
+  "@recordTypeCNAMEDesc": {
+    "description": "توضیح نوع رکورد CNAME"
+  },
+  "recordTypeNSDesc": "سرور نام - سرورهای DNS معتبر برای دامنه را مشخص می‌کند.",
+  "@recordTypeNSDesc": {
+    "description": "توضیح نوع رکورد NS"
+  },
+  "recordTypeSOADesc": "شروع اعتبار - شامل اطلاعات مدیریتی درباره منطقه DNS است.",
+  "@recordTypeSOADesc": {
+    "description": "توضیح نوع رکورد SOA"
+  },
+  "recordTypePTRDesc": "اشاره‌گر - برای جستجوی معکوس DNS استفاده می‌شود (آدرس IP به نام دامنه).",
+  "@recordTypePTRDesc": {
+    "description": "توضیح نوع رکورد PTR"
+  },
+  "recordTypeSRVDesc": "سرویس - محل سرویس‌هایی مانند SIP، XMPP یا LDAP را مشخص می‌کند.",
+  "@recordTypeSRVDesc": {
+    "description": "توضیح نوع رکورد SRV"
+  },
   "pingResults": "نتایج پینگ",
   "@pingResults": {
     "description": "عنوان بخش نتایج پینگ"

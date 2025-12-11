@@ -7,8 +7,9 @@ import '../../domain/entities/dns_lookup_result.dart';
 import '../../domain/entities/ping_result.dart';
 import '../../domain/entities/traceroute_hop.dart';
 import '../bloc/tools_bloc.dart';
-import '../bloc/tools_event.dart';
+import '../widgets/ping_results_widget.dart';
 import '../bloc/tools_state.dart';
+import '../bloc/tools_event.dart';
 
 class ToolsPage extends StatefulWidget {
   const ToolsPage({super.key});
@@ -108,7 +109,7 @@ class _ToolsPageState extends State<ToolsPage> {
                         title: l10n.dnsLookup,
                         subtitle: l10n.resolveDomains,
                         color: Colors.orange,
-                        onTap: () => _showDnsLookupDialog(context, l10n),
+                        onTap: () => context.push(AppRoutes.toolsDnsLookup),
                       ),
                       _buildToolCard(
                         context,
@@ -116,7 +117,7 @@ class _ToolsPageState extends State<ToolsPage> {
                         title: l10n.clearResults,
                         subtitle: l10n.clearAllResults,
                         color: Colors.red,
-                        onTap: () => context.read<ToolsBloc>().add(const ClearResults()),
+                        onTap: () => context.read<ToolsBloc>().add(ClearResults()),
                       ),
                     ],
                   ),
@@ -201,185 +202,11 @@ class _ToolsPageState extends State<ToolsPage> {
   }
 
   Widget _buildPingResults(PingResult result, AppLocalizations l10n, {bool isUpdating = false}) {
-    final isSuccess = result.packetsReceived > 0;
-    final packetLoss = result.packetLossPercent;
-    
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  isUpdating ? Icons.sensors : (isSuccess ? Icons.check_circle : Icons.error),
-                  color: isUpdating ? Colors.orange : (isSuccess ? Colors.green : Colors.red),
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    l10n.pingResults,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (isUpdating) ...[
-                  const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      context.read<ToolsBloc>().add(const StopPing());
-                    },
-                    icon: const Icon(Icons.stop, size: 18),
-                    label: Text(l10n.stopPing),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            const Divider(height: 24),
-            
-            // Target Host
-            _buildInfoRow(
-              icon: Icons.dns,
-              label: l10n.targetHost,
-              value: result.target,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 12),
-            
-            // Packet Statistics
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Packet Statistics',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildStatColumn(
-                        label: l10n.packetsSent,
-                        value: '${result.packetsSent}',
-                        icon: Icons.upload,
-                        color: Colors.blue,
-                      ),
-                      Container(
-                        height: 40,
-                        width: 1,
-                        color: Colors.grey[300],
-                      ),
-                      _buildStatColumn(
-                        label: l10n.packetsReceived,
-                        value: '${result.packetsReceived}',
-                        icon: Icons.download,
-                        color: Colors.green,
-                      ),
-                      Container(
-                        height: 40,
-                        width: 1,
-                        color: Colors.grey[300],
-                      ),
-                      _buildStatColumn(
-                        label: l10n.packetLoss,
-                        value: '${packetLoss.toStringAsFixed(1)}%',
-                        icon: Icons.warning,
-                        color: packetLoss > 0 ? Colors.red : Colors.green,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            
-            // RTT Statistics (only if packets received)
-            if (result.packetsReceived > 0) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.green[200]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.speed, size: 16, color: Colors.green[700]),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Round Trip Time',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: Colors.green[900],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildRttValue(
-                          label: 'Min',
-                          value: '${result.minRtt.inMilliseconds}ms',
-                          color: Colors.green[700]!,
-                        ),
-                        _buildRttValue(
-                          label: 'Avg',
-                          value: '${result.avgRtt.inMilliseconds}ms',
-                          color: Colors.orange[700]!,
-                        ),
-                        _buildRttValue(
-                          label: 'Max',
-                          value: '${result.maxRtt.inMilliseconds}ms',
-                          color: Colors.red[700]!,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            
-            // Connection Quality Indicator
-            if (result.packetsReceived > 0) ...[
-              const SizedBox(height: 16),
-              _buildQualityIndicator(result),
-            ],
-          ],
-        ),
-      ),
+    return PingResultsWidget(
+      result: result,
+      l10n: l10n,
+      isUpdating: isUpdating,
+      onStopPing: () => context.read<ToolsBloc>().add(const StopPing()),
     );
   }
 
@@ -410,122 +237,6 @@ class _ToolsPageState extends State<ToolsPage> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildStatColumn({
-    required String label,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Column(
-      children: [
-        Icon(icon, size: 20, color: color),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey[600],
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRttValue({
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[700],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQualityIndicator(PingResult result) {
-    String quality;
-    Color qualityColor;
-    IconData qualityIcon;
-    
-    final avgRtt = result.avgRtt.inMilliseconds;
-    final loss = result.packetLossPercent;
-    
-    if (loss > 10 || avgRtt > 200) {
-      quality = 'Poor';
-      qualityColor = Colors.red;
-      qualityIcon = Icons.signal_cellular_0_bar;
-    } else if (loss > 5 || avgRtt > 100) {
-      quality = 'Fair';
-      qualityColor = Colors.orange;
-      qualityIcon = Icons.signal_cellular_alt_2_bar;
-    } else if (loss > 0 || avgRtt > 50) {
-      quality = 'Good';
-      qualityColor = Colors.lightGreen;
-      qualityIcon = Icons.signal_cellular_alt;
-    } else {
-      quality = 'Excellent';
-      qualityColor = Colors.green;
-      qualityIcon = Icons.signal_cellular_alt;
-    }
-    
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: qualityColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: qualityColor.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(qualityIcon, color: qualityColor, size: 24),
-          const SizedBox(width: 12),
-          Text(
-            'Connection Quality: ',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-            ),
-          ),
-          Text(
-            quality,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: qualityColor,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -943,59 +654,6 @@ class _ToolsPageState extends State<ToolsPage> {
             ],
           ],
         ),
-      ),
-    );
-  }
-
-  void _showDnsLookupDialog(BuildContext context, AppLocalizations l10n) {
-    final domainController = TextEditingController();
-    final timeoutController = TextEditingController(text: '5000');
-    final toolsBloc = context.read<ToolsBloc>();
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.dnsLookupTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: domainController,
-              decoration: InputDecoration(
-                labelText: l10n.domainName,
-                hintText: 'e.g., google.com',
-              ),
-            ),
-            TextField(
-              controller: timeoutController,
-              decoration: InputDecoration(
-                labelText: l10n.timeoutMs,
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final domain = domainController.text.trim();
-              final timeout = int.tryParse(timeoutController.text) ?? 5000;
-
-              if (domain.isNotEmpty) {
-                toolsBloc.add(StartDnsLookup(
-                  domain: domain,
-                  timeout: timeout,
-                ));
-                Navigator.of(dialogContext).pop();
-              }
-            },
-            child: Text(l10n.lookupDns),
-          ),
-        ],
       ),
     );
   }

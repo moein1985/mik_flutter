@@ -33,7 +33,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw AuthenticationException('Invalid credentials');
       }
       
-      // Connect and login with legacy client (for non-streaming)
+      // Connect legacy client (for non-streaming) and login
       await _legacyClient!.connect();
       final legacySuccess = await _legacyClient!.login(username, password);
       
@@ -42,7 +42,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         await _legacyClient!.disconnect();
         _client = null;
         _legacyClient = null;
-        throw AuthenticationException('Invalid credentials');
+        throw AuthenticationException('Invalid credentials for legacy client');
       }
       
       return true;

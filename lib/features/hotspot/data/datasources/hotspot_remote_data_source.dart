@@ -378,7 +378,6 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
       final result = await client.setupHotspot(
         interface: interface,
         addressPool: addressPool,
-        dnsName: dnsName,
       );
       _log.i('Hotspot setup result: $result');
       if (!result) {
@@ -576,7 +575,17 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
   Future<bool> makeHostBinding({required String id, required String type}) async {
     try {
       _log.i('Making host binding: $id -> $type');
-      return await client.makeHotspotHostBinding(id: id, type: type);
+      // First get the host to get its MAC address
+      final hosts = await getHosts();
+      final host = hosts.firstWhere(
+        (h) => h.id == id,
+        orElse: () => throw ServerException('Host not found'),
+      );
+      
+      return await client.makeHotspotHostBinding(
+        macAddress: host.macAddress,
+        type: type,
+      );
     } catch (e) {
       throw ServerException('Failed to make host binding: $e');
     }
@@ -701,7 +710,7 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
   }) async {
     try {
       _log.i('Adding hotspot profile: $name');
-      return await client.addHotspotProfile(
+      return await client.addHotspotUserProfile(
         name: name,
         sessionTimeout: sessionTimeout,
         idleTimeout: idleTimeout,
@@ -731,7 +740,7 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
     String? onLogout,
   }) async {
     try {
-      return await client.editHotspotProfile(
+      return await client.editHotspotUserProfile(
         id: id,
         name: name,
         sessionTimeout: sessionTimeout,

@@ -13,10 +13,14 @@ class DnsLookupUseCase {
   Future<Either<Failure, DnsLookupResult>> call({
     required String domain,
     int timeout = 5000,
+    String? recordType,
+    String? dnsServer,
   }) async {
     return await repository.dnsLookup(
       domain: domain,
       timeout: timeout,
+      recordType: recordType,
+      dnsServer: dnsServer,
     );
   }
 }

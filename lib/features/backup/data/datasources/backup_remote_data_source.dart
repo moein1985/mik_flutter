@@ -22,7 +22,7 @@ class BackupRemoteDataSourceImpl implements BackupRemoteDataSource {
 
   @override
   Future<void> createBackup(String name) async {
-    await client.createBackup(name);
+    await client.createBackup(name: name);
   }
 
   @override

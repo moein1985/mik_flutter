@@ -548,6 +548,75 @@ class AppLocalizationsFa extends AppLocalizations {
   String get lookupDns => 'جستجوی DNS';
 
   @override
+  String get lookingUp => 'در حال جستجو...';
+
+  @override
+  String get pleaseEnterDomainName => 'لطفاً نام دامنه را وارد کنید';
+
+  @override
+  String get recordType => 'نوع رکورد';
+
+  @override
+  String get dnsServer => 'سرور DNS';
+
+  @override
+  String get dnsServerHelper => 'برای استفاده از DNS روتر خالی بگذارید';
+
+  @override
+  String get dnsServerHelpText =>
+      'یک سرور DNS سفارشی برای پرس‌وجو مشخص کنید (مثلاً 8.8.8.8 برای Google DNS یا 1.1.1.1 برای Cloudflare). برای استفاده از سرورهای DNS تنظیم‌شده روتر خالی بگذارید.';
+
+  @override
+  String get dnsLookupHelpText =>
+      'جستجوی DNS نام‌های دامنه را به آدرس‌های IP تبدیل می‌کند. یک نوع رکورد انتخاب کنید تا رکوردهای خاص DNS مانند A (IPv4)، AAAA (IPv6)، MX (سرورهای ایمیل) یا رکوردهای TXT را پرس‌وجو کنید.';
+
+  @override
+  String get timeoutHelpText =>
+      'حداکثر زمان انتظار برای پاسخ از سرور DNS. در صورت خطای timeout افزایش دهید.';
+
+  @override
+  String get records => 'رکوردها';
+
+  @override
+  String get recordTypeHelp => 'انواع رکورد DNS';
+
+  @override
+  String get recordTypeADesc =>
+      'آدرس IPv4 دامنه را برمی‌گرداند. رایج‌ترین نوع رکورد برای جستجوی وب‌سایت.';
+
+  @override
+  String get recordTypeAAAADesc =>
+      'آدرس IPv6 دامنه را برمی‌گرداند. برای شبکه‌های مدرن IPv6 استفاده می‌شود.';
+
+  @override
+  String get recordTypeMXDesc =>
+      'تبادل ایمیل - به سرورهای ایمیل که ایمیل دامنه را مدیریت می‌کنند اشاره می‌کند.';
+
+  @override
+  String get recordTypeTXTDesc =>
+      'رکوردهای متنی - شامل متن دلخواه، اغلب برای تأیید دامنه و امنیت ایمیل SPF/DKIM استفاده می‌شود.';
+
+  @override
+  String get recordTypeCNAMEDesc =>
+      'نام متعارف - یک نام مستعار از یک دامنه به دامنه دیگر ایجاد می‌کند (مثل www به دامنه اصلی).';
+
+  @override
+  String get recordTypeNSDesc =>
+      'سرور نام - سرورهای DNS معتبر برای دامنه را مشخص می‌کند.';
+
+  @override
+  String get recordTypeSOADesc =>
+      'شروع اعتبار - شامل اطلاعات مدیریتی درباره منطقه DNS است.';
+
+  @override
+  String get recordTypePTRDesc =>
+      'اشاره‌گر - برای جستجوی معکوس DNS استفاده می‌شود (آدرس IP به نام دامنه).';
+
+  @override
+  String get recordTypeSRVDesc =>
+      'سرویس - محل سرویس‌هایی مانند SIP، XMPP یا LDAP را مشخص می‌کند.';
+
+  @override
   String get pingResults => 'نتایج پینگ';
 
   @override

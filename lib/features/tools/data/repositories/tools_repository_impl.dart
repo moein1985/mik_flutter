@@ -76,7 +76,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
       
       AppLogger.i('Getting stream from legacyClient...', tag: 'ToolsRepositoryImpl');
       // Use legacy client for streaming (package has bugs)
-      final stream = legacyClient.pingStream(
+      final stream = await legacyClient.pingStream(
         address: target,
         count: count,
         interval: interval,
@@ -213,7 +213,7 @@ class ToolsRepositoryImpl implements ToolsRepository {
       int hopIndex = 0;
       
       // Use legacy client for streaming
-      final stream = legacyClient.tracerouteStream(
+      final stream = await legacyClient.tracerouteStream(
         address: target,
         maxHops: maxHops,
       );
@@ -306,13 +306,22 @@ class ToolsRepositoryImpl implements ToolsRepository {
   Future<Either<Failure, DnsLookupResult>> dnsLookup({
     required String domain,
     int timeout = 5000,
+    String? recordType,
+    String? dnsServer,
   }) async {
     try {
       final response = await routerOsClient.dnsLookup(
         name: domain,
+        recordType: recordType,
+        server: dnsServer,
       );
 
-      final model = DnsLookupResultModel.fromRouterOS(domain, response);
+      final model = DnsLookupResultModel.fromRouterOS(
+        domain, 
+        response,
+        recordType: recordType,
+        dnsServer: dnsServer,
+      );
       return Right(model.toEntity());
     } on ServerException {
       return Left(const ServerFailure('Failed to perform DNS lookup'));

@@ -64,7 +64,7 @@ class LogsRemoteDataSourceImpl implements LogsRemoteDataSource {
   }) async* {
     _log.i('followLogs called with topics: $topics');
     // Use legacy client's followLogs which handles encoding correctly
-    final stream = client.followLogs(topics: topics);
+    final stream = await client.followLogs(topics: topics);
     _log.i('Stream started');
     
     await for (final logMap in stream) {

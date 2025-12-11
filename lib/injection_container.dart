@@ -540,7 +540,7 @@ Future<void> init() async {
   //! Features - Wireless
   // Data sources
   sl.registerLazySingleton<WirelessRemoteDataSource>(
-    () => WirelessRemoteDataSourceImpl(sl()),
+    () => WirelessRemoteDataSourceImpl(authRemoteDataSource: sl()),
   );
 
   // Repository

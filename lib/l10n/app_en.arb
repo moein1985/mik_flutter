@@ -694,6 +694,82 @@
   "@lookupDns": {
     "description": "DNS lookup button"
   },
+  "lookingUp": "Looking up...",
+  "@lookingUp": {
+    "description": "DNS lookup in progress message"
+  },
+  "pleaseEnterDomainName": "Please enter a domain name",
+  "@pleaseEnterDomainName": {
+    "description": "Validation message when domain name is empty"
+  },
+  "recordType": "Record Type",
+  "@recordType": {
+    "description": "DNS record type dropdown label"
+  },
+  "dnsServer": "DNS Server",
+  "@dnsServer": {
+    "description": "Custom DNS server input label"
+  },
+  "dnsServerHelper": "Leave empty to use router's DNS",
+  "@dnsServerHelper": {
+    "description": "Helper text for DNS server field"
+  },
+  "dnsServerHelpText": "Specify a custom DNS server to query (e.g., 8.8.8.8 for Google DNS, 1.1.1.1 for Cloudflare). Leave empty to use the router's configured DNS servers.",
+  "@dnsServerHelpText": {
+    "description": "Help text explaining DNS server field"
+  },
+  "dnsLookupHelpText": "DNS Lookup resolves domain names to IP addresses. Select a record type to query specific DNS records like A (IPv4), AAAA (IPv6), MX (mail servers), or TXT records.",
+  "@dnsLookupHelpText": {
+    "description": "Help text explaining DNS lookup feature"
+  },
+  "timeoutHelpText": "Maximum time to wait for a response from the DNS server. Increase if you're experiencing timeout errors.",
+  "@timeoutHelpText": {
+    "description": "Help text explaining timeout field"
+  },
+  "records": "Records",
+  "@records": {
+    "description": "DNS records section title"
+  },
+  "recordTypeHelp": "DNS Record Types",
+  "@recordTypeHelp": {
+    "description": "Title for DNS record types help dialog"
+  },
+  "recordTypeADesc": "Returns the IPv4 address of a domain. Most common record type for website lookups.",
+  "@recordTypeADesc": {
+    "description": "Description of A record type"
+  },
+  "recordTypeAAAADesc": "Returns the IPv6 address of a domain. Used for modern IPv6 networks.",
+  "@recordTypeAAAADesc": {
+    "description": "Description of AAAA record type"
+  },
+  "recordTypeMXDesc": "Mail Exchange - Points to mail servers that handle email for the domain.",
+  "@recordTypeMXDesc": {
+    "description": "Description of MX record type"
+  },
+  "recordTypeTXTDesc": "Text records - Contains arbitrary text, often used for domain verification and SPF/DKIM email security.",
+  "@recordTypeTXTDesc": {
+    "description": "Description of TXT record type"
+  },
+  "recordTypeCNAMEDesc": "Canonical Name - Creates an alias from one domain to another (e.g., www to main domain).",
+  "@recordTypeCNAMEDesc": {
+    "description": "Description of CNAME record type"
+  },
+  "recordTypeNSDesc": "Name Server - Specifies the authoritative DNS servers for the domain.",
+  "@recordTypeNSDesc": {
+    "description": "Description of NS record type"
+  },
+  "recordTypeSOADesc": "Start of Authority - Contains administrative information about the DNS zone.",
+  "@recordTypeSOADesc": {
+    "description": "Description of SOA record type"
+  },
+  "recordTypePTRDesc": "Pointer - Used for reverse DNS lookups (IP address to domain name).",
+  "@recordTypePTRDesc": {
+    "description": "Description of PTR record type"
+  },
+  "recordTypeSRVDesc": "Service - Specifies the location of services like SIP, XMPP, or LDAP.",
+  "@recordTypeSRVDesc": {
+    "description": "Description of SRV record type"
+  },
   "pingResults": "Ping Results",
   "@pingResults": {
     "description": "Ping results section title"

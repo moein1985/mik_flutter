@@ -6,25 +6,35 @@ class DnsLookupResultModel extends DnsLookupResult {
     required super.domain,
     super.ipv4Addresses,
     super.ipv6Addresses,
+    super.otherRecords,
     super.responseTime,
     super.error,
+    super.recordType,
+    super.dnsServer,
   });
 
   /// Create model from RouterOS DNS lookup response
   factory DnsLookupResultModel.fromRouterOS(
     String domain,
-    List<Map<String, String>> response,
-  ) {
+    List<Map<String, String>> response, {
+    String? recordType,
+    String? dnsServer,
+  }) {
     final ipv4Addresses = <String>[];
     final ipv6Addresses = <String>[];
+    final otherRecords = <String>[];
     Duration? responseTime;
     String? error;
 
     for (final item in response) {
       // Skip protocol messages
-      if (item.containsKey('type')) continue;
+      if (item.containsKey('type') && item['type'] == 'done') continue;
 
       // Check for error
+      if (item.containsKey('message')) {
+        error = item['message'];
+        continue;
+      }
       if (item.containsKey('error')) {
         error = item['error'];
         continue;
@@ -35,14 +45,40 @@ class DnsLookupResultModel extends DnsLookupResult {
         responseTime = _parseDuration(item['response-time']!);
       }
 
-      // Parse IP addresses
+      // Parse IP addresses or records based on record type
       final address = item['address'];
+      final name = item['name'];
+      
       if (address != null && address.isNotEmpty) {
         if (_isIpv4(address)) {
           ipv4Addresses.add(address);
         } else if (_isIpv6(address)) {
           ipv6Addresses.add(address);
+        } else {
+          otherRecords.add(address);
         }
+      } else if (name != null && name.isNotEmpty) {
+        otherRecords.add(name);
+      }
+      
+      // Handle MX records
+      if (item.containsKey('preference') && item.containsKey('exchange')) {
+        otherRecords.add('${item['preference']} ${item['exchange']}');
+      }
+      
+      // Handle TXT records
+      if (item.containsKey('text')) {
+        otherRecords.add(item['text']!);
+      }
+      
+      // Handle NS records
+      if (item.containsKey('ns')) {
+        otherRecords.add(item['ns']!);
+      }
+      
+      // Handle CNAME records
+      if (item.containsKey('cname')) {
+        otherRecords.add(item['cname']!);
       }
     }
 
@@ -50,8 +86,11 @@ class DnsLookupResultModel extends DnsLookupResult {
       domain: domain,
       ipv4Addresses: ipv4Addresses,
       ipv6Addresses: ipv6Addresses,
+      otherRecords: otherRecords,
       responseTime: responseTime,
       error: error,
+      recordType: recordType,
+      dnsServer: dnsServer,
     );
   }
 
@@ -88,8 +127,11 @@ class DnsLookupResultModel extends DnsLookupResult {
       domain: domain,
       ipv4Addresses: ipv4Addresses,
       ipv6Addresses: ipv6Addresses,
+      otherRecords: otherRecords,
       responseTime: responseTime,
       error: error,
+      recordType: recordType,
+      dnsServer: dnsServer,
     );
   }
 }

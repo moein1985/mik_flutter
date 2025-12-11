@@ -549,6 +549,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lookupDns => 'Lookup DNS';
 
   @override
+  String get lookingUp => 'Looking up...';
+
+  @override
+  String get pleaseEnterDomainName => 'Please enter a domain name';
+
+  @override
+  String get recordType => 'Record Type';
+
+  @override
+  String get dnsServer => 'DNS Server';
+
+  @override
+  String get dnsServerHelper => 'Leave empty to use router\'s DNS';
+
+  @override
+  String get dnsServerHelpText =>
+      'Specify a custom DNS server to query (e.g., 8.8.8.8 for Google DNS, 1.1.1.1 for Cloudflare). Leave empty to use the router\'s configured DNS servers.';
+
+  @override
+  String get dnsLookupHelpText =>
+      'DNS Lookup resolves domain names to IP addresses. Select a record type to query specific DNS records like A (IPv4), AAAA (IPv6), MX (mail servers), or TXT records.';
+
+  @override
+  String get timeoutHelpText =>
+      'Maximum time to wait for a response from the DNS server. Increase if you\'re experiencing timeout errors.';
+
+  @override
+  String get records => 'Records';
+
+  @override
+  String get recordTypeHelp => 'DNS Record Types';
+
+  @override
+  String get recordTypeADesc =>
+      'Returns the IPv4 address of a domain. Most common record type for website lookups.';
+
+  @override
+  String get recordTypeAAAADesc =>
+      'Returns the IPv6 address of a domain. Used for modern IPv6 networks.';
+
+  @override
+  String get recordTypeMXDesc =>
+      'Mail Exchange - Points to mail servers that handle email for the domain.';
+
+  @override
+  String get recordTypeTXTDesc =>
+      'Text records - Contains arbitrary text, often used for domain verification and SPF/DKIM email security.';
+
+  @override
+  String get recordTypeCNAMEDesc =>
+      'Canonical Name - Creates an alias from one domain to another (e.g., www to main domain).';
+
+  @override
+  String get recordTypeNSDesc =>
+      'Name Server - Specifies the authoritative DNS servers for the domain.';
+
+  @override
+  String get recordTypeSOADesc =>
+      'Start of Authority - Contains administrative information about the DNS zone.';
+
+  @override
+  String get recordTypePTRDesc =>
+      'Pointer - Used for reverse DNS lookups (IP address to domain name).';
+
+  @override
+  String get recordTypeSRVDesc =>
+      'Service - Specifies the location of services like SIP, XMPP, or LDAP.';
+
+  @override
   String get pingResults => 'Ping Results';
 
   @override

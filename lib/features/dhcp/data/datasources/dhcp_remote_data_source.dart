@@ -1,5 +1,5 @@
 import '../../../../core/errors/exceptions.dart';
-import '../../../../core/network/routeros_client.dart';
+import '../../../../core/network/routeros_client_v2.dart';
 import '../../../../core/utils/logger.dart';
 import '../../../auth/data/datasources/auth_remote_data_source.dart';
 import '../models/dhcp_server_model.dart';
@@ -74,11 +74,11 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
 
   DhcpRemoteDataSourceImpl({required this.authRemoteDataSource});
 
-  RouterOSClient get client {
-    if (authRemoteDataSource.legacyClient == null) {
+  RouterOSClientV2 get client {
+    if (authRemoteDataSource.client == null) {
       throw ServerException('Not connected to router');
     }
-    return authRemoteDataSource.legacyClient!;
+    return authRemoteDataSource.client!;
   }
 
   // ==================== DHCP Servers ====================
@@ -87,9 +87,8 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<List<DhcpServerModel>> getServers() async {
     try {
       _log.d('Getting DHCP servers...');
-      final response = await client.sendCommand(['/ip/dhcp-server/print']);
+      final response = await client.getDhcpServers();
       final servers = response
-          .where((r) => r['type'] == 're')
           .map((r) => DhcpServerModel.fromMap(r))
           .toList();
       _log.i('Got ${servers.length} DHCP servers');
@@ -110,21 +109,16 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   }) async {
     try {
       _log.i('Adding DHCP server: $name on $interface');
-      final commands = [
-        '/ip/dhcp-server/add',
-        '=name=$name',
-        '=interface=$interface',
-      ];
-
-      if (addressPool != null) commands.add('=address-pool=$addressPool');
-      if (leaseTime != null) commands.add('=lease-time=$leaseTime');
-      if (authoritative != null) commands.add('=authoritative=${authoritative ? 'yes' : 'no'}');
-
-      final response = await client.sendCommand(commands);
+      final result = await client.addDhcpServer(
+        name: name,
+        interface: interface,
+        addressPool: addressPool,
+        leaseTime: leaseTime,
+        authoritative: authoritative,
+      );
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to add DHCP server');
       }
 
       _log.i('DHCP server added successfully');
@@ -146,19 +140,17 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   }) async {
     try {
       _log.i('Editing DHCP server: $id');
-      final commands = ['/ip/dhcp-server/set', '=.id=$id'];
-
-      if (name != null) commands.add('=name=$name');
-      if (interface != null) commands.add('=interface=$interface');
-      if (addressPool != null) commands.add('=address-pool=$addressPool');
-      if (leaseTime != null) commands.add('=lease-time=$leaseTime');
-      if (authoritative != null) commands.add('=authoritative=${authoritative ? 'yes' : 'no'}');
-
-      final response = await client.sendCommand(commands);
+      final result = await client.editDhcpServer(
+        id: id,
+        name: name,
+        interface: interface,
+        addressPool: addressPool,
+        leaseTime: leaseTime,
+        authoritative: authoritative,
+      );
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to edit DHCP server');
       }
 
       _log.i('DHCP server edited successfully');
@@ -173,11 +165,10 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<bool> removeServer(String id) async {
     try {
       _log.i('Removing DHCP server: $id');
-      final response = await client.sendCommand(['/ip/dhcp-server/remove', '=.id=$id']);
+      final result = await client.removeDhcpServer(id);
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to remove DHCP server');
       }
 
       _log.i('DHCP server removed successfully');
@@ -192,11 +183,10 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<bool> enableServer(String id) async {
     try {
       _log.i('Enabling DHCP server: $id');
-      final response = await client.sendCommand(['/ip/dhcp-server/enable', '=.id=$id']);
+      final result = await client.enableDhcpServer(id);
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to enable DHCP server');
       }
 
       return true;
@@ -210,11 +200,10 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<bool> disableServer(String id) async {
     try {
       _log.i('Disabling DHCP server: $id');
-      final response = await client.sendCommand(['/ip/dhcp-server/disable', '=.id=$id']);
+      final result = await client.disableDhcpServer(id);
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to disable DHCP server');
       }
 
       return true;
@@ -230,9 +219,8 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<List<DhcpNetworkModel>> getNetworks() async {
     try {
       _log.d('Getting DHCP networks...');
-      final response = await client.sendCommand(['/ip/dhcp-server/network/print']);
+      final response = await client.getDhcpNetworks();
       final networks = response
-          .where((r) => r['type'] == 're')
           .map((r) => DhcpNetworkModel.fromMap(r))
           .toList();
       _log.i('Got ${networks.length} DHCP networks');
@@ -254,19 +242,17 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   }) async {
     try {
       _log.i('Adding DHCP network: $address');
-      final commands = ['/ip/dhcp-server/network/add', '=address=$address'];
-
-      if (gateway != null) commands.add('=gateway=$gateway');
-      if (netmask != null) commands.add('=netmask=$netmask');
-      if (dnsServer != null) commands.add('=dns-server=$dnsServer');
-      if (domain != null) commands.add('=domain=$domain');
-      if (comment != null) commands.add('=comment=$comment');
-
-      final response = await client.sendCommand(commands);
+      final result = await client.addDhcpNetwork(
+        address: address,
+        gateway: gateway,
+        netmask: netmask,
+        dnsServer: dnsServer,
+        domain: domain,
+        comment: comment,
+      );
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to add DHCP network');
       }
 
       _log.i('DHCP network added successfully');
@@ -289,20 +275,18 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   }) async {
     try {
       _log.i('Editing DHCP network: $id');
-      final commands = ['/ip/dhcp-server/network/set', '=.id=$id'];
-
-      if (address != null) commands.add('=address=$address');
-      if (gateway != null) commands.add('=gateway=$gateway');
-      if (netmask != null) commands.add('=netmask=$netmask');
-      if (dnsServer != null) commands.add('=dns-server=$dnsServer');
-      if (domain != null) commands.add('=domain=$domain');
-      if (comment != null) commands.add('=comment=$comment');
-
-      final response = await client.sendCommand(commands);
+      final result = await client.editDhcpNetwork(
+        id: id,
+        address: address,
+        gateway: gateway,
+        netmask: netmask,
+        dnsServer: dnsServer,
+        domain: domain,
+        comment: comment,
+      );
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to edit DHCP network');
       }
 
       _log.i('DHCP network edited successfully');
@@ -317,11 +301,10 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<bool> removeNetwork(String id) async {
     try {
       _log.i('Removing DHCP network: $id');
-      final response = await client.sendCommand(['/ip/dhcp-server/network/remove', '=.id=$id']);
+      final result = await client.removeDhcpNetwork(id);
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to remove DHCP network');
       }
 
       _log.i('DHCP network removed successfully');
@@ -338,9 +321,8 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<List<DhcpLeaseModel>> getLeases() async {
     try {
       _log.d('Getting DHCP leases...');
-      final response = await client.sendCommand(['/ip/dhcp-server/lease/print']);
+      final response = await client.getDhcpLeases();
       final leases = response
-          .where((r) => r['type'] == 're')
           .map((r) => DhcpLeaseModel.fromMap(r))
           .toList();
       _log.i('Got ${leases.length} DHCP leases');
@@ -360,20 +342,15 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   }) async {
     try {
       _log.i('Adding DHCP lease: $address -> $macAddress');
-      final commands = [
-        '/ip/dhcp-server/lease/add',
-        '=address=$address',
-        '=mac-address=$macAddress',
-      ];
-
-      if (server != null) commands.add('=server=$server');
-      if (comment != null) commands.add('=comment=$comment');
-
-      final response = await client.sendCommand(commands);
+      final result = await client.addDhcpLease(
+        address: address,
+        macAddress: macAddress,
+        server: server,
+        comment: comment,
+      );
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to add DHCP lease');
       }
 
       _log.i('DHCP lease added successfully');
@@ -388,11 +365,10 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<bool> removeLease(String id) async {
     try {
       _log.i('Removing DHCP lease: $id');
-      final response = await client.sendCommand(['/ip/dhcp-server/lease/remove', '=.id=$id']);
+      final result = await client.removeDhcpLease(id);
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to remove DHCP lease');
       }
 
       _log.i('DHCP lease removed successfully');
@@ -407,11 +383,10 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<bool> makeStatic(String id) async {
     try {
       _log.i('Making lease static: $id');
-      final response = await client.sendCommand(['/ip/dhcp-server/lease/make-static', '=.id=$id']);
+      final result = await client.makeDhcpLeaseStatic(id);
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to make lease static');
       }
 
       _log.i('Lease made static successfully');
@@ -426,11 +401,10 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<bool> enableLease(String id) async {
     try {
       _log.i('Enabling DHCP lease: $id');
-      final response = await client.sendCommand(['/ip/dhcp-server/lease/enable', '=.id=$id']);
+      final result = await client.enableDhcpLease(id);
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to enable DHCP lease');
       }
 
       return true;
@@ -444,11 +418,10 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
   Future<bool> disableLease(String id) async {
     try {
       _log.i('Disabling DHCP lease: $id');
-      final response = await client.sendCommand(['/ip/dhcp-server/lease/disable', '=.id=$id']);
+      final result = await client.disableDhcpLease(id);
       
-      final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
-      if (trap.isNotEmpty) {
-        throw ServerException(trap['message'] ?? 'Unknown error');
+      if (!result) {
+        throw ServerException('Failed to disable DHCP lease');
       }
 
       return true;

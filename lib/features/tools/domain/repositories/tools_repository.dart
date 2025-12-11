@@ -61,5 +61,7 @@ abstract class ToolsRepository {
   Future<Either<Failure, DnsLookupResult>> dnsLookup({
     required String domain,
     int timeout = 5000,
+    String? recordType,
+    String? dnsServer,
   });
 }

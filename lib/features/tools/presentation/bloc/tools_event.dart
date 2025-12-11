@@ -73,14 +73,18 @@ class StartTraceroute extends ToolsEvent {
 class StartDnsLookup extends ToolsEvent {
   final String domain;
   final int timeout;
+  final String? recordType;
+  final String? dnsServer;
 
   const StartDnsLookup({
     required this.domain,
     this.timeout = 5000,
+    this.recordType,
+    this.dnsServer,
   });
 
   @override
-  List<Object?> get props => [domain, timeout];
+  List<Object?> get props => [domain, timeout, recordType, dnsServer];
 }
 
 /// Event to clear current results

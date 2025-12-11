@@ -45,7 +45,6 @@ class FirewallRemoteDataSourceImpl implements FirewallRemoteDataSource {
       _log.d('Raw response: $response');
       
       final rules = response
-          .where((r) => r['type'] == 're')
           .map((r) => _parseRule(r, type))
           .toList();
       
@@ -103,7 +102,6 @@ class FirewallRemoteDataSourceImpl implements FirewallRemoteDataSource {
       final response = await client.getAddressListByName(listName);
       
       final rules = response
-          .where((r) => r['type'] == 're')
           .map((r) => _parseRule(r, FirewallRuleType.addressList))
           .toList();
       

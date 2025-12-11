@@ -30,6 +30,13 @@ class _WirelessClientsListState extends State<WirelessClientsList> with Automati
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
     return BlocBuilder<WirelessBloc, WirelessState>(
+      buildWhen: (previous, current) {
+        // Only rebuild on registration-related states
+        return current is WirelessInitial ||
+               current is WirelessRegistrationsLoading ||
+               current is WirelessRegistrationsLoaded ||
+               current is WirelessRegistrationsError;
+      },
       builder: (context, state) {
         if (state is WirelessRegistrationsLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -114,8 +121,7 @@ class _WirelessClientsListState extends State<WirelessClientsList> with Automati
           );
         }
 
-        // Initial state - load data
-        context.read<WirelessBloc>().add(const LoadWirelessRegistrations());
+        // Initial/other state - show loading (data will be loaded by initState)
         return const Center(child: CircularProgressIndicator());
       },
     );

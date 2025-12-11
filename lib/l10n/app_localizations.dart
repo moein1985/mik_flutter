@@ -1124,6 +1124,120 @@ abstract class AppLocalizations {
   /// **'Lookup DNS'**
   String get lookupDns;
 
+  /// DNS lookup in progress message
+  ///
+  /// In en, this message translates to:
+  /// **'Looking up...'**
+  String get lookingUp;
+
+  /// Validation message when domain name is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a domain name'**
+  String get pleaseEnterDomainName;
+
+  /// DNS record type dropdown label
+  ///
+  /// In en, this message translates to:
+  /// **'Record Type'**
+  String get recordType;
+
+  /// Custom DNS server input label
+  ///
+  /// In en, this message translates to:
+  /// **'DNS Server'**
+  String get dnsServer;
+
+  /// Helper text for DNS server field
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to use router\'s DNS'**
+  String get dnsServerHelper;
+
+  /// Help text explaining DNS server field
+  ///
+  /// In en, this message translates to:
+  /// **'Specify a custom DNS server to query (e.g., 8.8.8.8 for Google DNS, 1.1.1.1 for Cloudflare). Leave empty to use the router\'s configured DNS servers.'**
+  String get dnsServerHelpText;
+
+  /// Help text explaining DNS lookup feature
+  ///
+  /// In en, this message translates to:
+  /// **'DNS Lookup resolves domain names to IP addresses. Select a record type to query specific DNS records like A (IPv4), AAAA (IPv6), MX (mail servers), or TXT records.'**
+  String get dnsLookupHelpText;
+
+  /// Help text explaining timeout field
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum time to wait for a response from the DNS server. Increase if you\'re experiencing timeout errors.'**
+  String get timeoutHelpText;
+
+  /// DNS records section title
+  ///
+  /// In en, this message translates to:
+  /// **'Records'**
+  String get records;
+
+  /// Title for DNS record types help dialog
+  ///
+  /// In en, this message translates to:
+  /// **'DNS Record Types'**
+  String get recordTypeHelp;
+
+  /// Description of A record type
+  ///
+  /// In en, this message translates to:
+  /// **'Returns the IPv4 address of a domain. Most common record type for website lookups.'**
+  String get recordTypeADesc;
+
+  /// Description of AAAA record type
+  ///
+  /// In en, this message translates to:
+  /// **'Returns the IPv6 address of a domain. Used for modern IPv6 networks.'**
+  String get recordTypeAAAADesc;
+
+  /// Description of MX record type
+  ///
+  /// In en, this message translates to:
+  /// **'Mail Exchange - Points to mail servers that handle email for the domain.'**
+  String get recordTypeMXDesc;
+
+  /// Description of TXT record type
+  ///
+  /// In en, this message translates to:
+  /// **'Text records - Contains arbitrary text, often used for domain verification and SPF/DKIM email security.'**
+  String get recordTypeTXTDesc;
+
+  /// Description of CNAME record type
+  ///
+  /// In en, this message translates to:
+  /// **'Canonical Name - Creates an alias from one domain to another (e.g., www to main domain).'**
+  String get recordTypeCNAMEDesc;
+
+  /// Description of NS record type
+  ///
+  /// In en, this message translates to:
+  /// **'Name Server - Specifies the authoritative DNS servers for the domain.'**
+  String get recordTypeNSDesc;
+
+  /// Description of SOA record type
+  ///
+  /// In en, this message translates to:
+  /// **'Start of Authority - Contains administrative information about the DNS zone.'**
+  String get recordTypeSOADesc;
+
+  /// Description of PTR record type
+  ///
+  /// In en, this message translates to:
+  /// **'Pointer - Used for reverse DNS lookups (IP address to domain name).'**
+  String get recordTypePTRDesc;
+
+  /// Description of SRV record type
+  ///
+  /// In en, this message translates to:
+  /// **'Service - Specifies the location of services like SIP, XMPP, or LDAP.'**
+  String get recordTypeSRVDesc;
+
   /// Ping results section title
   ///
   /// In en, this message translates to:

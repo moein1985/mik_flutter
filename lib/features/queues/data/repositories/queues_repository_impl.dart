@@ -51,8 +51,14 @@ class QueuesRepositoryImpl implements QueuesRepository {
   Future<Either<Failure, void>> addQueue(SimpleQueue queue) async {
     try {
       final model = SimpleQueueModel.fromEntity(queue);
-      final params = model.toRouterOSParams();
-      await _client.addSimpleQueue(params);
+      await _client.addSimpleQueue(
+        name: model.name,
+        target: model.target,
+        maxLimit: model.maxLimit.isNotEmpty ? model.maxLimit : null,
+        limitAt: model.limitAt.isNotEmpty ? model.limitAt : null,
+        comment: model.comment.isNotEmpty ? model.comment : null,
+        disabled: model.disabled,
+      );
       return const Right(null);
     } on ServerException {
       return Left(const ServerFailure('Failed to add queue'));
@@ -62,8 +68,16 @@ class QueuesRepositoryImpl implements QueuesRepository {
   @override
   Future<Either<Failure, void>> updateQueue(SimpleQueue queue) async {
     try {
-      final params = SimpleQueueModel.fromEntity(queue).toRouterOSParams();
-      await _client.updateSimpleQueue(queue.id, params);
+      final model = SimpleQueueModel.fromEntity(queue);
+      await _client.updateSimpleQueue(
+        id: model.id,
+        name: model.name.isNotEmpty ? model.name : null,
+        target: model.target.isNotEmpty ? model.target : null,
+        maxLimit: model.maxLimit.isNotEmpty ? model.maxLimit : null,
+        limitAt: model.limitAt.isNotEmpty ? model.limitAt : null,
+        comment: model.comment.isNotEmpty ? model.comment : null,
+        disabled: model.disabled,
+      );
       return const Right(null);
     } on ServerException {
       return Left(const ServerFailure('Failed to update queue'));

@@ -83,4 +83,71 @@ class RouterOSProtocol {
     result.add(0); // Terminate with empty word
     return result;
   }
+
+  /// Decode words from a stream of bytes
+  /// Returns list of decoded words
+  static List<String> decodeWords(List<int> bytes) {
+    final List<String> words = [];
+    int offset = 0;
+
+    while (offset < bytes.length) {
+      // Decode length
+      final (length, bytesRead) = decodeLength(bytes.sublist(offset));
+      offset += bytesRead;
+
+      // If length is 0, it's the end of sentence
+      if (length == 0) {
+        break;
+      }
+
+      // Read word bytes
+      if (offset + length > bytes.length) {
+        throw Exception('Not enough bytes for word of length $length');
+      }
+
+      final wordBytes = bytes.sublist(offset, offset + length);
+      offset += length;
+
+      // Decode to string
+      final word = utf8.decode(wordBytes);
+      words.add(word);
+    }
+
+    return words;
+  }
+
+  /// Decode a complete sentence from buffer
+  /// Returns (words, bytesConsumed) or null if incomplete
+  static (List<String>, int)? decode(List<int> buffer) {
+    if (buffer.isEmpty) return null;
+
+    int offset = 0;
+    final List<String> words = [];
+
+    while (offset < buffer.length) {
+      // Decode length
+      if (offset >= buffer.length) return null;
+      final (length, bytesRead) = decodeLength(buffer.sublist(offset));
+      offset += bytesRead;
+
+      // If length is 0, it's the end of sentence
+      if (length == 0) {
+        return (words, offset);
+      }
+
+      // Check if we have enough bytes for the word
+      if (offset + length > buffer.length) {
+        return null; // Need more data
+      }
+
+      final wordBytes = buffer.sublist(offset, offset + length);
+      offset += length;
+
+      // Decode to string
+      final word = utf8.decode(wordBytes);
+      words.add(word);
+    }
+
+    return null; // Incomplete sentence
+  }
 }

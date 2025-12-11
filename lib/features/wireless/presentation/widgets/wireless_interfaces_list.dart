@@ -30,6 +30,13 @@ class _WirelessInterfacesListState extends State<WirelessInterfacesList> with Au
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
     return BlocBuilder<WirelessBloc, WirelessState>(
+      buildWhen: (previous, current) {
+        // Only rebuild on interface-related states
+        return current is WirelessInitial ||
+               current is WirelessInterfacesLoading ||
+               current is WirelessInterfacesLoaded ||
+               current is WirelessInterfacesError;
+      },
       builder: (context, state) {
         if (state is WirelessInterfacesLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -117,8 +124,7 @@ class _WirelessInterfacesListState extends State<WirelessInterfacesList> with Au
           );
         }
 
-        // Initial state - load data
-        context.read<WirelessBloc>().add(const LoadWirelessInterfaces());
+        // Initial/other state - show loading (data will be loaded by initState)
         return const Center(child: CircularProgressIndicator());
       },
     );

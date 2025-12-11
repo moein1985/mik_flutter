@@ -35,6 +35,7 @@ import '../../features/cloud/presentation/pages/cloud_page.dart';
 import '../../features/tools/presentation/pages/tools_page.dart';
 import '../../features/tools/presentation/pages/ping_page.dart';
 import '../../features/tools/presentation/pages/traceroute_page.dart';
+import '../../features/tools/presentation/pages/dns_lookup_page.dart';
 import '../../features/tools/presentation/bloc/tools_bloc.dart';
 import '../../features/queues/presentation/bloc/queues_bloc.dart';
 import '../../features/queues/presentation/pages/queues_page.dart';
@@ -71,6 +72,7 @@ class AppRoutes {
   static const String tools = '/dashboard/tools';
   static const String toolsPing = '/dashboard/tools/ping';
   static const String toolsTraceroute = '/dashboard/tools/traceroute';
+  static const String toolsDnsLookup = '/dashboard/tools/dns-lookup';
   static const String queues = '/dashboard/queues';
   static const String addQueue = '/dashboard/queues/add';
   static const String editQueue = '/dashboard/queues/edit/:id';
@@ -346,6 +348,14 @@ class AppRouter {
                   builder: (context, state) => BlocProvider(
                     create: (_) => sl<ToolsBloc>(),
                     child: const TraceroutePage(),
+                  ),
+                ),
+                GoRoute(
+                  path: 'dns-lookup',
+                  name: 'tools-dns-lookup',
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => sl<ToolsBloc>(),
+                    child: const DnsLookupPage(),
                   ),
                 ),
               ],

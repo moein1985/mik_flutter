@@ -30,6 +30,13 @@ class _SecurityProfilesListState extends State<SecurityProfilesList> with Automa
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
     return BlocBuilder<WirelessBloc, WirelessState>(
+      buildWhen: (previous, current) {
+        // Only rebuild on security profile-related states
+        return current is WirelessInitial ||
+               current is SecurityProfilesLoading ||
+               current is SecurityProfilesLoaded ||
+               current is SecurityProfilesError;
+      },
       builder: (context, state) {
         if (state is SecurityProfilesLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -114,8 +121,7 @@ class _SecurityProfilesListState extends State<SecurityProfilesList> with Automa
           );
         }
 
-        // Initial state - load data
-        context.read<WirelessBloc>().add(const LoadSecurityProfiles());
+        // Initial/other state - show loading (data will be loaded by initState)
         return const Center(child: CircularProgressIndicator());
       },
     );

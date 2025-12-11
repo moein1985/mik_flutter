@@ -256,10 +256,7 @@ class RouterOSClientV2 {
 
   /// Filter out protocol messages from response
   List<Map<String, String>> _filterProtocolMessages(List<Map<String, String>> response) {
-    return response.where((item) {
-      final type = item['type'];
-      return type == null || type == 're' || (type != 'done' && type != 'trap' && type != 'fatal');
-    }).toList();
+    return response;
   }
 
   // ==================== System Methods ====================
@@ -353,9 +350,204 @@ class RouterOSClientV2 {
 
   // ==================== DHCP Methods ====================
 
+  Future<List<Map<String, String>>> getDhcpServers() async {
+    final response = await talk(['/ip/dhcp-server/print']);
+    return response;
+  }
+
+  Future<bool> addDhcpServer({
+    required String name,
+    required String interface,
+    String? addressPool,
+    String? leaseTime,
+    bool? authoritative,
+  }) async {
+    try {
+      final words = ['/ip/dhcp-server/add', '=name=$name', '=interface=$interface'];
+      if (addressPool != null) words.add('=address-pool=$addressPool');
+      if (leaseTime != null) words.add('=lease-time=$leaseTime');
+      if (authoritative != null) words.add('=authoritative=${authoritative ? 'yes' : 'no'}');
+
+      final response = await talk(words);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> editDhcpServer({
+    required String id,
+    String? name,
+    String? interface,
+    String? addressPool,
+    String? leaseTime,
+    bool? authoritative,
+  }) async {
+    try {
+      final words = ['/ip/dhcp-server/set', '=.id=$id'];
+      if (name != null) words.add('=name=$name');
+      if (interface != null) words.add('=interface=$interface');
+      if (addressPool != null) words.add('=address-pool=$addressPool');
+      if (leaseTime != null) words.add('=lease-time=$leaseTime');
+      if (authoritative != null) words.add('=authoritative=${authoritative ? 'yes' : 'no'}');
+
+      final response = await talk(words);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> removeDhcpServer(String id) async {
+    try {
+      final response = await talk(['/ip/dhcp-server/remove', '=.id=$id']);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> enableDhcpServer(String id) async {
+    try {
+      final response = await talk(['/ip/dhcp-server/enable', '=.id=$id']);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> disableDhcpServer(String id) async {
+    try {
+      final response = await talk(['/ip/dhcp-server/disable', '=.id=$id']);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<List<Map<String, String>>> getDhcpNetworks() async {
+    final response = await talk(['/ip/dhcp-server/network/print']);
+    return response;
+  }
+
+  Future<bool> addDhcpNetwork({
+    required String address,
+    String? gateway,
+    String? netmask,
+    String? dnsServer,
+    String? domain,
+    String? comment,
+  }) async {
+    try {
+      final words = ['/ip/dhcp-server/network/add', '=address=$address'];
+      if (gateway != null) words.add('=gateway=$gateway');
+      if (netmask != null) words.add('=netmask=$netmask');
+      if (dnsServer != null) words.add('=dns-server=$dnsServer');
+      if (domain != null) words.add('=domain=$domain');
+      if (comment != null) words.add('=comment=$comment');
+
+      final response = await talk(words);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> editDhcpNetwork({
+    required String id,
+    String? address,
+    String? gateway,
+    String? netmask,
+    String? dnsServer,
+    String? domain,
+    String? comment,
+  }) async {
+    try {
+      final words = ['/ip/dhcp-server/network/set', '=.id=$id'];
+      if (address != null) words.add('=address=$address');
+      if (gateway != null) words.add('=gateway=$gateway');
+      if (netmask != null) words.add('=netmask=$netmask');
+      if (dnsServer != null) words.add('=dns-server=$dnsServer');
+      if (domain != null) words.add('=domain=$domain');
+      if (comment != null) words.add('=comment=$comment');
+
+      final response = await talk(words);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> removeDhcpNetwork(String id) async {
+    try {
+      final response = await talk(['/ip/dhcp-server/network/remove', '=.id=$id']);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<List<Map<String, String>>> getDhcpLeases() async {
     final response = await talk(['/ip/dhcp-server/lease/print']);
-    return _filterProtocolMessages(response);
+    return response;
+  }
+
+  Future<bool> addDhcpLease({
+    required String address,
+    required String macAddress,
+    String? server,
+    String? comment,
+  }) async {
+    try {
+      final words = [
+        '/ip/dhcp-server/lease/add',
+        '=address=$address',
+        '=mac-address=$macAddress',
+      ];
+      if (server != null) words.add('=server=$server');
+      if (comment != null) words.add('=comment=$comment');
+
+      final response = await talk(words);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> removeDhcpLease(String id) async {
+    try {
+      final response = await talk(['/ip/dhcp-server/lease/remove', '=.id=$id']);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> makeDhcpLeaseStatic(String id) async {
+    try {
+      final response = await talk(['/ip/dhcp-server/lease/make-static', '=.id=$id']);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> enableDhcpLease(String id) async {
+    try {
+      final response = await talk(['/ip/dhcp-server/lease/enable', '=.id=$id']);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> disableDhcpLease(String id) async {
+    try {
+      final response = await talk(['/ip/dhcp-server/lease/disable', '=.id=$id']);
+      return response.any((r) => r['type'] == 'done');
+    } catch (e) {
+      return false;
+    }
   }
 
   // ==================== Pool Methods ====================
@@ -465,18 +657,163 @@ class RouterOSClientV2 {
   }
 
   /// DNS Lookup
+  /// 
+  /// [name] - Domain name to lookup
+  /// [recordType] - DNS record type (A, AAAA, MX, TXT, CNAME, NS, SOA, PTR, SRV)
+  /// [server] - DNS server to use (optional, uses router's default if not specified)
   Future<List<Map<String, String>>> dnsLookup({
     required String name,
     int timeout = 5000,
+    String? recordType,
+    String? server,
   }) async {
     try {
-      _log.d('Starting DNS lookup for: $name');
-      final response = await talk(['/tool/dns-lookup', '=name=$name']);
-      return _filterProtocolMessages(response);
+      _log.d('Starting DNS lookup for: $name (type: ${recordType ?? 'A'}, server: ${server ?? 'default'})');
+      
+      // Use :resolve command via script - works on all RouterOS versions
+      // The /tool/dns-lookup command is not available via API
+      return await _dnsLookupViaScript(name: name, server: server);
     } catch (e) {
       _log.e('DNS lookup failed for $name', error: e);
       rethrow;
     }
+  }
+
+  /// Fallback DNS lookup using RouterOS script command
+  /// Works on all RouterOS versions that support scripting
+  Future<List<Map<String, String>>> _dnsLookupViaScript({
+    required String name,
+    String? server,
+  }) async {
+    try {
+      _log.d('Attempting DNS resolve via script for: $name');
+      
+      // Build the resolve script
+      // :resolve is a global command that resolves DNS names
+      String resolveScript;
+      if (server != null && server.isNotEmpty) {
+        resolveScript = ':put [:resolve "$name" server=$server]';
+      } else {
+        resolveScript = ':put [:resolve "$name"]';
+      }
+      
+      List<Map<String, String>> filtered = [];
+      final scriptName = '_dns_${DateTime.now().millisecondsSinceEpoch}';
+      
+      try {
+        // Method: Create temp script, run it, parse output
+        _log.d('Creating temp script: $scriptName');
+        
+        // Add temporary script
+        final addResponse = await talk([
+          '/system/script/add',
+          '=name=$scriptName',
+          '=source=$resolveScript',
+          '=policy=read,write,test',
+        ]);
+        _log.d('Script add response: $addResponse');
+        
+        // Run the script and capture output
+        _log.d('Running script...');
+        final runResponse = await talk([
+          '/system/script/run',
+          '=.id=$scriptName',
+        ]);
+        _log.d('Script run response: $runResponse');
+        filtered = _filterProtocolMessages(runResponse);
+        
+      } catch (scriptError) {
+        _log.e('Script execution failed', error: scriptError);
+        rethrow;
+      } finally {
+        // Always clean up - remove the temp script
+        try {
+          await talk(['/system/script/remove', '=.id=$scriptName']);
+          _log.d('Temp script removed');
+        } catch (_) {
+          _log.w('Failed to remove temp script: $scriptName');
+        }
+      }
+      
+      // Parse the response
+      final results = <Map<String, String>>[];
+      _log.d('Parsing filtered response: $filtered');
+      
+      for (final item in filtered) {
+        _log.d('Processing item: $item');
+        // Check if there's a 'ret' key with the result (return value from :put)
+        if (item.containsKey('ret')) {
+          final ip = item['ret'] ?? '';
+          _log.d('Found ret value: $ip');
+          if (ip.isNotEmpty && _isValidIp(ip)) {
+            results.add({
+              'name': name,
+              'address': ip,
+              'type': ip.contains(':') ? 'AAAA' : 'A',
+            });
+          }
+        }
+        
+        // Also check 'message' key (some versions return output in message)
+        if (item.containsKey('message')) {
+          final msg = item['message'] ?? '';
+          _log.d('Found message value: $msg');
+          if (_isValidIp(msg)) {
+            results.add({
+              'name': name,
+              'address': msg,
+              'type': msg.contains(':') ? 'AAAA' : 'A',
+            });
+          }
+        }
+      }
+      
+      // If no results from ret/message, try parsing all values
+      if (results.isEmpty) {
+        for (final item in filtered) {
+          for (final entry in item.entries) {
+            final value = entry.value;
+            _log.d('Checking value: ${entry.key}=$value');
+            if (_isValidIp(value)) {
+              results.add({
+                'name': name,
+                'address': value,
+                'type': value.contains(':') ? 'AAAA' : 'A',
+              });
+            }
+          }
+        }
+      }
+      
+      if (results.isEmpty) {
+        _log.w('DNS lookup returned no results for $name');
+        // Return empty result instead of throwing
+        results.add({
+          'name': name,
+          'address': '',
+          'type': 'A',
+          'error': 'No DNS result found',
+        });
+      } else {
+        _log.i('DNS lookup successful: ${results.length} result(s) for $name');
+      }
+      
+      return results;
+    } catch (e) {
+      _log.e('Script-based DNS lookup failed for $name', error: e);;
+      rethrow;
+    }
+  }
+
+  /// Check if a string is a valid IP address (v4 or v6)
+  bool _isValidIp(String value) {
+    // Simple validation for IPv4
+    final ipv4Regex = RegExp(r'^(\d{1,3}\.){3}\d{1,3}$');
+    // Simple validation for IPv6
+    final ipv6Regex = RegExp(r'^[0-9a-fA-F:]+$');
+    
+    return ipv4Regex.hasMatch(value) || 
+           (value.contains(':') && ipv6Regex.hasMatch(value) && value.length > 4);
   }
 
   // ==================== Logs Methods ====================
@@ -893,7 +1230,7 @@ class RouterOSClientV2 {
     
     // Extract unique list names
     final names = response
-        .where((r) => r['type'] == 're' && r['list'] != null)
+        .where((r) => r['list'] != null)
         .map((r) => r['list']!)
         .toSet()
         .toList();
@@ -1033,6 +1370,151 @@ class RouterOSClientV2 {
       if (filtered.isEmpty) return true;
       return filtered.any((p) => p['disabled'] != 'true');
     } catch (e) {
+      return false;
+    }
+  }
+
+  // ==================== Wireless Methods ====================
+
+  /// Get wireless interfaces
+  Future<List<Map<String, String>>> getWirelessInterfaces() async {
+    _log.d('Getting wireless interfaces');
+    final response = await talk(['/interface/wireless/print']);
+    return _filterProtocolMessages(response);
+  }
+
+  /// Enable wireless interface
+  Future<bool> enableWirelessInterface(String id) async {
+    try {
+      _log.d('Enabling wireless interface: $id');
+      await talk(['/interface/wireless/enable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      _log.e('Failed to enable wireless interface', error: e);
+      return false;
+    }
+  }
+
+  /// Disable wireless interface
+  Future<bool> disableWirelessInterface(String id) async {
+    try {
+      _log.d('Disabling wireless interface: $id');
+      await talk(['/interface/wireless/disable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      _log.e('Failed to disable wireless interface', error: e);
+      return false;
+    }
+  }
+
+  /// Get wireless registrations (connected clients)
+  Future<List<Map<String, String>>> getWirelessRegistrations({
+    String? interface,
+  }) async {
+    _log.d('Getting wireless registrations${interface != null ? " for $interface" : ""}');
+    final cmd = ['/interface/wireless/registration-table/print'];
+    if (interface != null) cmd.add('?interface=$interface');
+    final response = await talk(cmd);
+    return _filterProtocolMessages(response);
+  }
+
+  /// Disconnect wireless client
+  Future<bool> disconnectWirelessClient({
+    required String interface,
+    required String macAddress,
+  }) async {
+    try {
+      _log.d('Disconnecting wireless client: $macAddress from $interface');
+      // Find the registration entry and remove it
+      final regs = await talk([
+        '/interface/wireless/registration-table/print',
+        '?interface=$interface',
+        '?mac-address=$macAddress'
+      ]);
+      final filtered = _filterProtocolMessages(regs);
+      for (final reg in filtered) {
+        if (reg['.id'] != null) {
+          await talk(['/interface/wireless/registration-table/remove', '=.id=${reg['.id']}']);
+        }
+      }
+      return true;
+    } catch (e) {
+      _log.e('Failed to disconnect wireless client', error: e);
+      return false;
+    }
+  }
+
+  /// Get wireless security profiles
+  Future<List<Map<String, String>>> getWirelessSecurityProfiles() async {
+    _log.d('Getting wireless security profiles');
+    final response = await talk(['/interface/wireless/security-profiles/print']);
+    return _filterProtocolMessages(response);
+  }
+
+  /// Create wireless security profile
+  Future<bool> createWirelessSecurityProfile({
+    required String name,
+    String? authenticationTypes,
+    String? unicastCiphers,
+    String? groupCiphers,
+    String? wpaPreSharedKey,
+    String? wpa2PreSharedKey,
+    String? comment,
+  }) async {
+    try {
+      _log.d('Creating wireless security profile: $name');
+      final cmd = ['/interface/wireless/security-profiles/add', '=name=$name'];
+      if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
+      if (unicastCiphers != null) cmd.add('=unicast-ciphers=$unicastCiphers');
+      if (groupCiphers != null) cmd.add('=group-ciphers=$groupCiphers');
+      if (wpaPreSharedKey != null) cmd.add('=wpa-pre-shared-key=$wpaPreSharedKey');
+      if (wpa2PreSharedKey != null) cmd.add('=wpa2-pre-shared-key=$wpa2PreSharedKey');
+      if (comment != null) cmd.add('=comment=$comment');
+      await talk(cmd);
+      return true;
+    } catch (e) {
+      _log.e('Failed to create wireless security profile', error: e);
+      return false;
+    }
+  }
+
+  /// Update wireless security profile
+  Future<bool> updateWirelessSecurityProfile({
+    required String id,
+    String? name,
+    String? authenticationTypes,
+    String? unicastCiphers,
+    String? groupCiphers,
+    String? wpaPreSharedKey,
+    String? wpa2PreSharedKey,
+    String? comment,
+  }) async {
+    try {
+      _log.d('Updating wireless security profile: $id');
+      final cmd = ['/interface/wireless/security-profiles/set', '=.id=$id'];
+      if (name != null) cmd.add('=name=$name');
+      if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
+      if (unicastCiphers != null) cmd.add('=unicast-ciphers=$unicastCiphers');
+      if (groupCiphers != null) cmd.add('=group-ciphers=$groupCiphers');
+      if (wpaPreSharedKey != null) cmd.add('=wpa-pre-shared-key=$wpaPreSharedKey');
+      if (wpa2PreSharedKey != null) cmd.add('=wpa2-pre-shared-key=$wpa2PreSharedKey');
+      if (comment != null) cmd.add('=comment=$comment');
+      await talk(cmd);
+      return true;
+    } catch (e) {
+      _log.e('Failed to update wireless security profile', error: e);
+      return false;
+    }
+  }
+
+  /// Delete wireless security profile
+  Future<bool> deleteWirelessSecurityProfile(String id) async {
+    try {
+      _log.d('Deleting wireless security profile: $id');
+      await talk(['/interface/wireless/security-profiles/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      _log.e('Failed to delete wireless security profile', error: e);
       return false;
     }
   }
