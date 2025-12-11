@@ -500,7 +500,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get pingConnectivity => 'تست اتصال به یک میزبان';
 
   @override
-  String get traceroute => 'Traceroute';
+  String get traceroute => 'ردیابی مسیر';
 
   @override
   String get tracerouteTest => 'تست Traceroute';
@@ -566,7 +566,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get packetLoss => 'از دست دادن بسته';
 
   @override
-  String get rtt => 'RTT';
+  String get rtt => 'زمان رفت و برگشت';
 
   @override
   String get ipv4Addresses => 'آدرس‌های IPv4';
@@ -853,7 +853,7 @@ class AppLocalizationsFa extends AppLocalizations {
       'اندازه بسته داده به بایت.\n\n• مقدار پیش‌فرض: ۵۶ بایت\n• برای تست عادی کافیه\n• برای تست MTU مقدار بالاتر (مثلاً ۱۵۰۰) استفاده کن';
 
   @override
-  String get ttl => 'TTL';
+  String get ttl => 'زمان زندگی';
 
   @override
   String get ttlHelp =>

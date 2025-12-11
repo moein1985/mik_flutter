@@ -630,7 +630,7 @@
   "@pingConnectivity": {
     "description": "توضیح ابزار پینگ"
   },
-  "traceroute": "Traceroute",
+  "traceroute": "ردیابی مسیر",
   "@traceroute": {
     "description": "نام ابزار traceroute"
   },
@@ -718,7 +718,7 @@
   "@packetLoss": {
     "description": "برچسب از دست دادن بسته"
   },
-  "rtt": "RTT",
+  "rtt": "زمان رفت و برگشت",
   "@rtt": {
     "description": "برچسب زمان رفت و برگشت"
   },
@@ -1106,7 +1106,7 @@
   "@packetSizeHelp": {
     "description": "متن راهنما برای فیلد اندازه بسته"
   },
-  "ttl": "TTL",
+  "ttl": "زمان زندگی",
   "@ttl": {
     "description": "برچسب فیلد TTL"
   },
