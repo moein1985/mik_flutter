@@ -153,8 +153,8 @@ class LogsBloc extends Bloc<LogsEvent, LogsState> {
   }
 
   Future<void> _onStopFollowingLogs(StopFollowingLogs event, Emitter<LogsState> emit) async {
-    // Stop the stream from RouterOS
-    followLogsUseCase.stop();
+    // Stop the stream from RouterOS (wait for cancel to be processed)
+    await followLogsUseCase.stop();
     
     // Cancel subscription
     await _logsSubscription?.cancel();

@@ -7,11 +7,11 @@ import 'package:hsmik/mocks/mock_classes.dart';
 void main() {
   late CertificateRemoteDataSourceImpl dataSource;
   late MockAuthRemoteDataSource mockAuthRemoteDataSource;
-  late MockRouterOSClient mockClient;
+  late MockRouterOSClientV2 mockClient;
 
   setUp(() {
     mockAuthRemoteDataSource = MockAuthRemoteDataSource();
-    mockClient = MockRouterOSClient();
+    mockClient = MockRouterOSClientV2();
     dataSource = CertificateRemoteDataSourceImpl(
       authRemoteDataSource: mockAuthRemoteDataSource,
     );

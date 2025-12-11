@@ -120,3 +120,17 @@ class ToolsError extends ToolsState {
   @override
   List<Object?> get props => [message];
 }
+
+/// State containing network info for ping options
+class NetworkInfoLoaded extends ToolsState {
+  final List<String> interfaces;
+  final List<String> ipAddresses;
+
+  const NetworkInfoLoaded({
+    required this.interfaces,
+    required this.ipAddresses,
+  });
+
+  @override
+  List<Object?> get props => [interfaces, ipAddresses];
+}

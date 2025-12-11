@@ -1687,6 +1687,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Advanced Features'**
   String get advancedFeatures;
+
+  /// Quick tip for ping page
+  ///
+  /// In en, this message translates to:
+  /// **'For most tasks, you don\'t need advanced settings! Just enter the address and tap Start.'**
+  String get pingQuickTip;
+
+  /// Advanced options section title
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Options'**
+  String get advancedOptions;
+
+  /// Subtitle for advanced options
+  ///
+  /// In en, this message translates to:
+  /// **'For advanced users'**
+  String get forAdvancedUsers;
+
+  /// Packet size field label
+  ///
+  /// In en, this message translates to:
+  /// **'Packet Size'**
+  String get packetSize;
+
+  /// Help text for packet size field
+  ///
+  /// In en, this message translates to:
+  /// **'Data packet size in bytes.\n\n• Default: 56 bytes\n• Sufficient for normal testing\n• Use higher values (e.g., 1500) for MTU testing'**
+  String get packetSizeHelp;
+
+  /// TTL field label
+  ///
+  /// In en, this message translates to:
+  /// **'TTL'**
+  String get ttl;
+
+  /// Help text for TTL field
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum number of routers the packet can pass through.\n\n• Default: 64\n• Usually no need to change\n• Higher values mean lost packets take longer to detect'**
+  String get ttlHelp;
+
+  /// Interval field label
+  ///
+  /// In en, this message translates to:
+  /// **'Interval'**
+  String get interval;
+
+  /// Help text for interval field
+  ///
+  /// In en, this message translates to:
+  /// **'Time between sending each packet in seconds.\n\n• Default: 1 second\n• Lower = faster test\n• Higher = less network load'**
+  String get intervalHelp;
+
+  /// Count field label
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get count;
+
+  /// Help text for count field
+  ///
+  /// In en, this message translates to:
+  /// **'Total number of packets to send.\n\n• Default: 100\n• For quick test: 4 to 10\n• For stability test: 100+'**
+  String get countHelp;
+
+  /// Source address field label
+  ///
+  /// In en, this message translates to:
+  /// **'Source Address'**
+  String get sourceAddress;
+
+  /// Help text for source address field
+  ///
+  /// In en, this message translates to:
+  /// **'IP address from which packets are sent.\n\n• Auto: Router chooses the best address\n• If you have multiple IPs, you can specify which one to use'**
+  String get sourceAddressHelp;
+
+  /// Help text for interface field
+  ///
+  /// In en, this message translates to:
+  /// **'Which network port to send packets from.\n\n• Auto: Router decides automatically\n• Useful when you have multiple routes to a destination\n• Select to test a specific port'**
+  String get interfaceHelp;
+
+  /// Do not fragment switch label
+  ///
+  /// In en, this message translates to:
+  /// **'Do Not Fragment'**
+  String get doNotFragment;
+
+  /// Help text for do not fragment switch
+  ///
+  /// In en, this message translates to:
+  /// **'If enabled, packets won\'t be fragmented.\n\n• Used for testing network MTU\n• If packet is larger than MTU, it will fail\n• Usually not needed'**
+  String get doNotFragmentHelp;
+
+  /// Subtitle for do not fragment switch
+  ///
+  /// In en, this message translates to:
+  /// **'For MTU testing'**
+  String get forMtuTesting;
+
+  /// Auto default option in dropdown
+  ///
+  /// In en, this message translates to:
+  /// **'Auto (default)'**
+  String get autoDefault;
+
+  /// Live statistics card title
+  ///
+  /// In en, this message translates to:
+  /// **'Live Statistics'**
+  String get liveStatistics;
+
+  /// Sent packets label
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get sent;
+
+  /// Received packets label
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get received;
+
+  /// Packet loss label
+  ///
+  /// In en, this message translates to:
+  /// **'Loss'**
+  String get loss;
+
+  /// Success rate display
+  ///
+  /// In en, this message translates to:
+  /// **'{rate}% Success Rate'**
+  String successRate(String rate);
+
+  /// RTT card title
+  ///
+  /// In en, this message translates to:
+  /// **'Round Trip Time'**
+  String get roundTripTime;
+
+  /// Minimum RTT label
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get min;
+
+  /// Average RTT label
+  ///
+  /// In en, this message translates to:
+  /// **'Avg'**
+  String get avg;
+
+  /// Maximum RTT label
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get max;
+
+  /// Packet history card title
+  ///
+  /// In en, this message translates to:
+  /// **'Packet History'**
+  String get packetHistory;
+
+  /// Packet count display
+  ///
+  /// In en, this message translates to:
+  /// **'{count} packets'**
+  String packetsCount(int count);
+
+  /// Waiting for packets message
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for packets...'**
+  String get waitingForPackets;
+
+  /// Start button text
+  ///
+  /// In en, this message translates to:
+  /// **'START'**
+  String get start;
+
+  /// Stop button text
+  ///
+  /// In en, this message translates to:
+  /// **'STOP'**
+  String get stop;
+
+  /// Error message when target is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a target address'**
+  String get pleaseEnterTarget;
+
+  /// Hint for target host input
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 1.1.1.1 or google.com'**
+  String get targetHostHint;
+
+  /// Bytes unit
+  ///
+  /// In en, this message translates to:
+  /// **'bytes'**
+  String get bytes;
+
+  /// Seconds unit
+  ///
+  /// In en, this message translates to:
+  /// **'sec'**
+  String get sec;
+
+  /// Timeout label
+  ///
+  /// In en, this message translates to:
+  /// **'timeout'**
+  String get timeout;
+
+  /// Quick tip for traceroute
+  ///
+  /// In en, this message translates to:
+  /// **'💡 Traceroute shows the path packets take to reach a destination, useful for diagnosing routing issues.'**
+  String get tracerouteQuickTip;
+
+  /// Maximum hops field label
+  ///
+  /// In en, this message translates to:
+  /// **'Max Hops'**
+  String get maxHopsLabel;
+
+  /// Help text for max hops
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum number of hops to trace.\n\n• Default: 30\n• Lower value = faster but may not reach destination\n• Higher value = can trace longer paths'**
+  String get maxHopsHelp;
+
+  /// Count of probes per hop label
+  ///
+  /// In en, this message translates to:
+  /// **'Probes per Hop'**
+  String get countProbes;
+
+  /// Help text for probes per hop
+  ///
+  /// In en, this message translates to:
+  /// **'Number of probe packets sent per hop.\n\n• Default: 3\n• More probes = more accurate RTT statistics\n• Fewer probes = faster completion'**
+  String get countProbesHelp;
+
+  /// Timeout in milliseconds label
+  ///
+  /// In en, this message translates to:
+  /// **'Timeout'**
+  String get timeoutMsLabel;
+
+  /// Help text for timeout
+  ///
+  /// In en, this message translates to:
+  /// **'Time to wait for each probe response.\n\n• Default: 1000ms\n• Lower timeout = faster but may miss slow responses\n• Higher timeout = more accurate for high-latency paths'**
+  String get timeoutMsHelp;
+
+  /// Milliseconds unit
+  ///
+  /// In en, this message translates to:
+  /// **'ms'**
+  String get ms;
+
+  /// Route path section title
+  ///
+  /// In en, this message translates to:
+  /// **'Route Path'**
+  String get routePath;
+
+  /// Hop count display
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hops'**
+  String hopCount(int count);
+
+  /// Total time label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Time'**
+  String get totalTime;
+
+  /// Target reached status
+  ///
+  /// In en, this message translates to:
+  /// **'Target Reached'**
+  String get targetReached;
+
+  /// Target not reached status
+  ///
+  /// In en, this message translates to:
+  /// **'Target Not Reached'**
+  String get targetNotReached;
+
+  /// Hop number display
+  ///
+  /// In en, this message translates to:
+  /// **'Hop #{number}'**
+  String hopNumber(int number);
+
+  /// Unknown value
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get unknown;
+
+  /// Best RTT label
+  ///
+  /// In en, this message translates to:
+  /// **'Best'**
+  String get best;
+
+  /// Worst RTT label
+  ///
+  /// In en, this message translates to:
+  /// **'Worst'**
+  String get worst;
+
+  /// Waiting for hops message
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for route discovery...'**
+  String get waitingForHops;
+
+  /// Traceroute in progress message
+  ///
+  /// In en, this message translates to:
+  /// **'Tracing route to {target}...'**
+  String tracerouteInProgress(String target);
+
+  /// Hops unit
+  ///
+  /// In en, this message translates to:
+  /// **'hops'**
+  String get hops;
 }
 
 class _AppLocalizationsDelegate

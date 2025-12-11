@@ -2,6 +2,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:hsmik/features/hotspot/domain/repositories/hotspot_repository.dart';
 import 'package:hsmik/features/hotspot/data/datasources/hotspot_remote_data_source.dart';
 import 'package:hsmik/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:hsmik/core/network/routeros_client_v2.dart';
 import 'package:hsmik/core/network/routeros_client.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/get_servers_usecase.dart';
 import 'package:hsmik/features/hotspot/domain/usecases/get_users_usecase.dart';
@@ -43,6 +44,8 @@ class MockHotspotRepository extends Mock implements HotspotRepository {}
 class MockHotspotRemoteDataSource extends Mock implements HotspotRemoteDataSource {}
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
+
+class MockRouterOSClientV2 extends Mock implements RouterOSClientV2 {}
 
 class MockRouterOSClient extends Mock implements RouterOSClient {}
 

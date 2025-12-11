@@ -16,12 +16,30 @@ abstract class ToolsRepository {
   /// Stop ongoing ping operation
   Future<Either<Failure, void>> stopPing();
 
+  /// Stop ongoing traceroute operation
+  Future<Either<Failure, void>> stopTraceroute();
+
   /// Perform continuous ping operation with streaming updates
   /// Emits ping results as packets arrive in real-time
+  /// 
+  /// Parameters:
+  /// - [target]: Target IP or hostname
+  /// - [interval]: Interval between packets in seconds (default: 1)
+  /// - [count]: Number of packets to send (default: 100 for continuous)
+  /// - [size]: Packet size in bytes (default: 56)
+  /// - [ttl]: Time to live (default: 64)
+  /// - [srcAddress]: Source address (default: auto)
+  /// - [interfaceName]: Interface to use (default: auto)
+  /// - [doNotFragment]: Set DF flag (default: false)
   Stream<PingResult> pingStream({
     required String target,
     int interval = 1,
-    int timeout = 1000,
+    int count = 100,
+    int? size,
+    int? ttl,
+    String? srcAddress,
+    String? interfaceName,
+    bool doNotFragment = false,
   });
 
   /// Perform traceroute operation

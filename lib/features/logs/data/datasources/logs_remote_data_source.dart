@@ -1,6 +1,11 @@
 import '../../../../core/network/routeros_client.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../../../../core/utils/logger.dart';
+import '../../../auth/data/datasources/auth_remote_data_source.dart';
 import '../../domain/entities/log_entry.dart';
 import '../models/log_entry_model.dart';
+
+final _log = AppLogger.tag('LogsDataSource');
 
 abstract class LogsRemoteDataSource {
   Future<List<LogEntry>> getLogs({
@@ -14,7 +19,7 @@ abstract class LogsRemoteDataSource {
     String? topics,
   });
 
-  void stopFollowingLogs();
+  Future<void> stopFollowingLogs();
 
   Future<void> clearLogs();
 
@@ -26,9 +31,16 @@ abstract class LogsRemoteDataSource {
 }
 
 class LogsRemoteDataSourceImpl implements LogsRemoteDataSource {
-  final RouterOSClient client;
+  final AuthRemoteDataSource authRemoteDataSource;
 
-  LogsRemoteDataSourceImpl(this.client);
+  LogsRemoteDataSourceImpl({required this.authRemoteDataSource});
+
+  RouterOSClient get client {
+    if (authRemoteDataSource.legacyClient == null) {
+      throw ServerException('Not connected to router');
+    }
+    return authRemoteDataSource.legacyClient!;
+  }
 
   @override
   Future<List<LogEntry>> getLogs({
@@ -50,27 +62,30 @@ class LogsRemoteDataSourceImpl implements LogsRemoteDataSource {
   Stream<LogEntry> followLogs({
     String? topics,
   }) async* {
-    print('LogsRemoteDataSource: followLogs started');
-    await for (final logMap in client.followLogs(
-      topics: topics,
-    )) {
-      print('LogsRemoteDataSource: received logMap: ${logMap.keys}');
+    _log.i('followLogs called with topics: $topics');
+    // Use legacy client's followLogs which handles encoding correctly
+    final stream = client.followLogs(topics: topics);
+    _log.i('Stream started');
+    
+    await for (final logMap in stream) {
+      _log.d('Received log data: $logMap');
       // Skip dead/deleted log entries (they only have .id and .dead fields)
       if (logMap['.dead'] == 'true') {
         continue;
       }
       // Skip entries without message (invalid logs)
       if (logMap['message'] == null) {
+        _log.w('Skipping log without message: $logMap');
         continue;
       }
       yield LogEntryModel.fromJson(logMap);
     }
-    print('LogsRemoteDataSource: followLogs stream ended');
+    _log.i('Stream ended');
   }
 
   @override
-  void stopFollowingLogs() {
-    client.stopStreaming();
+  Future<void> stopFollowingLogs() async {
+    await client.stopStreaming();
   }
 
   @override
@@ -84,11 +99,12 @@ class LogsRemoteDataSourceImpl implements LogsRemoteDataSource {
     int? count,
     String? topics,
   }) async {
-    final result = await client.searchLogs(
-      query: query,
-      count: count,
-      topics: topics,
-    );
-    return result.map((map) => LogEntryModel.fromJson(map)).toList();
+    // Search logs by filtering local results
+    final allLogs = await getLogs(count: count, topics: topics);
+    final queryLower = query.toLowerCase();
+    return allLogs.where((log) => 
+      (log.message?.toLowerCase().contains(queryLower) ?? false) ||
+      (log.topics?.toLowerCase().contains(queryLower) ?? false)
+    ).toList();
   }
 }

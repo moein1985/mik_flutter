@@ -11,17 +11,36 @@ abstract class ToolsEvent extends Equatable {
 /// Event to start ping operation
 class StartPing extends ToolsEvent {
   final String target;
+  final int interval;
   final int count;
-  final int timeout;
+  final int? size;
+  final int? ttl;
+  final String? srcAddress;
+  final String? interfaceName;
+  final bool doNotFragment;
 
   const StartPing({
     required this.target,
-    this.count = 4,
-    this.timeout = 1000,
+    this.interval = 1,
+    this.count = 100,
+    this.size,
+    this.ttl,
+    this.srcAddress,
+    this.interfaceName,
+    this.doNotFragment = false,
   });
 
   @override
-  List<Object?> get props => [target, count, timeout];
+  List<Object?> get props => [
+        target,
+        interval,
+        count,
+        size,
+        ttl,
+        srcAddress,
+        interfaceName,
+        doNotFragment,
+      ];
 }
 
 /// Event to stop ping operation
@@ -67,4 +86,9 @@ class StartDnsLookup extends ToolsEvent {
 /// Event to clear current results
 class ClearResults extends ToolsEvent {
   const ClearResults();
+}
+
+/// Event to load network info (interfaces and IP addresses) for ping options
+class LoadNetworkInfo extends ToolsEvent {
+  const LoadNetworkInfo();
 }

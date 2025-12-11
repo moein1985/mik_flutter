@@ -47,8 +47,8 @@ class LogsRepositoryImpl implements LogsRepository {
   }
 
   @override
-  void stopFollowingLogs() {
-    remoteDataSource.stopFollowingLogs();
+  Future<void> stopFollowingLogs() async {
+    await remoteDataSource.stopFollowingLogs();
   }
 
   @override

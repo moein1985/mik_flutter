@@ -19,7 +19,7 @@ class FollowLogsUseCase {
   }
 
   /// Stop following logs
-  void stop() {
-    repository.stopFollowingLogs();
+  Future<void> stop() async {
+    await repository.stopFollowingLogs();
   }
 }

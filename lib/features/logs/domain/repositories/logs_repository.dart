@@ -17,7 +17,7 @@ abstract class LogsRepository {
   });
 
   /// Stop following logs
-  void stopFollowingLogs();
+  Future<void> stopFollowingLogs();
 
   /// Clear all logs
   Future<Either<Failure, void>> clearLogs();

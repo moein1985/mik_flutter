@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import '../network/routeros_client.dart';
+import '../network/routeros_client_v2.dart';
 import 'monitoring_data.dart';
 
 /// Interface monitor that polls traffic data at regular intervals
 class InterfaceMonitor extends ChangeNotifier {
-  final RouterOSClient client;
+  final RouterOSClientV2 client;
   final String interfaceName;
   final Duration pollingInterval;
   final int maxDataPoints;
@@ -106,7 +106,7 @@ class MonitoringUtils {
 
   /// Create a monitor and start it
   static InterfaceMonitor createMonitor({
-    required RouterOSClient client,
+    required RouterOSClientV2 client,
     required String interfaceName,
     Duration pollingInterval = const Duration(seconds: 1),
     int maxDataPoints = 60,

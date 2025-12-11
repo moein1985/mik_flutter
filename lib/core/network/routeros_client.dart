@@ -374,6 +374,16 @@ class RouterOSClient {
     }
   }
 
+  /// Extract .tag from response data if present
+  String? _getResponseTag() {
+    for (final item in _responseData) {
+      if (item.containsKey('.tag')) {
+        return item['.tag'];
+      }
+    }
+    return null;
+  }
+
   void _processBuffer() {
     while (_buffer.isNotEmpty) {
       try {
@@ -388,11 +398,26 @@ class RouterOSClient {
           
           if (_responseData.isNotEmpty) {
             final lastType = _responseData.last['type'];
+            // Get the .tag from response if present
+            final responseTag = _getResponseTag();
             
-            // Check if this is a response from a cancelled tag (ignore it)
-            if (_cancelledTags.isNotEmpty && (lastType == 'done' || lastType == 'trap')) {
-              // This is likely a response from a cancelled streaming operation
-              // Just clear it and remove from cancelled set
+            // Only log for done/trap responses (not every !re to reduce noise)
+            if (lastType == 'done' || lastType == 'trap') {
+              _log.d('Processing $lastType response: responseTag=$responseTag, activeTag=$_activeStreamingTag, cancelledTags=$_cancelledTags');
+            }
+            
+            // Check if this response has a tag that was cancelled
+            if (responseTag != null && _cancelledTags.contains(responseTag)) {
+              _log.d('Ignoring response for cancelled tag: $responseTag');
+              _cancelledTags.remove(responseTag);
+              _responseData.clear();
+              continue;
+            }
+            
+            // Check if this is a done/trap without tag when we have cancelled tags
+            // This is likely from a previous non-tagged command, skip it
+            if (_cancelledTags.isNotEmpty && responseTag == null && (lastType == 'done' || lastType == 'trap')) {
+              _log.d('Ignoring untagged done/trap while having cancelledTags');
               _cancelledTags.clear();
               _responseData.clear();
               continue;
@@ -402,22 +427,33 @@ class RouterOSClient {
             if (_activeStreamingTag != null && _streamControllers.containsKey(_activeStreamingTag)) {
               final controller = _streamControllers[_activeStreamingTag];
               
-              // Emit data responses (!re) to stream
-              for (final item in _responseData) {
-                if (item['type'] == 're') {
-                  controller?.add(item);
-                }
-              }
+              // Check if response tag matches active stream tag (if response has a tag)
+              final tagMatches = responseTag == null || responseTag == _activeStreamingTag;
               
-              // If done or trap, close the stream
-              if (lastType == 'done' || lastType == 'trap') {
-                if (lastType == 'trap') {
-                  final errorMsg = _responseData.last['message'] ?? 'Unknown error';
-                  controller?.addError(Exception(errorMsg));
+              if (tagMatches) {
+                // Emit data responses (!re) to stream
+                for (final item in _responseData) {
+                  if (item['type'] == 're') {
+                    controller?.add(item);
+                  }
                 }
-                controller?.close();
-                _streamControllers.remove(_activeStreamingTag);
-                _activeStreamingTag = null;
+                
+                // If done or trap AND tag matches, close the stream
+                if ((lastType == 'done' || lastType == 'trap') && responseTag == _activeStreamingTag) {
+                  _log.w('Stream closing due to $lastType response with matching tag=$_activeStreamingTag');
+                  if (lastType == 'trap') {
+                    final errorMsg = _responseData.last['message'] ?? 'Unknown error';
+                    controller?.addError(Exception(errorMsg));
+                  }
+                  controller?.close();
+                  _streamControllers.remove(_activeStreamingTag);
+                  _activeStreamingTag = null;
+                } else if (lastType == 'done' && responseTag == null) {
+                  // done without tag while streaming - this is from another command, ignore
+                  _log.d('Ignoring untagged done while streaming');
+                }
+              } else {
+                _log.d('Ignoring response with non-matching tag: $responseTag (expected: $_activeStreamingTag)');
               }
               // Clear response data after processing for streaming
               _responseData.clear();
@@ -473,6 +509,10 @@ class RouterOSClient {
         }
         _currentReply = {'type': 'fatal'};
       }
+    } else if (word.startsWith('.tag=')) {
+      // Handle .tag response - store it in the current reply
+      final tagValue = word.substring(5);
+      _currentReply['.tag'] = tagValue;
     } else if (word.startsWith('=')) {
       final parts = word.substring(1).split('=');
       if (parts.length >= 2) {
@@ -1753,28 +1793,60 @@ class RouterOSClient {
 
   /// Perform streaming ping operation
   /// Returns a stream that emits ping results in real-time as packets are sent/received
+  /// Perform streaming ping operation
+  /// Returns a stream that emits ping results in real-time as packets are sent/received
+  /// 
+  /// Parameters:
+  /// - [address]: Target IP or hostname
+  /// - [count]: Number of packets to send (default: 100)
+  /// - [interval]: Interval between packets in seconds (default: 1)
+  /// - [size]: Packet size in bytes (default: 56)
+  /// - [ttl]: Time to live (default: 64)
+  /// - [srcAddress]: Source address (default: auto)
+  /// - [interfaceName]: Interface to use (default: auto)
+  /// - [doNotFragment]: Set DF flag (default: false)
   Stream<Map<String, String>> pingStream({
     required String address,
     int count = 100,
     int interval = 1,
+    int? size,
+    int? ttl,
+    String? srcAddress,
+    String? interfaceName,
+    bool doNotFragment = false,
   }) {
     final tag = 'ping_${DateTime.now().millisecondsSinceEpoch}';
     final controller = StreamController<Map<String, String>>();
+    
+    _log.d('pingStream: Creating stream with tag=$tag, cancelledTags=$_cancelledTags, activeTag=$_activeStreamingTag');
     
     _streamControllers[tag] = controller;
     _activeStreamingTag = tag;
 
     _log.i('Starting streaming ping to: $address');
 
-    // Send ping command
-    final encoded = RouterOSProtocol.encodeSentence([
+    // Build command with all parameters
+    final command = <String>[
       '/tool/ping',
       '=address=$address',
       '=count=$count',
       '=interval=$interval',
-    ]);
+    ];
+    
+    // Add optional parameters
+    if (size != null) command.add('=size=$size');
+    if (ttl != null) command.add('=ttl=$ttl');
+    if (srcAddress != null && srcAddress.isNotEmpty) command.add('=src-address=$srcAddress');
+    if (interfaceName != null && interfaceName.isNotEmpty) command.add('=interface=$interfaceName');
+    if (doNotFragment) command.add('=do-not-fragment=yes');
+    
+    // Add tag to identify this stream's responses
+    command.add('.tag=$tag');
+    
+    final encoded = RouterOSProtocol.encodeSentence(command);
     
     if (_socket != null && _isConnected) {
+      _log.d('pingStream: Sending command to socket with tag=$tag');
       _socket!.add(encoded);
     } else {
       controller.addError(Exception('Not connected to RouterOS'));
@@ -1787,24 +1859,36 @@ class RouterOSClient {
   }
 
   /// Stop an active streaming operation
-  void stopStreaming() {
+  /// Returns a Future that completes when the cancel is acknowledged
+  Future<void> stopStreaming() async {
+    _log.d('stopStreaming called: activeTag=$_activeStreamingTag, cancelledTags=$_cancelledTags');
     if (_activeStreamingTag != null && _streamControllers.containsKey(_activeStreamingTag)) {
-      _log.i('Stopping streaming operation: $_activeStreamingTag');
+      final tagToCancel = _activeStreamingTag!;
+      _log.i('Stopping streaming operation: $tagToCancel');
       
       // Add to cancelled tags so we ignore the /cancel response
-      _cancelledTags.add(_activeStreamingTag!);
+      _cancelledTags.add(tagToCancel);
+      _log.d('Added $tagToCancel to cancelledTags: $_cancelledTags');
       
       // Close the stream first
-      _streamControllers[_activeStreamingTag]?.close();
-      _streamControllers.remove(_activeStreamingTag);
+      _streamControllers[tagToCancel]?.close();
+      _streamControllers.remove(tagToCancel);
       _activeStreamingTag = null;
       _responseData.clear();
       
-      // Send cancel command
+      // Send cancel command and wait a bit for it to process
       if (_socket != null && _isConnected) {
+        _log.d('Sending /cancel command');
         final encoded = RouterOSProtocol.encodeSentence(['/cancel']);
         _socket!.add(encoded);
+        
+        // Wait for cancel response to be processed
+        _log.d('Waiting 100ms for cancel response...');
+        await Future.delayed(const Duration(milliseconds: 100));
+        _log.d('Done waiting, cancelledTags now: $_cancelledTags');
       }
+    } else {
+      _log.d('No active stream to stop');
     }
   }
 
@@ -1843,19 +1927,23 @@ class RouterOSClient {
     final tag = 'traceroute_${DateTime.now().millisecondsSinceEpoch}';
     final controller = StreamController<Map<String, String>>();
     
+    _log.d('tracerouteStream: Creating stream with tag=$tag, cancelledTags=$_cancelledTags, activeTag=$_activeStreamingTag');
+    
     _streamControllers[tag] = controller;
     _activeStreamingTag = tag;
 
     _log.i('Starting streaming traceroute to: $address');
 
-    // Send traceroute command
+    // Send traceroute command with .tag to identify responses
     final encoded = RouterOSProtocol.encodeSentence([
       '/tool/traceroute',
       '=address=$address',
       '=count=3',  // Run 3 probes per hop for better statistics
+      '.tag=$tag',  // Add tag to identify this stream's responses
     ]);
     
     if (_socket != null && _isConnected) {
+      _log.d('tracerouteStream: Sending command to socket with tag=$tag');
       _socket!.add(encoded);
     } else {
       controller.addError(Exception('Not connected to RouterOS'));
@@ -2223,15 +2311,19 @@ class RouterOSClient {
     final tag = 'logs_${DateTime.now().millisecondsSinceEpoch}';
     final controller = StreamController<Map<String, String>>();
     
+    _log.d('followLogs: Creating stream with tag=$tag, cancelledTags=$_cancelledTags, activeTag=$_activeStreamingTag');
+    
     _streamControllers[tag] = controller;
     _activeStreamingTag = tag;
 
     _log.i('Starting to follow logs${topics != null ? " (topics: $topics)" : ""}');
 
     // Send log follow-only command (only new logs, not existing ones)
+    // Include .tag= to properly identify responses for this stream
     final command = [
       '/log/print',
       '=follow-only=',
+      '.tag=$tag',  // Add tag to identify this stream's responses
     ];
     if (topics != null && topics.isNotEmpty) {
       command.add('=topics=$topics');
@@ -2240,8 +2332,10 @@ class RouterOSClient {
     final encoded = RouterOSProtocol.encodeSentence(command);
     
     if (_socket != null && _isConnected) {
+      _log.d('followLogs: Sending command to socket with tag=$tag');
       _socket!.add(encoded);
     } else {
+      _log.e('followLogs: Not connected!');
       controller.addError(Exception('Not connected to RouterOS'));
       controller.close();
       _streamControllers.remove(tag);

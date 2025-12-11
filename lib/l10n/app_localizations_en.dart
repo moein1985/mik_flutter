@@ -836,4 +836,197 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get advancedFeatures => 'Advanced Features';
+
+  @override
+  String get pingQuickTip =>
+      'For most tasks, you don\'t need advanced settings! Just enter the address and tap Start.';
+
+  @override
+  String get advancedOptions => 'Advanced Options';
+
+  @override
+  String get forAdvancedUsers => 'For advanced users';
+
+  @override
+  String get packetSize => 'Packet Size';
+
+  @override
+  String get packetSizeHelp =>
+      'Data packet size in bytes.\n\n• Default: 56 bytes\n• Sufficient for normal testing\n• Use higher values (e.g., 1500) for MTU testing';
+
+  @override
+  String get ttl => 'TTL';
+
+  @override
+  String get ttlHelp =>
+      'Maximum number of routers the packet can pass through.\n\n• Default: 64\n• Usually no need to change\n• Higher values mean lost packets take longer to detect';
+
+  @override
+  String get interval => 'Interval';
+
+  @override
+  String get intervalHelp =>
+      'Time between sending each packet in seconds.\n\n• Default: 1 second\n• Lower = faster test\n• Higher = less network load';
+
+  @override
+  String get count => 'Count';
+
+  @override
+  String get countHelp =>
+      'Total number of packets to send.\n\n• Default: 100\n• For quick test: 4 to 10\n• For stability test: 100+';
+
+  @override
+  String get sourceAddress => 'Source Address';
+
+  @override
+  String get sourceAddressHelp =>
+      'IP address from which packets are sent.\n\n• Auto: Router chooses the best address\n• If you have multiple IPs, you can specify which one to use';
+
+  @override
+  String get interfaceHelp =>
+      'Which network port to send packets from.\n\n• Auto: Router decides automatically\n• Useful when you have multiple routes to a destination\n• Select to test a specific port';
+
+  @override
+  String get doNotFragment => 'Do Not Fragment';
+
+  @override
+  String get doNotFragmentHelp =>
+      'If enabled, packets won\'t be fragmented.\n\n• Used for testing network MTU\n• If packet is larger than MTU, it will fail\n• Usually not needed';
+
+  @override
+  String get forMtuTesting => 'For MTU testing';
+
+  @override
+  String get autoDefault => 'Auto (default)';
+
+  @override
+  String get liveStatistics => 'Live Statistics';
+
+  @override
+  String get sent => 'Sent';
+
+  @override
+  String get received => 'Received';
+
+  @override
+  String get loss => 'Loss';
+
+  @override
+  String successRate(String rate) {
+    return '$rate% Success Rate';
+  }
+
+  @override
+  String get roundTripTime => 'Round Trip Time';
+
+  @override
+  String get min => 'Min';
+
+  @override
+  String get avg => 'Avg';
+
+  @override
+  String get max => 'Max';
+
+  @override
+  String get packetHistory => 'Packet History';
+
+  @override
+  String packetsCount(int count) {
+    return '$count packets';
+  }
+
+  @override
+  String get waitingForPackets => 'Waiting for packets...';
+
+  @override
+  String get start => 'START';
+
+  @override
+  String get stop => 'STOP';
+
+  @override
+  String get pleaseEnterTarget => 'Please enter a target address';
+
+  @override
+  String get targetHostHint => 'e.g., 1.1.1.1 or google.com';
+
+  @override
+  String get bytes => 'bytes';
+
+  @override
+  String get sec => 'sec';
+
+  @override
+  String get timeout => 'timeout';
+
+  @override
+  String get tracerouteQuickTip =>
+      '💡 Traceroute shows the path packets take to reach a destination, useful for diagnosing routing issues.';
+
+  @override
+  String get maxHopsLabel => 'Max Hops';
+
+  @override
+  String get maxHopsHelp =>
+      'Maximum number of hops to trace.\n\n• Default: 30\n• Lower value = faster but may not reach destination\n• Higher value = can trace longer paths';
+
+  @override
+  String get countProbes => 'Probes per Hop';
+
+  @override
+  String get countProbesHelp =>
+      'Number of probe packets sent per hop.\n\n• Default: 3\n• More probes = more accurate RTT statistics\n• Fewer probes = faster completion';
+
+  @override
+  String get timeoutMsLabel => 'Timeout';
+
+  @override
+  String get timeoutMsHelp =>
+      'Time to wait for each probe response.\n\n• Default: 1000ms\n• Lower timeout = faster but may miss slow responses\n• Higher timeout = more accurate for high-latency paths';
+
+  @override
+  String get ms => 'ms';
+
+  @override
+  String get routePath => 'Route Path';
+
+  @override
+  String hopCount(int count) {
+    return '$count hops';
+  }
+
+  @override
+  String get totalTime => 'Total Time';
+
+  @override
+  String get targetReached => 'Target Reached';
+
+  @override
+  String get targetNotReached => 'Target Not Reached';
+
+  @override
+  String hopNumber(int number) {
+    return 'Hop #$number';
+  }
+
+  @override
+  String get unknown => 'Unknown';
+
+  @override
+  String get best => 'Best';
+
+  @override
+  String get worst => 'Worst';
+
+  @override
+  String get waitingForHops => 'Waiting for route discovery...';
+
+  @override
+  String tracerouteInProgress(String target) {
+    return 'Tracing route to $target...';
+  }
+
+  @override
+  String get hops => 'hops';
 }

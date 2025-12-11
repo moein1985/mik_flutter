@@ -156,7 +156,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get network => 'شبکه';
 
   @override
-  String get interface => 'اینترفیس';
+  String get interface => 'رابط شبکه';
 
   @override
   String get comment => 'توضیحات';
@@ -834,4 +834,197 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get advancedFeatures => 'ویژگی‌های پیشرفته';
+
+  @override
+  String get pingQuickTip =>
+      'برای اکثر کارها نیازی به تنظیمات پیشرفته نیست! فقط آدرس رو وارد کن و Start بزن.';
+
+  @override
+  String get advancedOptions => 'تنظیمات پیشرفته';
+
+  @override
+  String get forAdvancedUsers => 'برای کاربران حرفه‌ای';
+
+  @override
+  String get packetSize => 'اندازه بسته';
+
+  @override
+  String get packetSizeHelp =>
+      'اندازه بسته داده به بایت.\n\n• مقدار پیش‌فرض: ۵۶ بایت\n• برای تست عادی کافیه\n• برای تست MTU مقدار بالاتر (مثلاً ۱۵۰۰) استفاده کن';
+
+  @override
+  String get ttl => 'TTL';
+
+  @override
+  String get ttlHelp =>
+      'حداکثر تعداد روترهایی که بسته می‌تونه ازشون عبور کنه.\n\n• مقدار پیش‌فرض: ۶۴\n• معمولاً نیازی به تغییر نیست\n• اگه زیاد باشه، بسته‌های گم‌شده دیرتر تشخیص داده میشن';
+
+  @override
+  String get interval => 'فاصله زمانی';
+
+  @override
+  String get intervalHelp =>
+      'فاصله بین ارسال هر پکت به ثانیه.\n\n• مقدار پیش‌فرض: ۱ ثانیه\n• مقدار کمتر = تست سریع‌تر\n• مقدار بیشتر = بار کمتر روی شبکه';
+
+  @override
+  String get count => 'تعداد';
+
+  @override
+  String get countHelp =>
+      'تعداد کل پکت‌هایی که ارسال میشه.\n\n• مقدار پیش‌فرض: ۱۰۰\n• برای تست سریع: ۴ تا ۱۰\n• برای تست پایداری: ۱۰۰+';
+
+  @override
+  String get sourceAddress => 'آدرس مبدأ';
+
+  @override
+  String get sourceAddressHelp =>
+      'آدرس IP که پکت‌ها ازش ارسال میشه.\n\n• Auto: روتر خودش بهترین آدرس رو انتخاب میکنه\n• اگه چند IP داری، می‌تونی مشخص کنی از کدوم ارسال بشه';
+
+  @override
+  String get interfaceHelp =>
+      'از کدوم پورت شبکه پکت ارسال بشه.\n\n• Auto: روتر خودش تصمیم میگیره\n• مفید وقتی چند مسیر به یه مقصد داری\n• برای تست یه پورت خاص انتخاب کن';
+
+  @override
+  String get doNotFragment => 'تکه‌تکه نکن';
+
+  @override
+  String get doNotFragmentHelp =>
+      'اگه فعال باشه، بسته‌ها تیکه‌تیکه نمیشن.\n\n• برای تست MTU شبکه استفاده میشه\n• اگه بسته بزرگ‌تر از MTU باشه، خطا میده\n• معمولاً نیازی به فعال کردن نیست';
+
+  @override
+  String get forMtuTesting => 'برای تست MTU';
+
+  @override
+  String get autoDefault => 'خودکار (پیش‌فرض)';
+
+  @override
+  String get liveStatistics => 'آمار زنده';
+
+  @override
+  String get sent => 'ارسال';
+
+  @override
+  String get received => 'دریافت';
+
+  @override
+  String get loss => 'از دست رفته';
+
+  @override
+  String successRate(String rate) {
+    return '$rate% موفقیت';
+  }
+
+  @override
+  String get roundTripTime => 'زمان رفت و برگشت';
+
+  @override
+  String get min => 'حداقل';
+
+  @override
+  String get avg => 'میانگین';
+
+  @override
+  String get max => 'حداکثر';
+
+  @override
+  String get packetHistory => 'تاریخچه پکت‌ها';
+
+  @override
+  String packetsCount(int count) {
+    return '$count پکت';
+  }
+
+  @override
+  String get waitingForPackets => 'در انتظار پکت‌ها...';
+
+  @override
+  String get start => 'شروع';
+
+  @override
+  String get stop => 'توقف';
+
+  @override
+  String get pleaseEnterTarget => 'لطفاً آدرس مقصد را وارد کنید';
+
+  @override
+  String get targetHostHint => 'مثلاً 1.1.1.1 یا google.com';
+
+  @override
+  String get bytes => 'بایت';
+
+  @override
+  String get sec => 'ثانیه';
+
+  @override
+  String get timeout => 'وقفه';
+
+  @override
+  String get tracerouteQuickTip =>
+      '💡 Traceroute مسیری که بسته‌ها برای رسیدن به مقصد طی می‌کنند را نشان می‌دهد و برای عیب‌یابی مشکلات مسیریابی مفید است.';
+
+  @override
+  String get maxHopsLabel => 'حداکثر گام';
+
+  @override
+  String get maxHopsHelp =>
+      'حداکثر تعداد گام‌هایی که ردیابی می‌شود.\n\n• پیش‌فرض: ۳۰\n• مقدار کمتر = سریع‌تر ولی ممکن است به مقصد نرسد\n• مقدار بیشتر = می‌تواند مسیرهای طولانی‌تر را ردیابی کند';
+
+  @override
+  String get countProbes => 'تعداد کاوش هر گام';
+
+  @override
+  String get countProbesHelp =>
+      'تعداد بسته‌های کاوش ارسال شده برای هر گام.\n\n• پیش‌فرض: ۳\n• کاوش بیشتر = آمار RTT دقیق‌تر\n• کاوش کمتر = اتمام سریع‌تر';
+
+  @override
+  String get timeoutMsLabel => 'مهلت زمانی';
+
+  @override
+  String get timeoutMsHelp =>
+      'زمان انتظار برای پاسخ هر کاوش.\n\n• پیش‌فرض: ۱۰۰۰ میلی‌ثانیه\n• مهلت کمتر = سریع‌تر ولی ممکن است پاسخ‌های کند را از دست بدهد\n• مهلت بیشتر = دقیق‌تر برای مسیرهای با تأخیر بالا';
+
+  @override
+  String get ms => 'میلی‌ثانیه';
+
+  @override
+  String get routePath => 'مسیر';
+
+  @override
+  String hopCount(int count) {
+    return '$count گام';
+  }
+
+  @override
+  String get totalTime => 'زمان کل';
+
+  @override
+  String get targetReached => 'به مقصد رسید';
+
+  @override
+  String get targetNotReached => 'به مقصد نرسید';
+
+  @override
+  String hopNumber(int number) {
+    return 'گام #$number';
+  }
+
+  @override
+  String get unknown => 'ناشناخته';
+
+  @override
+  String get best => 'بهترین';
+
+  @override
+  String get worst => 'بدترین';
+
+  @override
+  String get waitingForHops => 'در انتظار کشف مسیر...';
+
+  @override
+  String tracerouteInProgress(String target) {
+    return 'در حال ردیابی مسیر به $target...';
+  }
+
+  @override
+  String get hops => 'گام';
 }

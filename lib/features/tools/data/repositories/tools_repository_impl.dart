@@ -1,20 +1,28 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../../core/utils/logger.dart';
 import '../../domain/entities/dns_lookup_result.dart';
 import '../../domain/entities/ping_result.dart';
 import '../../domain/entities/traceroute_hop.dart';
 import '../../domain/repositories/tools_repository.dart';
+import '../../../../core/network/routeros_client_v2.dart';
 import '../../../../core/network/routeros_client.dart';
 import '../models/dns_lookup_result_model.dart';
 import '../models/ping_result_model.dart';
 import '../models/traceroute_hop_model.dart';
 
 /// Implementation of ToolsRepository
+/// Uses RouterOSClientV2 for non-streaming operations (better API)
+/// Uses legacy RouterOSClient for streaming (package has bugs with streaming)
 class ToolsRepositoryImpl implements ToolsRepository {
-  final RouterOSClient routerOsClient;
+  final RouterOSClientV2 routerOsClient;
+  final RouterOSClient legacyClient;
 
-  ToolsRepositoryImpl({required this.routerOsClient});
+  ToolsRepositoryImpl({
+    required this.routerOsClient,
+    required this.legacyClient,
+  });
 
   @override
   Future<Either<Failure, PingResult>> ping({
@@ -26,7 +34,6 @@ class ToolsRepositoryImpl implements ToolsRepository {
       final response = await routerOsClient.ping(
         address: target,
         count: count,
-        timeout: timeout,
       );
 
       final model = PingResultModel.fromRouterOS(target, response);
@@ -39,10 +46,11 @@ class ToolsRepositoryImpl implements ToolsRepository {
   @override
   Future<Either<Failure, void>> stopPing() async {
     try {
-      // Stop is handled by cancelling the stream subscription
+      // Stop ping stream using legacy client
+      await legacyClient.stopStreaming();
       return const Right(null);
-    } on ServerException {
-      return Left(const ServerFailure('Failed to stop ping'));
+    } catch (e) {
+      return Left(ServerFailure('Failed to stop ping: $e'));
     }
   }
 
@@ -50,8 +58,14 @@ class ToolsRepositoryImpl implements ToolsRepository {
   Stream<PingResult> pingStream({
     required String target,
     int interval = 1,
-    int timeout = 1000,
+    int count = 100,
+    int? size,
+    int? ttl,
+    String? srcAddress,
+    String? interfaceName,
+    bool doNotFragment = false,
   }) async* {
+    AppLogger.i('pingStream started for target: $target', tag: 'ToolsRepositoryImpl');
     try {
       int packetsSent = 0;
       int packetsReceived = 0;
@@ -60,10 +74,25 @@ class ToolsRepositoryImpl implements ToolsRepository {
       Duration maxRtt = Duration.zero;
       final packets = <PingPacket>[];
       
-      await for (final data in routerOsClient.pingStream(
+      AppLogger.i('Getting stream from legacyClient...', tag: 'ToolsRepositoryImpl');
+      // Use legacy client for streaming (package has bugs)
+      final stream = legacyClient.pingStream(
         address: target,
+        count: count,
         interval: interval,
-      )) {
+        size: size,
+        ttl: ttl,
+        srcAddress: srcAddress,
+        interfaceName: interfaceName,
+        doNotFragment: doNotFragment,
+      );
+      AppLogger.i('Got stream, starting listen...', tag: 'ToolsRepositoryImpl');
+      
+      AppLogger.i('Starting await for loop on stream...', tag: 'ToolsRepositoryImpl');
+      int dataCount = 0;
+      await for (final data in stream) {
+        dataCount++;
+        AppLogger.i('Received ping data #$dataCount: $data', tag: 'ToolsRepositoryImpl');
         // Update statistics from each packet
         if (data.containsKey('sent')) {
           packetsSent = int.tryParse(data['sent'] ?? '0') ?? 0;
@@ -176,19 +205,100 @@ class ToolsRepositoryImpl implements ToolsRepository {
     int timeout = 1000,
   }) async* {
     try {
-      var hopIndex = 0;
+      // Map to track hops by their hop number
+      final hopMap = <int, TracerouteHop>{};
       
-      await for (final data in routerOsClient.tracerouteStream(
+      // Track current section and hop index within section
+      int currentSection = -1;
+      int hopIndex = 0;
+      
+      // Use legacy client for streaming
+      final stream = legacyClient.tracerouteStream(
         address: target,
         maxHops: maxHops,
-      )) {
-        // Convert each hop update to entity and yield it
-        final hop = TracerouteHopModel.fromRouterOS(data, hopIndex).toEntity();
-        yield hop;
+      );
+      
+      await for (final data in stream) {
+        // Skip done/trap messages
+        if (data['type'] == 'done' || data['type'] == 'trap') continue;
+        
+        // Get section number
+        final section = int.tryParse(data['.section'] ?? '') ?? 0;
+        
+        // When section changes, reset hop index
+        if (section != currentSection) {
+          currentSection = section;
+          hopIndex = 0;
+        }
+        
+        // Increment hop index for each response in this section
         hopIndex++;
+        final hopNumber = hopIndex;
+        
+        final address = data['address'] ?? '';
+        final lastValue = data['last'] ?? '';
+        final isTimeout = lastValue == 'timeout' || (address.isEmpty && lastValue == '0');
+        
+        // Parse RTT values (in milliseconds, can be decimal like "0.8")
+        Duration? rtt1, rtt2, rtt3;
+        if (!isTimeout && address.isNotEmpty) {
+          if (data['best'] != null && data['best']!.isNotEmpty) {
+            rtt1 = _parseMilliseconds(data['best']!);
+          }
+          if (data['avg'] != null && data['avg']!.isNotEmpty) {
+            rtt2 = _parseMilliseconds(data['avg']!);
+          }
+          if (data['worst'] != null && data['worst']!.isNotEmpty) {
+            rtt3 = _parseMilliseconds(data['worst']!);
+          }
+        }
+        
+        final isReachable = address.isNotEmpty && !isTimeout;
+        
+        // Create hop
+        final hop = TracerouteHop(
+          hopNumber: hopNumber,
+          ipAddress: address.isNotEmpty ? address : null,
+          hostname: data['name']?.isNotEmpty == true ? data['name'] : null,
+          rtt1: rtt1,
+          rtt2: rtt2,
+          rtt3: rtt3,
+          isReachable: isReachable,
+          status: isTimeout ? 'timeout' : null,
+        );
+        
+        // Update hop map - prefer reachable hops over timeout
+        final existingHop = hopMap[hopNumber];
+        if (existingHop == null || 
+            (isReachable && !existingHop.isReachable) ||
+            (isReachable && rtt1 != null)) {
+          hopMap[hopNumber] = hop;
+          
+          // Yield the updated hop
+          yield hop;
+        }
       }
     } catch (e) {
       throw ServerException('Failed to perform streaming traceroute: $e');
+    }
+  }
+  
+  /// Parse milliseconds value (can be integer or decimal like "0.3", "1", "10.5")
+  static Duration? _parseMilliseconds(String value) {
+    final ms = double.tryParse(value);
+    if (ms == null) return null;
+    return Duration(microseconds: (ms * 1000).round());
+  }
+
+  /// Stop traceroute stream
+  @override
+  Future<Either<Failure, void>> stopTraceroute() async {
+    try {
+      // Use legacy client to stop streaming
+      await legacyClient.stopStreaming();
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure('Failed to stop traceroute: $e'));
     }
   }
 
@@ -200,7 +310,6 @@ class ToolsRepositoryImpl implements ToolsRepository {
     try {
       final response = await routerOsClient.dnsLookup(
         name: domain,
-        timeout: timeout,
       );
 
       final model = DnsLookupResultModel.fromRouterOS(domain, response);

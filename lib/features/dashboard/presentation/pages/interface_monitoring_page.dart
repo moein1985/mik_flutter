@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:floating/floating.dart';
 import '../../../../core/monitoring/interface_monitor.dart';
 import '../../../../core/monitoring/monitoring_chart.dart';
-import '../../../../core/network/routeros_client.dart';
+import '../../../../core/network/routeros_client_v2.dart';
 
 /// Interface monitoring page with real-time traffic charts
 class InterfaceMonitoringPage extends StatefulWidget {
   final String interfaceName;
-  final RouterOSClient client;
+  final RouterOSClientV2 client;
 
   const InterfaceMonitoringPage({
     super.key,
@@ -280,7 +280,7 @@ class _InterfaceMonitoringPageState extends State<InterfaceMonitoringPage> {
 /// Compact monitoring widget for embedding in other pages
 class CompactMonitoringWidget extends StatefulWidget {
   final String interfaceName;
-  final RouterOSClient client;
+  final RouterOSClientV2 client;
   final double height;
   final VoidCallback? onTap;
 

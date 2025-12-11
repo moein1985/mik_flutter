@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/router/app_router.dart';
 import '../../domain/entities/dns_lookup_result.dart';
 import '../../domain/entities/ping_result.dart';
 import '../../domain/entities/traceroute_hop.dart';
@@ -90,7 +92,7 @@ class _ToolsPageState extends State<ToolsPage> {
                         title: l10n.ping,
                         subtitle: l10n.pingConnectivity,
                         color: Colors.blue,
-                        onTap: () => _showPingDialog(context, l10n),
+                        onTap: () => context.push(AppRoutes.toolsPing),
                       ),
                       _buildToolCard(
                         context,
@@ -98,7 +100,7 @@ class _ToolsPageState extends State<ToolsPage> {
                         title: l10n.traceroute,
                         subtitle: l10n.tracePath,
                         color: Colors.green,
-                        onTap: () => _showTracerouteDialog(context, l10n),
+                        onTap: () => context.push(AppRoutes.toolsTraceroute),
                       ),
                       _buildToolCard(
                         context,
@@ -941,132 +943,6 @@ class _ToolsPageState extends State<ToolsPage> {
             ],
           ],
         ),
-      ),
-    );
-  }
-
-  void _showPingDialog(BuildContext context, AppLocalizations l10n) {
-    final targetController = TextEditingController();
-    final countController = TextEditingController(text: '4');
-    final timeoutController = TextEditingController(text: '1000');
-    final toolsBloc = context.read<ToolsBloc>();
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.pingTest),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: targetController,
-              decoration: InputDecoration(
-                labelText: l10n.targetHost,
-                hintText: 'e.g., google.com or 8.8.8.8',
-              ),
-            ),
-            TextField(
-              controller: countController,
-              decoration: InputDecoration(
-                labelText: l10n.packetCount,
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: timeoutController,
-              decoration: InputDecoration(
-                labelText: l10n.timeoutMs,
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final target = targetController.text.trim();
-              final count = int.tryParse(countController.text) ?? 4;
-              final timeout = int.tryParse(timeoutController.text) ?? 1000;
-
-              if (target.isNotEmpty) {
-                toolsBloc.add(StartPing(
-                  target: target,
-                  count: count,
-                  timeout: timeout,
-                ));
-                Navigator.of(dialogContext).pop();
-              }
-            },
-            child: Text(l10n.startPing),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showTracerouteDialog(BuildContext context, AppLocalizations l10n) {
-    final targetController = TextEditingController();
-    final maxHopsController = TextEditingController(text: '30');
-    final timeoutController = TextEditingController(text: '1000');
-    final toolsBloc = context.read<ToolsBloc>();
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.tracerouteTest),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: targetController,
-              decoration: InputDecoration(
-                labelText: l10n.targetHost,
-                hintText: 'e.g., google.com or 8.8.8.8',
-              ),
-            ),
-            TextField(
-              controller: maxHopsController,
-              decoration: InputDecoration(
-                labelText: l10n.maxHops,
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: timeoutController,
-              decoration: InputDecoration(
-                labelText: l10n.timeoutMs,
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final target = targetController.text.trim();
-              final maxHops = int.tryParse(maxHopsController.text) ?? 30;
-              final timeout = int.tryParse(timeoutController.text) ?? 1000;
-
-              if (target.isNotEmpty) {
-                toolsBloc.add(StartTraceroute(
-                  target: target,
-                  maxHops: maxHops,
-                  timeout: timeout,
-                ));
-                Navigator.of(dialogContext).pop();
-              }
-            },
-            child: Text(l10n.startTraceroute),
-          ),
-        ],
       ),
     );
   }

@@ -175,10 +175,10 @@ class HotspotRemoteDataSourceImpl implements HotspotRemoteDataSource {
   HotspotRemoteDataSourceImpl({required this.authRemoteDataSource});
 
   RouterOSClient get client {
-    if (authRemoteDataSource.client == null) {
+    if (authRemoteDataSource.legacyClient == null) {
       throw ServerException('Not connected to router');
     }
-    return authRemoteDataSource.client!;
+    return authRemoteDataSource.legacyClient!;
   }
 
   @override

@@ -1,4 +1,4 @@
-import '../../../../core/network/routeros_client.dart';
+import '../../../../core/network/routeros_client_v2.dart';
 import '../../../../core/utils/logger.dart';
 import '../../../auth/data/datasources/auth_remote_data_source.dart';
 import '../models/certificate_model.dart';
@@ -111,7 +111,7 @@ class CertificateRemoteDataSourceImpl implements CertificateRemoteDataSource {
 
   CertificateRemoteDataSourceImpl({required this.authRemoteDataSource});
 
-  RouterOSClient get _client {
+  RouterOSClientV2 get _client {
     final client = authRemoteDataSource.client;
     if (client == null) {
       throw Exception('Not connected to router');

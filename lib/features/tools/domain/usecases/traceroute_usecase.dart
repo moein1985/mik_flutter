@@ -22,6 +22,11 @@ class TracerouteUseCase {
     );
   }
 
+  /// Stop ongoing traceroute operation
+  Future<Either<Failure, void>> stop() async {
+    return await repository.stopTraceroute();
+  }
+
   /// Execute traceroute operation with streaming updates
   /// Returns a stream that emits hops as they are discovered
   Stream<TracerouteHop> callStream({

@@ -2,10 +2,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
 // Core
+import 'core/network/routeros_client_v2.dart';
 import 'core/network/routeros_client.dart';
-import 'core/network/clients/system_routeros_client.dart';
-import 'core/network/clients/wireless_routeros_client.dart';
-import 'core/network/clients/backup_routeros_client.dart';
 
 // Features - Auth
 import 'features/auth/data/datasources/auth_local_data_source.dart';
@@ -493,7 +491,8 @@ Future<void> init() async {
       pingUseCase: sl(),
       tracerouteUseCase: sl(),
       dnsLookupUseCase: sl(),
-      routerOsClient: sl(),
+      getInterfacesUseCase: sl(),
+      getIpAddressesUseCase: sl(),
     ),
   );
 
@@ -506,6 +505,7 @@ Future<void> init() async {
   sl.registerLazySingleton<ToolsRepository>(
     () => ToolsRepositoryImpl(
       routerOsClient: sl(),
+      legacyClient: sl(),  // Legacy client for streaming (package has bugs)
     ),
   );
 
@@ -603,7 +603,7 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<LogsRemoteDataSource>(
     () => LogsRemoteDataSourceImpl(
-      sl(),
+      authRemoteDataSource: sl(),
     ),
   );
 
@@ -643,23 +643,18 @@ Future<void> init() async {
   //! Core
   sl.registerLazySingleton(() => const FlutterSecureStorage());
   
-  // RouterOS Client - gets the client from auth remote data source
-  sl.registerLazySingleton<RouterOSClient>(
+  // RouterOS Client V2 - gets the client from auth remote data source
+  sl.registerLazySingleton<RouterOSClientV2>(
     () => sl<AuthRemoteDataSource>().client!,
   );
-
-  // Domain-specific RouterOS Clients
-  sl.registerLazySingleton<SystemRouterOSClient>(
-    () => SystemRouterOSClient(sl<RouterOSClient>()),
+  
+  // Legacy RouterOS Client - for streaming operations (package has bugs)
+  sl.registerLazySingleton<RouterOSClient>(
+    () => sl<AuthRemoteDataSource>().legacyClient!,
   );
 
-  sl.registerLazySingleton<WirelessRouterOSClient>(
-    () => WirelessRouterOSClient(sl<RouterOSClient>()),
-  );
-
-  sl.registerLazySingleton<BackupRouterOSClient>(
-    () => BackupRouterOSClient(sl<RouterOSClient>()),
-  );
+  // Domain-specific RouterOS Clients (using old client for now - will migrate later)
+  // For now, we'll comment them out as they depend on RouterOSClient
 
   //! External
 }

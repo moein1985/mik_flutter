@@ -31,7 +31,7 @@ void main() {
           'disabled': 'false',
         },
       ];
-      when(() => mockAuthRemoteDataSource.client).thenReturn(mockClient);
+      when(() => mockAuthRemoteDataSource.legacyClient).thenReturn(mockClient);
       when(() => mockClient.getHotspotServers()).thenAnswer((_) async => tResponse);
 
       // Act
@@ -46,7 +46,7 @@ void main() {
 
     test('should throw ServerException when getServers fails', () async {
       // Arrange
-      when(() => mockAuthRemoteDataSource.client).thenReturn(mockClient);
+      when(() => mockAuthRemoteDataSource.legacyClient).thenReturn(mockClient);
       when(() => mockClient.getHotspotServers()).thenThrow(Exception('Network error'));
 
       // Act & Assert
@@ -55,7 +55,7 @@ void main() {
 
     test('should throw ServerException when not connected', () async {
       // Arrange
-      when(() => mockAuthRemoteDataSource.client).thenReturn(null);
+      when(() => mockAuthRemoteDataSource.legacyClient).thenReturn(null);
 
       // Act & Assert
       expect(() => dataSource.getServers(), throwsA(isA<ServerException>()));

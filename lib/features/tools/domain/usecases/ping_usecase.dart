@@ -29,15 +29,35 @@ class PingUseCase {
 
   /// Execute continuous ping operation with streaming updates
   /// Returns a stream that emits ping results as packets arrive
+  /// 
+  /// Parameters:
+  /// - [target]: Target IP or hostname
+  /// - [interval]: Interval between packets in seconds (default: 1)
+  /// - [count]: Number of packets to send (default: 100 for continuous)
+  /// - [size]: Packet size in bytes (default: 56)
+  /// - [ttl]: Time to live (default: 64)
+  /// - [srcAddress]: Source address (default: auto)
+  /// - [interfaceName]: Interface to use (default: auto)
+  /// - [doNotFragment]: Set DF flag (default: false)
   Stream<PingResult> callStream({
     required String target,
     int interval = 1,
-    int timeout = 1000,
+    int count = 100,
+    int? size,
+    int? ttl,
+    String? srcAddress,
+    String? interfaceName,
+    bool doNotFragment = false,
   }) {
     return repository.pingStream(
       target: target,
       interval: interval,
-      timeout: timeout,
+      count: count,
+      size: size,
+      ttl: ttl,
+      srcAddress: srcAddress,
+      interfaceName: interfaceName,
+      doNotFragment: doNotFragment,
     );
   }
 }

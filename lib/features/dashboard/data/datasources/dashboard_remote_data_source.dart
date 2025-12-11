@@ -1,4 +1,4 @@
-import '../../../../core/network/routeros_client.dart';
+import '../../../../core/network/routeros_client_v2.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../auth/data/datasources/auth_remote_data_source.dart';
 import '../models/system_resource_model.dart';
@@ -30,7 +30,7 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
 
   DashboardRemoteDataSourceImpl({required this.authRemoteDataSource});
 
-  RouterOSClient get client {
+  RouterOSClientV2 get client {
     if (authRemoteDataSource.client == null) {
       throw ServerException('Not connected to router');
     }

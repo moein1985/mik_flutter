@@ -1085,5 +1085,263 @@
   "advancedFeatures": "Advanced Features",
   "@advancedFeatures": {
     "description": "Advanced Features section title"
+  },
+  "pingQuickTip": "For most tasks, you don't need advanced settings! Just enter the address and tap Start.",
+  "@pingQuickTip": {
+    "description": "Quick tip for ping page"
+  },
+  "advancedOptions": "Advanced Options",
+  "@advancedOptions": {
+    "description": "Advanced options section title"
+  },
+  "forAdvancedUsers": "For advanced users",
+  "@forAdvancedUsers": {
+    "description": "Subtitle for advanced options"
+  },
+  "packetSize": "Packet Size",
+  "@packetSize": {
+    "description": "Packet size field label"
+  },
+  "packetSizeHelp": "Data packet size in bytes.\n\n• Default: 56 bytes\n• Sufficient for normal testing\n• Use higher values (e.g., 1500) for MTU testing",
+  "@packetSizeHelp": {
+    "description": "Help text for packet size field"
+  },
+  "ttl": "TTL",
+  "@ttl": {
+    "description": "TTL field label"
+  },
+  "ttlHelp": "Maximum number of routers the packet can pass through.\n\n• Default: 64\n• Usually no need to change\n• Higher values mean lost packets take longer to detect",
+  "@ttlHelp": {
+    "description": "Help text for TTL field"
+  },
+  "interval": "Interval",
+  "@interval": {
+    "description": "Interval field label"
+  },
+  "intervalHelp": "Time between sending each packet in seconds.\n\n• Default: 1 second\n• Lower = faster test\n• Higher = less network load",
+  "@intervalHelp": {
+    "description": "Help text for interval field"
+  },
+  "count": "Count",
+  "@count": {
+    "description": "Count field label"
+  },
+  "countHelp": "Total number of packets to send.\n\n• Default: 100\n• For quick test: 4 to 10\n• For stability test: 100+",
+  "@countHelp": {
+    "description": "Help text for count field"
+  },
+  "sourceAddress": "Source Address",
+  "@sourceAddress": {
+    "description": "Source address field label"
+  },
+  "sourceAddressHelp": "IP address from which packets are sent.\n\n• Auto: Router chooses the best address\n• If you have multiple IPs, you can specify which one to use",
+  "@sourceAddressHelp": {
+    "description": "Help text for source address field"
+  },
+  "interface": "Interface",
+  "@interface": {
+    "description": "Interface field label"
+  },
+  "interfaceHelp": "Which network port to send packets from.\n\n• Auto: Router decides automatically\n• Useful when you have multiple routes to a destination\n• Select to test a specific port",
+  "@interfaceHelp": {
+    "description": "Help text for interface field"
+  },
+  "doNotFragment": "Do Not Fragment",
+  "@doNotFragment": {
+    "description": "Do not fragment switch label"
+  },
+  "doNotFragmentHelp": "If enabled, packets won't be fragmented.\n\n• Used for testing network MTU\n• If packet is larger than MTU, it will fail\n• Usually not needed",
+  "@doNotFragmentHelp": {
+    "description": "Help text for do not fragment switch"
+  },
+  "forMtuTesting": "For MTU testing",
+  "@forMtuTesting": {
+    "description": "Subtitle for do not fragment switch"
+  },
+  "autoDefault": "Auto (default)",
+  "@autoDefault": {
+    "description": "Auto default option in dropdown"
+  },
+  "liveStatistics": "Live Statistics",
+  "@liveStatistics": {
+    "description": "Live statistics card title"
+  },
+  "sent": "Sent",
+  "@sent": {
+    "description": "Sent packets label"
+  },
+  "received": "Received",
+  "@received": {
+    "description": "Received packets label"
+  },
+  "loss": "Loss",
+  "@loss": {
+    "description": "Packet loss label"
+  },
+  "successRate": "{rate}% Success Rate",
+  "@successRate": {
+    "description": "Success rate display",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "roundTripTime": "Round Trip Time",
+  "@roundTripTime": {
+    "description": "RTT card title"
+  },
+  "min": "Min",
+  "@min": {
+    "description": "Minimum RTT label"
+  },
+  "avg": "Avg",
+  "@avg": {
+    "description": "Average RTT label"
+  },
+  "max": "Max",
+  "@max": {
+    "description": "Maximum RTT label"
+  },
+  "packetHistory": "Packet History",
+  "@packetHistory": {
+    "description": "Packet history card title"
+  },
+  "packetsCount": "{count} packets",
+  "@packetsCount": {
+    "description": "Packet count display",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "waitingForPackets": "Waiting for packets...",
+  "@waitingForPackets": {
+    "description": "Waiting for packets message"
+  },
+  "start": "START",
+  "@start": {
+    "description": "Start button text"
+  },
+  "stop": "STOP",
+  "@stop": {
+    "description": "Stop button text"
+  },
+  "pleaseEnterTarget": "Please enter a target address",
+  "@pleaseEnterTarget": {
+    "description": "Error message when target is empty"
+  },
+  "targetHostHint": "e.g., 1.1.1.1 or google.com",
+  "@targetHostHint": {
+    "description": "Hint for target host input"
+  },
+  "bytes": "bytes",
+  "@bytes": {
+    "description": "Bytes unit"
+  },
+  "sec": "sec",
+  "@sec": {
+    "description": "Seconds unit"
+  },
+  "timeout": "timeout",
+  "@timeout": {
+    "description": "Timeout label"
+  },
+  
+  "tracerouteQuickTip": "💡 Traceroute shows the path packets take to reach a destination, useful for diagnosing routing issues.",
+  "@tracerouteQuickTip": {
+    "description": "Quick tip for traceroute"
+  },
+  "maxHopsLabel": "Max Hops",
+  "@maxHopsLabel": {
+    "description": "Maximum hops field label"
+  },
+  "maxHopsHelp": "Maximum number of hops to trace.\n\n• Default: 30\n• Lower value = faster but may not reach destination\n• Higher value = can trace longer paths",
+  "@maxHopsHelp": {
+    "description": "Help text for max hops"
+  },
+  "countProbes": "Probes per Hop",
+  "@countProbes": {
+    "description": "Count of probes per hop label"
+  },
+  "countProbesHelp": "Number of probe packets sent per hop.\n\n• Default: 3\n• More probes = more accurate RTT statistics\n• Fewer probes = faster completion",
+  "@countProbesHelp": {
+    "description": "Help text for probes per hop"
+  },
+  "timeoutMsLabel": "Timeout",
+  "@timeoutMsLabel": {
+    "description": "Timeout in milliseconds label"
+  },
+  "timeoutMsHelp": "Time to wait for each probe response.\n\n• Default: 1000ms\n• Lower timeout = faster but may miss slow responses\n• Higher timeout = more accurate for high-latency paths",
+  "@timeoutMsHelp": {
+    "description": "Help text for timeout"
+  },
+  "ms": "ms",
+  "@ms": {
+    "description": "Milliseconds unit"
+  },
+  "routePath": "Route Path",
+  "@routePath": {
+    "description": "Route path section title"
+  },
+  "hopCount": "{count} hops",
+  "@hopCount": {
+    "description": "Hop count display",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "totalTime": "Total Time",
+  "@totalTime": {
+    "description": "Total time label"
+  },
+  "targetReached": "Target Reached",
+  "@targetReached": {
+    "description": "Target reached status"
+  },
+  "targetNotReached": "Target Not Reached",
+  "@targetNotReached": {
+    "description": "Target not reached status"
+  },
+  "hopNumber": "Hop #{number}",
+  "@hopNumber": {
+    "description": "Hop number display",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "unknown": "Unknown",
+  "@unknown": {
+    "description": "Unknown value"
+  },
+  "best": "Best",
+  "@best": {
+    "description": "Best RTT label"
+  },
+  "worst": "Worst",
+  "@worst": {
+    "description": "Worst RTT label"
+  },
+  "waitingForHops": "Waiting for route discovery...",
+  "@waitingForHops": {
+    "description": "Waiting for hops message"
+  },
+  "tracerouteInProgress": "Tracing route to {target}...",
+  "@tracerouteInProgress": {
+    "description": "Traceroute in progress message",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "hops": "hops",
+  "@hops": {
+    "description": "Hops unit"
   }
 }

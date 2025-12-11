@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/network/routeros_client.dart';
+import '../../../dashboard/domain/usecases/get_interfaces_usecase.dart';
+import '../../../dashboard/domain/usecases/get_ip_addresses_usecase.dart';
 import '../../domain/entities/traceroute_hop.dart';
 import '../../domain/usecases/dns_lookup_usecase.dart';
 import '../../domain/usecases/ping_usecase.dart';
@@ -14,16 +15,22 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
   final PingUseCase pingUseCase;
   final TracerouteUseCase tracerouteUseCase;
   final DnsLookupUseCase dnsLookupUseCase;
-  final RouterOSClient routerOsClient;
+  final GetInterfacesUseCase getInterfacesUseCase;
+  final GetIpAddressesUseCase getIpAddressesUseCase;
 
   bool _isPingCancelled = false;
   bool _isTracerouteCancelled = false;
+  
+  // Cache network info for ping options
+  List<String> _cachedInterfaces = [];
+  List<String> _cachedIpAddresses = [];
 
   ToolsBloc({
     required this.pingUseCase,
     required this.tracerouteUseCase,
     required this.dnsLookupUseCase,
-    required this.routerOsClient,
+    required this.getInterfacesUseCase,
+    required this.getIpAddressesUseCase,
   }) : super(const ToolsInitial()) {
     on<StartPing>(_onStartPing);
     on<StopPing>(_onStopPing);
@@ -31,6 +38,43 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
     on<StopTraceroute>(_onStopTraceroute);
     on<StartDnsLookup>(_onStartDnsLookup);
     on<ClearResults>(_onClearResults);
+    on<LoadNetworkInfo>(_onLoadNetworkInfo);
+  }
+  
+  // Getters for cached network info
+  List<String> get interfaces => _cachedInterfaces;
+  List<String> get ipAddresses => _cachedIpAddresses;
+
+  Future<void> _onLoadNetworkInfo(
+    LoadNetworkInfo event,
+    Emitter<ToolsState> emit,
+  ) async {
+    try {
+      // Fetch interfaces
+      final interfacesResult = await getInterfacesUseCase();
+      interfacesResult.fold(
+        (failure) => null,
+        (interfaces) {
+          _cachedInterfaces = interfaces.map((i) => i.name).toList();
+        },
+      );
+      
+      // Fetch IP addresses
+      final ipResult = await getIpAddressesUseCase();
+      ipResult.fold(
+        (failure) => null,
+        (ips) {
+          _cachedIpAddresses = ips.map((ip) => ip.address.split('/').first).toList();
+        },
+      );
+      
+      emit(NetworkInfoLoaded(
+        interfaces: _cachedInterfaces,
+        ipAddresses: _cachedIpAddresses,
+      ));
+    } catch (e) {
+      // Silent fail - just use empty lists
+    }
   }
 
   Future<void> _onStartPing(StartPing event, Emitter<ToolsState> emit) async {
@@ -43,7 +87,13 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
       await emit.forEach(
         pingUseCase.callStream(
           target: event.target,
-          timeout: event.timeout,
+          interval: event.interval,
+          count: event.count,
+          size: event.size,
+          ttl: event.ttl,
+          srcAddress: event.srcAddress,
+          interfaceName: event.interfaceName,
+          doNotFragment: event.doNotFragment,
         ).takeWhile((_) => !_isPingCancelled),
         onData: (result) {
           // Emit updated result with new packet
@@ -68,8 +118,8 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
 
   void _onStopPing(StopPing event, Emitter<ToolsState> emit) {
     _isPingCancelled = true;
-    // Stop the streaming on RouterOS side
-    routerOsClient.stopStreaming();
+    // Stop ping stream through use case (which manages the tag)
+    pingUseCase.stop();
     
     // Keep the last ping result when stopping
     if (state is PingUpdating) {
@@ -87,7 +137,8 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
     emit(const TracerouteInProgress());
 
     try {
-      final hops = <TracerouteHop>[];
+      // Map to track unique hops by hopNumber (handles updates to same hop)
+      final hopMap = <int, TracerouteHop>{};
       
       // Stream hop updates as they arrive
       // Use takeWhile to allow cancellation
@@ -98,9 +149,15 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
           timeout: event.timeout,
         ).takeWhile((_) => !_isTracerouteCancelled),
         onData: (hop) {
-          hops.add(hop);
-          // Emit updated list with new hop
-          return TracerouteUpdating(List.from(hops));
+          // Update or add hop (handles RouterOS sending multiple updates per hop)
+          hopMap[hop.hopNumber] = hop;
+          
+          // Get sorted list of hops
+          final sortedHops = hopMap.values.toList()
+            ..sort((a, b) => a.hopNumber.compareTo(b.hopNumber));
+          
+          // Emit updated list
+          return TracerouteUpdating(sortedHops);
         },
         onError: (error, stackTrace) {
           return TracerouteFailed(error.toString());
@@ -108,8 +165,10 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
       );
       
       // Final state when all hops received
-      if (!_isTracerouteCancelled && hops.isNotEmpty) {
-        emit(TracerouteCompleted(hops));
+      if (!_isTracerouteCancelled && hopMap.isNotEmpty) {
+        final sortedHops = hopMap.values.toList()
+          ..sort((a, b) => a.hopNumber.compareTo(b.hopNumber));
+        emit(TracerouteCompleted(sortedHops));
       }
     } catch (e) {
       if (!_isTracerouteCancelled) {
@@ -120,8 +179,8 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
 
   void _onStopTraceroute(StopTraceroute event, Emitter<ToolsState> emit) {
     _isTracerouteCancelled = true;
-    // Stop the streaming on RouterOS side
-    routerOsClient.stopStreaming();
+    // Stop traceroute stream through use case (which manages the tag)
+    tracerouteUseCase.stop();
     
     // Keep the last traceroute result when stopping
     if (state is TracerouteUpdating) {
@@ -160,7 +219,9 @@ class ToolsBloc extends Bloc<ToolsEvent, ToolsState> {
   Future<void> close() {
     _isPingCancelled = true;
     _isTracerouteCancelled = true;
-    routerOsClient.stopStreaming();
+    // Stop active streams through use cases
+    pingUseCase.stop();
+    tracerouteUseCase.stop();
     return super.close();
   }
 }
