@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:router_os_client/router_os_client.dart' as ros;
 import '../utils/logger.dart';
 import '../errors/exceptions.dart';
@@ -63,6 +64,7 @@ class RouterOSClientV2 {
       _log.d('Logging in as $username');
       
       // The package handles login internally
+      // For SSL connections, we use onBadCertificate to accept self-signed certificates
       _client = ros.RouterOSClient(
         address: host,
         port: port,
@@ -70,6 +72,10 @@ class RouterOSClientV2 {
         password: password,
         useSsl: useSsl,
         verbose: false,
+        onBadCertificate: useSsl ? (certificate) {
+          _log.w('Accepting self-signed certificate: ${certificate.subject}');
+          return true; // Accept all certificates (for self-signed certs)
+        } : null,
       );
       
       final success = await _client!.login();
@@ -78,7 +84,7 @@ class RouterOSClientV2 {
       if (success) {
         _log.i('Login successful');
       } else {
-        _log.w('Login failed');
+        _log.w('Login failed - check username/password');
       }
       
       return success;
@@ -86,8 +92,14 @@ class RouterOSClientV2 {
       _log.e('Login error: ${e.message}');
       _isConnected = false;
       return false;
-    } catch (e) {
-      _log.e('Login failed', error: e);
+    } on HandshakeException catch (e) {
+      _log.e('SSL Handshake failed - self-signed certificate? Error: $e');
+      _isConnected = false;
+      // Re-throw with more helpful message
+      throw ConnectionException('SSL certificate verification failed. The router may be using a self-signed certificate.');
+    } catch (e, stackTrace) {
+      _log.e('Login failed with exception: $e');
+      _log.d('Stack trace: $stackTrace');
       _isConnected = false;
       return false;
     }

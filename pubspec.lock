@@ -632,10 +632,9 @@ packages:
   router_os_client:
     dependency: "direct main"
     description:
-      name: router_os_client
-      sha256: "0e052b3f8e6fd29328463b1cab11b15599320fcb731499ff9f22f96f6b7c4812"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/router_os_client"
+      relative: true
+    source: path
     version: "2.0.0"
   shelf:
     dependency: transitive

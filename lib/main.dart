@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -9,12 +11,25 @@ import 'core/router/app_router.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
+/// Custom HttpOverrides to accept self-signed SSL certificates
+/// Used for connecting to MikroTik routers with self-signed certificates
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 extension MyAppExtension on BuildContext {
   MyAppState? get myAppState => findAncestorStateOfType<MyAppState>();
 }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Allow self-signed SSL certificates for MikroTik routers
+  HttpOverrides.global = MyHttpOverrides();
   
   // Initialize logging
   AppLogger.i('🚀 App starting...', tag: 'Main');

@@ -44,8 +44,9 @@ dependencies:
   # PiP (Picture-in-Picture)
   floating: ^6.0.0
   
-  # RouterOS API Client with Tag Support
-  router_os_client: ^2.0.0
+  # RouterOS API Client with Tag Support (local fork with self-signed cert support)
+  router_os_client:
+    path: packages/router_os_client
 
 dev_dependencies:
   flutter_test:
