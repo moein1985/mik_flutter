@@ -1098,4 +1098,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hops => 'hops';
+
+  @override
+  String get wirelessManagementDescription =>
+      'Manage wireless interfaces, clients, and security profiles';
+
+  @override
+  String get wirelessManagementHelpText =>
+      'This section allows you to manage wireless interfaces, monitor connected clients, configure security profiles, and perform wireless network scans.';
+
+  @override
+  String get help => 'Help';
+
+  @override
+  String get ok => 'OK';
 }

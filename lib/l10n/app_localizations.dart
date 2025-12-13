@@ -2143,6 +2143,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'hops'**
   String get hops;
+
+  /// Description text for wireless management section
+  ///
+  /// In en, this message translates to:
+  /// **'Manage wireless interfaces, clients, and security profiles'**
+  String get wirelessManagementDescription;
+
+  /// Help text explaining wireless management features
+  ///
+  /// In en, this message translates to:
+  /// **'This section allows you to manage wireless interfaces, monitor connected clients, configure security profiles, and perform wireless network scans.'**
+  String get wirelessManagementHelpText;
+
+  /// Help button or tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get help;
+
+  /// OK button text
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
 }
 
 class _AppLocalizationsDelegate

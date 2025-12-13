@@ -3,7 +3,7 @@ import '../../domain/usecases/get_backups_usecase.dart';
 import '../../domain/usecases/create_backup_usecase.dart';
 import '../../domain/usecases/delete_backup_usecase.dart';
 import '../../domain/usecases/restore_backup_usecase.dart';
-import '../../domain/usecases/download_backup_usecase.dart';
+import '../../domain/usecases/export_config_usecase.dart';
 import 'backup_event.dart';
 import 'backup_state.dart';
 
@@ -12,20 +12,20 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
   final CreateBackupUseCase createBackupUseCase;
   final DeleteBackupUseCase deleteBackupUseCase;
   final RestoreBackupUseCase restoreBackupUseCase;
-  final DownloadBackupUseCase downloadBackupUseCase;
+  final ExportConfigUseCase exportConfigUseCase;
 
   BackupBloc({
     required this.getBackupsUseCase,
     required this.createBackupUseCase,
     required this.deleteBackupUseCase,
     required this.restoreBackupUseCase,
-    required this.downloadBackupUseCase,
+    required this.exportConfigUseCase,
   }) : super(BackupInitial()) {
     on<LoadBackupsEvent>(_onLoadBackups);
     on<CreateBackupEvent>(_onCreateBackup);
     on<DeleteBackupEvent>(_onDeleteBackup);
     on<RestoreBackupEvent>(_onRestoreBackup);
-    on<DownloadBackupEvent>(_onDownloadBackup);
+    on<ExportConfigEvent>(_onExportConfig);
   }
 
   Future<void> _onLoadBackups(
@@ -44,13 +44,21 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
     CreateBackupEvent event,
     Emitter<BackupState> emit,
   ) async {
-    emit(BackupLoading());
-    final result = await createBackupUseCase(event.name);
+    emit(BackupCreating(event.name));
+    final result = await createBackupUseCase(CreateBackupParams(
+      name: event.name,
+      password: event.password,
+      dontEncrypt: event.dontEncrypt,
+    ));
     result.fold(
       (failure) => emit(BackupError(failure.message)),
-      (_) {
-        emit(const BackupOperationSuccess('Backup created successfully'));
-        add(LoadBackupsEvent()); // Reload the list
+      (success) {
+        if (success) {
+          emit(const BackupOperationSuccess('Backup created successfully'));
+          add(LoadBackupsEvent()); // Reload the list
+        } else {
+          emit(const BackupError('Failed to create backup'));
+        }
       },
     );
   }
@@ -63,9 +71,13 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
     final result = await deleteBackupUseCase(event.name);
     result.fold(
       (failure) => emit(BackupError(failure.message)),
-      (_) {
-        emit(const BackupOperationSuccess('Backup deleted successfully'));
-        add(LoadBackupsEvent()); // Reload the list
+      (success) {
+        if (success) {
+          emit(const BackupOperationSuccess('Backup deleted successfully'));
+          add(LoadBackupsEvent()); // Reload the list
+        } else {
+          emit(const BackupError('Failed to delete backup'));
+        }
       },
     );
   }
@@ -74,23 +86,43 @@ class BackupBloc extends Bloc<BackupEvent, BackupState> {
     RestoreBackupEvent event,
     Emitter<BackupState> emit,
   ) async {
-    emit(BackupLoading());
-    final result = await restoreBackupUseCase(event.name);
+    emit(BackupRestoring(event.name));
+    final result = await restoreBackupUseCase(RestoreBackupParams(
+      name: event.name,
+      password: event.password,
+    ));
     result.fold(
       (failure) => emit(BackupError(failure.message)),
-      (_) => emit(const BackupOperationSuccess('Backup restored successfully')),
+      (success) {
+        if (success) {
+          emit(const BackupOperationSuccess('Backup restore initiated. Router will reboot.'));
+        } else {
+          emit(const BackupError('Failed to restore backup'));
+        }
+      },
     );
   }
 
-  Future<void> _onDownloadBackup(
-    DownloadBackupEvent event,
+  Future<void> _onExportConfig(
+    ExportConfigEvent event,
     Emitter<BackupState> emit,
   ) async {
-    emit(BackupLoading());
-    final result = await downloadBackupUseCase(event.name);
+    emit(BackupExporting(event.fileName));
+    final result = await exportConfigUseCase(ExportConfigParams(
+      fileName: event.fileName,
+      compact: event.compact,
+      showSensitive: event.showSensitive,
+    ));
     result.fold(
       (failure) => emit(BackupError(failure.message)),
-      (_) => emit(const BackupOperationSuccess('Backup downloaded successfully')),
+      (success) {
+        if (success) {
+          emit(const BackupOperationSuccess('Config exported successfully'));
+          add(LoadBackupsEvent()); // Reload to show new .rsc file
+        } else {
+          emit(const BackupError('Failed to export config'));
+        }
+      },
     );
   }
 }

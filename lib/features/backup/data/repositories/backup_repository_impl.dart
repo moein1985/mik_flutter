@@ -15,50 +15,80 @@ class BackupRepositoryImpl implements BackupRepository {
     try {
       final result = await remoteDataSource.getBackups();
       return Right(result);
-    } on ServerException {
-      return Left(const ServerFailure('Failed to load backup files'));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> createBackup(String name) async {
-    try {
-      await remoteDataSource.createBackup(name);
-      return const Right(null);
-    } on ServerException {
-      return Left(const ServerFailure('Failed to create backup'));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> deleteBackup(String name) async {
-    try {
-      await remoteDataSource.deleteBackup(name);
-      return const Right(null);
-    } on ServerException {
-      return Left(const ServerFailure('Failed to delete backup'));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> restoreBackup(String name) async {
-    try {
-      await remoteDataSource.restoreBackup(name);
-      return const Right(null);
-    } on ServerException {
-      return Left(const ServerFailure('Failed to restore backup'));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> downloadBackup(String name) async {
-    try {
-      await remoteDataSource.downloadBackup(name);
-      return const Right(null);
-    } on ServerException {
-      return Left(const ServerFailure('Failed to download backup'));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(const ServerFailure('Download backup not implemented'));
+      return Left(ServerFailure('Failed to load backup files: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> createBackup({
+    required String name,
+    String? password,
+    bool dontEncrypt = true,
+  }) async {
+    try {
+      final result = await remoteDataSource.createBackup(
+        name: name,
+        password: password,
+        dontEncrypt: dontEncrypt,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Failed to create backup: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> deleteBackup(String name) async {
+    try {
+      final result = await remoteDataSource.deleteBackup(name);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Failed to delete backup: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> restoreBackup({
+    required String name,
+    String? password,
+  }) async {
+    try {
+      final result = await remoteDataSource.restoreBackup(
+        name: name,
+        password: password,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Failed to restore backup: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> exportConfig({
+    required String fileName,
+    bool compact = true,
+    bool showSensitive = false,
+  }) async {
+    try {
+      final result = await remoteDataSource.exportConfig(
+        fileName: fileName,
+        compact: compact,
+        showSensitive: showSensitive,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Failed to export config: $e'));
     }
   }
 }

@@ -1096,4 +1096,18 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get hops => 'گام';
+
+  @override
+  String get wirelessManagementDescription =>
+      'مدیریت رابط‌های بی‌سیم، کلاینت‌ها و پروفایل‌های امنیتی';
+
+  @override
+  String get wirelessManagementHelpText =>
+      'این بخش به شما اجازه می‌دهد تا رابط‌های بی‌سیم را مدیریت کنید، کلاینت‌های متصل را نظارت کنید، پروفایل‌های امنیتی را پیکربندی کنید و اسکن شبکه‌های بی‌سیم را انجام دهید.';
+
+  @override
+  String get help => 'راهنما';
+
+  @override
+  String get ok => 'تأیید';
 }

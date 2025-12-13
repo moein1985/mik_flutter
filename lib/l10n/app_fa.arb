@@ -1419,5 +1419,21 @@
   "hops": "گام",
   "@hops": {
     "description": "واحد گام"
+  },
+  "wirelessManagementDescription": "مدیریت رابط‌های بی‌سیم، کلاینت‌ها و پروفایل‌های امنیتی",
+  "@wirelessManagementDescription": {
+    "description": "متن توضیحی برای بخش مدیریت بی‌سیم"
+  },
+  "wirelessManagementHelpText": "این بخش به شما اجازه می‌دهد تا رابط‌های بی‌سیم را مدیریت کنید، کلاینت‌های متصل را نظارت کنید، پروفایل‌های امنیتی را پیکربندی کنید و اسکن شبکه‌های بی‌سیم را انجام دهید.",
+  "@wirelessManagementHelpText": {
+    "description": "متن راهنما برای توضیح ویژگی‌های مدیریت بی‌سیم"
+  },
+  "help": "راهنما",
+  "@help": {
+    "description": "دکمه راهنما یا تولتیپ"
+  },
+  "ok": "تأیید",
+  "@ok": {
+    "description": "متن دکمه تأیید"
   }
 }

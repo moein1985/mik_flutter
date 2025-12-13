@@ -4,6 +4,9 @@ import '../../../../core/errors/failures.dart';
 import '../../domain/entities/wireless_interface.dart';
 import '../../domain/entities/wireless_registration.dart';
 import '../../domain/entities/security_profile.dart';
+import '../../domain/entities/wireless_scan_result.dart';
+import '../../domain/entities/access_list_entry.dart';
+import '../models/access_list_entry_model.dart';
 import '../../domain/repositories/wireless_repository.dart';
 import '../datasources/wireless_remote_data_source.dart';
 
@@ -109,6 +112,86 @@ class WirelessRepositoryImpl implements WirelessRepository {
       return const Right(null);
     } on ServerException {
       return Left(const ServerFailure('Failed to delete security profile'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<WirelessScanResult>>> scanWirelessNetworks({
+    required String interfaceId,
+    int? duration,
+  }) async {
+    try {
+      final result = await remoteDataSource.scanWirelessNetworks(
+        interfaceId: interfaceId,
+        duration: duration,
+      );
+      return Right(result);
+    } on ServerException {
+      return Left(const ServerFailure('Failed to scan wireless networks'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<AccessListEntry>>> getAccessList() async {
+    try {
+      final result = await remoteDataSource.getAccessList();
+      return Right(result);
+    } on ServerException {
+      return Left(const ServerFailure('Failed to load access list'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> addAccessListEntry(AccessListEntry entry) async {
+    try {
+      final model = AccessListEntryModel(
+        id: entry.id,
+        macAddress: entry.macAddress,
+        interface: entry.interface,
+        authentication: entry.authentication,
+        forwarding: entry.forwarding,
+        apTxLimit: entry.apTxLimit,
+        clientTxLimit: entry.clientTxLimit,
+        signalRange: entry.signalRange,
+        time: entry.time,
+        comment: entry.comment,
+      );
+      await remoteDataSource.addAccessListEntry(model.toMap());
+      return const Right(null);
+    } on ServerException {
+      return Left(const ServerFailure('Failed to add access list entry'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeAccessListEntry(String id) async {
+    try {
+      await remoteDataSource.removeAccessListEntry(id);
+      return const Right(null);
+    } on ServerException {
+      return Left(const ServerFailure('Failed to remove access list entry'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateAccessListEntry(AccessListEntry entry) async {
+    try {
+      final model = AccessListEntryModel(
+        id: entry.id,
+        macAddress: entry.macAddress,
+        interface: entry.interface,
+        authentication: entry.authentication,
+        forwarding: entry.forwarding,
+        apTxLimit: entry.apTxLimit,
+        clientTxLimit: entry.clientTxLimit,
+        signalRange: entry.signalRange,
+        time: entry.time,
+        comment: entry.comment,
+      );
+      await remoteDataSource.updateAccessListEntry(entry.id, model.toMap());
+      return const Right(null);
+    } on ServerException {
+      return Left(const ServerFailure('Failed to update access list entry'));
     }
   }
 }

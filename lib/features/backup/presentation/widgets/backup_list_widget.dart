@@ -103,7 +103,7 @@ class BackupListWidget extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              context.read<BackupBloc>().add(RestoreBackupEvent(backupName));
+              context.read<BackupBloc>().add(RestoreBackupEvent(name: backupName));
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(AppLocalizations.of(context)?.restore ?? 'Restore'),

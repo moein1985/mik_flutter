@@ -1419,5 +1419,21 @@
   "hops": "hops",
   "@hops": {
     "description": "Hops unit"
+  },
+  "wirelessManagementDescription": "Manage wireless interfaces, clients, and security profiles",
+  "@wirelessManagementDescription": {
+    "description": "Description text for wireless management section"
+  },
+  "wirelessManagementHelpText": "This section allows you to manage wireless interfaces, monitor connected clients, configure security profiles, and perform wireless network scans.",
+  "@wirelessManagementHelpText": {
+    "description": "Help text explaining wireless management features"
+  },
+  "help": "Help",
+  "@help": {
+    "description": "Help button or tooltip"
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "OK button text"
   }
 }

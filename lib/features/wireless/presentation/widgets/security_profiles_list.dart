@@ -93,23 +93,18 @@ class _SecurityProfilesListState extends State<SecurityProfilesList> with Automa
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Mode: ${profile.mode ?? 'N/A'}'),
-                        Text('Authentication: ${profile.authentication ?? 'N/A'}'),
-                        Text('Encryption: ${profile.encryption ?? 'N/A'}'),
-                        if (profile.wpaPreSharedKey != null)
-                          Text('WPA Key: ${'*' * (profile.wpaPreSharedKey!.length > 8 ? 8 : profile.wpaPreSharedKey!.length)}'),
+                        Text('Mode: ${profile.mode}'),
+                        Text('Authentication: ${profile.authentication.isNotEmpty ? profile.authentication : 'N/A'}'),
+                        Text('Encryption: ${profile.encryption.isNotEmpty ? profile.encryption : 'N/A'}'),
+                        if (profile.password.isNotEmpty)
+                          Text('WPA Key: ${'*' * (profile.password.length > 8 ? 8 : profile.password.length)}'),
                       ],
                     ),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: profile.disabled == 'true' ? Colors.red : Colors.green,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        profile.disabled == 'true' ? 'Disabled' : 'Enabled',
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
-                      ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.grey),
+                      onPressed: () {
+                        // TODO: Edit security profile
+                      },
                     ),
                     onTap: () {
                       // TODO: Navigate to profile details

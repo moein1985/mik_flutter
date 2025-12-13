@@ -12,6 +12,33 @@ class BackupInitial extends BackupState {}
 
 class BackupLoading extends BackupState {}
 
+class BackupCreating extends BackupState {
+  final String name;
+
+  const BackupCreating(this.name);
+
+  @override
+  List<Object?> get props => [name];
+}
+
+class BackupRestoring extends BackupState {
+  final String name;
+
+  const BackupRestoring(this.name);
+
+  @override
+  List<Object?> get props => [name];
+}
+
+class BackupExporting extends BackupState {
+  final String fileName;
+
+  const BackupExporting(this.fileName);
+
+  @override
+  List<Object?> get props => [fileName];
+}
+
 class BackupLoaded extends BackupState {
   final List<BackupFile> backups;
 

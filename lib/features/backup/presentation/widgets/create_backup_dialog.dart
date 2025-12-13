@@ -82,7 +82,7 @@ class _CreateBackupDialogState extends State<CreateBackupDialog> {
     setState(() => _isLoading = true);
 
     final backupName = _nameController.text.trim();
-    context.read<BackupBloc>().add(CreateBackupEvent(backupName));
+    context.read<BackupBloc>().add(CreateBackupEvent(name: backupName));
 
     // Close dialog after a short delay to allow the operation to start
     Future.delayed(const Duration(milliseconds: 500), () {

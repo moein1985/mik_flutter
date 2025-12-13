@@ -1,3 +1,5 @@
+import '../../domain/entities/access_list_entry.dart';
+
 abstract class WirelessState {
   const WirelessState();
 }
@@ -75,7 +77,7 @@ class AccessListLoading extends WirelessState {
 }
 
 class AccessListLoaded extends WirelessState {
-  final List<Map<String, dynamic>> accessList;
+  final List<AccessListEntry> accessList;
 
   const AccessListLoaded(this.accessList);
 }
@@ -97,4 +99,21 @@ class WirelessOperationError extends WirelessState {
   final String message;
 
   const WirelessOperationError(this.message);
+}
+
+// Scanner States
+class WirelessScanLoading extends WirelessState {
+  const WirelessScanLoading();
+}
+
+class WirelessScanLoaded extends WirelessState {
+  final List<dynamic> scanResults;
+
+  const WirelessScanLoaded(this.scanResults);
+}
+
+class WirelessScanError extends WirelessState {
+  final String message;
+
+  const WirelessScanError(this.message);
 }

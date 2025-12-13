@@ -4,9 +4,13 @@ import '../../../auth/data/datasources/auth_remote_data_source.dart';
 import '../../domain/entities/wireless_interface.dart';
 import '../../domain/entities/wireless_registration.dart';
 import '../../domain/entities/security_profile.dart';
+import '../../domain/entities/wireless_scan_result.dart';
+import '../../domain/entities/access_list_entry.dart';
 import '../models/wireless_interface_model.dart';
 import '../models/wireless_registration_model.dart';
 import '../models/security_profile_model.dart';
+import '../models/wireless_scan_result_model.dart';
+import '../models/access_list_entry_model.dart';
 
 abstract class WirelessRemoteDataSource {
   Future<List<WirelessInterface>> getWirelessInterfaces();
@@ -21,6 +25,16 @@ abstract class WirelessRemoteDataSource {
   Future<void> createSecurityProfile(SecurityProfile profile);
   Future<void> updateSecurityProfile(SecurityProfile profile);
   Future<void> deleteSecurityProfile(String profileId);
+
+  Future<List<WirelessScanResult>> scanWirelessNetworks({
+    required String interfaceId,
+    int? duration,
+  });
+
+  Future<List<AccessListEntry>> getAccessList();
+  Future<void> addAccessListEntry(Map<String, String> entry);
+  Future<void> removeAccessListEntry(String id);
+  Future<void> updateAccessListEntry(String id, Map<String, String> updates);
 }
 
 class WirelessRemoteDataSourceImpl implements WirelessRemoteDataSource {
@@ -141,6 +155,59 @@ class WirelessRemoteDataSourceImpl implements WirelessRemoteDataSource {
       await client.deleteWirelessSecurityProfile(profileId);
     } catch (e) {
       throw ServerException('Failed to delete security profile: $e');
+    }
+  }
+
+  @override
+  Future<List<WirelessScanResult>> scanWirelessNetworks({
+    required String interfaceId,
+    int? duration,
+  }) async {
+    try {
+      final result = await client.scanWirelessNetworks(
+        interfaceId: interfaceId,
+        duration: duration,
+      );
+      return result.map((map) => WirelessScanResultModel.fromMap(map)).toList();
+    } catch (e) {
+      throw ServerException('Failed to scan wireless networks: $e');
+    }
+  }
+
+  @override
+  Future<List<AccessListEntry>> getAccessList() async {
+    try {
+      final result = await client.getWirelessAccessList();
+      return result.map((map) => AccessListEntryModel.fromMap(map)).toList();
+    } catch (e) {
+      throw ServerException('Failed to get access list: $e');
+    }
+  }
+
+  @override
+  Future<void> addAccessListEntry(Map<String, String> entry) async {
+    try {
+      await client.addWirelessAccessListEntry(entry);
+    } catch (e) {
+      throw ServerException('Failed to add access list entry: $e');
+    }
+  }
+
+  @override
+  Future<void> removeAccessListEntry(String id) async {
+    try {
+      await client.removeWirelessAccessListEntry(id);
+    } catch (e) {
+      throw ServerException('Failed to remove access list entry: $e');
+    }
+  }
+
+  @override
+  Future<void> updateAccessListEntry(String id, Map<String, String> updates) async {
+    try {
+      await client.updateWirelessAccessListEntry(id, updates);
+    } catch (e) {
+      throw ServerException('Failed to update access list entry: $e');
     }
   }
 }

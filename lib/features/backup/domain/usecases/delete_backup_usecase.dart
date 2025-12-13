@@ -7,7 +7,7 @@ class DeleteBackupUseCase {
 
   DeleteBackupUseCase(this.repository);
 
-  Future<Either<Failure, void>> call(String name) async {
+  Future<Either<Failure, bool>> call(String name) async {
     return await repository.deleteBackup(name);
   }
 }

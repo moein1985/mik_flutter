@@ -218,7 +218,7 @@ class _DnsLookupPageState extends State<DnsLookupPage> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<DnsRecordType>(
-                    value: _selectedRecordType,
+                    initialValue: _selectedRecordType,
                     decoration: InputDecoration(
                       labelText: l10n.recordType,
                       prefixIcon: const Icon(Icons.category),

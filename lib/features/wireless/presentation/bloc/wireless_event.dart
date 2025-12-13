@@ -1,4 +1,5 @@
 import '../../domain/entities/security_profile.dart';
+import '../../domain/entities/access_list_entry.dart';
 
 abstract class WirelessEvent {
   const WirelessEvent();
@@ -57,4 +58,36 @@ class DeleteSecurityProfile extends WirelessEvent {
   final String profileId;
 
   const DeleteSecurityProfile(this.profileId);
+}
+
+class ScanWirelessNetworks extends WirelessEvent {
+  final String interfaceId;
+  final int? duration;
+
+  const ScanWirelessNetworks({
+    required this.interfaceId,
+    this.duration,
+  });
+}
+
+class LoadAccessList extends WirelessEvent {
+  const LoadAccessList();
+}
+
+class AddAccessListEntry extends WirelessEvent {
+  final AccessListEntry entry;
+
+  const AddAccessListEntry(this.entry);
+}
+
+class RemoveAccessListEntry extends WirelessEvent {
+  final String id;
+
+  const RemoveAccessListEntry(this.id);
+}
+
+class UpdateAccessListEntry extends WirelessEvent {
+  final AccessListEntry entry;
+
+  const UpdateAccessListEntry(this.entry);
 }

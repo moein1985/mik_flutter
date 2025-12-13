@@ -3,6 +3,8 @@ import '../../../../core/errors/failures.dart';
 import '../entities/wireless_interface.dart';
 import '../entities/wireless_registration.dart';
 import '../entities/security_profile.dart';
+import '../entities/wireless_scan_result.dart';
+import '../entities/access_list_entry.dart';
 
 abstract class WirelessRepository {
   /// Get all wireless interfaces
@@ -34,4 +36,22 @@ abstract class WirelessRepository {
 
   /// Delete a security profile
   Future<Either<Failure, void>> deleteSecurityProfile(String profileId);
+
+  /// Scan for wireless networks using a specific interface
+  Future<Either<Failure, List<WirelessScanResult>>> scanWirelessNetworks({
+    required String interfaceId,
+    int? duration,
+  });
+
+  /// Get all access list entries
+  Future<Either<Failure, List<AccessListEntry>>> getAccessList();
+
+  /// Add a new access list entry
+  Future<Either<Failure, void>> addAccessListEntry(AccessListEntry entry);
+
+  /// Remove an access list entry
+  Future<Either<Failure, void>> removeAccessListEntry(String id);
+
+  /// Update an existing access list entry
+  Future<Either<Failure, void>> updateAccessListEntry(AccessListEntry entry);
 }

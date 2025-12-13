@@ -115,6 +115,11 @@ import 'features/wireless/domain/repositories/wireless_repository.dart';
 import 'features/wireless/domain/usecases/get_wireless_interfaces_usecase.dart';
 import 'features/wireless/domain/usecases/get_wireless_registrations_usecase.dart';
 import 'features/wireless/domain/usecases/get_security_profiles_usecase.dart';
+import 'features/wireless/domain/usecases/scan_wireless_networks_usecase.dart';
+import 'features/wireless/domain/usecases/get_access_list_usecase.dart';
+import 'features/wireless/domain/usecases/add_access_list_entry_usecase.dart';
+import 'features/wireless/domain/usecases/remove_access_list_entry_usecase.dart';
+import 'features/wireless/domain/usecases/update_access_list_entry_usecase.dart';
 import 'features/wireless/presentation/bloc/wireless_bloc.dart';
 
 // Features - Logs
@@ -135,7 +140,7 @@ import 'features/backup/domain/usecases/get_backups_usecase.dart';
 import 'features/backup/domain/usecases/create_backup_usecase.dart';
 import 'features/backup/domain/usecases/delete_backup_usecase.dart';
 import 'features/backup/domain/usecases/restore_backup_usecase.dart';
-import 'features/backup/domain/usecases/download_backup_usecase.dart';
+import 'features/backup/domain/usecases/export_config_usecase.dart';
 import 'features/backup/presentation/bloc/backup_bloc.dart';
 
 // Features - Queues
@@ -559,6 +564,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateSecurityProfileUseCase(sl()));
   sl.registerLazySingleton(() => UpdateSecurityProfileUseCase(sl()));
   sl.registerLazySingleton(() => DeleteSecurityProfileUseCase(sl()));
+  sl.registerLazySingleton(() => ScanWirelessNetworksUseCase(sl()));
+  sl.registerLazySingleton(() => GetAccessListUseCase(sl()));
+  sl.registerLazySingleton(() => AddAccessListEntryUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveAccessListEntryUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateAccessListEntryUseCase(sl()));
 
   // Bloc
   sl.registerFactory(
@@ -573,6 +583,11 @@ Future<void> init() async {
       createSecurityProfileUseCase: sl(),
       updateSecurityProfileUseCase: sl(),
       deleteSecurityProfileUseCase: sl(),
+      scanWirelessNetworksUseCase: sl(),
+      getAccessListUseCase: sl(),
+      addAccessListEntryUseCase: sl(),
+      removeAccessListEntryUseCase: sl(),
+      updateAccessListEntryUseCase: sl(),
     ),
   );
 
@@ -615,7 +630,7 @@ Future<void> init() async {
       createBackupUseCase: sl(),
       deleteBackupUseCase: sl(),
       restoreBackupUseCase: sl(),
-      downloadBackupUseCase: sl(),
+      exportConfigUseCase: sl(),
     ),
   );
 
@@ -624,7 +639,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateBackupUseCase(sl()));
   sl.registerLazySingleton(() => DeleteBackupUseCase(sl()));
   sl.registerLazySingleton(() => RestoreBackupUseCase(sl()));
-  sl.registerLazySingleton(() => DownloadBackupUseCase(sl()));
+  sl.registerLazySingleton(() => ExportConfigUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<BackupRepository>(
@@ -636,7 +651,7 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<BackupRemoteDataSource>(
     () => BackupRemoteDataSourceImpl(
-      sl(),
+      authRemoteDataSource: sl(),
     ),
   );
 

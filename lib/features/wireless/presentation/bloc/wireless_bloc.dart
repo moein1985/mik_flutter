@@ -3,6 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/get_wireless_interfaces_usecase.dart';
 import '../../domain/usecases/get_wireless_registrations_usecase.dart';
 import '../../domain/usecases/get_security_profiles_usecase.dart';
+import '../../domain/usecases/scan_wireless_networks_usecase.dart';
+import '../../domain/usecases/get_access_list_usecase.dart';
+import '../../domain/usecases/add_access_list_entry_usecase.dart';
+import '../../domain/usecases/remove_access_list_entry_usecase.dart';
+import '../../domain/usecases/update_access_list_entry_usecase.dart';
 import 'wireless_event.dart';
 import 'wireless_state.dart';
 
@@ -17,6 +22,11 @@ class WirelessBloc extends Bloc<WirelessEvent, WirelessState> {
   final CreateSecurityProfileUseCase createSecurityProfileUseCase;
   final UpdateSecurityProfileUseCase updateSecurityProfileUseCase;
   final DeleteSecurityProfileUseCase deleteSecurityProfileUseCase;
+  final ScanWirelessNetworksUseCase scanWirelessNetworksUseCase;
+  final GetAccessListUseCase getAccessListUseCase;
+  final AddAccessListEntryUseCase addAccessListEntryUseCase;
+  final RemoveAccessListEntryUseCase removeAccessListEntryUseCase;
+  final UpdateAccessListEntryUseCase updateAccessListEntryUseCase;
 
   WirelessBloc({
     required this.getWirelessInterfacesUseCase,
@@ -29,6 +39,11 @@ class WirelessBloc extends Bloc<WirelessEvent, WirelessState> {
     required this.createSecurityProfileUseCase,
     required this.updateSecurityProfileUseCase,
     required this.deleteSecurityProfileUseCase,
+    required this.scanWirelessNetworksUseCase,
+    required this.getAccessListUseCase,
+    required this.addAccessListEntryUseCase,
+    required this.removeAccessListEntryUseCase,
+    required this.updateAccessListEntryUseCase,
   }) : super(const WirelessInitial()) {
     on<LoadWirelessInterfaces>(_onLoadWirelessInterfaces);
     on<EnableWirelessInterface>(_onEnableWirelessInterface);
@@ -40,6 +55,11 @@ class WirelessBloc extends Bloc<WirelessEvent, WirelessState> {
     on<CreateSecurityProfile>(_onCreateSecurityProfile);
     on<UpdateSecurityProfile>(_onUpdateSecurityProfile);
     on<DeleteSecurityProfile>(_onDeleteSecurityProfile);
+    on<ScanWirelessNetworks>(_onScanWirelessNetworks);
+    on<LoadAccessList>(_onLoadAccessList);
+    on<AddAccessListEntry>(_onAddAccessListEntry);
+    on<RemoveAccessListEntry>(_onRemoveAccessListEntry);
+    on<UpdateAccessListEntry>(_onUpdateAccessListEntry);
   }
 
   Future<void> _onLoadWirelessInterfaces(
@@ -180,5 +200,94 @@ class WirelessBloc extends Bloc<WirelessEvent, WirelessState> {
         add(const LoadSecurityProfiles()); // Reload the list
       },
     );
+  }
+
+  Future<void> _onScanWirelessNetworks(
+    ScanWirelessNetworks event,
+    Emitter<WirelessState> emit,
+  ) async {
+    emit(const WirelessScanLoading());
+    try {
+      final result = await scanWirelessNetworksUseCase.call(
+        interfaceId: event.interfaceId,
+        duration: event.duration,
+      );
+      result.fold(
+        (failure) => emit(WirelessScanError(failure.message)),
+        (networks) => emit(WirelessScanLoaded(networks)),
+      );
+    } catch (e) {
+      emit(WirelessScanError('Failed to scan wireless networks: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onLoadAccessList(
+    LoadAccessList event,
+    Emitter<WirelessState> emit,
+  ) async {
+    emit(const AccessListLoading());
+    try {
+      final result = await getAccessListUseCase.call();
+      result.fold(
+        (failure) => emit(AccessListError(failure.message)),
+        (accessList) => emit(AccessListLoaded(accessList)),
+      );
+    } catch (e) {
+      emit(AccessListError('Failed to load access list: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onAddAccessListEntry(
+    AddAccessListEntry event,
+    Emitter<WirelessState> emit,
+  ) async {
+    try {
+      final result = await addAccessListEntryUseCase.call(event.entry);
+      result.fold(
+        (failure) => emit(WirelessOperationError(failure.message)),
+        (_) {
+          emit(const WirelessOperationSuccess('Access list entry added successfully'));
+          add(const LoadAccessList());
+        },
+      );
+    } catch (e) {
+      emit(WirelessOperationError('Failed to add access list entry: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onRemoveAccessListEntry(
+    RemoveAccessListEntry event,
+    Emitter<WirelessState> emit,
+  ) async {
+    try {
+      final result = await removeAccessListEntryUseCase.call(event.id);
+      result.fold(
+        (failure) => emit(WirelessOperationError(failure.message)),
+        (_) {
+          emit(const WirelessOperationSuccess('Access list entry removed successfully'));
+          add(const LoadAccessList());
+        },
+      );
+    } catch (e) {
+      emit(WirelessOperationError('Failed to remove access list entry: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onUpdateAccessListEntry(
+    UpdateAccessListEntry event,
+    Emitter<WirelessState> emit,
+  ) async {
+    try {
+      final result = await updateAccessListEntryUseCase.call(event.entry);
+      result.fold(
+        (failure) => emit(WirelessOperationError(failure.message)),
+        (_) {
+          emit(const WirelessOperationSuccess('Access list entry updated successfully'));
+          add(const LoadAccessList());
+        },
+      );
+    } catch (e) {
+      emit(WirelessOperationError('Failed to update access list entry: ${e.toString()}'));
+    }
   }
 }

@@ -812,7 +812,7 @@ class RouterOSClientV2 {
       
       return results;
     } catch (e) {
-      _log.e('Script-based DNS lookup failed for $name', error: e);;
+      _log.e('Script-based DNS lookup failed for $name', error: e);
       rethrow;
     }
   }
@@ -1387,19 +1387,74 @@ class RouterOSClientV2 {
   }
 
   // ==================== Wireless Methods ====================
+  // Supports both new WiFi (/interface/wifi) and legacy Wireless (/interface/wireless)
+  
+  /// Detected wireless type: 'wifi' (new), 'wireless' (legacy), or null (not detected yet)
+  String? _wirelessType;
+  
+  /// Detect which wireless package is installed (wifi or wireless)
+  Future<String?> detectWirelessType() async {
+    if (_wirelessType != null) return _wirelessType;
+    
+    _log.d('Detecting wireless type...');
+    
+    // Try new WiFi first (RouterOS 7.13+)
+    try {
+      final wifiResult = await talk(['/interface/wifi/print']);
+      final filtered = _filterProtocolMessages(wifiResult);
+      _wirelessType = 'wifi';
+      _log.i('Detected WiFi package (new) with ${filtered.length} interfaces');
+      return _wirelessType;
+    } catch (e) {
+      _log.d('WiFi package not available: $e');
+    }
+    
+    // Try legacy Wireless
+    try {
+      final wirelessResult = await talk(['/interface/wireless/print']);
+      final filtered = _filterProtocolMessages(wirelessResult);
+      _wirelessType = 'wireless';
+      _log.i('Detected Wireless package (legacy) with ${filtered.length} interfaces');
+      return _wirelessType;
+    } catch (e) {
+      _log.d('Wireless package not available: $e');
+    }
+    
+    _log.w('No wireless package detected on this router');
+    _wirelessType = 'none';
+    return null;
+  }
+  
+  /// Get the base path for wireless commands
+  String _getWirelessBasePath() {
+    if (_wirelessType == 'wifi') return '/interface/wifi';
+    return '/interface/wireless';
+  }
 
-  /// Get wireless interfaces
+  /// Get wireless interfaces (supports both WiFi and Wireless)
   Future<List<Map<String, String>>> getWirelessInterfaces() async {
-    _log.d('Getting wireless interfaces');
-    final response = await talk(['/interface/wireless/print']);
+    await detectWirelessType();
+    
+    if (_wirelessType == 'none' || _wirelessType == null) {
+      _log.w('No wireless package available');
+      return [];
+    }
+    
+    _log.d('Getting wireless interfaces (type: $_wirelessType)');
+    final basePath = _getWirelessBasePath();
+    final response = await talk(['$basePath/print']);
     return _filterProtocolMessages(response);
   }
 
   /// Enable wireless interface
   Future<bool> enableWirelessInterface(String id) async {
     try {
+      await detectWirelessType();
+      if (_wirelessType == 'none' || _wirelessType == null) return false;
+      
       _log.d('Enabling wireless interface: $id');
-      await talk(['/interface/wireless/enable', '=.id=$id']);
+      final basePath = _getWirelessBasePath();
+      await talk(['$basePath/enable', '=.id=$id']);
       return true;
     } catch (e) {
       _log.e('Failed to enable wireless interface', error: e);
@@ -1410,8 +1465,12 @@ class RouterOSClientV2 {
   /// Disable wireless interface
   Future<bool> disableWirelessInterface(String id) async {
     try {
+      await detectWirelessType();
+      if (_wirelessType == 'none' || _wirelessType == null) return false;
+      
       _log.d('Disabling wireless interface: $id');
-      await talk(['/interface/wireless/disable', '=.id=$id']);
+      final basePath = _getWirelessBasePath();
+      await talk(['$basePath/disable', '=.id=$id']);
       return true;
     } catch (e) {
       _log.e('Failed to disable wireless interface', error: e);
@@ -1423,11 +1482,54 @@ class RouterOSClientV2 {
   Future<List<Map<String, String>>> getWirelessRegistrations({
     String? interface,
   }) async {
-    _log.d('Getting wireless registrations${interface != null ? " for $interface" : ""}');
-    final cmd = ['/interface/wireless/registration-table/print'];
+    await detectWirelessType();
+    
+    if (_wirelessType == 'none' || _wirelessType == null) {
+      _log.w('No wireless package available');
+      return [];
+    }
+    
+    _log.d('Getting wireless registrations${interface != null ? " for $interface" : ""} (type: $_wirelessType)');
+    final basePath = _getWirelessBasePath();
+    final cmd = ['$basePath/registration-table/print'];
     if (interface != null) cmd.add('?interface=$interface');
     final response = await talk(cmd);
     return _filterProtocolMessages(response);
+  }
+
+  /// Scan for wireless networks
+  /// Returns a list of found networks with their details
+  Future<List<Map<String, String>>> scanWirelessNetworks({
+    required String interfaceId,
+    int? duration,
+  }) async {
+    try {
+      await detectWirelessType();
+      
+      if (_wirelessType == 'none' || _wirelessType == null) {
+        _log.w('No wireless package available for scanning');
+        return [];
+      }
+      
+      _log.d('Scanning wireless networks on interface: $interfaceId (duration: ${duration ?? 'default'})');
+      final basePath = _getWirelessBasePath();
+      
+      // Build scan command
+      final cmd = ['$basePath/scan', '=.id=$interfaceId'];
+      if (duration != null) {
+        cmd.add('=duration=$duration');
+      }
+      
+      // Execute scan and wait for results
+      final response = await talk(cmd);
+      final results = _filterProtocolMessages(response);
+      
+      _log.i('Found ${results.length} wireless networks');
+      return results;
+    } catch (e) {
+      _log.e('Failed to scan wireless networks', error: e);
+      return [];
+    }
   }
 
   /// Disconnect wireless client
@@ -1436,17 +1538,22 @@ class RouterOSClientV2 {
     required String macAddress,
   }) async {
     try {
+      await detectWirelessType();
+      if (_wirelessType == 'none' || _wirelessType == null) return false;
+      
       _log.d('Disconnecting wireless client: $macAddress from $interface');
+      final basePath = _getWirelessBasePath();
+      
       // Find the registration entry and remove it
       final regs = await talk([
-        '/interface/wireless/registration-table/print',
+        '$basePath/registration-table/print',
         '?interface=$interface',
         '?mac-address=$macAddress'
       ]);
       final filtered = _filterProtocolMessages(regs);
       for (final reg in filtered) {
         if (reg['.id'] != null) {
-          await talk(['/interface/wireless/registration-table/remove', '=.id=${reg['.id']}']);
+          await talk(['$basePath/registration-table/remove', '=.id=${reg['.id']}']);
         }
       }
       return true;
@@ -1456,11 +1563,103 @@ class RouterOSClientV2 {
     }
   }
 
-  /// Get wireless security profiles
+  /// Get wireless security profiles (legacy wireless only)
+  /// For new WiFi, security is configured per-interface or in /interface/wifi/security
   Future<List<Map<String, String>>> getWirelessSecurityProfiles() async {
+    await detectWirelessType();
+    
     _log.d('Getting wireless security profiles');
-    final response = await talk(['/interface/wireless/security-profiles/print']);
-    return _filterProtocolMessages(response);
+    
+    if (_wirelessType == 'wifi') {
+      // New WiFi uses /interface/wifi/security
+      try {
+        final response = await talk(['/interface/wifi/security/print']);
+        return _filterProtocolMessages(response);
+      } catch (e) {
+        _log.d('WiFi security profiles not available: $e');
+        return [];
+      }
+    } else if (_wirelessType == 'wireless') {
+      // Legacy wireless
+      final response = await talk(['/interface/wireless/security-profiles/print']);
+      return _filterProtocolMessages(response);
+    }
+    
+    return [];
+  }
+
+  // ========== Wireless Access List ==========
+
+  /// Get all wireless access list entries
+  Future<List<Map<String, String>>> getWirelessAccessList() async {
+    await detectWirelessType();
+    if (_wirelessType == 'none' || _wirelessType == null) return [];
+    
+    _log.d('Getting wireless access list');
+    final basePath = _getWirelessBasePath();
+    
+    try {
+      final response = await talk(['$basePath/access-list/print']);
+      return _filterProtocolMessages(response);
+    } catch (e) {
+      _log.e('Failed to get wireless access list', error: e);
+      return [];
+    }
+  }
+
+  /// Add wireless access list entry
+  Future<bool> addWirelessAccessListEntry(Map<String, String> entry) async {
+    await detectWirelessType();
+    if (_wirelessType == 'none' || _wirelessType == null) return false;
+    
+    _log.d('Adding wireless access list entry: $entry');
+    final basePath = _getWirelessBasePath();
+    
+    try {
+      await talk(['$basePath/access-list/add', ...entry.entries.map((e) => '=${e.key}=${e.value}')]);
+      return true;
+    } catch (e) {
+      _log.e('Failed to add wireless access list entry', error: e);
+      return false;
+    }
+  }
+
+  /// Remove wireless access list entry
+  Future<bool> removeWirelessAccessListEntry(String id) async {
+    await detectWirelessType();
+    if (_wirelessType == 'none' || _wirelessType == null) return false;
+    
+    _log.d('Removing wireless access list entry: $id');
+    final basePath = _getWirelessBasePath();
+    
+    try {
+      await talk(['$basePath/access-list/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      _log.e('Failed to remove wireless access list entry', error: e);
+      return false;
+    }
+  }
+
+  /// Update wireless access list entry
+  Future<bool> updateWirelessAccessListEntry(String id, Map<String, String> updates) async {
+    await detectWirelessType();
+    if (_wirelessType == 'none' || _wirelessType == null) return false;
+    
+    _log.d('Updating wireless access list entry $id: $updates');
+    final basePath = _getWirelessBasePath();
+    
+    try {
+      await talk([
+        '$basePath/access-list/set',
+        '=.id=$id',
+        ...updates.entries.map((e) => '=${e.key}=${e.value}')
+      ]);
+      return true;
+    } catch (e) {
+      _log.e('Failed to update wireless access list entry', error: e);
+      return false;
+    }
   }
 
   /// Create wireless security profile
@@ -1471,19 +1670,36 @@ class RouterOSClientV2 {
     String? groupCiphers,
     String? wpaPreSharedKey,
     String? wpa2PreSharedKey,
+    String? passphrase, // For new WiFi
     String? comment,
   }) async {
     try {
-      _log.d('Creating wireless security profile: $name');
-      final cmd = ['/interface/wireless/security-profiles/add', '=name=$name'];
-      if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
-      if (unicastCiphers != null) cmd.add('=unicast-ciphers=$unicastCiphers');
-      if (groupCiphers != null) cmd.add('=group-ciphers=$groupCiphers');
-      if (wpaPreSharedKey != null) cmd.add('=wpa-pre-shared-key=$wpaPreSharedKey');
-      if (wpa2PreSharedKey != null) cmd.add('=wpa2-pre-shared-key=$wpa2PreSharedKey');
-      if (comment != null) cmd.add('=comment=$comment');
-      await talk(cmd);
-      return true;
+      await detectWirelessType();
+      
+      if (_wirelessType == 'wifi') {
+        // New WiFi security profile
+        _log.d('Creating WiFi security profile: $name');
+        final cmd = ['/interface/wifi/security/add', '=name=$name'];
+        if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
+        if (passphrase != null) cmd.add('=passphrase=$passphrase');
+        if (comment != null) cmd.add('=comment=$comment');
+        await talk(cmd);
+        return true;
+      } else if (_wirelessType == 'wireless') {
+        // Legacy wireless
+        _log.d('Creating wireless security profile: $name');
+        final cmd = ['/interface/wireless/security-profiles/add', '=name=$name'];
+        if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
+        if (unicastCiphers != null) cmd.add('=unicast-ciphers=$unicastCiphers');
+        if (groupCiphers != null) cmd.add('=group-ciphers=$groupCiphers');
+        if (wpaPreSharedKey != null) cmd.add('=wpa-pre-shared-key=$wpaPreSharedKey');
+        if (wpa2PreSharedKey != null) cmd.add('=wpa2-pre-shared-key=$wpa2PreSharedKey');
+        if (comment != null) cmd.add('=comment=$comment');
+        await talk(cmd);
+        return true;
+      }
+      
+      return false;
     } catch (e) {
       _log.e('Failed to create wireless security profile', error: e);
       return false;
@@ -1499,20 +1715,36 @@ class RouterOSClientV2 {
     String? groupCiphers,
     String? wpaPreSharedKey,
     String? wpa2PreSharedKey,
+    String? passphrase, // For new WiFi
     String? comment,
   }) async {
     try {
-      _log.d('Updating wireless security profile: $id');
-      final cmd = ['/interface/wireless/security-profiles/set', '=.id=$id'];
-      if (name != null) cmd.add('=name=$name');
-      if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
-      if (unicastCiphers != null) cmd.add('=unicast-ciphers=$unicastCiphers');
-      if (groupCiphers != null) cmd.add('=group-ciphers=$groupCiphers');
-      if (wpaPreSharedKey != null) cmd.add('=wpa-pre-shared-key=$wpaPreSharedKey');
-      if (wpa2PreSharedKey != null) cmd.add('=wpa2-pre-shared-key=$wpa2PreSharedKey');
-      if (comment != null) cmd.add('=comment=$comment');
-      await talk(cmd);
-      return true;
+      await detectWirelessType();
+      
+      if (_wirelessType == 'wifi') {
+        _log.d('Updating WiFi security profile: $id');
+        final cmd = ['/interface/wifi/security/set', '=.id=$id'];
+        if (name != null) cmd.add('=name=$name');
+        if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
+        if (passphrase != null) cmd.add('=passphrase=$passphrase');
+        if (comment != null) cmd.add('=comment=$comment');
+        await talk(cmd);
+        return true;
+      } else if (_wirelessType == 'wireless') {
+        _log.d('Updating wireless security profile: $id');
+        final cmd = ['/interface/wireless/security-profiles/set', '=.id=$id'];
+        if (name != null) cmd.add('=name=$name');
+        if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
+        if (unicastCiphers != null) cmd.add('=unicast-ciphers=$unicastCiphers');
+        if (groupCiphers != null) cmd.add('=group-ciphers=$groupCiphers');
+        if (wpaPreSharedKey != null) cmd.add('=wpa-pre-shared-key=$wpaPreSharedKey');
+        if (wpa2PreSharedKey != null) cmd.add('=wpa2-pre-shared-key=$wpa2PreSharedKey');
+        if (comment != null) cmd.add('=comment=$comment');
+        await talk(cmd);
+        return true;
+      }
+      
+      return false;
     } catch (e) {
       _log.e('Failed to update wireless security profile', error: e);
       return false;
@@ -1522,12 +1754,172 @@ class RouterOSClientV2 {
   /// Delete wireless security profile
   Future<bool> deleteWirelessSecurityProfile(String id) async {
     try {
-      _log.d('Deleting wireless security profile: $id');
-      await talk(['/interface/wireless/security-profiles/remove', '=.id=$id']);
-      return true;
+      await detectWirelessType();
+      
+      if (_wirelessType == 'wifi') {
+        _log.d('Deleting WiFi security profile: $id');
+        await talk(['/interface/wifi/security/remove', '=.id=$id']);
+        return true;
+      } else if (_wirelessType == 'wireless') {
+        _log.d('Deleting wireless security profile: $id');
+        await talk(['/interface/wireless/security-profiles/remove', '=.id=$id']);
+        return true;
+      }
+      
+      return false;
     } catch (e) {
       _log.e('Failed to delete wireless security profile', error: e);
       return false;
+    }
+  }
+  
+  /// Get wireless type (wifi/wireless/none)
+  String? get wirelessType => _wirelessType;
+  
+  /// Reset wireless type detection (useful after reconnect)
+  void resetWirelessType() {
+    _wirelessType = null;
+  }
+
+  // ==================== BACKUP & RESTORE METHODS ====================
+
+  /// Get all backup files from router
+  Future<List<Map<String, String>>> getBackupFiles() async {
+    try {
+      _log.d('Getting backup files');
+      final result = await talk(['/file/print', '?type=backup']);
+      _log.d('Found ${result.length} backup files');
+      return result;
+    } catch (e) {
+      _log.e('Failed to get backup files', error: e);
+      rethrow;
+    }
+  }
+
+  /// Get all files from router (for viewing .rsc exports too)
+  Future<List<Map<String, String>>> getAllFiles() async {
+    try {
+      _log.d('Getting all files');
+      final result = await talk(['/file/print']);
+      _log.d('Found ${result.length} files');
+      return result;
+    } catch (e) {
+      _log.e('Failed to get files', error: e);
+      rethrow;
+    }
+  }
+
+  /// Create a backup file
+  /// [name] - backup file name (without .backup extension)
+  /// [password] - optional encryption password
+  /// [dontEncrypt] - if true, backup won't be encrypted (faster)
+  Future<bool> createBackup({
+    required String name,
+    String? password,
+    bool dontEncrypt = true,
+  }) async {
+    try {
+      _log.d('Creating backup: $name (encrypted: ${!dontEncrypt})');
+      final cmd = ['/system/backup/save', '=name=$name'];
+      if (password != null && password.isNotEmpty && !dontEncrypt) {
+        cmd.add('=password=$password');
+      }
+      if (dontEncrypt) {
+        cmd.add('=dont-encrypt=yes');
+      }
+      await talk(cmd);
+      _log.i('Backup created successfully: $name');
+      return true;
+    } catch (e) {
+      _log.e('Failed to create backup', error: e);
+      return false;
+    }
+  }
+
+  /// Delete a file (backup or export)
+  Future<bool> deleteFile(String fileName) async {
+    try {
+      _log.d('Deleting file: $fileName');
+      // First find the file ID
+      final files = await talk(['/file/print', '?name=$fileName']);
+      if (files.isEmpty) {
+        _log.w('File not found: $fileName');
+        return false;
+      }
+      final fileId = files.first['.id'];
+      if (fileId == null) {
+        _log.w('File ID not found for: $fileName');
+        return false;
+      }
+      await talk(['/file/remove', '=.id=$fileId']);
+      _log.i('File deleted: $fileName');
+      return true;
+    } catch (e) {
+      _log.e('Failed to delete file', error: e);
+      return false;
+    }
+  }
+
+  /// Restore from a backup file
+  /// WARNING: This will reboot the router!
+  Future<bool> restoreBackup({
+    required String name,
+    String? password,
+  }) async {
+    try {
+      _log.d('Restoring backup: $name');
+      final cmd = ['/system/backup/load', '=name=$name'];
+      if (password != null && password.isNotEmpty) {
+        cmd.add('=password=$password');
+      }
+      await talk(cmd);
+      _log.i('Backup restore initiated: $name (router will reboot)');
+      return true;
+    } catch (e) {
+      _log.e('Failed to restore backup', error: e);
+      return false;
+    }
+  }
+
+  /// Export configuration to .rsc file (text format)
+  /// [fileName] - export file name (without .rsc extension)
+  /// [compact] - if true, only export modified settings
+  /// [showSensitive] - if true, include passwords in export
+  Future<bool> exportConfig({
+    required String fileName,
+    bool compact = true,
+    bool showSensitive = false,
+  }) async {
+    try {
+      _log.d('Exporting config to: $fileName.rsc');
+      final cmd = ['/export', '=file=$fileName'];
+      if (compact) {
+        cmd.add('=compact');
+      }
+      if (showSensitive) {
+        cmd.add('=show-sensitive=yes');
+      }
+      await talk(cmd);
+      _log.i('Config exported: $fileName.rsc');
+      return true;
+    } catch (e) {
+      _log.e('Failed to export config', error: e);
+      return false;
+    }
+  }
+
+  /// Get file contents (for small files like .rsc exports)
+  Future<String?> getFileContents(String fileName) async {
+    try {
+      _log.d('Getting file contents: $fileName');
+      final result = await talk(['/file/print', '?name=$fileName', '=detail']);
+      if (result.isNotEmpty && result.first.containsKey('contents')) {
+        return result.first['contents'];
+      }
+      return null;
+    } catch (e) {
+      _log.e('Failed to get file contents', error: e);
+      return null;
     }
   }
 }

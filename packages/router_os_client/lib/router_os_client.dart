@@ -475,24 +475,6 @@ class RouterOSClient {
     }
   }
 
-  /// Parses a sentence from the RouterOS device into a map of key-value pairs.
-  Map<String, String> _parseSentence(List<String> sentence) {
-    var parsedData = <String, String>{};
-    for (var word in sentence) {
-      if (word.startsWith('!')) {
-        continue;
-      }
-      if (word.startsWith('=')) {
-        var parts = word.substring(1).split('=');
-        if (parts.length == 2) {
-          parsedData[parts[0]] = parts[1];
-        }
-      }
-      // Note: API attribute words starting with '.' (like .tag) are handled separately
-    }
-    return parsedData;
-  }
-
   /// Checks the reply from the RouterOS device after a login attempt.
   void _checkLoginReply(List<List<String>> reply) {
     if (reply.isNotEmpty && reply[0].length == 1 && reply[0][0] == '!done') {
