@@ -34,22 +34,22 @@ class _AccessListWidgetState extends State<AccessListWidget>
     return Scaffold(
       body: BlocConsumer<WirelessBloc, WirelessState>(
         listenWhen: (previous, current) {
-          return current is WirelessOperationSuccess ||
-              current is WirelessOperationError;
+          return current.operationSuccess != previous.operationSuccess ||
+              current.operationError != previous.operationError;
         },
         listener: (context, state) {
-          if (state is WirelessOperationSuccess) {
+          if (state.operationSuccess != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.message),
+                content: Text(state.operationSuccess!),
                 backgroundColor: Colors.green,
                 duration: const Duration(seconds: 2),
               ),
             );
-          } else if (state is WirelessOperationError) {
+          } else if (state.operationError != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.message),
+                content: Text(state.operationError!),
                 backgroundColor: Colors.red,
                 duration: const Duration(seconds: 3),
               ),
@@ -57,23 +57,23 @@ class _AccessListWidgetState extends State<AccessListWidget>
           }
         },
         buildWhen: (previous, current) {
-          return current is AccessListLoading ||
-              current is AccessListLoaded ||
-              current is AccessListError;
+          return previous.accessListLoading != current.accessListLoading ||
+              previous.accessList != current.accessList ||
+              previous.accessListError != current.accessListError;
         },
         builder: (context, state) {
-          if (state is AccessListLoading) {
+          if (state.accessListLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state is AccessListError) {
+          if (state.accessListError != null) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.error, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
-                  Text(state.message),
+                  Text(state.accessListError!),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
@@ -86,18 +86,18 @@ class _AccessListWidgetState extends State<AccessListWidget>
             );
           }
 
-          if (state is AccessListLoaded) {
-            if (state.accessList.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.list_alt, size: 48, color: Colors.grey),
-                    const SizedBox(height: 16),
-                    const Text('No access list entries'),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: () => _showAddEditDialog(context),
+          final accessList = state.accessList;
+          if (accessList.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.list_alt, size: 48, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text('No access list entries'),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => _showAddEditDialog(context),
                       icon: const Icon(Icons.add),
                       label: const Text('Add Entry'),
                     ),
@@ -112,9 +112,9 @@ class _AccessListWidgetState extends State<AccessListWidget>
               },
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
-                itemCount: state.accessList.length,
+                itemCount: accessList.length,
                 itemBuilder: (context, index) {
-                  final entry = state.accessList[index];
+                  final entry = accessList[index];
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     elevation: 2,
@@ -238,9 +238,6 @@ class _AccessListWidgetState extends State<AccessListWidget>
                 },
               ),
             );
-          }
-
-          return const Center(child: CircularProgressIndicator());
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -262,6 +259,12 @@ class _AccessListWidgetState extends State<AccessListWidget>
     final signalRangeController =
         TextEditingController(text: entry?.signalRange ?? '');
     final timeController = TextEditingController(text: entry?.time ?? '');
+
+    // Get interfaces from current state before opening dialog
+    final wirelessBloc = context.read<WirelessBloc>();
+    final interfaces = wirelessBloc.state.interfaces
+        .whereType<WirelessInterface>()
+        .toList();
 
     String? selectedInterface = entry?.interface;
     bool authentication = entry?.authentication ?? true;
@@ -290,36 +293,24 @@ class _AccessListWidgetState extends State<AccessListWidget>
                 const SizedBox(height: 16),
 
                 // Interface dropdown
-                BlocBuilder<WirelessBloc, WirelessState>(
-                  buildWhen: (previous, current) =>
-                      current is WirelessInterfacesLoaded,
-                  builder: (context, state) {
-                    List<WirelessInterface> interfaces = [];
-                    if (state is WirelessInterfacesLoaded) {
-                      interfaces = state.interfaces
-                          .cast<WirelessInterface>();
-                    }
-
-                    return DropdownButtonFormField<String>(
-                      initialValue: selectedInterface,
-                      decoration: const InputDecoration(
-                        labelText: 'Interface *',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: interfaces.map((iface) {
-                        return DropdownMenuItem(
-                          value: iface.name,
-                          child: Text(iface.name),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedInterface = value;
-                        });
-                      },
-                      hint: const Text('Select interface'),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedInterface,
+                  decoration: const InputDecoration(
+                    labelText: 'Interface *',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: interfaces.map((iface) {
+                    return DropdownMenuItem(
+                      value: iface.name,
+                      child: Text(iface.name),
                     );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedInterface = value;
+                    });
                   },
+                  hint: const Text('Select interface'),
                 ),
                 const SizedBox(height: 16),
 
@@ -411,7 +402,7 @@ class _AccessListWidgetState extends State<AccessListWidget>
             ElevatedButton(
               onPressed: () {
                 if (macController.text.isEmpty || selectedInterface == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
                       content: Text('MAC Address and Interface are required'),
                       backgroundColor: Colors.red,
@@ -444,11 +435,9 @@ class _AccessListWidgetState extends State<AccessListWidget>
                 Navigator.of(dialogContext).pop();
 
                 if (isEdit) {
-                  context
-                      .read<WirelessBloc>()
-                      .add(UpdateAccessListEntry(newEntry));
+                  wirelessBloc.add(UpdateAccessListEntry(newEntry));
                 } else {
-                  context.read<WirelessBloc>().add(AddAccessListEntry(newEntry));
+                  wirelessBloc.add(AddAccessListEntry(newEntry));
                 }
               },
               child: Text(isEdit ? 'Update' : 'Add'),
@@ -457,12 +446,11 @@ class _AccessListWidgetState extends State<AccessListWidget>
         ),
       ),
     );
-
-    // Load interfaces if needed
-    context.read<WirelessBloc>().add(const LoadWirelessInterfaces());
   }
 
   void _showDeleteDialog(BuildContext context, AccessListEntry entry) {
+    final wirelessBloc = context.read<WirelessBloc>();
+    
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -478,9 +466,7 @@ class _AccessListWidgetState extends State<AccessListWidget>
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
-              context
-                  .read<WirelessBloc>()
-                  .add(RemoveAccessListEntry(entry.id));
+              wirelessBloc.add(RemoveAccessListEntry(entry.id));
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Delete'),

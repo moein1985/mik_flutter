@@ -42,10 +42,12 @@ class _WirelessPageState extends State<WirelessPage> with TickerProviderStateMix
           title: Text(AppLocalizations.of(context)?.wirelessManagement ?? 'Wireless Management'),
           bottom: TabBar(
             controller: _tabController,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             tabs: [
               Tab(text: AppLocalizations.of(context)?.interfaces ?? 'Interfaces'),
               Tab(text: AppLocalizations.of(context)?.clients ?? 'Clients'),
-              Tab(text: AppLocalizations.of(context)?.securityProfiles ?? 'Security Profiles'),
+              Tab(text: AppLocalizations.of(context)?.securityProfiles ?? 'Security'),
               const Tab(text: 'Scanner'),
               const Tab(text: 'Access List'),
             ],
@@ -53,20 +55,10 @@ class _WirelessPageState extends State<WirelessPage> with TickerProviderStateMix
         ),
         body: BlocBuilder<WirelessBloc, WirelessState>(
           builder: (context, state) {
-            // Calculate counts from state
-            int interfacesCount = 0;
-            int clientsCount = 0;
-            int profilesCount = 0;
-
-            if (state is WirelessInterfacesLoaded) {
-              interfacesCount = state.interfaces.length;
-            }
-            if (state is WirelessRegistrationsLoaded) {
-              clientsCount = state.registrations.length;
-            }
-            if (state is SecurityProfilesLoaded) {
-              profilesCount = state.profiles.length;
-            }
+            // Calculate counts from unified state
+            final interfacesCount = state.interfaces.length;
+            final clientsCount = state.registrations.length;
+            final profilesCount = state.profiles.length;
 
             return Column(
               children: [

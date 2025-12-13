@@ -416,7 +416,8 @@ class RouterOSClient {
       if (buffer.length < length) {
         return [];
       }
-      var word = utf8.decode(buffer.sublist(0, length));
+      // Use allowMalformed: true to handle non-UTF8 characters from RouterOS
+      var word = utf8.decode(buffer.sublist(0, length), allowMalformed: true);
       sentence.add(word);
       buffer.removeRange(0, length);
     }

@@ -194,4 +194,66 @@ class WirelessRepositoryImpl implements WirelessRepository {
       return Left(const ServerFailure('Failed to update access list entry'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> updateWirelessSsid(String interfaceId, String newSsid) async {
+    try {
+      await remoteDataSource.updateWirelessSsid(interfaceId, newSsid);
+      return const Right(null);
+    } on ServerException {
+      return Left(const ServerFailure('Failed to update SSID'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> getWirelessPassword(String securityProfileName) async {
+    try {
+      final password = await remoteDataSource.getWirelessPassword(securityProfileName);
+      return Right(password ?? '');
+    } on ServerException {
+      return Left(const ServerFailure('Failed to get WiFi password'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateWirelessPassword(String securityProfileName, String newPassword) async {
+    try {
+      await remoteDataSource.updateWirelessPassword(securityProfileName, newPassword);
+      return const Right(null);
+    } on ServerException {
+      return Left(const ServerFailure('Failed to update WiFi password'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> addVirtualWirelessInterface({
+    String? name,
+    required String ssid,
+    required String masterInterface,
+    String? securityProfile,
+    bool disabled = false,
+  }) async {
+    try {
+      final result = await remoteDataSource.addVirtualWirelessInterface(
+        name: name,
+        ssid: ssid,
+        masterInterface: masterInterface,
+        securityProfile: securityProfile,
+        disabled: disabled,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeWirelessInterface(String id) async {
+    try {
+      await remoteDataSource.removeWirelessInterface(id);
+      return const Right(null);
+    } on ServerException {
+      return Left(const ServerFailure('Failed to remove wireless interface'));
+    }
+  }
 }

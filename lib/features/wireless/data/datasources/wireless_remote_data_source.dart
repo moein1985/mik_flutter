@@ -35,6 +35,21 @@ abstract class WirelessRemoteDataSource {
   Future<void> addAccessListEntry(Map<String, String> entry);
   Future<void> removeAccessListEntry(String id);
   Future<void> updateAccessListEntry(String id, Map<String, String> updates);
+
+  // Quick settings
+  Future<void> updateWirelessSsid(String interfaceId, String newSsid);
+  Future<String?> getWirelessPassword(String securityProfileName);
+  Future<void> updateWirelessPassword(String securityProfileName, String newPassword);
+
+  // Virtual interface management
+  Future<bool> addVirtualWirelessInterface({
+    String? name,
+    required String ssid,
+    required String masterInterface,
+    String? securityProfile,
+    bool disabled,
+  });
+  Future<void> removeWirelessInterface(String id);
 }
 
 class WirelessRemoteDataSourceImpl implements WirelessRemoteDataSource {
@@ -208,6 +223,72 @@ class WirelessRemoteDataSourceImpl implements WirelessRemoteDataSource {
       await client.updateWirelessAccessListEntry(id, updates);
     } catch (e) {
       throw ServerException('Failed to update access list entry: $e');
+    }
+  }
+
+  @override
+  Future<void> updateWirelessSsid(String interfaceId, String newSsid) async {
+    try {
+      final success = await client.updateWirelessInterfaceSsid(interfaceId, newSsid);
+      if (!success) {
+        throw ServerException('Failed to update SSID');
+      }
+    } catch (e) {
+      throw ServerException('Failed to update SSID: $e');
+    }
+  }
+
+  @override
+  Future<String?> getWirelessPassword(String securityProfileName) async {
+    try {
+      return await client.getWirelessPassword(securityProfileName);
+    } catch (e) {
+      throw ServerException('Failed to get WiFi password: $e');
+    }
+  }
+
+  @override
+  Future<void> updateWirelessPassword(String securityProfileName, String newPassword) async {
+    try {
+      final success = await client.updateWirelessPassword(securityProfileName, newPassword);
+      if (!success) {
+        throw ServerException('Failed to update WiFi password');
+      }
+    } catch (e) {
+      throw ServerException('Failed to update WiFi password: $e');
+    }
+  }
+
+  @override
+  Future<bool> addVirtualWirelessInterface({
+    String? name,
+    required String ssid,
+    required String masterInterface,
+    String? securityProfile,
+    bool disabled = false,
+  }) async {
+    try {
+      return await client.addVirtualWirelessInterface(
+        name: name,
+        ssid: ssid,
+        masterInterface: masterInterface,
+        securityProfile: securityProfile,
+        disabled: disabled,
+      );
+    } catch (e) {
+      throw ServerException('Failed to add virtual wireless interface: $e');
+    }
+  }
+
+  @override
+  Future<void> removeWirelessInterface(String id) async {
+    try {
+      final success = await client.removeWirelessInterface(id);
+      if (!success) {
+        throw ServerException('Failed to remove wireless interface');
+      }
+    } catch (e) {
+      throw ServerException('Failed to remove wireless interface: $e');
     }
   }
 }

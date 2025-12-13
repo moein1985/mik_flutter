@@ -33,25 +33,24 @@ class _WirelessClientsListState extends State<WirelessClientsList> with Automati
     super.build(context); // Required for AutomaticKeepAliveClientMixin
     return BlocBuilder<WirelessBloc, WirelessState>(
       buildWhen: (previous, current) {
-        // Only rebuild on registration-related states
-        return current is WirelessInitial ||
-               current is WirelessRegistrationsLoading ||
-               current is WirelessRegistrationsLoaded ||
-               current is WirelessRegistrationsError;
+        // Only rebuild on registration-related state changes
+        return previous.registrationsLoading != current.registrationsLoading ||
+               previous.registrations != current.registrations ||
+               previous.registrationsError != current.registrationsError;
       },
       builder: (context, state) {
-        if (state is WirelessRegistrationsLoading) {
+        if (state.registrationsLoading) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (state is WirelessRegistrationsError) {
+        if (state.registrationsError != null) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.error, size: 48, color: Colors.red),
                 const SizedBox(height: 16),
-                Text(state.message),
+                Text(state.registrationsError!),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
@@ -64,29 +63,29 @@ class _WirelessClientsListState extends State<WirelessClientsList> with Automati
           );
         }
 
-        if (state is WirelessRegistrationsLoaded) {
-          if (state.registrations.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.devices, size: 48, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  Text('No connected clients found'),
-                ],
-              ),
-            );
-          }
+        final registrations = state.registrations;
+        if (registrations.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.devices, size: 48, color: Colors.grey),
+                const SizedBox(height: 16),
+                Text('No connected clients found'),
+              ],
+            ),
+          );
+        }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<WirelessBloc>().add(const LoadWirelessRegistrations());
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: state.registrations.length,
-              itemBuilder: (context, index) {
-                final registration = state.registrations[index];
+        return RefreshIndicator(
+          onRefresh: () async {
+            context.read<WirelessBloc>().add(const LoadWirelessRegistrations());
+          },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: registrations.length,
+            itemBuilder: (context, index) {
+              final registration = registrations[index];
                 final signalStrength = registration.signalStrength ?? 0;
                 
                 // Determine signal color (green: > -70, yellow: -70 to -85, red: < -85)
@@ -333,10 +332,6 @@ class _WirelessClientsListState extends State<WirelessClientsList> with Automati
             },
           ),
         );
-      }
-
-        // Initial/other state - show loading (data will be loaded by initState)
-        return const Center(child: CircularProgressIndicator());
       },
     );
   }

@@ -54,4 +54,25 @@ abstract class WirelessRepository {
 
   /// Update an existing access list entry
   Future<Either<Failure, void>> updateAccessListEntry(AccessListEntry entry);
+
+  /// Update wireless interface SSID
+  Future<Either<Failure, void>> updateWirelessSsid(String interfaceId, String newSsid);
+
+  /// Get the current WiFi password for a security profile
+  Future<Either<Failure, String>> getWirelessPassword(String securityProfileName);
+
+  /// Update the WiFi password for a security profile
+  Future<Either<Failure, void>> updateWirelessPassword(String securityProfileName, String newPassword);
+
+  /// Add a virtual wireless interface
+  Future<Either<Failure, bool>> addVirtualWirelessInterface({
+    String? name,
+    required String ssid,
+    required String masterInterface,
+    String? securityProfile,
+    bool disabled,
+  });
+
+  /// Remove a wireless interface
+  Future<Either<Failure, void>> removeWirelessInterface(String id);
 }

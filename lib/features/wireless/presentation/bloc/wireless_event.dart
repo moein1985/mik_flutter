@@ -91,3 +91,40 @@ class UpdateAccessListEntry extends WirelessEvent {
 
   const UpdateAccessListEntry(this.entry);
 }
+// Quick settings events
+class UpdateWirelessSsid extends WirelessEvent {
+  final String interfaceId;
+  final String newSsid;
+
+  const UpdateWirelessSsid(this.interfaceId, this.newSsid);
+}
+
+class GetWirelessPassword extends WirelessEvent {
+  final String securityProfileName;
+
+  const GetWirelessPassword(this.securityProfileName);
+}
+
+class UpdateWirelessPassword extends WirelessEvent {
+  final String securityProfileName;
+  final String newPassword;
+
+  const UpdateWirelessPassword(this.securityProfileName, this.newPassword);
+}
+
+// Virtual WLAN events
+class AddVirtualWirelessInterface extends WirelessEvent {
+  final String ssid;
+  final String masterInterface;
+  final String? name;
+  final String? securityProfile;
+  final bool enabled;
+
+  const AddVirtualWirelessInterface({
+    required this.ssid,
+    required this.masterInterface,
+    this.name,
+    this.securityProfile,
+    this.enabled = true,
+  });
+}

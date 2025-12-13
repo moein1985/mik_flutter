@@ -120,6 +120,10 @@ import 'features/wireless/domain/usecases/get_access_list_usecase.dart';
 import 'features/wireless/domain/usecases/add_access_list_entry_usecase.dart';
 import 'features/wireless/domain/usecases/remove_access_list_entry_usecase.dart';
 import 'features/wireless/domain/usecases/update_access_list_entry_usecase.dart';
+import 'features/wireless/domain/usecases/update_wireless_ssid_usecase.dart';
+import 'features/wireless/domain/usecases/get_wireless_password_usecase.dart';
+import 'features/wireless/domain/usecases/update_wireless_password_usecase.dart';
+import 'features/wireless/domain/usecases/add_virtual_wireless_interface_usecase.dart';
 import 'features/wireless/presentation/bloc/wireless_bloc.dart';
 
 // Features - Logs
@@ -569,6 +573,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AddAccessListEntryUseCase(sl()));
   sl.registerLazySingleton(() => RemoveAccessListEntryUseCase(sl()));
   sl.registerLazySingleton(() => UpdateAccessListEntryUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateWirelessSsidUseCase(sl()));
+  sl.registerLazySingleton(() => GetWirelessPasswordUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateWirelessPasswordUseCase(sl()));
+  sl.registerLazySingleton(() => AddVirtualWirelessInterfaceUseCase(sl()));
 
   // Bloc
   sl.registerFactory(
@@ -588,6 +596,10 @@ Future<void> init() async {
       addAccessListEntryUseCase: sl(),
       removeAccessListEntryUseCase: sl(),
       updateAccessListEntryUseCase: sl(),
+      updateWirelessSsidUseCase: sl(),
+      getWirelessPasswordUseCase: sl(),
+      updateWirelessPasswordUseCase: sl(),
+      addVirtualWirelessInterfaceUseCase: sl(),
     ),
   );
 

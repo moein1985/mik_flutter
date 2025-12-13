@@ -92,16 +92,16 @@ class _WirelessScannerWidgetState extends State<WirelessScannerWidget> {
     WirelessState state,
   ) {
     List<WirelessInterface> interfaces = [];
-    if (state is WirelessInterfacesLoaded) {
+    if (state.interfaces.isNotEmpty) {
       interfaces = state.interfaces.cast<WirelessInterface>();
     }
 
     // Load interfaces if not loaded yet
-    if (interfaces.isEmpty && state is! WirelessInterfacesLoading) {
+    if (interfaces.isEmpty && !state.interfacesLoading) {
       context.read<WirelessBloc>().add(const LoadWirelessInterfaces());
     }
 
-    final isScanning = state is WirelessScanLoading;
+    final isScanning = state.scanLoading;
 
     return Card(
       child: Padding(
@@ -118,7 +118,7 @@ class _WirelessScannerWidgetState extends State<WirelessScannerWidget> {
             const SizedBox(height: 16),
 
             // Interface Selector
-            if (interfaces.isEmpty && state is WirelessInterfacesLoading)
+            if (interfaces.isEmpty && state.interfacesLoading)
               const Center(child: CircularProgressIndicator())
             else if (interfaces.isEmpty)
               Text(
@@ -210,8 +210,8 @@ class _WirelessScannerWidgetState extends State<WirelessScannerWidget> {
     AppLocalizations? l10n,
     WirelessState state,
   ) {
-    if (state is WirelessScanLoaded) {
-      final networks = state.scanResults.cast<WirelessScanResult>();
+    if (state.scanResults.isNotEmpty) {
+      final networks = state.scanResults;
       
       if (networks.isEmpty) {
         return Card(
@@ -254,7 +254,7 @@ class _WirelessScannerWidgetState extends State<WirelessScannerWidget> {
       );
     }
 
-    if (state is WirelessScanError) {
+    if (state.scanError != null) {
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -274,7 +274,7 @@ class _WirelessScannerWidgetState extends State<WirelessScannerWidget> {
               ),
               const SizedBox(height: 8),
               Text(
-                state.message,
+                state.scanError!,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium,
               ),

@@ -16,6 +16,10 @@ class RouterOSClientV2 {
   ros.RouterOSClient? _client;
   bool _isConnected = false;
   
+  // Store credentials for reconnection
+  String? _username;
+  String? _password;
+  
   // Track active streams by tag for proper cancellation
   final Map<String, StreamController<Map<String, String>>> _activeStreams = {};
 
@@ -62,6 +66,10 @@ class RouterOSClientV2 {
 
     try {
       _log.d('Logging in as $username');
+      
+      // Store credentials for reconnection
+      _username = username;
+      _password = password;
       
       // The package handles login internally
       // For SSL connections, we use onBadCertificate to accept self-signed certificates
@@ -129,18 +137,66 @@ class RouterOSClientV2 {
     _log.i('Disconnected');
   }
 
-  /// Send a command and get response
+  /// Reconnect to the router (useful after timeout)
+  Future<void> reconnect() async {
+    _log.i('Reconnecting...');
+    disconnect();
+    _wirelessType = null; // Reset wireless type detection
+    _detectingWirelessType = null; // Reset detection completer
+    await connect();
+    
+    // Re-login if we have stored credentials
+    if (_username != null && _password != null) {
+      _log.i('Re-authenticating after reconnect...');
+      final success = await login(_username!, _password!);
+      if (!success) {
+        _log.e('Re-authentication failed after reconnect');
+        throw ConnectionException('Failed to re-authenticate after reconnect');
+      }
+      _log.i('Re-authentication successful');
+    }
+  }
+
+  /// Send a command and get response with timeout
   Future<List<Map<String, String>>> talk(
     dynamic command, [
     Map<String, String>? params,
+    Duration timeout = const Duration(seconds: 15),
   ]) async {
     _ensureConnected();
     
     try {
       _log.d('Sending command: $command');
-      final result = await _client!.talk(command, params);
+      final result = await _client!.talk(command, params).timeout(
+        timeout,
+        onTimeout: () {
+          _log.e('Command timeout after ${timeout.inSeconds}s: $command');
+          throw TimeoutException('Command timed out: $command', timeout);
+        },
+      );
       _log.d('Command response: ${result.length} items');
       return result;
+    } on TimeoutException {
+      // Try to reconnect after timeout
+      _log.w('Attempting reconnect after timeout...');
+      try {
+        await reconnect();
+      } catch (e) {
+        _log.e('Reconnect failed', error: e);
+      }
+      rethrow;
+    } on FormatException catch (e) {
+      // UTF-8 decoding error - router sent invalid characters
+      // This is a known issue with the router_os_client package
+      _log.e('UTF-8 decoding error (invalid characters in response): $e');
+      _log.w('Attempting reconnect after encoding error...');
+      try {
+        await reconnect();
+      } catch (reconnectError) {
+        _log.e('Reconnect failed', error: reconnectError);
+      }
+      // Rethrow as a more descriptive exception
+      throw ServerException('Router sent invalid UTF-8 data. Please check interface names for special characters.');
     } on ros.RouterOSTrapError catch (e) {
       _log.e('RouterOS trap error: ${e.message}');
       throw ServerException(e.message);
@@ -1392,37 +1448,80 @@ class RouterOSClientV2 {
   /// Detected wireless type: 'wifi' (new), 'wireless' (legacy), or null (not detected yet)
   String? _wirelessType;
   
+  /// Completer to prevent concurrent detectWirelessType calls
+  Completer<String?>? _detectingWirelessType;
+  
   /// Detect which wireless package is installed (wifi or wireless)
   Future<String?> detectWirelessType() async {
+    // Return cached result
     if (_wirelessType != null) return _wirelessType;
+    
+    // If detection is already in progress, wait for it
+    if (_detectingWirelessType != null && !_detectingWirelessType!.isCompleted) {
+      _log.d('Wireless detection already in progress, waiting...');
+      return await _detectingWirelessType!.future;
+    }
+    
+    // Start new detection
+    _detectingWirelessType = Completer<String?>();
     
     _log.d('Detecting wireless type...');
     
-    // Try new WiFi first (RouterOS 7.13+)
     try {
-      final wifiResult = await talk(['/interface/wifi/print']);
-      final filtered = _filterProtocolMessages(wifiResult);
-      _wirelessType = 'wifi';
-      _log.i('Detected WiFi package (new) with ${filtered.length} interfaces');
-      return _wirelessType;
+      // Try new WiFi first (RouterOS 7.13+)
+      try {
+        final wifiResult = await talk(['/interface/wifi/print']);
+        final filtered = _filterProtocolMessages(wifiResult);
+        _wirelessType = 'wifi';
+        _log.i('Detected WiFi package (new) with ${filtered.length} interfaces');
+        _detectingWirelessType!.complete(_wirelessType);
+        return _wirelessType;
+      } on ServerException catch (e) {
+        // This is expected - wifi package not available
+        _log.d('WiFi package not available: $e');
+      } on TimeoutException {
+        // Timeout - don't set wirelessType to 'none', leave it null so it retries
+        _log.w('WiFi detection timed out, will retry on next call');
+        _detectingWirelessType!.complete(null);
+        _detectingWirelessType = null; // Allow retry
+        rethrow;
+      } catch (e) {
+        _log.d('WiFi package check error: $e');
+      }
+      
+      // Try legacy Wireless
+      try {
+        final wirelessResult = await talk(['/interface/wireless/print']);
+        final filtered = _filterProtocolMessages(wirelessResult);
+        _wirelessType = 'wireless';
+        _log.i('Detected Wireless package (legacy) with ${filtered.length} interfaces');
+        _detectingWirelessType!.complete(_wirelessType);
+        return _wirelessType;
+      } on ServerException catch (e) {
+        // This is expected - wireless package not available
+        _log.d('Wireless package not available: $e');
+      } on TimeoutException {
+        // Timeout - don't set wirelessType to 'none', leave it null so it retries
+        _log.w('Wireless detection timed out, will retry on next call');
+        _detectingWirelessType!.complete(null);
+        _detectingWirelessType = null; // Allow retry
+        rethrow;
+      } catch (e) {
+        _log.d('Wireless package check error: $e');
+      }
+      
+      _log.w('No wireless package detected on this router');
+      _wirelessType = 'none';
+      _detectingWirelessType!.complete(null);
+      return null;
     } catch (e) {
-      _log.d('WiFi package not available: $e');
+      // For any other error, reset detection state to allow retry
+      if (_detectingWirelessType != null && !_detectingWirelessType!.isCompleted) {
+        _detectingWirelessType!.completeError(e);
+      }
+      _detectingWirelessType = null;
+      rethrow;
     }
-    
-    // Try legacy Wireless
-    try {
-      final wirelessResult = await talk(['/interface/wireless/print']);
-      final filtered = _filterProtocolMessages(wirelessResult);
-      _wirelessType = 'wireless';
-      _log.i('Detected Wireless package (legacy) with ${filtered.length} interfaces');
-      return _wirelessType;
-    } catch (e) {
-      _log.d('Wireless package not available: $e');
-    }
-    
-    _log.w('No wireless package detected on this router');
-    _wirelessType = 'none';
-    return null;
   }
   
   /// Get the base path for wireless commands
@@ -1433,7 +1532,13 @@ class RouterOSClientV2 {
 
   /// Get wireless interfaces (supports both WiFi and Wireless)
   Future<List<Map<String, String>>> getWirelessInterfaces() async {
-    await detectWirelessType();
+    try {
+      await detectWirelessType();
+    } on TimeoutException {
+      // Detection timed out, return empty and let UI show retry option
+      _log.w('Wireless detection timed out');
+      return [];
+    }
     
     if (_wirelessType == 'none' || _wirelessType == null) {
       _log.w('No wireless package available');
@@ -1779,6 +1884,167 @@ class RouterOSClientV2 {
   /// Reset wireless type detection (useful after reconnect)
   void resetWirelessType() {
     _wirelessType = null;
+  }
+
+  /// Update wireless interface SSID
+  Future<bool> updateWirelessInterfaceSsid(String interfaceId, String newSsid) async {
+    try {
+      await detectWirelessType();
+      
+      if (_wirelessType == 'wifi') {
+        _log.d('Updating WiFi interface SSID: $interfaceId -> $newSsid');
+        await talk(['/interface/wifi/set', '=.id=$interfaceId', '=configuration.ssid=$newSsid']);
+        return true;
+      } else if (_wirelessType == 'wireless') {
+        _log.d('Updating wireless interface SSID: $interfaceId -> $newSsid');
+        await talk(['/interface/wireless/set', '=.id=$interfaceId', '=ssid=$newSsid']);
+        return true;
+      }
+      
+      return false;
+    } catch (e) {
+      _log.e('Failed to update wireless interface SSID', error: e);
+      return false;
+    }
+  }
+
+  /// Get security profile password for an interface
+  Future<String?> getWirelessPassword(String securityProfileName) async {
+    try {
+      await detectWirelessType();
+      
+      if (_wirelessType == 'wifi') {
+        _log.d('Getting WiFi security passphrase for: $securityProfileName');
+        final response = await talk([
+          '/interface/wifi/security/print',
+          '?name=$securityProfileName',
+        ]);
+        final filtered = _filterProtocolMessages(response);
+        if (filtered.isNotEmpty) {
+          return filtered.first['passphrase'] ?? '';
+        }
+      } else if (_wirelessType == 'wireless') {
+        _log.d('Getting wireless security password for: $securityProfileName');
+        final response = await talk([
+          '/interface/wireless/security-profiles/print',
+          '?name=$securityProfileName',
+        ]);
+        final filtered = _filterProtocolMessages(response);
+        if (filtered.isNotEmpty) {
+          // Return WPA2 key or WPA key
+          return filtered.first['wpa2-pre-shared-key'] ?? 
+                 filtered.first['wpa-pre-shared-key'] ?? '';
+        }
+      }
+      
+      return null;
+    } catch (e) {
+      _log.e('Failed to get wireless password', error: e);
+      return null;
+    }
+  }
+
+  /// Update wireless password (changes the security profile password)
+  Future<bool> updateWirelessPassword(String securityProfileName, String newPassword) async {
+    try {
+      await detectWirelessType();
+      
+      if (_wirelessType == 'wifi') {
+        _log.d('Updating WiFi password for profile: $securityProfileName');
+        await talk([
+          '/interface/wifi/security/set',
+          '=numbers=$securityProfileName',
+          '=passphrase=$newPassword',
+        ]);
+        return true;
+      } else if (_wirelessType == 'wireless') {
+        _log.d('Updating wireless password for profile: $securityProfileName');
+        await talk([
+          '/interface/wireless/security-profiles/set',
+          '=numbers=$securityProfileName',
+          '=wpa-pre-shared-key=$newPassword',
+          '=wpa2-pre-shared-key=$newPassword',
+        ]);
+        return true;
+      }
+      
+      return false;
+    } catch (e) {
+      _log.e('Failed to update wireless password', error: e);
+      return false;
+    }
+  }
+
+  /// Add a virtual wireless interface
+  /// [name] - interface name (e.g., wlan2)
+  /// [ssid] - WiFi network name
+  /// [masterInterface] - physical interface to bind to (e.g., wlan1)
+  /// [securityProfile] - security profile name (optional, defaults to 'default')
+  /// [disabled] - whether the interface should be disabled initially
+  Future<bool> addVirtualWirelessInterface({
+    String? name,
+    required String ssid,
+    required String masterInterface,
+    String? securityProfile,
+    bool disabled = false,
+  }) async {
+    try {
+      await detectWirelessType();
+      
+      if (_wirelessType == 'wifi') {
+        _log.d('Adding virtual WiFi interface: $ssid (master: $masterInterface)');
+        final cmd = <String>[
+          '/interface/wifi/add',
+          '=master-interface=$masterInterface',
+          '=configuration.ssid=$ssid',
+        ];
+        if (name != null && name.isNotEmpty) cmd.add('=name=$name');
+        if (securityProfile != null && securityProfile.isNotEmpty) {
+          cmd.add('=security=$securityProfile');
+        }
+        if (disabled) cmd.add('=disabled=yes');
+        
+        await talk(cmd);
+        return true;
+      } else if (_wirelessType == 'wireless') {
+        _log.d('Adding virtual wireless interface: $ssid (master: $masterInterface)');
+        final cmd = <String>[
+          '/interface/wireless/add',
+          '=master-interface=$masterInterface',
+          '=ssid=$ssid',
+          '=mode=ap-bridge',
+        ];
+        if (name != null && name.isNotEmpty) cmd.add('=name=$name');
+        if (securityProfile != null && securityProfile.isNotEmpty) {
+          cmd.add('=security-profile=$securityProfile');
+        }
+        if (disabled) cmd.add('=disabled=yes');
+        
+        await talk(cmd);
+        return true;
+      }
+      
+      return false;
+    } catch (e) {
+      _log.e('Failed to add virtual wireless interface', error: e);
+      return false;
+    }
+  }
+
+  /// Remove a wireless interface
+  Future<bool> removeWirelessInterface(String id) async {
+    try {
+      await detectWirelessType();
+      if (_wirelessType == 'none' || _wirelessType == null) return false;
+      
+      _log.d('Removing wireless interface: $id');
+      final basePath = _getWirelessBasePath();
+      await talk(['$basePath/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      _log.e('Failed to remove wireless interface', error: e);
+      return false;
+    }
   }
 
   // ==================== BACKUP & RESTORE METHODS ====================
