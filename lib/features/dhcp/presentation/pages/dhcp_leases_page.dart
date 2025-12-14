@@ -1,198 +1,582 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/dhcp_lease.dart';
 import '../bloc/dhcp_bloc.dart';
 import '../bloc/dhcp_event.dart';
 import '../bloc/dhcp_state.dart';
 
-class DhcpLeasesTab extends StatelessWidget {
+class DhcpLeasesTab extends StatefulWidget {
   const DhcpLeasesTab({super.key});
 
   @override
+  State<DhcpLeasesTab> createState() => _DhcpLeasesTabState();
+}
+
+class _DhcpLeasesTabState extends State<DhcpLeasesTab> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<DhcpLease> _filterLeases(List<DhcpLease> leases) {
+    if (_searchQuery.isEmpty) return leases;
+    return leases.where((lease) {
+      final query = _searchQuery.toLowerCase();
+      return lease.address.toLowerCase().contains(query) ||
+          lease.macAddress.toLowerCase().contains(query) ||
+          (lease.hostName?.toLowerCase().contains(query) ?? false) ||
+          (lease.comment?.toLowerCase().contains(query) ?? false);
+    }).toList();
+  }
+
+  void _copyToClipboard(String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$label copied to clipboard'),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return BlocBuilder<DhcpBloc, DhcpState>(
       builder: (context, state) {
         if (state is DhcpLoading) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        List<DhcpLease> leases = [];
+        List<DhcpLease> allLeases = [];
         if (state is DhcpLoaded && state.leases != null) {
-          leases = state.leases!;
+          allLeases = state.leases!;
         }
 
-        if (leases.isEmpty) {
-          return _buildEmptyState(context);
-        }
+        final leases = _filterLeases(allLeases);
 
-        return Scaffold(
-          body: RefreshIndicator(
-            onRefresh: () async {
-              context.read<DhcpBloc>().add(const LoadDhcpLeases());
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: leases.length,
-              itemBuilder: (context, index) => _buildLeaseCard(context, leases[index]),
+        // Calculate statistics
+        final boundCount = allLeases.where((l) => l.status.toLowerCase() == 'bound' && !l.disabled).length;
+        final staticCount = allLeases.where((l) => !l.dynamic).length;
+        final dynamicCount = allLeases.where((l) => l.dynamic).length;
+        final totalCount = allLeases.length;
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            context.read<DhcpBloc>().add(const LoadDhcpLeases());
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Quick Tip Card
+                _buildQuickTipCard(colorScheme),
+
+                const SizedBox(height: 16),
+
+                // Summary Card
+                _buildSummaryCard(boundCount, staticCount, dynamicCount, totalCount, colorScheme),
+
+                const SizedBox(height: 16),
+
+                // Search Bar
+                _buildSearchBar(colorScheme),
+
+                const SizedBox(height: 16),
+
+                // Leases List
+                if (allLeases.isEmpty)
+                  _buildEmptyState(context)
+                else if (leases.isEmpty)
+                  _buildNoResultsState()
+                else
+                  ...leases.map((lease) => _buildLeaseCard(context, lease, colorScheme)),
+
+                // Extra space for FAB
+                const SizedBox(height: 80),
+              ],
             ),
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => _showAddLeaseDialog(context),
-            child: const Icon(Icons.add),
           ),
         );
       },
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildQuickTipCard(ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: Row(
         children: [
-          Icon(Icons.assignment_outlined, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            'No DHCP Leases',
-            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Leases will appear when clients connect',
-            style: TextStyle(color: Colors.grey[500]),
-          ),
-          const SizedBox(height: 24),
-          FloatingActionButton.extended(
-            onPressed: () => _showAddLeaseDialog(context),
-            icon: const Icon(Icons.add),
-            label: const Text('Add Static Lease'),
+          Icon(Icons.lightbulb_outline, color: Colors.green.shade700),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Leases show devices that have received IP addresses from DHCP. Make a lease static to reserve an IP.',
+              style: TextStyle(
+                color: Colors.green.shade800,
+                fontSize: 13,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLeaseCard(BuildContext context, DhcpLease lease) {
-    Color statusColor;
-    IconData statusIcon;
-    switch (lease.status.toLowerCase()) {
-      case 'bound':
-        statusColor = Colors.green;
-        statusIcon = Icons.check_circle;
-        break;
-      case 'waiting':
-        statusColor = Colors.orange;
-        statusIcon = Icons.hourglass_empty;
-        break;
-      default:
-        statusColor = Colors.grey;
-        statusIcon = Icons.help_outline;
-    }
-
+  Widget _buildSummaryCard(int boundCount, int staticCount, int dynamicCount, int total, ColorScheme colorScheme) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: lease.disabled ? Colors.grey : statusColor,
-          child: Icon(
-            lease.dynamic ? Icons.sync : Icons.push_pin,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
-        title: Row(
-          children: [
-            Text(
-              lease.address,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: lease.disabled ? Colors.grey : null,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(statusIcon, size: 16, color: statusColor),
-          ],
-        ),
-        subtitle: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('MAC: ${lease.macAddress}'),
-            if (lease.hostName != null && lease.hostName!.isNotEmpty)
-              Text('Host: ${lease.hostName}'),
             Row(
               children: [
-                if (lease.dynamic)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    margin: const EdgeInsets.only(right: 4, top: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text('Dynamic', style: TextStyle(fontSize: 10, color: Colors.blue)),
+                Icon(Icons.assignment, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                const Text(
+                  'DHCP Leases Overview',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
-                if (!lease.dynamic)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    margin: const EdgeInsets.only(right: 4, top: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.purple.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text('Static', style: TextStyle(fontSize: 10, color: Colors.purple)),
-                  ),
-                if (lease.expiresAfter != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    margin: const EdgeInsets.only(top: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text('Expires: ${lease.expiresAfter}', style: const TextStyle(fontSize: 10)),
-                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildSummaryItem(
+                  icon: Icons.check_circle,
+                  value: '$boundCount',
+                  label: 'Active',
+                  color: Colors.green,
+                ),
+                _buildSummaryItem(
+                  icon: Icons.push_pin,
+                  value: '$staticCount',
+                  label: 'Static',
+                  color: Colors.purple,
+                ),
+                _buildSummaryItem(
+                  icon: Icons.sync,
+                  value: '$dynamicCount',
+                  label: 'Dynamic',
+                  color: Colors.blue,
+                ),
+                _buildSummaryItem(
+                  icon: Icons.assignment,
+                  value: '$total',
+                  label: 'Total',
+                  color: colorScheme.primary,
+                ),
               ],
             ),
           ],
         ),
-        isThreeLine: true,
-        trailing: PopupMenuButton<String>(
-          onSelected: (value) => _handleMenuAction(context, value, lease),
-          itemBuilder: (context) => [
-            if (lease.dynamic)
-              const PopupMenuItem(
-                value: 'make_static',
-                child: Row(
-                  children: [
-                    Icon(Icons.push_pin),
-                    SizedBox(width: 8),
-                    Text('Make Static'),
-                  ],
-                ),
-              ),
-            PopupMenuItem(
-              value: lease.disabled ? 'enable' : 'disable',
-              child: Row(
-                children: [
-                  Icon(lease.disabled ? Icons.play_arrow : Icons.pause),
-                  const SizedBox(width: 8),
-                  Text(lease.disabled ? 'Enable' : 'Disable'),
-                ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryItem({
+    required IconData icon,
+    required String value,
+    required String label,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.grey.shade600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar(ColorScheme colorScheme) {
+    return TextField(
+      controller: _searchController,
+      decoration: InputDecoration(
+        hintText: 'Search by IP, MAC, hostname...',
+        prefixIcon: const Icon(Icons.search),
+        suffixIcon: _searchQuery.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() => _searchQuery = '');
+                },
+              )
+            : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.outline),
+        ),
+        filled: true,
+        fillColor: colorScheme.surface,
+      ),
+      onChanged: (value) => setState(() => _searchQuery = value),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          children: [
+            Icon(
+              Icons.assignment_outlined,
+              size: 80,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No DHCP Leases',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
               ),
             ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(Icons.delete, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Delete', style: TextStyle(color: Colors.red)),
-                ],
+            const SizedBox(height: 8),
+            Text(
+              'Leases will appear when devices connect\nto your network and request an IP address.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () => _showAddLeaseDialog(context),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Static Lease'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoResultsState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No results for "$_searchQuery"',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLeaseCard(BuildContext context, DhcpLease lease, ColorScheme colorScheme) {
+    // Determine status
+    Color statusColor;
+    String statusText;
+    IconData statusIcon;
+
+    if (lease.disabled) {
+      statusColor = Colors.grey;
+      statusText = 'Disabled';
+      statusIcon = Icons.block;
+    } else if (lease.status.toLowerCase() == 'bound') {
+      statusColor = Colors.green;
+      statusText = 'Bound';
+      statusIcon = Icons.check_circle;
+    } else if (lease.status.toLowerCase() == 'waiting') {
+      statusColor = Colors.orange;
+      statusText = 'Waiting';
+      statusIcon = Icons.hourglass_empty;
+    } else {
+      statusColor = Colors.grey;
+      statusText = lease.status;
+      statusIcon = Icons.help_outline;
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _copyToClipboard(lease.address, 'IP address'),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header row
+              Row(
+                children: [
+                  // Status indicator dot
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: statusColor.withValues(alpha: 0.4),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+
+                  // IP Address
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          lease.address,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                        if (lease.hostName != null && lease.hostName!.isNotEmpty)
+                          Text(
+                            lease.hostName!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+
+                  // Type badge (Static/Dynamic)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: (lease.dynamic ? Colors.blue : Colors.purple).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          lease.dynamic ? Icons.sync : Icons.push_pin,
+                          size: 14,
+                          color: lease.dynamic ? Colors.blue : Colors.purple,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          lease.dynamic ? 'Dynamic' : 'Static',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: lease.dynamic ? Colors.blue : Colors.purple,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  // More options
+                  PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert, color: Colors.grey.shade600),
+                    onSelected: (value) => _handleMenuAction(context, value, lease),
+                    itemBuilder: (context) => [
+                      if (lease.dynamic)
+                        const PopupMenuItem(
+                          value: 'make_static',
+                          child: ListTile(
+                            leading: Icon(Icons.push_pin, color: Colors.purple),
+                            title: Text('Make Static'),
+                            contentPadding: EdgeInsets.zero,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ),
+                      PopupMenuItem(
+                        value: lease.disabled ? 'enable' : 'disable',
+                        child: ListTile(
+                          leading: Icon(
+                            lease.disabled ? Icons.play_arrow : Icons.pause,
+                            color: lease.disabled ? Colors.green : Colors.orange,
+                          ),
+                          title: Text(lease.disabled ? 'Enable' : 'Disable'),
+                          contentPadding: EdgeInsets.zero,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'copy_mac',
+                        child: ListTile(
+                          leading: Icon(Icons.copy),
+                          title: Text('Copy MAC'),
+                          contentPadding: EdgeInsets.zero,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: ListTile(
+                          leading: Icon(Icons.delete, color: Colors.red),
+                          title: Text('Delete', style: TextStyle(color: Colors.red)),
+                          contentPadding: EdgeInsets.zero,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              // Details section
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  children: [
+                    _buildDetailRow(
+                      icon: Icons.router,
+                      label: 'MAC Address',
+                      value: lease.macAddress,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildDetailRow(
+                      icon: statusIcon,
+                      label: 'Status',
+                      value: statusText,
+                      valueColor: statusColor,
+                    ),
+                    if (lease.server != null) ...[
+                      const SizedBox(height: 8),
+                      _buildDetailRow(
+                        icon: Icons.dns,
+                        label: 'Server',
+                        value: lease.server!,
+                      ),
+                    ],
+                    if (lease.expiresAfter != null) ...[
+                      const SizedBox(height: 8),
+                      _buildDetailRow(
+                        icon: Icons.timer,
+                        label: 'Expires',
+                        value: lease.expiresAfter!,
+                      ),
+                    ],
+                    if (lease.lastSeen != null) ...[
+                      const SizedBox(height: 8),
+                      _buildDetailRow(
+                        icon: Icons.access_time,
+                        label: 'Last Seen',
+                        value: lease.lastSeen!,
+                      ),
+                    ],
+                    if (lease.comment != null && lease.comment!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      _buildDetailRow(
+                        icon: Icons.comment,
+                        label: 'Comment',
+                        value: lease.comment!,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    Color? valueColor,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey.shade600),
+        const SizedBox(width: 8),
+        Text(
+          '$label:',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              fontFamily: label == 'MAC Address' ? 'monospace' : null,
+              color: valueColor ?? Colors.black87,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -207,6 +591,9 @@ class DhcpLeasesTab extends StatelessWidget {
         break;
       case 'disable':
         bloc.add(DisableDhcpLease(lease.id));
+        break;
+      case 'copy_mac':
+        _copyToClipboard(lease.macAddress, 'MAC address');
         break;
       case 'delete':
         _showDeleteConfirmation(context, lease);
@@ -229,19 +616,22 @@ class DhcpLeasesTab extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
+        icon: const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 48),
         title: const Text('Delete Lease'),
-        content: Text('Are you sure you want to delete lease for "${lease.address}"?'),
+        content: Text(
+          'Are you sure you want to delete the lease for "${lease.address}"?\n\nThis action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
-          TextButton(
+          FilledButton(
             onPressed: () {
               context.read<DhcpBloc>().add(RemoveDhcpLease(lease.id));
               Navigator.pop(dialogContext);
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Delete'),
           ),
         ],
@@ -258,6 +648,7 @@ class _LeaseDialog extends StatefulWidget {
 }
 
 class _LeaseDialogState extends State<_LeaseDialog> {
+  final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
   final _macController = TextEditingController();
   final _commentController = TextEditingController();
@@ -272,6 +663,8 @@ class _LeaseDialogState extends State<_LeaseDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return BlocListener<DhcpBloc, DhcpState>(
       listener: (context, state) {
         if (state is DhcpOperationSuccess) {
@@ -279,37 +672,68 @@ class _LeaseDialogState extends State<_LeaseDialog> {
         }
       },
       child: AlertDialog(
-        title: const Text('Add Static Lease'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _addressController,
-                decoration: const InputDecoration(
-                  labelText: 'IP Address *',
-                  hintText: 'e.g., 192.168.88.100',
-                  border: OutlineInputBorder(),
+        title: Row(
+          children: [
+            Icon(Icons.assignment, color: colorScheme.primary),
+            const SizedBox(width: 12),
+            const Text('Add Static Lease'),
+          ],
+        ),
+        content: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _addressController,
+                  decoration: InputDecoration(
+                    labelText: 'IP Address *',
+                    hintText: 'e.g., 192.168.88.100',
+                    prefixIcon: const Icon(Icons.computer),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter IP address';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _macController,
-                decoration: const InputDecoration(
-                  labelText: 'MAC Address *',
-                  hintText: 'e.g., AA:BB:CC:DD:EE:FF',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _macController,
+                  decoration: InputDecoration(
+                    labelText: 'MAC Address *',
+                    hintText: 'e.g., AA:BB:CC:DD:EE:FF',
+                    prefixIcon: const Icon(Icons.router),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter MAC address';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _commentController,
-                decoration: const InputDecoration(
-                  labelText: 'Comment',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _commentController,
+                  decoration: InputDecoration(
+                    labelText: 'Comment',
+                    hintText: 'e.g., John\'s Laptop',
+                    prefixIcon: const Icon(Icons.comment),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         actions: [
@@ -317,9 +741,10 @@ class _LeaseDialogState extends State<_LeaseDialog> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          FilledButton.icon(
             onPressed: _canSubmit ? _submit : null,
-            child: const Text('Add'),
+            icon: const Icon(Icons.add),
+            label: const Text('Add'),
           ),
         ],
       ),
@@ -330,10 +755,12 @@ class _LeaseDialogState extends State<_LeaseDialog> {
       _addressController.text.isNotEmpty && _macController.text.isNotEmpty;
 
   void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+
     context.read<DhcpBloc>().add(AddDhcpLease(
-      address: _addressController.text,
-      macAddress: _macController.text,
-      comment: _commentController.text.isNotEmpty ? _commentController.text : null,
-    ));
+          address: _addressController.text,
+          macAddress: _macController.text,
+          comment: _commentController.text.isNotEmpty ? _commentController.text : null,
+        ));
   }
 }

@@ -24,12 +24,14 @@ class DashboardLoaded extends DashboardState {
   final List<RouterInterface>? interfaces;
   final List<IpAddress>? ipAddresses;
   final List<FirewallRule>? firewallRules;
+  final String? errorMessage; // For showing errors without losing data
 
   const DashboardLoaded({
     this.systemResource,
     this.interfaces,
     this.ipAddresses,
     this.firewallRules,
+    this.errorMessage,
   });
 
   DashboardLoaded copyWith({
@@ -37,17 +39,20 @@ class DashboardLoaded extends DashboardState {
     List<RouterInterface>? interfaces,
     List<IpAddress>? ipAddresses,
     List<FirewallRule>? firewallRules,
+    String? errorMessage,
+    bool clearError = false,
   }) {
     return DashboardLoaded(
       systemResource: systemResource ?? this.systemResource,
       interfaces: interfaces ?? this.interfaces,
       ipAddresses: ipAddresses ?? this.ipAddresses,
       firewallRules: firewallRules ?? this.firewallRules,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 
   @override
-  List<Object?> get props => [systemResource, interfaces, ipAddresses, firewallRules];
+  List<Object?> get props => [systemResource, interfaces, ipAddresses, firewallRules, errorMessage];
 }
 
 class DashboardError extends DashboardState {

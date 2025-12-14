@@ -35,10 +35,8 @@ class FirewallBloc extends Bloc<FirewallEvent, FirewallState> {
   ) async {
     _log.i('Loading firewall rules for type: ${event.type.displayName}');
 
-    // Get current data if in loaded state
-    final currentData = state is FirewallLoaded 
-        ? (state as FirewallLoaded) 
-        : const FirewallLoaded();
+    // Get current data from any state
+    final currentData = _getCurrentData();
 
     // Emit loading state with type indicator
     emit(currentData.copyWith(loadingType: event.type));
@@ -77,12 +75,8 @@ class FirewallBloc extends Bloc<FirewallEvent, FirewallState> {
     final action = event.enable ? 'Enabling' : 'Disabling';
     _log.i('$action ${event.type.displayName} rule: ${event.id}');
 
-    // Get current data
-    final currentData = state is FirewallLoaded
-        ? (state as FirewallLoaded)
-        : state is FirewallError && (state as FirewallError).previousData != null
-            ? (state as FirewallError).previousData!
-            : const FirewallLoaded();
+    // Get current data from any state
+    final currentData = _getCurrentData();
 
     // Emit loading state
     emit(currentData.copyWith(loadingType: event.type));
@@ -136,9 +130,7 @@ class FirewallBloc extends Bloc<FirewallEvent, FirewallState> {
   ) async {
     _log.i('Loading address list names');
 
-    final currentData = state is FirewallLoaded
-        ? (state as FirewallLoaded)
-        : const FirewallLoaded();
+    final currentData = _getCurrentData();
 
     final result = await getAddressListNamesUseCase.call();
 
@@ -163,9 +155,7 @@ class FirewallBloc extends Bloc<FirewallEvent, FirewallState> {
   ) async {
     _log.i('Loading address list entries for: ${event.listName}');
 
-    final currentData = state is FirewallLoaded
-        ? (state as FirewallLoaded)
-        : const FirewallLoaded();
+    final currentData = _getCurrentData();
 
     // Emit loading state
     emit(currentData.copyWith(loadingType: FirewallRuleType.addressList));
@@ -198,24 +188,20 @@ class FirewallBloc extends Bloc<FirewallEvent, FirewallState> {
     );
   }
 
+  /// Helper method to get current data from any state using sealed class pattern matching
+  FirewallLoaded _getCurrentData() {
+    return state.currentData ?? const FirewallLoaded();
+  }
+
   void _onClearFirewallError(
     ClearFirewallError event,
     Emitter<FirewallState> emit,
   ) {
-    if (state is FirewallError) {
-      final errorState = state as FirewallError;
-      if (errorState.previousData != null) {
-        emit(errorState.previousData!);
-      } else {
-        emit(const FirewallLoaded());
-      }
-    } else if (state is FirewallOperationSuccess) {
-      final successState = state as FirewallOperationSuccess;
-      if (successState.previousData != null) {
-        emit(successState.previousData!);
-      } else {
-        emit(const FirewallLoaded());
-      }
+    final data = state.currentData;
+    if (data != null) {
+      emit(data);
+    } else {
+      emit(const FirewallLoaded());
     }
   }
 }

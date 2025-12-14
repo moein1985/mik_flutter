@@ -17,7 +17,14 @@ abstract class DashboardRepository {
     required String interfaceName,
     String? comment,
   });
+  Future<Either<Failure, bool>> updateIpAddress({
+    required String id,
+    String? address,
+    String? interfaceName,
+    String? comment,
+  });
   Future<Either<Failure, bool>> removeIpAddress(String id);
+  Future<Either<Failure, bool>> toggleIpAddress(String id, bool enable);
   Future<Either<Failure, List<FirewallRule>>> getFirewallRules();
   Future<Either<Failure, bool>> enableFirewallRule(String id);
   Future<Either<Failure, bool>> disableFirewallRule(String id);

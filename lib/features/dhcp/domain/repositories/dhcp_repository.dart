@@ -62,6 +62,7 @@ abstract class DhcpRepository {
 
   // IP Pools (for dropdown)
   Future<Either<Failure, List<Map<String, String>>>> getIpPools();
+  Future<Either<Failure, bool>> addIpPool({required String name, required String ranges});
   
   // Interfaces (for dropdown)
   Future<Either<Failure, List<Map<String, String>>>> getInterfaces();

@@ -73,6 +73,29 @@ class DhcpSetupDataLoaded extends DhcpState {
     required this.ipPools,
   });
 
+  DhcpSetupDataLoaded copyWith({
+    List<Map<String, String>>? interfaces,
+    List<Map<String, String>>? ipPools,
+  }) {
+    return DhcpSetupDataLoaded(
+      interfaces: interfaces ?? this.interfaces,
+      ipPools: ipPools ?? this.ipPools,
+    );
+  }
+
   @override
   List<Object> get props => [interfaces, ipPools];
+}
+
+class IpPoolCreated extends DhcpState {
+  final String poolName;
+  final DhcpSetupDataLoaded setupData;
+
+  const IpPoolCreated({
+    required this.poolName,
+    required this.setupData,
+  });
+
+  @override
+  List<Object> get props => [poolName, setupData];
 }

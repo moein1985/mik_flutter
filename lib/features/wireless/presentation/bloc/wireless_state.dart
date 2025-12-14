@@ -151,11 +151,9 @@ class WirelessInterfaceLoaded extends WirelessState {
 
 @Deprecated('Use WirelessState.copyWith(interfacesError: ...) instead')
 class WirelessInterfacesError extends WirelessState {
-  @override
-  final String? interfacesError;
   String get message => interfacesError ?? '';
   const WirelessInterfacesError(String message) 
-      : interfacesError = message, super(interfacesLoading: false);
+      : super(interfacesError: message, interfacesLoading: false);
 }
 
 @Deprecated('Use WirelessState.copyWith(registrationsLoading: true) instead')
@@ -171,11 +169,9 @@ class WirelessRegistrationsLoaded extends WirelessState {
 
 @Deprecated('Use WirelessState.copyWith(registrationsError: ...) instead')
 class WirelessRegistrationsError extends WirelessState {
-  @override
-  final String? registrationsError;
   String get message => registrationsError ?? '';
   const WirelessRegistrationsError(String message) 
-      : registrationsError = message, super(registrationsLoading: false);
+      : super(registrationsError: message, registrationsLoading: false);
 }
 
 @Deprecated('Use WirelessState.copyWith(profilesLoading: true) instead')
@@ -197,11 +193,9 @@ class SecurityProfileLoaded extends WirelessState {
 
 @Deprecated('Use WirelessState.copyWith(profilesError: ...) instead')
 class SecurityProfilesError extends WirelessState {
-  @override
-  final String? profilesError;
   String get message => profilesError ?? '';
   const SecurityProfilesError(String message) 
-      : profilesError = message, super(profilesLoading: false);
+      : super(profilesError: message, profilesLoading: false);
 }
 
 @Deprecated('Use WirelessState.copyWith(accessListLoading: true) instead')
@@ -217,27 +211,21 @@ class AccessListLoaded extends WirelessState {
 
 @Deprecated('Use WirelessState.copyWith(accessListError: ...) instead')
 class AccessListError extends WirelessState {
-  @override
-  final String? accessListError;
   String get message => accessListError ?? '';
   const AccessListError(String message) 
-      : accessListError = message, super(accessListLoading: false);
+      : super(accessListError: message, accessListLoading: false);
 }
 
 @Deprecated('Use WirelessState.copyWith(operationSuccess: ...) instead')
 class WirelessOperationSuccess extends WirelessState {
-  @override
-  final String? operationSuccess;
   String get message => operationSuccess ?? '';
-  const WirelessOperationSuccess(String message) : operationSuccess = message, super();
+  const WirelessOperationSuccess(String message) : super(operationSuccess: message);
 }
 
 @Deprecated('Use WirelessState.copyWith(operationError: ...) instead')
 class WirelessOperationError extends WirelessState {
-  @override
-  final String? operationError;
   String get message => operationError ?? '';
-  const WirelessOperationError(String message) : operationError = message, super();
+  const WirelessOperationError(String message) : super(operationError: message);
 }
 
 @Deprecated('Use WirelessState.copyWith(scanLoading: true) instead')
@@ -253,9 +241,7 @@ class WirelessScanLoaded extends WirelessState {
 
 @Deprecated('Use WirelessState.copyWith(scanError: ...) instead')
 class WirelessScanError extends WirelessState {
-  @override
-  final String? scanError;
   String get message => scanError ?? '';
   const WirelessScanError(String message) 
-      : scanError = message, super(scanLoading: false);
+      : super(scanError: message, scanLoading: false);
 }

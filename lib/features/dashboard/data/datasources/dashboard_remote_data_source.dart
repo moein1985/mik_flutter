@@ -18,7 +18,14 @@ abstract class DashboardRemoteDataSource {
     required String interfaceName,
     String? comment,
   });
+  Future<bool> updateIpAddress({
+    required String id,
+    String? address,
+    String? interfaceName,
+    String? comment,
+  });
   Future<bool> removeIpAddress(String id);
+  Future<bool> toggleIpAddress(String id, bool enable);
   Future<List<FirewallRuleModel>> getFirewallRules();
   Future<bool> enableFirewallRule(String id);
   Future<bool> disableFirewallRule(String id);
@@ -110,11 +117,39 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
   }
 
   @override
+  Future<bool> updateIpAddress({
+    required String id,
+    String? address,
+    String? interfaceName,
+    String? comment,
+  }) async {
+    try {
+      return await client.updateIpAddress(
+        id: id,
+        address: address,
+        interfaceName: interfaceName,
+        comment: comment,
+      );
+    } catch (e) {
+      throw ServerException('Failed to update IP address: $e');
+    }
+  }
+
+  @override
   Future<bool> removeIpAddress(String id) async {
     try {
       return await client.removeIpAddress(id);
     } catch (e) {
       throw ServerException('Failed to remove IP address: $e');
+    }
+  }
+
+  @override
+  Future<bool> toggleIpAddress(String id, bool enable) async {
+    try {
+      return await client.toggleIpAddress(id, enable);
+    } catch (e) {
+      throw ServerException('Failed to toggle IP address: $e');
     }
   }
 

@@ -33,6 +33,7 @@ import 'features/dashboard/domain/usecases/get_system_resources_usecase.dart';
 import 'features/dashboard/domain/usecases/get_interfaces_usecase.dart';
 import 'features/dashboard/domain/usecases/toggle_interface_usecase.dart';
 import 'features/dashboard/domain/usecases/get_ip_addresses_usecase.dart';
+import 'features/dashboard/domain/usecases/ip_address_usecases.dart';
 import 'features/dashboard/domain/usecases/get_firewall_rules_usecase.dart';
 import 'features/dashboard/domain/usecases/toggle_firewall_rule_usecase.dart';
 import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
@@ -242,6 +243,10 @@ Future<void> init() async {
       getInterfacesUseCase: sl(),
       toggleInterfaceUseCase: sl(),
       getIpAddressesUseCase: sl(),
+      addIpAddressUseCase: sl(),
+      updateIpAddressUseCase: sl(),
+      removeIpAddressUseCase: sl(),
+      toggleIpAddressUseCase: sl(),
       getFirewallRulesUseCase: sl(),
       toggleFirewallRuleUseCase: sl(),
     ),
@@ -252,6 +257,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetInterfacesUseCase(sl()));
   sl.registerLazySingleton(() => ToggleInterfaceUseCase(sl()));
   sl.registerLazySingleton(() => GetIpAddressesUseCase(sl()));
+  sl.registerLazySingleton(() => AddIpAddressUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateIpAddressUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveIpAddressUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleIpAddressUseCase(sl()));
   sl.registerLazySingleton(() => GetFirewallRulesUseCase(sl()));
   sl.registerLazySingleton(() => ToggleFirewallRuleUseCase(sl()));
 

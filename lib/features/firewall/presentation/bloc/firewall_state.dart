@@ -1,8 +1,18 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/firewall_rule.dart';
 
-abstract class FirewallState extends Equatable {
+/// Sealed class for FirewallState - provides exhaustive pattern matching
+sealed class FirewallState extends Equatable {
   const FirewallState();
+
+  /// Get current data from any state (for exhaustive handling)
+  FirewallLoaded? get currentData => switch (this) {
+    FirewallInitial() => null,
+    FirewallLoading(:final previousData) => previousData,
+    FirewallLoaded() => this as FirewallLoaded,
+    FirewallError(:final previousData) => previousData,
+    FirewallOperationSuccess(:final previousData) => previousData,
+  };
 
   @override
   List<Object?> get props => [];
@@ -14,11 +24,12 @@ class FirewallInitial extends FirewallState {
 
 class FirewallLoading extends FirewallState {
   final FirewallRuleType? type;
+  final FirewallLoaded? previousData;
   
-  const FirewallLoading({this.type});
+  const FirewallLoading({this.type, this.previousData});
 
   @override
-  List<Object?> get props => [type];
+  List<Object?> get props => [type, previousData];
 }
 
 class FirewallLoaded extends FirewallState {

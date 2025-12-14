@@ -301,7 +301,7 @@ class _EditSecurityProfileSheetState extends State<_EditSecurityProfileSheet> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _authenticationTypes.contains(_selectedAuthentication) 
+                initialValue: _authenticationTypes.contains(_selectedAuthentication) 
                     ? _selectedAuthentication 
                     : 'wpa2-psk',
                 decoration: const InputDecoration(
@@ -323,7 +323,7 @@ class _EditSecurityProfileSheetState extends State<_EditSecurityProfileSheet> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _encryptionTypes.contains(_selectedEncryption) 
+                initialValue: _encryptionTypes.contains(_selectedEncryption) 
                     ? _selectedEncryption 
                     : 'aes-ccm',
                 decoration: const InputDecoration(
@@ -539,7 +539,7 @@ class _AddSecurityProfileSheetState extends State<_AddSecurityProfileSheet> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedAuthentication,
+                initialValue: _selectedAuthentication,
                 decoration: const InputDecoration(
                   labelText: 'Authentication',
                   border: OutlineInputBorder(),
@@ -559,7 +559,7 @@ class _AddSecurityProfileSheetState extends State<_AddSecurityProfileSheet> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedEncryption,
+                initialValue: _selectedEncryption,
                 decoration: const InputDecoration(
                   labelText: 'Encryption',
                   border: OutlineInputBorder(),

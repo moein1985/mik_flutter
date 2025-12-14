@@ -358,8 +358,6 @@ class _QuickSettingsSheet extends StatefulWidget {
 }
 
 class _QuickSettingsSheetState extends State<_QuickSettingsSheet> {
-  bool _isLoadingPassword = false;
-  String? _currentPassword;
 
   @override
   Widget build(BuildContext context) {
@@ -367,10 +365,7 @@ class _QuickSettingsSheetState extends State<_QuickSettingsSheet> {
       listener: (context, state) {
         if (state.operationSuccess != null) {
           if (state.operationSuccess!.startsWith('PASSWORD:')) {
-            setState(() {
-              _currentPassword = state.operationSuccess!.substring(9);
-              _isLoadingPassword = false;
-            });
+            // Password retrieved, but not used in this sheet
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -381,9 +376,6 @@ class _QuickSettingsSheetState extends State<_QuickSettingsSheet> {
             Navigator.of(context).pop();
           }
         } else if (state.operationError != null) {
-          setState(() {
-            _isLoadingPassword = false;
-          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.operationError!),
@@ -476,7 +468,7 @@ class _QuickSettingsSheetState extends State<_QuickSettingsSheet> {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor.withOpacity(0.1),
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: Theme.of(context).primaryColor),
@@ -886,7 +878,7 @@ class _AddVirtualWlanSheetState extends State<_AddVirtualWlanSheet> {
               
               // Master Interface dropdown
               DropdownButtonFormField<String>(
-                value: _selectedMasterInterface,
+                initialValue: _selectedMasterInterface,
                 decoration: const InputDecoration(
                   labelText: 'Master Interface *',
                   border: OutlineInputBorder(),
@@ -914,7 +906,7 @@ class _AddVirtualWlanSheetState extends State<_AddVirtualWlanSheet> {
                   }
                   
                   return DropdownButtonFormField<String>(
-                    value: _selectedSecurityProfile,
+                    initialValue: _selectedSecurityProfile,
                     decoration: const InputDecoration(
                       labelText: 'Security Profile',
                       border: OutlineInputBorder(),

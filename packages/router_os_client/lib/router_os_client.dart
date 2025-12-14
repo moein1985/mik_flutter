@@ -21,6 +21,7 @@ class TaggedResponse {
   /// Error message if this is an error response
   final String? errorMessage;
 
+  /// Creates a [TaggedResponse] with the given data and optional properties.
   TaggedResponse({
     required this.data,
     this.tag,
@@ -174,9 +175,7 @@ class RouterOSClient {
     } else {
       // Handle non-tagged response (legacy behavior)
       if (_currentCompleter != null && !_currentCompleter!.isCompleted) {
-        if (_currentReceivedData == null) {
-          _currentReceivedData = <List<String>>[];
-        }
+        _currentReceivedData ??= <List<String>>[];
         _currentReceivedData!.add(sentence);
 
         if (isDone) {
@@ -498,7 +497,17 @@ class RouterOSClient {
     var reply = await _communicate(sentence);
     if (reply.isNotEmpty && reply[0].isNotEmpty && reply[0][0] == '!trap') {
       logger.e('Command: $sentence\nReturned an error: $reply');
-      throw RouterOSTrapError("Command: $sentence\nReturned an error: $reply");
+      // Extract the actual error message from the trap response
+      String errorMessage = 'Unknown error';
+      for (var sentenceReply in reply) {
+        for (var word in sentenceReply) {
+          if (word.startsWith('=message=')) {
+            errorMessage = word.substring(9); // Remove '=message=' prefix
+            break;
+          }
+        }
+      }
+      throw RouterOSTrapError(errorMessage);
     }
     return _parseReply(reply);
   }
@@ -571,6 +580,7 @@ class TaggedCommand {
   /// Optional tag (will be auto-generated if null)
   final String? tag;
 
+  /// Creates a [TaggedCommand] with the given command, params, and optional tag.
   TaggedCommand({
     required this.command,
     this.params,

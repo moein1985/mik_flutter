@@ -89,10 +89,10 @@ class WirelessBloc extends Bloc<WirelessEvent, WirelessState> {
         (failure) => emit(state.copyWith(interfacesLoading: false, interfacesError: failure.message)),
         (interfaces) => emit(state.copyWith(interfacesLoading: false, interfaces: interfaces)),
       );
-    } on TimeoutException catch (e) {
+    } on TimeoutException catch (_) {
       emit(state.copyWith(interfacesLoading: false, interfacesError: 'Connection timeout. Please try again.'));
-    } catch (e) {
-      emit(state.copyWith(interfacesLoading: false, interfacesError: e.toString()));
+    } catch (_) {
+      emit(state.copyWith(interfacesLoading: false, interfacesError: 'An unexpected error occurred'));
     }
   }
 

@@ -36,6 +36,7 @@ class DhcpBloc extends Bloc<DhcpEvent, DhcpState> {
 
     // Setup data
     on<LoadDhcpSetupData>(_onLoadSetupData);
+    on<AddIpPool>(_onAddIpPool);
   }
 
   // ==================== Server Handlers ====================
@@ -85,14 +86,37 @@ class DhcpBloc extends Bloc<DhcpEvent, DhcpState> {
       authoritative: event.authoritative,
     );
 
-    result.fold(
-      (failure) {
+    await result.fold(
+      (failure) async {
         _log.e('Failed to add server: ${failure.message}');
         emit(DhcpError(failure.message));
       },
-      (_) {
+      (_) async {
         _log.i('Server added successfully');
-        emit(DhcpOperationSuccess('DHCP server added', previousData: previousData));
+        
+        // Automatically create network if network parameters provided
+        if (event.networkAddress != null && event.networkAddress!.isNotEmpty) {
+          _log.i('Creating network for: ${event.networkAddress}');
+          final networkResult = await repository.addNetwork(
+            address: event.networkAddress!,
+            gateway: event.gateway,
+            dnsServer: event.dnsServer,
+          );
+          
+          networkResult.fold(
+            (failure) {
+              _log.w('Failed to create network (server was created): ${failure.message}');
+              // Server was created but network failed - still show success with warning
+              emit(DhcpOperationSuccess('DHCP server added (network creation failed: ${failure.message})', previousData: previousData));
+            },
+            (_) {
+              _log.i('Network created successfully');
+              emit(DhcpOperationSuccess('DHCP server and network added', previousData: previousData));
+            },
+          );
+        } else {
+          emit(DhcpOperationSuccess('DHCP server added', previousData: previousData));
+        }
         add(const LoadDhcpServers());
       },
     );
@@ -490,5 +514,68 @@ class DhcpBloc extends Bloc<DhcpEvent, DhcpState> {
     );
 
     emit(DhcpSetupDataLoaded(interfaces: interfaces, ipPools: pools));
+  }
+
+  Future<void> _onAddIpPool(
+    AddIpPool event,
+    Emitter<DhcpState> emit,
+  ) async {
+    _log.i('Adding IP pool: ${event.name}');
+    
+    // Keep current setup data if available
+    DhcpSetupDataLoaded? currentSetupData;
+    if (state is DhcpSetupDataLoaded) {
+      currentSetupData = state as DhcpSetupDataLoaded;
+    }
+
+    final result = await repository.addIpPool(
+      name: event.name,
+      ranges: event.ranges,
+    );
+
+    await result.fold(
+      (failure) async {
+        _log.e('Failed to add IP pool: ${failure.message}');
+        emit(DhcpError(failure.message));
+        // Restore setup data if we had it
+        if (currentSetupData != null) {
+          emit(currentSetupData);
+        }
+      },
+      (_) async {
+        _log.i('IP pool added successfully');
+        
+        // Reload pools to get updated list
+        final poolsResult = await repository.getIpPools();
+        
+        poolsResult.fold(
+          (failure) {
+            _log.e('Failed to reload pools: ${failure.message}');
+            // Still emit success with old data
+            if (currentSetupData != null) {
+              final updatedPools = [
+                ...currentSetupData.ipPools,
+                {'name': event.name, 'ranges': event.ranges},
+              ];
+              emit(IpPoolCreated(
+                poolName: event.name,
+                setupData: currentSetupData.copyWith(ipPools: updatedPools),
+              ));
+            }
+          },
+          (pools) {
+            _log.i('Reloaded ${pools.length} pools');
+            final newSetupData = DhcpSetupDataLoaded(
+              interfaces: currentSetupData?.interfaces ?? [],
+              ipPools: pools,
+            );
+            emit(IpPoolCreated(
+              poolName: event.name,
+              setupData: newSetupData,
+            ));
+          },
+        );
+      },
+    );
   }
 }

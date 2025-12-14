@@ -343,18 +343,22 @@ class RouterOSClientV2 {
 
   Future<bool> enableInterface(String id) async {
     try {
-      final response = await talk(['/interface/enable', '=.id=$id']);
-      return response.any((r) => r['type'] == 'done');
+      await talk(['/interface/enable', '=.id=$id']);
+      // RouterOS returns empty response on success, throwing on failure
+      return true;
     } catch (e) {
+      _log.e('Failed to enable interface $id: $e');
       return false;
     }
   }
 
   Future<bool> disableInterface(String id) async {
     try {
-      final response = await talk(['/interface/disable', '=.id=$id']);
-      return response.any((r) => r['type'] == 'done');
+      await talk(['/interface/disable', '=.id=$id']);
+      // RouterOS returns empty response on success, throwing on failure
+      return true;
     } catch (e) {
+      _log.e('Failed to disable interface $id: $e');
       return false;
     }
   }
@@ -400,18 +404,56 @@ class RouterOSClientV2 {
       if (comment != null && comment.isNotEmpty) {
         cmd.add('=comment=$comment');
       }
-      final response = await talk(cmd);
-      return response.any((r) => r['type'] == 'done');
+      await talk(cmd);
+      return true;
     } catch (e) {
+      _log.e('Failed to add IP address: $e');
       return false;
     }
   }
 
   Future<bool> removeIpAddress(String id) async {
     try {
-      final response = await talk(['/ip/address/remove', '=.id=$id']);
-      return response.any((r) => r['type'] == 'done');
+      await talk(['/ip/address/remove', '=.id=$id']);
+      return true;
     } catch (e) {
+      _log.e('Failed to remove IP address $id: $e');
+      return false;
+    }
+  }
+
+  Future<bool> updateIpAddress({
+    required String id,
+    String? address,
+    String? interfaceName,
+    String? comment,
+  }) async {
+    try {
+      final List<String> cmd = ['/ip/address/set', '=.id=$id'];
+      if (address != null) {
+        cmd.add('=address=$address');
+      }
+      if (interfaceName != null) {
+        cmd.add('=interface=$interfaceName');
+      }
+      if (comment != null) {
+        cmd.add('=comment=$comment');
+      }
+      await talk(cmd);
+      return true;
+    } catch (e) {
+      _log.e('Failed to update IP address $id: $e');
+      return false;
+    }
+  }
+
+  Future<bool> toggleIpAddress(String id, bool enable) async {
+    try {
+      final command = enable ? '/ip/address/enable' : '/ip/address/disable';
+      await talk([command, '=.id=$id']);
+      return true;
+    } catch (e) {
+      _log.e('Failed to toggle IP address $id: $e');
       return false;
     }
   }
@@ -430,17 +472,21 @@ class RouterOSClientV2 {
     String? leaseTime,
     bool? authoritative,
   }) async {
-    try {
-      final words = ['/ip/dhcp-server/add', '=name=$name', '=interface=$interface'];
-      if (addressPool != null) words.add('=address-pool=$addressPool');
-      if (leaseTime != null) words.add('=lease-time=$leaseTime');
-      if (authoritative != null) words.add('=authoritative=${authoritative ? 'yes' : 'no'}');
+    _log.d('Adding DHCP server: name=$name, interface=$interface, pool=$addressPool');
+    final words = ['/ip/dhcp-server/add', '=name=$name', '=interface=$interface'];
+    if (addressPool != null) words.add('=address-pool=$addressPool');
+    if (leaseTime != null) words.add('=lease-time=$leaseTime');
+    if (authoritative != null) words.add('=authoritative=${authoritative ? 'yes' : 'no'}');
 
-      final response = await talk(words);
-      return response.any((r) => r['type'] == 'done');
-    } catch (e) {
-      return false;
+    final response = await talk(words);
+    _log.d('DHCP server add response: $response');
+    final success = response.any((r) => r.containsKey('ret') || r['type'] == 'done');
+    if (success) {
+      _log.i('DHCP server added successfully');
+    } else {
+      _log.w('DHCP server add failed - unexpected response');
     }
+    return success;
   }
 
   Future<bool> editDhcpServer({
@@ -451,46 +497,32 @@ class RouterOSClientV2 {
     String? leaseTime,
     bool? authoritative,
   }) async {
-    try {
-      final words = ['/ip/dhcp-server/set', '=.id=$id'];
-      if (name != null) words.add('=name=$name');
-      if (interface != null) words.add('=interface=$interface');
-      if (addressPool != null) words.add('=address-pool=$addressPool');
-      if (leaseTime != null) words.add('=lease-time=$leaseTime');
-      if (authoritative != null) words.add('=authoritative=${authoritative ? 'yes' : 'no'}');
+    final words = ['/ip/dhcp-server/set', '=.id=$id'];
+    if (name != null) words.add('=name=$name');
+    if (interface != null) words.add('=interface=$interface');
+    if (addressPool != null) words.add('=address-pool=$addressPool');
+    if (leaseTime != null) words.add('=lease-time=$leaseTime');
+    if (authoritative != null) words.add('=authoritative=${authoritative ? 'yes' : 'no'}');
 
-      final response = await talk(words);
-      return response.any((r) => r['type'] == 'done');
-    } catch (e) {
-      return false;
-    }
+    await talk(words);
+    return true;
   }
 
   Future<bool> removeDhcpServer(String id) async {
-    try {
-      final response = await talk(['/ip/dhcp-server/remove', '=.id=$id']);
-      return response.any((r) => r['type'] == 'done');
-    } catch (e) {
-      return false;
-    }
+    // Remove command returns empty response on success (!done only)
+    // If there's an error, talk() throws ServerException
+    await talk(['/ip/dhcp-server/remove', '=.id=$id']);
+    return true;
   }
 
   Future<bool> enableDhcpServer(String id) async {
-    try {
-      final response = await talk(['/ip/dhcp-server/enable', '=.id=$id']);
-      return response.any((r) => r['type'] == 'done');
-    } catch (e) {
-      return false;
-    }
+    await talk(['/ip/dhcp-server/enable', '=.id=$id']);
+    return true;
   }
 
   Future<bool> disableDhcpServer(String id) async {
-    try {
-      final response = await talk(['/ip/dhcp-server/disable', '=.id=$id']);
-      return response.any((r) => r['type'] == 'done');
-    } catch (e) {
-      return false;
-    }
+    await talk(['/ip/dhcp-server/disable', '=.id=$id']);
+    return true;
   }
 
   Future<List<Map<String, String>>> getDhcpNetworks() async {
@@ -627,13 +659,23 @@ class RouterOSClientV2 {
 
   Future<bool> addIpPool({required String name, required String ranges}) async {
     try {
+      _log.d('Adding IP pool: name=$name, ranges=$ranges');
       final response = await talk([
         '/ip/pool/add',
         '=name=$name',
         '=ranges=$ranges',
       ]);
-      return response.any((r) => r['type'] == 'done');
+      _log.d('Add IP pool response: $response');
+      // Success if we get 'ret' (returned ID) or 'done' without error
+      final success = response.any((r) => r.containsKey('ret') || r['type'] == 'done');
+      if (success) {
+        _log.i('IP pool added successfully');
+      } else {
+        _log.w('IP pool add failed - unexpected response');
+      }
+      return success;
     } catch (e) {
+      _log.e('Failed to add IP pool: $e');
       return false;
     }
   }

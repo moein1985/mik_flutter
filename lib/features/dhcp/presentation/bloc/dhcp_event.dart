@@ -19,6 +19,10 @@ class AddDhcpServer extends DhcpEvent {
   final String? addressPool;
   final String? leaseTime;
   final bool? authoritative;
+  // Network parameters for automatic network creation
+  final String? networkAddress;
+  final String? gateway;
+  final String? dnsServer;
 
   const AddDhcpServer({
     required this.name,
@@ -26,10 +30,13 @@ class AddDhcpServer extends DhcpEvent {
     this.addressPool,
     this.leaseTime,
     this.authoritative,
+    this.networkAddress,
+    this.gateway,
+    this.dnsServer,
   });
 
   @override
-  List<Object?> get props => [name, interface, addressPool, leaseTime, authoritative];
+  List<Object?> get props => [name, interface, addressPool, leaseTime, authoritative, networkAddress, gateway, dnsServer];
 }
 
 class EditDhcpServer extends DhcpEvent {
@@ -202,4 +209,17 @@ class DisableDhcpLease extends DhcpEvent {
 
 class LoadDhcpSetupData extends DhcpEvent {
   const LoadDhcpSetupData();
+}
+
+class AddIpPool extends DhcpEvent {
+  final String name;
+  final String ranges;
+
+  const AddIpPool({
+    required this.name,
+    required this.ranges,
+  });
+
+  @override
+  List<Object> get props => [name, ranges];
 }

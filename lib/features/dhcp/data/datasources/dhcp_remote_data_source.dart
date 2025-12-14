@@ -67,6 +67,7 @@ abstract class DhcpRemoteDataSource {
   // Helpers
   Future<List<Map<String, String>>> getIpPools();
   Future<List<Map<String, String>>> getInterfaces();
+  Future<bool> addIpPool({required String name, required String ranges});
 }
 
 class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
@@ -108,7 +109,7 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
     bool? authoritative,
   }) async {
     try {
-      _log.i('Adding DHCP server: $name on $interface');
+      _log.i('Adding DHCP server: $name on $interface with pool: $addressPool');
       final result = await client.addDhcpServer(
         name: name,
         interface: interface,
@@ -118,14 +119,19 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
       );
       
       if (!result) {
+        _log.e('DHCP server add returned false');
         throw ServerException('Failed to add DHCP server');
       }
 
       _log.i('DHCP server added successfully');
       return true;
+    } on ServerException {
+      rethrow;
     } catch (e, stackTrace) {
       _log.e('Failed to add DHCP server', error: e, stackTrace: stackTrace);
-      throw ServerException('Failed to add DHCP server: $e');
+      // Extract RouterOS error message
+      final errorMsg = e.toString();
+      throw ServerException(errorMsg.contains('ServerException') ? errorMsg.replaceAll('Instance of \'ServerException\'', '').trim() : 'Failed to add DHCP server: $e');
     }
   }
 
@@ -456,6 +462,35 @@ class DhcpRemoteDataSourceImpl implements DhcpRemoteDataSource {
     } catch (e, stackTrace) {
       _log.e('Failed to get interfaces', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to get interfaces: $e');
+    }
+  }
+
+  @override
+  Future<bool> addIpPool({required String name, required String ranges}) async {
+    try {
+      _log.i('Adding IP pool: $name with ranges: $ranges');
+      final result = await client.addIpPool(name: name, ranges: ranges);
+      
+      if (!result) {
+        _log.e('IP pool add returned false - command may have failed');
+        throw ServerException('Failed to add IP pool - check if pool name already exists or ranges are invalid');
+      }
+
+      _log.i('IP pool added successfully');
+      return true;
+    } on ServerException {
+      rethrow;
+    } catch (e, stackTrace) {
+      _log.e('Failed to add IP pool', error: e, stackTrace: stackTrace);
+      // Extract error message if it's from RouterOS
+      String errorMessage = e.toString();
+      if (e is Exception && errorMessage.contains('message')) {
+        // Try to extract RouterOS error message
+        errorMessage = 'Failed to add IP pool: $errorMessage';
+      } else {
+        errorMessage = 'Failed to add IP pool: $e';
+      }
+      throw ServerException(errorMessage);
     }
   }
 }

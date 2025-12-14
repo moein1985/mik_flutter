@@ -265,4 +265,14 @@ class DhcpRepositoryImpl implements DhcpRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> addIpPool({required String name, required String ranges}) async {
+    try {
+      final result = await remoteDataSource.addIpPool(name: name, ranges: ranges);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }

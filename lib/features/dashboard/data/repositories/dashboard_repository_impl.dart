@@ -97,9 +97,43 @@ class DashboardRepositoryImpl implements DashboardRepository {
   }
 
   @override
+  Future<Either<Failure, bool>> updateIpAddress({
+    required String id,
+    String? address,
+    String? interfaceName,
+    String? comment,
+  }) async {
+    try {
+      final result = await remoteDataSource.updateIpAddress(
+        id: id,
+        address: address,
+        interfaceName: interfaceName,
+        comment: comment,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
   Future<Either<Failure, bool>> removeIpAddress(String id) async {
     try {
       final result = await remoteDataSource.removeIpAddress(id);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> toggleIpAddress(String id, bool enable) async {
+    try {
+      final result = await remoteDataSource.toggleIpAddress(id, enable);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

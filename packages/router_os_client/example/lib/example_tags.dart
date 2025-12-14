@@ -208,9 +208,13 @@ Future<void> _performBatchOperations(RouterOSClient client) async {
         break;
 
       case 'default-routes':
-        print('Default Routes:');
+        if (kDebugMode) {
+          print('Default Routes:');
+        }
         for (var item in response.data) {
-          print('  Gateway: ${item['gateway']}');
+          if (kDebugMode) {
+            print('  Gateway: ${item['gateway']}');
+          }
         }
         break;
     }

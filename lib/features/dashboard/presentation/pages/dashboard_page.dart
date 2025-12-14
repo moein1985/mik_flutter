@@ -68,6 +68,16 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       body: BlocConsumer<DashboardBloc, DashboardState>(
         listener: (context, state) {
+          if (state is DashboardLoaded && state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            context.read<DashboardBloc>().add(const ClearError());
+          }
           if (state is DashboardError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

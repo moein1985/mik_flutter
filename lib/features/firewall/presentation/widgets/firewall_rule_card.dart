@@ -24,11 +24,21 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
   Widget build(BuildContext context) {
     final rule = widget.rule;
     final isDisabled = rule.disabled;
+    final colorScheme = Theme.of(context).colorScheme;
+    final typeColor = _getTypeColor(rule.type);
     
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: isDisabled ? 1 : 2,
-      color: isDisabled ? Colors.grey[100] : null,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isDisabled 
+              ? colorScheme.outline.withOpacity(0.2)
+              : typeColor.withOpacity(0.3),
+        ),
+      ),
+      color: isDisabled ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : null,
       child: Column(
         children: [
           // Header - Always visible
@@ -38,16 +48,37 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
                 _isExpanded = !_isExpanded;
               });
             },
+            borderRadius: BorderRadius.vertical(
+              top: const Radius.circular(12),
+              bottom: _isExpanded ? Radius.zero : const Radius.circular(12),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  // Index number
+                  // Status indicator dot
+                  Container(
+                    width: 10,
+                    height: 10,
+                    margin: const EdgeInsets.only(right: 12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isDisabled ? Colors.grey : Colors.green,
+                      boxShadow: isDisabled ? null : [
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.4),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Index number with colored background
                   Container(
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: _getTypeColor(rule.type).withAlpha(51),
+                      color: typeColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -55,7 +86,7 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
                         widget.index.toString(),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: _getTypeColor(rule.type),
+                          color: typeColor,
                         ),
                       ),
                     ),
@@ -73,29 +104,39 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
                                 rule.displayTitle,
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: isDisabled ? Colors.grey : null,
+                                  fontSize: 15,
+                                  color: isDisabled ? colorScheme.onSurfaceVariant : colorScheme.onSurface,
                                   decoration: isDisabled 
                                       ? TextDecoration.lineThrough 
                                       : null,
                                 ),
                               ),
                             ),
-                            // Status badges
-                            if (rule.dynamic)
-                              _buildBadge('D', Colors.blue, 'Dynamic'),
-                            if (rule.invalid)
-                              _buildBadge('!', Colors.red, 'Invalid'),
                           ],
                         ),
                         const SizedBox(height: 4),
+                        // Status tags
+                        if (rule.dynamic || rule.invalid)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: [
+                                if (rule.dynamic)
+                                  _buildTag('Dynamic', Colors.blue),
+                                if (rule.invalid)
+                                  _buildTag('Invalid', Colors.red),
+                              ],
+                            ),
+                          ),
                         Text(
                           rule.summary,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[600],
+                            color: colorScheme.onSurfaceVariant,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
@@ -107,99 +148,120 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
                     onChanged: (value) {
                       widget.onToggle(value);
                     },
-                    activeThumbColor: Colors.green,
+                    activeColor: Colors.green,
                   ),
                   // Expand icon
                   Icon(
-                    _isExpanded ? Icons.expand_less : Icons.expand_more,
-                    color: Colors.grey,
+                    _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ],
               ),
             ),
           ),
           // Expanded content
-          if (_isExpanded) _buildExpandedContent(rule),
+          if (_isExpanded) _buildExpandedContent(rule, colorScheme),
         ],
       ),
     );
   }
 
-  Widget _buildBadge(String text, Color color, String tooltip) {
-    return Tooltip(
-      message: tooltip,
-      child: Container(
-        margin: const EdgeInsets.only(left: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: color.withAlpha(51),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
+  Widget _buildTag(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: color,
         ),
       ),
     );
   }
 
-  Widget _buildExpandedContent(FirewallRule rule) {
+  Widget _buildExpandedContent(FirewallRule rule, ColorScheme colorScheme) {
     final params = rule.displayParameters;
     
     if (params.isEmpty) {
-      return Padding(
+      return Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+        ),
         padding: const EdgeInsets.all(16),
         child: Text(
           'No additional parameters',
-          style: TextStyle(color: Colors.grey[500], fontStyle: FontStyle.italic),
+          style: TextStyle(
+            color: colorScheme.onSurfaceVariant,
+            fontStyle: FontStyle.italic,
+          ),
         ),
       );
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        border: Border(
-          top: BorderSide(color: Colors.grey[200]!),
-        ),
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'All Parameters',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Colors.grey[700],
+          Row(
+            children: [
+              Icon(
+                Icons.settings,
+                size: 16,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'All Parameters',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: params.entries.map((entry) => _buildParameterRow(entry.key, entry.value, colorScheme)).toList(),
             ),
           ),
-          const SizedBox(height: 8),
-          ...params.entries.map((entry) => _buildParameterRow(entry.key, entry.value)),
         ],
       ),
     );
   }
 
-  Widget _buildParameterRow(String key, String value) {
+  Widget _buildParameterRow(String key, String value, ColorScheme colorScheme) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 140,
+            width: 120,
             child: Text(
               key,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
-                fontSize: 13,
+                color: colorScheme.onSurfaceVariant,
+                fontSize: 12,
               ),
             ),
           ),
@@ -208,8 +270,8 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
             child: SelectableText(
               value,
               style: TextStyle(
-                color: Colors.grey[800],
-                fontSize: 13,
+                color: colorScheme.onSurface,
+                fontSize: 12,
               ),
             ),
           ),
