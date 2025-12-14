@@ -266,9 +266,17 @@ class _AccessListWidgetState extends State<AccessListWidget>
         .whereType<WirelessInterface>()
         .toList();
 
+    // Get connected clients for suggestions
+    final registrations = wirelessBloc.state.registrations;
+
     String? selectedInterface = entry?.interface;
     bool authentication = entry?.authentication ?? true;
     bool forwarding = entry?.forwarding ?? true;
+
+    // Load registrations if not already loaded
+    if (registrations.isEmpty) {
+      wirelessBloc.add(const LoadWirelessRegistrations());
+    }
 
     showDialog(
       context: context,
@@ -280,15 +288,11 @@ class _AccessListWidgetState extends State<AccessListWidget>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // MAC Address
-                TextFormField(
-                  controller: macController,
-                  decoration: const InputDecoration(
-                    labelText: 'MAC Address *',
-                    hintText: 'XX:XX:XX:XX:XX:XX',
-                    border: OutlineInputBorder(),
-                  ),
-                  textCapitalization: TextCapitalization.characters,
+                // MAC Address with connected clients suggestion
+                _buildMacAddressField(
+                  macController,
+                  wirelessBloc,
+                  setState,
                 ),
                 const SizedBox(height: 16),
 
@@ -375,8 +379,9 @@ class _AccessListWidgetState extends State<AccessListWidget>
                     TextFormField(
                       controller: timeController,
                       decoration: const InputDecoration(
-                        labelText: 'Time',
-                        hintText: 'e.g., 1h, 30m',
+                        labelText: 'Time (Schedule)',
+                        hintText: 'e.g., 8h-17h or 08:00-17:00,mon,tue',
+                        helperText: 'Time range when rule is active',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -444,6 +449,162 @@ class _AccessListWidgetState extends State<AccessListWidget>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Build MAC Address field with connected clients suggestion
+  Widget _buildMacAddressField(
+    TextEditingController controller,
+    WirelessBloc wirelessBloc,
+    void Function(void Function()) setState,
+  ) {
+    return BlocBuilder<WirelessBloc, WirelessState>(
+      bloc: wirelessBloc,
+      buildWhen: (previous, current) => 
+          previous.registrations != current.registrations ||
+          previous.registrationsLoading != current.registrationsLoading,
+      builder: (context, state) {
+        final registrations = state.registrations;
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                labelText: 'MAC Address *',
+                hintText: 'XX:XX:XX:XX:XX:XX',
+                border: const OutlineInputBorder(),
+                suffixIcon: registrations.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.people),
+                        tooltip: 'Select from connected clients',
+                        onPressed: () {
+                          _showConnectedClientsDialog(
+                            context,
+                            registrations,
+                            controller,
+                            setState,
+                          );
+                        },
+                      )
+                    : state.registrationsLoading
+                        ? const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                        : IconButton(
+                            icon: const Icon(Icons.refresh),
+                            tooltip: 'Load connected clients',
+                            onPressed: () {
+                              wirelessBloc.add(const LoadWirelessRegistrations());
+                            },
+                          ),
+              ),
+              textCapitalization: TextCapitalization.characters,
+            ),
+            if (registrations.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  '${registrations.length} client(s) connected - tap icon to select',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Show dialog with connected clients to select from
+  void _showConnectedClientsDialog(
+    BuildContext context,
+    List<dynamic> registrations,
+    TextEditingController controller,
+    void Function(void Function()) setState,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.wifi, color: Colors.blue),
+            SizedBox(width: 8),
+            Text('Connected Clients'),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: registrations.isEmpty
+              ? const Center(child: Text('No connected clients'))
+              : ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: registrations.length,
+                  itemBuilder: (context, index) {
+                    final reg = registrations[index];
+                    final macAddress = reg['mac-address'] ?? 'Unknown';
+                    final interface = reg['interface'] ?? '';
+                    final signal = reg['signal-strength'] ?? reg['signal-strength-ch0'] ?? '';
+                    final txRate = reg['tx-rate'] ?? '';
+                    final rxRate = reg['rx-rate'] ?? '';
+                    final uptime = reg['uptime'] ?? '';
+                    
+                    return Card(
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.green.shade100,
+                          child: Icon(
+                            Icons.devices,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                        title: Text(
+                          macAddress,
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (interface.isNotEmpty)
+                              Text('Interface: $interface'),
+                            if (signal.isNotEmpty)
+                              Text('Signal: $signal'),
+                            if (uptime.isNotEmpty)
+                              Text('Uptime: $uptime'),
+                            if (txRate.isNotEmpty || rxRate.isNotEmpty)
+                              Text('TX: $txRate / RX: $rxRate'),
+                          ],
+                        ),
+                        isThreeLine: true,
+                        onTap: () {
+                          controller.text = macAddress;
+                          setState(() {});
+                          Navigator.of(dialogContext).pop();
+                        },
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+        ],
       ),
     );
   }

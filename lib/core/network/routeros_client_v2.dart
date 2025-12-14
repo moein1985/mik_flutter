@@ -1448,6 +1448,11 @@ class RouterOSClientV2 {
   /// Detected wireless type: 'wifi' (new), 'wireless' (legacy), or null (not detected yet)
   String? _wirelessType;
   
+  /// Cached wireless interfaces from detection (to avoid duplicate commands)
+  List<Map<String, String>>? _cachedWirelessInterfaces;
+  DateTime? _wirelessInterfacesCacheTime;
+  static const Duration _wirelessCacheDuration = Duration(seconds: 5);
+  
   /// Completer to prevent concurrent detectWirelessType calls
   Completer<String?>? _detectingWirelessType;
   
@@ -1473,6 +1478,9 @@ class RouterOSClientV2 {
         final wifiResult = await talk(['/interface/wifi/print']);
         final filtered = _filterProtocolMessages(wifiResult);
         _wirelessType = 'wifi';
+        // Cache the result to avoid duplicate command in getWirelessInterfaces
+        _cachedWirelessInterfaces = filtered;
+        _wirelessInterfacesCacheTime = DateTime.now();
         _log.i('Detected WiFi package (new) with ${filtered.length} interfaces');
         _detectingWirelessType!.complete(_wirelessType);
         return _wirelessType;
@@ -1494,6 +1502,9 @@ class RouterOSClientV2 {
         final wirelessResult = await talk(['/interface/wireless/print']);
         final filtered = _filterProtocolMessages(wirelessResult);
         _wirelessType = 'wireless';
+        // Cache the result to avoid duplicate command in getWirelessInterfaces
+        _cachedWirelessInterfaces = filtered;
+        _wirelessInterfacesCacheTime = DateTime.now();
         _log.i('Detected Wireless package (legacy) with ${filtered.length} interfaces');
         _detectingWirelessType!.complete(_wirelessType);
         return _wirelessType;
@@ -1543,6 +1554,18 @@ class RouterOSClientV2 {
     if (_wirelessType == 'none' || _wirelessType == null) {
       _log.w('No wireless package available');
       return [];
+    }
+    
+    // Use cached result if available and fresh (avoid duplicate command after detection)
+    if (_cachedWirelessInterfaces != null && 
+        _wirelessInterfacesCacheTime != null &&
+        DateTime.now().difference(_wirelessInterfacesCacheTime!) < _wirelessCacheDuration) {
+      _log.d('Using cached wireless interfaces (${_cachedWirelessInterfaces!.length} items)');
+      final result = _cachedWirelessInterfaces!;
+      // Clear cache after use to ensure fresh data on next explicit call
+      _cachedWirelessInterfaces = null;
+      _wirelessInterfacesCacheTime = null;
+      return result;
     }
     
     _log.d('Getting wireless interfaces (type: $_wirelessType)');
@@ -1794,7 +1817,12 @@ class RouterOSClientV2 {
         // Legacy wireless
         _log.d('Creating wireless security profile: $name');
         final cmd = ['/interface/wireless/security-profiles/add', '=name=$name'];
-        if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
+        // Set mode=dynamic-keys when using WPA authentication
+        // This is required for WinBox to properly display/edit the profile
+        if (authenticationTypes != null && authenticationTypes.isNotEmpty) {
+          cmd.add('=mode=dynamic-keys');
+          cmd.add('=authentication-types=$authenticationTypes');
+        }
         if (unicastCiphers != null) cmd.add('=unicast-ciphers=$unicastCiphers');
         if (groupCiphers != null) cmd.add('=group-ciphers=$groupCiphers');
         if (wpaPreSharedKey != null) cmd.add('=wpa-pre-shared-key=$wpaPreSharedKey');
@@ -1839,7 +1867,11 @@ class RouterOSClientV2 {
         _log.d('Updating wireless security profile: $id');
         final cmd = ['/interface/wireless/security-profiles/set', '=.id=$id'];
         if (name != null) cmd.add('=name=$name');
-        if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
+        // Set mode=dynamic-keys when using WPA authentication
+        if (authenticationTypes != null && authenticationTypes.isNotEmpty) {
+          cmd.add('=mode=dynamic-keys');
+          cmd.add('=authentication-types=$authenticationTypes');
+        }
         if (unicastCiphers != null) cmd.add('=unicast-ciphers=$unicastCiphers');
         if (groupCiphers != null) cmd.add('=group-ciphers=$groupCiphers');
         if (wpaPreSharedKey != null) cmd.add('=wpa-pre-shared-key=$wpaPreSharedKey');
