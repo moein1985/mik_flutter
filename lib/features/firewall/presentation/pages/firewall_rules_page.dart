@@ -104,9 +104,9 @@ class _FirewallRulesPageState extends State<FirewallRulesPage> {
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: tipData.color.withOpacity(0.1),
+        color: tipData.color.withAlpha(26),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: tipData.color.withOpacity(0.3)),
+        border: Border.all(color: tipData.color.withAlpha(77)),
       ),
       child: Row(
         children: [
@@ -116,7 +116,7 @@ class _FirewallRulesPageState extends State<FirewallRulesPage> {
             child: Text(
               tipData.message,
               style: TextStyle(
-                color: tipData.color.withOpacity(0.9),
+                color: tipData.color.withAlpha(230),
                 fontSize: 13,
               ),
             ),
@@ -177,18 +177,18 @@ class _FirewallRulesPageState extends State<FirewallRulesPage> {
           prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+            borderSide: BorderSide(color: colorScheme.outline.withAlpha(77)),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+            borderSide: BorderSide(color: colorScheme.outline.withAlpha(77)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: colorScheme.primary, width: 2),
           ),
           filled: true,
-          fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          fillColor: colorScheme.surfaceContainerHighest.withAlpha(77),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -229,7 +229,7 @@ class _FirewallRulesPageState extends State<FirewallRulesPage> {
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+            side: BorderSide(color: colorScheme.outline.withAlpha(51)),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -273,7 +273,7 @@ class _FirewallRulesPageState extends State<FirewallRulesPage> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withAlpha(26),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, size: 18, color: color),
@@ -346,7 +346,7 @@ class _FirewallRulesPageState extends State<FirewallRulesPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                    color: colorScheme.surfaceContainerHighest.withAlpha(128),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

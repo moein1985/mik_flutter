@@ -52,58 +52,57 @@ class _DhcpNetworksTabState extends State<DhcpNetworksTab> {
 
     return BlocBuilder<DhcpBloc, DhcpState>(
       builder: (context, state) {
-        if (state is DhcpLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        List<DhcpNetwork> allNetworks = [];
-        if (state is DhcpLoaded && state.networks != null) {
-          allNetworks = state.networks!;
-        }
-
-        final networks = _filterNetworks(allNetworks);
-        final totalCount = allNetworks.length;
-
-        return RefreshIndicator(
-          onRefresh: () async {
-            context.read<DhcpBloc>().add(const LoadDhcpNetworks());
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Quick Tip Card
-                _buildQuickTipCard(colorScheme),
-
-                const SizedBox(height: 16),
-
-                // Summary Card
-                _buildSummaryCard(totalCount, colorScheme),
-
-                const SizedBox(height: 16),
-
-                // Search Bar
-                _buildSearchBar(colorScheme),
-
-                const SizedBox(height: 16),
-
-                // Networks List
-                if (allNetworks.isEmpty)
-                  _buildEmptyState(context)
-                else if (networks.isEmpty)
-                  _buildNoResultsState()
-                else
-                  ...networks.map((network) => _buildNetworkCard(context, network, colorScheme)),
-
-                // Extra space for FAB
-                const SizedBox(height: 80),
-              ],
-            ),
-          ),
-        );
+        return switch (state) {
+          DhcpLoading() => const Center(child: CircularProgressIndicator()),
+          DhcpLoaded(:final networks) => _buildNetworksList(context, networks ?? [], colorScheme),
+          _ => _buildNetworksList(context, [], colorScheme),
+        };
       },
+    );
+  }
+
+  Widget _buildNetworksList(BuildContext context, List<DhcpNetwork> allNetworks, ColorScheme colorScheme) {
+    final networks = _filterNetworks(allNetworks);
+    final totalCount = allNetworks.length;
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<DhcpBloc>().add(const LoadDhcpNetworks());
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Quick Tip Card
+            _buildQuickTipCard(colorScheme),
+
+            const SizedBox(height: 16),
+
+            // Summary Card
+            _buildSummaryCard(totalCount, colorScheme),
+
+            const SizedBox(height: 16),
+
+            // Search Bar
+            _buildSearchBar(colorScheme),
+
+            const SizedBox(height: 16),
+
+            // Networks List
+            if (allNetworks.isEmpty)
+              _buildEmptyState(context)
+            else if (networks.isEmpty)
+              _buildNoResultsState()
+            else
+              ...networks.map((network) => _buildNetworkCard(context, network, colorScheme)),
+
+            // Extra space for FAB
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
     );
   }
 

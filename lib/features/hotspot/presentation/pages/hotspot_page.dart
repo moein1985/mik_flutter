@@ -34,12 +34,20 @@ class _HotspotPageState extends State<HotspotPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('HotSpot Management'),
+        title: const Text('HotSpot'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.info_outline),
+            tooltip: 'About HotSpot',
+            onPressed: () => _showHotspotInfo(context),
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
             onPressed: () {
               _log.i('Refresh button pressed');
               context.read<HotspotBloc>().add(const LoadHotspotServers());
@@ -88,96 +96,92 @@ class _HotspotPageState extends State<HotspotPage> {
         builder: (context, state) {
           _log.d('HotspotPage building with state: ${state.runtimeType}');
           
-          if (state is HotspotLoading) {
-            // Show loading but keep the UI stable if we have cached data
-            if (_lastServerCount > 0) {
-              return Stack(
-                children: [
-                  _buildHotspotGrid(context, _lastServerCount),
-                  const Center(child: CircularProgressIndicator()),
-                ],
-              );
-            }
-            return const Center(child: CircularProgressIndicator());
-          }
-          
-          if (state is HotspotPackageDisabled) {
-            return _buildPackageDisabledView(context);
-          }
-          
-          if (state is HotspotError) {
-            // Check if error is related to trap (package disabled)
-            if (state.message.contains('trap')) {
-              return _buildPackageDisabledView(context);
-            }
-            // Keep showing the grid if we have servers, just show the error via snackbar
-            if (_lastServerCount > 0) {
-              return _buildHotspotGrid(context, _lastServerCount);
-            }
-            return _buildErrorView(context, state.message);
-          }
-          
-          if (state is HotspotLoaded) {
-            final servers = state.servers ?? [];
-            _log.i('HotspotLoaded with ${servers.length} servers');
-            _lastServerCount = servers.length;
-            if (servers.isEmpty) {
-              return _buildNoHotspotView(context);
-            }
-            return _buildHotspotGrid(context, servers.length);
-          }
-          
-          // HotspotOperationSuccess - keep showing the last known state
-          if (state is HotspotOperationSuccess) {
-            if (_lastServerCount > 0) {
-              return _buildHotspotGrid(context, _lastServerCount);
-            }
-            // Will be updated after LoadHotspotServers completes
-            return const Center(child: CircularProgressIndicator());
-          }
-          
-          // HotspotSetupDataLoaded - this is for dialog, main page continues with last known state
-          if (state is HotspotSetupDataLoaded) {
-            if (_lastServerCount > 0) {
-              return _buildHotspotGrid(context, _lastServerCount);
-            }
-            return _buildNoHotspotView(context);
-          }
-          
-          // Initial state
-          _log.d('HotspotPage initial state, showing grid');
-          return _buildHotspotGrid(context, 0);
+          return switch (state) {
+            HotspotLoading() => _lastServerCount > 0
+                ? Stack(
+                    children: [
+                      _buildMainContent(context, colorScheme, _lastServerCount),
+                      const Center(child: CircularProgressIndicator()),
+                    ],
+                  )
+                : const Center(child: CircularProgressIndicator()),
+            HotspotPackageDisabled() => _buildPackageDisabledView(context, colorScheme),
+            HotspotError(:final message) => message.contains('trap')
+                ? _buildPackageDisabledView(context, colorScheme)
+                : _lastServerCount > 0
+                    ? _buildMainContent(context, colorScheme, _lastServerCount)
+                    : _buildErrorView(context, colorScheme, message),
+            HotspotLoaded(:final servers) => () {
+                _log.i('HotspotLoaded with ${servers?.length ?? 0} servers');
+                final serverList = servers ?? [];
+                _lastServerCount = serverList.length;
+                return serverList.isEmpty
+                    ? _buildNoHotspotView(context, colorScheme)
+                    : _buildMainContent(context, colorScheme, serverList.length);
+              }(),
+            HotspotOperationSuccess() => _lastServerCount > 0
+                ? _buildMainContent(context, colorScheme, _lastServerCount)
+                : const Center(child: CircularProgressIndicator()),
+            HotspotSetupDataLoaded() => _lastServerCount > 0
+                ? _buildMainContent(context, colorScheme, _lastServerCount)
+                : _buildNoHotspotView(context, colorScheme),
+            HotspotResetInProgress() => _lastServerCount > 0
+                ? _buildMainContent(context, colorScheme, _lastServerCount)
+                : const Center(child: CircularProgressIndicator()),
+            HotspotResetSuccess() => _lastServerCount > 0
+                ? _buildMainContent(context, colorScheme, _lastServerCount)
+                : _buildNoHotspotView(context, colorScheme),
+            HotspotInitial() => () {
+                _log.d('HotspotPage initial state, showing grid');
+                return _buildMainContent(context, colorScheme, 0);
+              }(),
+          };
         },
       ),
     );
   }
 
-  Widget _buildNoHotspotView(BuildContext context) {
-    return Center(
+  Widget _buildNoHotspotView(BuildContext context, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.wifi_off,
-            size: 80,
-            color: Colors.grey[400],
+          // Quick Tip Card
+          _buildQuickTipCard(colorScheme),
+          
+          const SizedBox(height: 48),
+          
+          // No HotSpot Content
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withAlpha(77),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.wifi_off,
+              size: 64,
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 24),
           Text(
             'HotSpot is not configured',
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             'No HotSpot server found on this router.',
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
-          ElevatedButton.icon(
+          FilledButton.icon(
             onPressed: () => _showSetupDialog(context),
             icon: const Icon(Icons.add),
             label: const Text('Setup HotSpot'),
-            style: ElevatedButton.styleFrom(
+            style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             ),
           ),
@@ -186,33 +190,68 @@ class _HotspotPageState extends State<HotspotPage> {
     );
   }
 
-  Widget _buildPackageDisabledView(BuildContext context) {
-    return Center(
+  Widget _buildPackageDisabledView(BuildContext context, ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 80,
-            color: Colors.orange[400],
+          // Warning Tip Card
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.warning_amber, color: Colors.orange.shade700),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'The HotSpot package needs to be enabled to use this feature.',
+                    style: TextStyle(
+                      color: Colors.orange.shade800,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 48),
+          
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.extension_off,
+              size: 64,
+              color: Colors.orange.shade700,
+            ),
           ),
           const SizedBox(height: 24),
           Text(
             'HotSpot Package Disabled',
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              'The HotSpot package is disabled on your router. '
               'Please enable it from System → Packages in WinBox or WebFig.',
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
           ),
           const SizedBox(height: 32),
-          ElevatedButton.icon(
+          FilledButton.icon(
             onPressed: () {
               context.read<HotspotBloc>().add(const CheckHotspotPackage());
             },
@@ -224,29 +263,40 @@ class _HotspotPageState extends State<HotspotPage> {
     );
   }
 
-  Widget _buildErrorView(BuildContext context, String message) {
-    return Center(
+  Widget _buildErrorView(BuildContext context, ColorScheme colorScheme, String message) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Colors.red[300],
+          const SizedBox(height: 48),
+          
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.errorContainer.withAlpha(77),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.error_outline,
+              size: 64,
+              color: colorScheme.error,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           Text(
             'Error loading HotSpot',
-            style: Theme.of(context).textTheme.titleLarge,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             message,
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
+          const SizedBox(height: 32),
+          FilledButton.icon(
             onPressed: () {
               context.read<HotspotBloc>().add(const LoadHotspotServers());
             },
@@ -276,123 +326,226 @@ class _HotspotPageState extends State<HotspotPage> {
     });
   }
 
-  Widget _buildHotspotGrid(BuildContext context, int serverCount) {
-    return Column(
-      children: [
-        if (serverCount > 0)
+  Widget _buildQuickTipCard(ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.wifi_tethering, color: Colors.blue.shade700),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Manage your HotSpot configuration, users, and connected devices.',
+              style: TextStyle(
+                color: Colors.blue.shade800,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBanner(ColorScheme colorScheme, int serverCount) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: Row(
+        children: [
           Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            color: Colors.green[50],
-            child: Row(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.green.shade100,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.check, color: Colors.green.shade700, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.check_circle, color: Colors.green[700]),
-                const SizedBox(width: 12),
                 Text(
-                  '$serverCount HotSpot server(s) configured',
+                  'HotSpot Active',
                   style: TextStyle(
-                    color: Colors.green[700],
-                    fontWeight: FontWeight.w500,
+                    color: Colors.green.shade800,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  '$serverCount server${serverCount > 1 ? 's' : ''} configured',
+                  style: TextStyle(
+                    color: Colors.green.shade700,
+                    fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
-        Expanded(
-          child: GridView.count(
-        crossAxisCount: 2,
-        padding: const EdgeInsets.all(16),
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        children: [
-              _buildCard(
-                context,
-                icon: Icons.people,
-                title: 'Users',
-                subtitle: 'Manage hotspot users',
-                color: Colors.blue,
-                onTap: () => context.push(
-                  AppRoutes.hotspotUsers,
-                  extra: context.read<HotspotBloc>(),
-                ),
-              ),
-              _buildCard(
-                context,
-                icon: Icons.person,
-                title: 'Active Users',
-                subtitle: 'Online users',
-                color: Colors.green,
-                onTap: () => context.push(
-                  AppRoutes.hotspotActiveUsers,
-                  extra: context.read<HotspotBloc>(),
-                ),
-              ),
-              _buildCard(
-                context,
-                icon: Icons.router,
-                title: 'Servers',
-                subtitle: 'HotSpot servers',
-                color: Colors.orange,
-                onTap: () => context.push(
-                  AppRoutes.hotspotServers,
-                  extra: context.read<HotspotBloc>(),
-                ),
-              ),
-              _buildCard(
-                context,
-                icon: Icons.settings,
-                title: 'Profiles',
-                subtitle: 'User profiles',
-                color: Colors.purple,
-                onTap: () => context.push(
-                  AppRoutes.hotspotProfiles,
-                  extra: context.read<HotspotBloc>(),
-                ),
-              ),
-              _buildCard(
-                context,
-                icon: Icons.link,
-                title: 'IP Bindings',
-                subtitle: 'MAC/IP bindings',
-                color: Colors.indigo,
-                onTap: () => context.push(
-                  AppRoutes.hotspotIpBindings,
-                  extra: context.read<HotspotBloc>(),
-                ),
-              ),
-              _buildCard(
-                context,
-                icon: Icons.devices_other,
-                title: 'Hosts',
-                subtitle: 'Connected devices',
-                color: Colors.cyan,
-                onTap: () => context.push(
-                  AppRoutes.hotspotHosts,
-                  extra: context.read<HotspotBloc>(),
-                ),
-              ),
-              _buildCard(
-                context,
-                icon: Icons.fence,
-                title: 'Walled Garden',
-                subtitle: 'Allowed sites',
-                color: Colors.teal,
-                onTap: () => context.push(
-                  AppRoutes.hotspotWalledGarden,
-                  extra: context.read<HotspotBloc>(),
-                ),
-              ),
-              // Reset HotSpot Card
-              _buildCard(
-                context,
-                icon: Icons.delete_forever,
-                title: 'Reset HotSpot',
-                subtitle: 'Remove & rebuild',
-                color: Colors.red,
-                onTap: () => _showResetDialog(context),
-              ),
-            ],
+          // Status dot
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: Colors.green.shade600,
+              shape: BoxShape.circle,
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainContent(BuildContext context, ColorScheme colorScheme, int serverCount) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Quick Tip Card
+          _buildQuickTipCard(colorScheme),
+          
+          const SizedBox(height: 16),
+          
+          // Status Banner (only if servers configured)
+          if (serverCount > 0) ...[
+            _buildStatusBanner(colorScheme, serverCount),
+            const SizedBox(height: 20),
+          ],
+          
+          // Section Title
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 12),
+            child: Text(
+              'HotSpot Management',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
+            ),
+          ),
+          
+          // HotSpot Grid
+          _buildHotspotGrid(context, colorScheme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHotspotGrid(BuildContext context, ColorScheme colorScheme) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.1,
+      children: [
+        _buildCard(
+          context,
+          colorScheme: colorScheme,
+          icon: Icons.people,
+          title: 'Users',
+          subtitle: 'Manage hotspot users',
+          color: Colors.blue,
+          onTap: () => context.push(
+            AppRoutes.hotspotUsers,
+            extra: context.read<HotspotBloc>(),
+          ),
+        ),
+        _buildCard(
+          context,
+          colorScheme: colorScheme,
+          icon: Icons.person,
+          title: 'Active Users',
+          subtitle: 'Online users',
+          color: Colors.green,
+          onTap: () => context.push(
+            AppRoutes.hotspotActiveUsers,
+            extra: context.read<HotspotBloc>(),
+          ),
+        ),
+        _buildCard(
+          context,
+          colorScheme: colorScheme,
+          icon: Icons.router,
+          title: 'Servers',
+          subtitle: 'HotSpot servers',
+          color: Colors.orange,
+          onTap: () => context.push(
+            AppRoutes.hotspotServers,
+            extra: context.read<HotspotBloc>(),
+          ),
+        ),
+        _buildCard(
+          context,
+          colorScheme: colorScheme,
+          icon: Icons.settings,
+          title: 'Profiles',
+          subtitle: 'User profiles',
+          color: Colors.purple,
+          onTap: () => context.push(
+            AppRoutes.hotspotProfiles,
+            extra: context.read<HotspotBloc>(),
+          ),
+        ),
+        _buildCard(
+          context,
+          colorScheme: colorScheme,
+          icon: Icons.link,
+          title: 'IP Bindings',
+          subtitle: 'MAC/IP bindings',
+          color: Colors.indigo,
+          onTap: () => context.push(
+            AppRoutes.hotspotIpBindings,
+            extra: context.read<HotspotBloc>(),
+          ),
+        ),
+        _buildCard(
+          context,
+          colorScheme: colorScheme,
+          icon: Icons.devices_other,
+          title: 'Hosts',
+          subtitle: 'Connected devices',
+          color: Colors.cyan,
+          onTap: () => context.push(
+            AppRoutes.hotspotHosts,
+            extra: context.read<HotspotBloc>(),
+          ),
+        ),
+        _buildCard(
+          context,
+          colorScheme: colorScheme,
+          icon: Icons.fence,
+          title: 'Walled Garden',
+          subtitle: 'Allowed sites',
+          color: Colors.teal,
+          onTap: () => context.push(
+            AppRoutes.hotspotWalledGarden,
+            extra: context.read<HotspotBloc>(),
+          ),
+        ),
+        // Reset HotSpot Card
+        _buildCard(
+          context,
+          colorScheme: colorScheme,
+          icon: Icons.delete_forever,
+          title: 'Reset HotSpot',
+          subtitle: 'Remove & rebuild',
+          color: Colors.red,
+          onTap: () => _showResetDialog(context),
         ),
       ],
     );
@@ -419,6 +572,7 @@ class _HotspotPageState extends State<HotspotPage> {
 
   Widget _buildCard(
     BuildContext context, {
+    required ColorScheme colorScheme,
     required IconData icon,
     required String title,
     required String subtitle,
@@ -426,36 +580,140 @@ class _HotspotPageState extends State<HotspotPage> {
     required VoidCallback onTap,
   }) {
     return Card(
-      elevation: 2,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colorScheme.outline.withAlpha(51)),
+      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 48, color: color),
+              // Icon with colored background
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withAlpha(26),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 32, color: color),
+              ),
               const SizedBox(height: 12),
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
                 style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
+                  fontSize: 11,
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showHotspotInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.wifi_tethering, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 12),
+            const Text('HotSpot Features'),
+          ],
+        ),
+        content: const SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _InfoItem(
+                title: 'Users',
+                description: 'Create and manage HotSpot user accounts with credentials.',
+              ),
+              _InfoItem(
+                title: 'Active Users',
+                description: 'View currently connected users and their session details.',
+              ),
+              _InfoItem(
+                title: 'Servers',
+                description: 'Configure HotSpot servers on different interfaces.',
+              ),
+              _InfoItem(
+                title: 'Profiles',
+                description: 'Set bandwidth limits, session timeouts, and shared users.',
+              ),
+              _InfoItem(
+                title: 'IP Bindings',
+                description: 'Bypass authentication for specific MAC/IP addresses.',
+              ),
+              _InfoItem(
+                title: 'Hosts',
+                description: 'View all devices that have connected to the HotSpot.',
+              ),
+              _InfoItem(
+                title: 'Walled Garden',
+                description: 'Allow access to specific sites without authentication.',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoItem extends StatelessWidget {
+  final String title;
+  final String description;
+
+  const _InfoItem({required this.title, required this.description});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            description,
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }

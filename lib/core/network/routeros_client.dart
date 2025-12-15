@@ -1102,9 +1102,13 @@ class RouterOSClient {
   }
 
   /// Stop streaming logs
+  ///
+  /// Note: Currently this disconnects the entire client to stop all streams.
+  /// This is a temporary workaround until tag-based stream cancellation is
+  /// implemented in RouterOSBaseClient to allow selective stream stopping
+  /// without disconnecting the entire session.
   Future<void> stopStreaming() async {
     // For now, just close the connection which will stop all streams
-    // TODO: Implement proper stream stopping in RouterOSBaseClient
     try {
       await disconnect();
     } catch (e) {

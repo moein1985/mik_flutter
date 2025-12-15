@@ -176,7 +176,7 @@ class _FirewallPageState extends State<FirewallPage> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+        side: BorderSide(color: colorScheme.outline.withAlpha(51)),
       ),
       child: InkWell(
         onTap: () => _navigateToRulePage(context, type),
@@ -190,7 +190,7 @@ class _FirewallPageState extends State<FirewallPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withAlpha(26),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, size: 32, color: color),

@@ -131,7 +131,7 @@ class _FirewallAddressListPageState extends State<FirewallAddressListPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                    color: colorScheme.surfaceContainerHighest.withAlpha(128),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -216,13 +216,13 @@ class _FirewallAddressListPageState extends State<FirewallAddressListPage> {
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+                      side: BorderSide(color: colorScheme.outline.withAlpha(51)),
                     ),
                     child: ListTile(
                       leading: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.indigo.withOpacity(0.1),
+                          color: Colors.indigo.withAlpha(26),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(Icons.list_alt, color: Colors.indigo, size: 20),
@@ -276,18 +276,18 @@ class _FirewallAddressListPageState extends State<FirewallAddressListPage> {
           prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+            borderSide: BorderSide(color: colorScheme.outline.withAlpha(77)),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+            borderSide: BorderSide(color: colorScheme.outline.withAlpha(77)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: colorScheme.primary, width: 2),
           ),
           filled: true,
-          fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          fillColor: colorScheme.surfaceContainerHighest.withAlpha(77),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -328,7 +328,7 @@ class _FirewallAddressListPageState extends State<FirewallAddressListPage> {
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+            side: BorderSide(color: colorScheme.outline.withAlpha(51)),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -372,7 +372,7 @@ class _FirewallAddressListPageState extends State<FirewallAddressListPage> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withAlpha(26),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, size: 18, color: color),
@@ -454,7 +454,7 @@ class _FirewallAddressListPageState extends State<FirewallAddressListPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                    color: colorScheme.surfaceContainerHighest.withAlpha(128),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(

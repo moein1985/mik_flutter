@@ -13,6 +13,8 @@ class HotspotProfilesPage extends StatefulWidget {
 }
 
 class _HotspotProfilesPageState extends State<HotspotProfilesPage> {
+  String? _lastShownMessage;
+
   @override
   void initState() {
     super.initState();
@@ -21,12 +23,15 @@ class _HotspotProfilesPageState extends State<HotspotProfilesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('HotSpot Profiles'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
             onPressed: () {
               context.read<HotspotBloc>().add(const LoadHotspotProfiles());
             },
@@ -40,98 +45,145 @@ class _HotspotProfilesPageState extends State<HotspotProfilesPage> {
       body: BlocConsumer<HotspotBloc, HotspotState>(
         listener: (context, state) {
           if (state is HotspotError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
+            if (_lastShownMessage != state.message) {
+              _lastShownMessage = state.message;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           } else if (state is HotspotOperationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.green,
-              ),
-            );
-            // Reload after successful operation
-            context.read<HotspotBloc>().add(const LoadHotspotProfiles());
+            if (_lastShownMessage != state.message) {
+              _lastShownMessage = state.message;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              // Reload after successful operation
+              context.read<HotspotBloc>().add(const LoadHotspotProfiles());
+            }
+          } else {
+            _lastShownMessage = null;
           }
         },
         builder: (context, state) {
-          if (state is HotspotLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          return switch (state) {
+            HotspotLoading() => const Center(child: CircularProgressIndicator()),
+            HotspotLoaded(:final profiles) => profiles == null || profiles.isEmpty
+                ? _buildEmptyView(colorScheme)
+                : _buildProfilesList(context, profiles, colorScheme),
+            _ => _buildEmptyView(colorScheme),
+          };
 
-          if (state is HotspotLoaded && state.profiles != null) {
-            final profiles = state.profiles!;
-
-            if (profiles.isEmpty) {
-              return _buildEmptyView();
-            }
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                context.read<HotspotBloc>().add(const LoadHotspotProfiles());
-              },
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: profiles.length,
-                itemBuilder: (context, index) {
-                  final profile = profiles[index];
-                  return _buildProfileCard(profile);
-                },
-              ),
-            );
-          }
-
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.grey),
-                const SizedBox(height: 16),
-                Text(state is HotspotError
-                    ? state.message
-                    : 'Unable to load profiles'),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<HotspotBloc>().add(const LoadHotspotProfiles());
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
         },
       ),
     );
   }
 
-  Widget _buildEmptyView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildQuickTipCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.purple.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.purple.shade200),
+      ),
+      child: Row(
         children: [
-          Icon(
-            Icons.settings_outlined,
-            size: 64,
-            color: Colors.grey[400],
+          Icon(Icons.settings, color: Colors.purple.shade700),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Profiles define session limits, bandwidth restrictions, and timeout settings for users.',
+              style: TextStyle(
+                color: Colors.purple.shade800,
+                fontSize: 13,
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfilesList(BuildContext context, List<dynamic> profiles, ColorScheme colorScheme) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<HotspotBloc>().add(const LoadHotspotProfiles());
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Quick Tip
+            _buildQuickTipCard(),
+            
+            const SizedBox(height: 16),
+            
+            // Profile count
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 8),
+              child: Text(
+                '${profiles.length} profile${profiles.length > 1 ? 's' : ''}',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            
+            // Profile cards
+            ...profiles.map((profile) => _buildProfileCard(profile, colorScheme)),
+            
+            // Bottom spacing for FAB
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyView(ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          _buildQuickTipCard(),
+          
+          const SizedBox(height: 48),
+          
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withAlpha(77),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.settings_outlined,
+              size: 64,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 24),
           Text(
             'No Profiles Found',
             style: TextStyle(
               fontSize: 18,
-              color: Colors.grey[600],
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Tap + to add a new profile',
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -139,59 +191,138 @@ class _HotspotProfilesPageState extends State<HotspotProfilesPage> {
     );
   }
 
-  Widget _buildProfileCard(HotspotProfile profile) {
+  Widget _buildProfileCard(HotspotProfile profile, ColorScheme colorScheme) {
     return Card(
+      elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        leading: const CircleAvatar(
-          backgroundColor: Colors.purple,
-          child: Icon(Icons.settings, color: Colors.white),
-        ),
-        title: Text(
-          profile.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit, size: 20),
-              onPressed: () => _showAddEditDialog(context, profile: profile),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: colorScheme.outline.withAlpha(51)),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          leading: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.purple.withAlpha(26),
+              shape: BoxShape.circle,
             ),
-            IconButton(
-              icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-              onPressed: () => _showDeleteConfirmation(context, profile),
+            child: Icon(
+              Icons.settings,
+              color: Colors.purple.shade700,
+              size: 24,
             ),
-            const Icon(Icons.expand_more),
-          ],
-        ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          title: Text(
+            profile.name,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Wrap(
+              spacing: 8,
               children: [
-                if (profile.sessionTimeout != null)
-                  _buildInfoRow('Session Timeout', profile.sessionTimeout!),
-                if (profile.idleTimeout != null)
-                  _buildInfoRow('Idle Timeout', profile.idleTimeout!),
+                if (profile.rateLimit != null && profile.rateLimit!.isNotEmpty)
+                  _buildTag(profile.rateLimit!, Colors.blue, colorScheme),
                 if (profile.sharedUsers != null)
-                  _buildInfoRow('Shared Users', profile.sharedUsers!),
-                if (profile.rateLimit != null)
-                  _buildInfoRow('Rate Limit', profile.rateLimit!),
-                if (profile.keepaliveTimeout != null)
-                  _buildInfoRow('Keepalive Timeout', profile.keepaliveTimeout!),
-                if (profile.statusAutorefresh != null)
-                  _buildInfoRow('Status Autorefresh', profile.statusAutorefresh!),
+                  _buildTag('${profile.sharedUsers} users', Colors.green, colorScheme),
               ],
             ),
           ),
-        ],
+          children: [
+            const Divider(),
+            const SizedBox(height: 8),
+            
+            // Settings Section
+            _buildSectionTitle('Settings', Icons.tune, colorScheme),
+            const SizedBox(height: 8),
+            
+            if (profile.sessionTimeout != null)
+              _buildInfoRow('Session Timeout', profile.sessionTimeout!, colorScheme),
+            if (profile.idleTimeout != null)
+              _buildInfoRow('Idle Timeout', profile.idleTimeout!, colorScheme),
+            if (profile.sharedUsers != null)
+              _buildInfoRow('Shared Users', profile.sharedUsers!, colorScheme),
+            if (profile.rateLimit != null)
+              _buildInfoRow('Rate Limit', profile.rateLimit!, colorScheme),
+            if (profile.keepaliveTimeout != null)
+              _buildInfoRow('Keepalive', profile.keepaliveTimeout!, colorScheme),
+            if (profile.statusAutorefresh != null)
+              _buildInfoRow('Auto Refresh', profile.statusAutorefresh!, colorScheme),
+            
+            const SizedBox(height: 16),
+            
+            // Action Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showAddEditDialog(context, profile: profile),
+                    icon: const Icon(Icons.edit, size: 18),
+                    label: const Text('Edit'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showDeleteConfirmation(context, profile),
+                    icon: Icon(Icons.delete, size: 18, color: colorScheme.error),
+                    label: Text('Delete', style: TextStyle(color: colorScheme.error)),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: colorScheme.error.withAlpha(128)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildTag(String label, Color color, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withAlpha(26),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          color: color,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, IconData icon, ColorScheme colorScheme) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: colorScheme.primary),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, ColorScheme colorScheme) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -199,11 +330,17 @@ class _HotspotProfilesPageState extends State<HotspotProfilesPage> {
         children: [
           Text(
             label,
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(
+              fontSize: 13,
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
           Text(
             value,
-            style: const TextStyle(fontWeight: FontWeight.w500),
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

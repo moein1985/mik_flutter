@@ -64,45 +64,25 @@ class _LetsEncryptPageState extends State<LetsEncryptPage> {
           }
         },
         builder: (context, state) {
-          if (state is LetsEncryptLoading) {
-            return _buildLoadingState(l10n, state.message);
-          }
-
-          if (state is LetsEncryptStatusLoaded) {
-            return _buildStatusView(context, l10n, theme, state.status);
-          }
-
-          if (state is PreChecksCompleted) {
-            return _buildPreChecksView(context, l10n, theme, state.result);
-          }
-
-          if (state is CertificateRequesting) {
-            return _buildRequestingState(l10n, state);
-          }
-
-          if (state is AutoFixInProgress) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(l10n.letsEncryptAutoFixing),
-                ],
+          return switch (state) {
+            LetsEncryptLoading(:final message) => _buildLoadingState(l10n, message),
+            LetsEncryptStatusLoaded(:final status) => _buildStatusView(context, l10n, theme, status),
+            PreChecksCompleted(:final result) => _buildPreChecksView(context, l10n, theme, result),
+            CertificateRequesting() => _buildRequestingState(l10n, state),
+            AutoFixInProgress() => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    Text(l10n.letsEncryptAutoFixing),
+                  ],
+                ),
               ),
-            );
-          }
-
-          if (state is CertificateRequestSuccess) {
-            return _buildSuccessState(context, l10n, theme);
-          }
-
-          if (state is LetsEncryptError) {
-            return _buildErrorState(context, l10n, theme, state);
-          }
-
-          // Initial state - show loading
-          return _buildLoadingState(l10n, null);
+            CertificateRequestSuccess() => _buildSuccessState(context, l10n, theme),
+            LetsEncryptError() => _buildErrorState(context, l10n, theme, state),
+            _ => _buildLoadingState(l10n, null),
+          };
         },
       ),
     );

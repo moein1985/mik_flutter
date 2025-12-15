@@ -21,8 +21,6 @@ class _CertificatesPageState extends State<CertificatesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Certificates'),
@@ -59,73 +57,70 @@ class _CertificatesPageState extends State<CertificatesPage> {
           }
         },
         builder: (context, state) {
-          if (state is CertificateLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is CertificateCreating) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(state.message),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'This may take a few seconds...',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
+          return switch (state) {
+            CertificateInitial() => const Center(child: CircularProgressIndicator()),
+            CertificateLoading() => const Center(child: CircularProgressIndicator()),
+            CertificateCreating(:final message) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    Text(message),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'This may take a few seconds...',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
               ),
-            );
-          }
+            CertificateLoaded(:final certificates) => _buildCertificatesList(certificates),
+            CertificateOperationSuccess(:final certificates) => _buildCertificatesList(certificates),
+            CertificateError() => const Center(child: Text('Error loading certificates')),
+          };
+        },
+      ),
+    );
+  }
 
-          List<Certificate> certificates = [];
-          if (state is CertificateLoaded) {
-            certificates = state.certificates;
-          } else if (state is CertificateOperationSuccess) {
-            certificates = state.certificates;
-          }
-
-          if (certificates.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.verified_outlined, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  const Text('No certificates found'),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Create a self-signed certificate to use with API-SSL',
-                    style: TextStyle(color: Colors.grey),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => _showCreateCertificateDialog(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Create Certificate'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<CertificateBloc>().add(const RefreshCertificates());
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: certificates.length,
-              itemBuilder: (context, index) {
-                final cert = certificates[index];
-                return _buildCertificateCard(context, cert, theme);
-              },
+  Widget _buildCertificatesList(List<Certificate> certificates) {
+    if (certificates.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.verified_outlined, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            const Text('No certificates found'),
+            const SizedBox(height: 8),
+            const Text(
+              'Create a self-signed certificate to use with API-SSL',
+              style: TextStyle(color: Colors.grey),
+              textAlign: TextAlign.center,
             ),
-          );
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => _showCreateCertificateDialog(context),
+              icon: const Icon(Icons.add),
+              label: const Text('Create Certificate'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<CertificateBloc>().add(const RefreshCertificates());
+      },
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: certificates.length,
+        itemBuilder: (context, index) {
+          final cert = certificates[index];
+          final theme = Theme.of(context);
+          return _buildCertificateCard(context, cert, theme);
         },
       ),
     );

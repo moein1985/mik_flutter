@@ -7,22 +7,22 @@ import '../../domain/entities/hotspot_ip_binding.dart';
 import '../../domain/entities/hotspot_host.dart';
 import '../../domain/entities/walled_garden.dart';
 
-abstract class HotspotState extends Equatable {
+sealed class HotspotState extends Equatable {
   const HotspotState();
 
   @override
   List<Object?> get props => [];
 }
 
-class HotspotInitial extends HotspotState {
+final class HotspotInitial extends HotspotState {
   const HotspotInitial();
 }
 
-class HotspotLoading extends HotspotState {
+final class HotspotLoading extends HotspotState {
   const HotspotLoading();
 }
 
-class HotspotLoaded extends HotspotState {
+final class HotspotLoaded extends HotspotState {
   final List<HotspotServer>? servers;
   final List<HotspotUser>? users;
   final List<HotspotActiveUser>? activeUsers;
@@ -65,7 +65,7 @@ class HotspotLoaded extends HotspotState {
   List<Object?> get props => [servers, users, activeUsers, profiles, ipBindings, hosts, walledGarden];
 }
 
-class HotspotError extends HotspotState {
+final class HotspotError extends HotspotState {
   final String message;
 
   const HotspotError(this.message);
@@ -74,7 +74,7 @@ class HotspotError extends HotspotState {
   List<Object> get props => [message];
 }
 
-class HotspotOperationSuccess extends HotspotState {
+final class HotspotOperationSuccess extends HotspotState {
   final String message;
   // Preserve the last loaded data to avoid losing state
   final HotspotLoaded? previousData;
@@ -85,11 +85,11 @@ class HotspotOperationSuccess extends HotspotState {
   List<Object?> get props => [message, previousData];
 }
 
-class HotspotPackageDisabled extends HotspotState {
+final class HotspotPackageDisabled extends HotspotState {
   const HotspotPackageDisabled();
 }
 
-class HotspotSetupDataLoaded extends HotspotState {
+final class HotspotSetupDataLoaded extends HotspotState {
   final List<Map<String, String>> interfaces;
   final List<Map<String, String>> ipPools;
   final List<Map<String, String>> ipAddresses;
@@ -118,7 +118,7 @@ class HotspotSetupDataLoaded extends HotspotState {
 
 // ==================== Reset HotSpot States ====================
 
-class HotspotResetInProgress extends HotspotState {
+final class HotspotResetInProgress extends HotspotState {
   final String currentStep;
 
   const HotspotResetInProgress(this.currentStep);
@@ -127,6 +127,6 @@ class HotspotResetInProgress extends HotspotState {
   List<Object> get props => [currentStep];
 }
 
-class HotspotResetSuccess extends HotspotState {
+final class HotspotResetSuccess extends HotspotState {
   const HotspotResetSuccess();
 }

@@ -155,12 +155,12 @@ class _DnsLookupPageState extends State<DnsLookupPage> {
                 const SizedBox(height: 24),
                 
                 // Results Section
-                if (state is DnsLookupInProgress)
-                  _buildLoadingIndicator(l10n)
-                else if (state is DnsLookupCompleted)
-                  _buildResultsCard(state.result, l10n, colorScheme)
-                else if (state is DnsLookupFailed)
-                  _buildErrorCard(state.error, l10n),
+                switch (state) {
+                  DnsLookupInProgress() => _buildLoadingIndicator(l10n),
+                  DnsLookupCompleted(:final result) => _buildResultsCard(result, l10n, colorScheme),
+                  DnsLookupFailed(:final error) => _buildErrorCard(error, l10n),
+                  _ => const SizedBox.shrink(),
+                },
               ],
             ),
           );

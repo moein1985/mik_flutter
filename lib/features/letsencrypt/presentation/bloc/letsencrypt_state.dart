@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import '../../domain/entities/letsencrypt_status.dart';
 import '../../domain/entities/precheck_result.dart';
 
-abstract class LetsEncryptState extends Equatable {
+sealed class LetsEncryptState extends Equatable {
   const LetsEncryptState();
 
   @override
@@ -10,12 +10,12 @@ abstract class LetsEncryptState extends Equatable {
 }
 
 /// Initial state
-class LetsEncryptInitial extends LetsEncryptState {
+final class LetsEncryptInitial extends LetsEncryptState {
   const LetsEncryptInitial();
 }
 
 /// Loading status
-class LetsEncryptLoading extends LetsEncryptState {
+final class LetsEncryptLoading extends LetsEncryptState {
   final String? message;
 
   const LetsEncryptLoading({this.message});
@@ -25,7 +25,7 @@ class LetsEncryptLoading extends LetsEncryptState {
 }
 
 /// Status loaded successfully
-class LetsEncryptStatusLoaded extends LetsEncryptState {
+final class LetsEncryptStatusLoaded extends LetsEncryptState {
   final LetsEncryptStatus status;
 
   const LetsEncryptStatusLoaded(this.status);
@@ -35,7 +35,7 @@ class LetsEncryptStatusLoaded extends LetsEncryptState {
 }
 
 /// Pre-checks completed
-class PreChecksCompleted extends LetsEncryptState {
+final class PreChecksCompleted extends LetsEncryptState {
   final PreCheckResult result;
 
   const PreChecksCompleted(this.result);
@@ -45,7 +45,7 @@ class PreChecksCompleted extends LetsEncryptState {
 }
 
 /// Auto-fix in progress
-class AutoFixInProgress extends LetsEncryptState {
+final class AutoFixInProgress extends LetsEncryptState {
   final PreCheckType checkType;
 
   const AutoFixInProgress(this.checkType);
@@ -55,7 +55,7 @@ class AutoFixInProgress extends LetsEncryptState {
 }
 
 /// Auto-fix completed successfully
-class AutoFixSuccess extends LetsEncryptState {
+final class AutoFixSuccess extends LetsEncryptState {
   final PreCheckType checkType;
   final String message;
 
@@ -66,7 +66,7 @@ class AutoFixSuccess extends LetsEncryptState {
 }
 
 /// Requesting certificate
-class CertificateRequesting extends LetsEncryptState {
+final class CertificateRequesting extends LetsEncryptState {
   final String dnsName;
   final String message;
 
@@ -77,7 +77,7 @@ class CertificateRequesting extends LetsEncryptState {
 }
 
 /// Certificate request successful
-class CertificateRequestSuccess extends LetsEncryptState {
+final class CertificateRequestSuccess extends LetsEncryptState {
   final String message;
 
   const CertificateRequestSuccess(this.message);

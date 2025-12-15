@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/simple_queue.dart';
 
-/// Base class for all Queues states
-abstract class QueuesState extends Equatable {
+/// Sealed class for all Queues states with exhaustive matching
+sealed class QueuesState extends Equatable {
   const QueuesState();
 
   @override
@@ -10,17 +10,17 @@ abstract class QueuesState extends Equatable {
 }
 
 /// Initial state when Queues page is first loaded
-class QueuesInitial extends QueuesState {
+final class QueuesInitial extends QueuesState {
   const QueuesInitial();
 }
 
 /// State when queues are being loaded
-class QueuesLoading extends QueuesState {
+final class QueuesLoading extends QueuesState {
   const QueuesLoading();
 }
 
-/// State when queues are loaded successfully
-class QueuesLoaded extends QueuesState {
+/// State when queues are loaded successfully (non-nullable!)
+final class QueuesLoaded extends QueuesState {
   final List<SimpleQueue> queues;
 
   const QueuesLoaded(this.queues);
@@ -30,12 +30,12 @@ class QueuesLoaded extends QueuesState {
 }
 
 /// State when queue operation is in progress
-class QueueOperationInProgress extends QueuesState {
+final class QueueOperationInProgress extends QueuesState {
   const QueueOperationInProgress();
 }
 
 /// State when queue operation completed successfully
-class QueueOperationSuccess extends QueuesState {
+final class QueueOperationSuccess extends QueuesState {
   final String message;
 
   const QueueOperationSuccess(this.message);
@@ -45,7 +45,7 @@ class QueueOperationSuccess extends QueuesState {
 }
 
 /// State when queue operation failed
-class QueuesError extends QueuesState {
+final class QueuesError extends QueuesState {
   final String error;
 
   const QueuesError(this.error);
@@ -54,23 +54,8 @@ class QueuesError extends QueuesState {
   List<Object?> get props => [error];
 }
 
-/// State when adding a new queue
-class AddingQueue extends QueuesState {
-  const AddingQueue();
-}
-
-/// State when updating a queue
-class UpdatingQueue extends QueuesState {
-  const UpdatingQueue();
-}
-
-/// State when deleting a queue
-class DeletingQueue extends QueuesState {
-  const DeletingQueue();
-}
-
 /// State when a queue is loaded for editing
-class QueueLoadedForEdit extends QueuesState {
+final class QueueLoadedForEdit extends QueuesState {
   final SimpleQueue queue;
 
   const QueueLoadedForEdit(this.queue);

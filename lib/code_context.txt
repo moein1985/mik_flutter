@@ -1,0 +1,3376 @@
+﻿
+==============================================================================
+FILE PATH: injection_container.dart
+==============================================================================
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_it/get_it.dart';
+
+// Core
+import 'core/network/routeros_client_v2.dart';
+import 'core/network/routeros_client.dart';
+
+// Features - Auth
+import 'features/auth/data/datasources/auth_local_data_source.dart';
+import 'features/auth/data/datasources/auth_remote_data_source.dart';
+import 'features/auth/data/datasources/saved_router_local_data_source.dart';
+import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/auth/data/repositories/saved_router_repository_impl.dart';
+import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/auth/domain/repositories/saved_router_repository.dart';
+import 'features/auth/domain/usecases/get_saved_credentials_usecase.dart';
+import 'features/auth/domain/usecases/login_usecase.dart';
+import 'features/auth/domain/usecases/logout_usecase.dart';
+import 'features/auth/domain/usecases/save_credentials_usecase.dart';
+import 'features/auth/domain/usecases/get_saved_routers_usecase.dart';
+import 'features/auth/domain/usecases/save_router_usecase.dart';
+import 'features/auth/domain/usecases/delete_router_usecase.dart';
+import 'features/auth/domain/usecases/update_router_usecase.dart';
+import 'features/auth/domain/usecases/set_default_router_usecase.dart';
+import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/presentation/bloc/saved_router_bloc.dart';
+
+// Features - Dashboard
+import 'features/dashboard/data/datasources/dashboard_remote_data_source.dart';
+import 'features/dashboard/data/repositories/dashboard_repository_impl.dart';
+import 'features/dashboard/domain/repositories/dashboard_repository.dart';
+import 'features/dashboard/domain/usecases/get_system_resources_usecase.dart';
+import 'features/dashboard/domain/usecases/get_interfaces_usecase.dart';
+import 'features/dashboard/domain/usecases/toggle_interface_usecase.dart';
+import 'features/dashboard/domain/usecases/get_ip_addresses_usecase.dart';
+import 'features/dashboard/domain/usecases/ip_address_usecases.dart';
+import 'features/dashboard/domain/usecases/get_firewall_rules_usecase.dart';
+import 'features/dashboard/domain/usecases/toggle_firewall_rule_usecase.dart';
+import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
+
+// Features - HotSpot
+import 'features/hotspot/data/datasources/hotspot_remote_data_source.dart';
+import 'features/hotspot/data/repositories/hotspot_repository_impl.dart';
+import 'features/hotspot/domain/repositories/hotspot_repository.dart';
+import 'features/hotspot/domain/usecases/get_servers_usecase.dart';
+import 'features/hotspot/domain/usecases/get_users_usecase.dart';
+import 'features/hotspot/domain/usecases/get_active_users_usecase.dart';
+import 'features/hotspot/domain/usecases/get_profiles_usecase.dart';
+import 'features/hotspot/domain/usecases/add_user_usecase.dart';
+import 'features/hotspot/domain/usecases/edit_user_usecase.dart';
+import 'features/hotspot/domain/usecases/delete_user_usecase.dart';
+import 'features/hotspot/domain/usecases/reset_user_counters_usecase.dart';
+import 'features/hotspot/domain/usecases/toggle_user_usecase.dart';
+import 'features/hotspot/domain/usecases/disconnect_user_usecase.dart';
+import 'features/hotspot/domain/usecases/setup_hotspot_usecase.dart';
+// New UseCases
+import 'features/hotspot/domain/usecases/get_ip_bindings_usecase.dart';
+import 'features/hotspot/domain/usecases/add_ip_binding_usecase.dart';
+import 'features/hotspot/domain/usecases/edit_ip_binding_usecase.dart';
+import 'features/hotspot/domain/usecases/delete_ip_binding_usecase.dart';
+import 'features/hotspot/domain/usecases/toggle_ip_binding_usecase.dart';
+import 'features/hotspot/domain/usecases/get_hosts_usecase.dart';
+import 'features/hotspot/domain/usecases/remove_host_usecase.dart';
+import 'features/hotspot/domain/usecases/make_host_binding_usecase.dart';
+import 'features/hotspot/domain/usecases/get_walled_garden_usecase.dart';
+import 'features/hotspot/domain/usecases/add_walled_garden_usecase.dart';
+import 'features/hotspot/domain/usecases/edit_walled_garden_usecase.dart';
+import 'features/hotspot/domain/usecases/delete_walled_garden_usecase.dart';
+import 'features/hotspot/domain/usecases/toggle_walled_garden_usecase.dart';
+import 'features/hotspot/domain/usecases/add_profile_usecase.dart';
+import 'features/hotspot/domain/usecases/edit_profile_usecase.dart';
+import 'features/hotspot/domain/usecases/delete_profile_usecase.dart';
+import 'features/hotspot/domain/usecases/reset_hotspot_usecase.dart';
+import 'features/hotspot/presentation/bloc/hotspot_bloc.dart';
+
+// Features - Firewall
+import 'features/firewall/data/datasources/firewall_remote_data_source.dart';
+import 'features/firewall/data/repositories/firewall_repository_impl.dart';
+import 'features/firewall/domain/repositories/firewall_repository.dart';
+import 'features/firewall/domain/usecases/get_firewall_rules.dart' as firewall_usecases;
+import 'features/firewall/domain/usecases/toggle_firewall_rule.dart' as firewall_usecases;
+import 'features/firewall/domain/usecases/get_address_list_names.dart';
+import 'features/firewall/domain/usecases/get_address_list_by_name.dart';
+import 'features/firewall/presentation/bloc/firewall_bloc.dart';
+
+// Features - IP Services
+import 'features/ip_services/data/datasources/ip_service_remote_data_source.dart';
+import 'features/ip_services/data/repositories/ip_service_repository_impl.dart';
+import 'features/ip_services/domain/repositories/ip_service_repository.dart';
+import 'features/ip_services/presentation/bloc/ip_service_bloc.dart';
+
+// Features - Certificates
+import 'features/certificates/data/datasources/certificate_remote_data_source.dart';
+import 'features/certificates/data/repositories/certificate_repository_impl.dart';
+import 'features/certificates/domain/repositories/certificate_repository.dart';
+import 'features/certificates/presentation/bloc/certificate_bloc.dart';
+
+// Features - DHCP
+import 'features/dhcp/data/datasources/dhcp_remote_data_source.dart';
+import 'features/dhcp/data/repositories/dhcp_repository_impl.dart';
+import 'features/dhcp/domain/repositories/dhcp_repository.dart';
+import 'features/dhcp/presentation/bloc/dhcp_bloc.dart';
+
+// Features - Tools
+import 'features/tools/data/repositories/tools_repository_impl.dart';
+import 'features/tools/domain/repositories/tools_repository.dart';
+import 'features/tools/domain/usecases/ping_usecase.dart';
+import 'features/tools/domain/usecases/traceroute_usecase.dart';
+import 'features/tools/domain/usecases/dns_lookup_usecase.dart';
+import 'features/tools/presentation/bloc/tools_bloc.dart';
+
+// Features - Wireless
+import 'features/wireless/data/datasources/wireless_remote_data_source.dart';
+import 'features/wireless/data/repositories/wireless_repository_impl.dart';
+import 'features/wireless/domain/repositories/wireless_repository.dart';
+import 'features/wireless/domain/usecases/get_wireless_interfaces_usecase.dart';
+import 'features/wireless/domain/usecases/get_wireless_registrations_usecase.dart';
+import 'features/wireless/domain/usecases/get_security_profiles_usecase.dart';
+import 'features/wireless/domain/usecases/scan_wireless_networks_usecase.dart';
+import 'features/wireless/domain/usecases/get_access_list_usecase.dart';
+import 'features/wireless/domain/usecases/add_access_list_entry_usecase.dart';
+import 'features/wireless/domain/usecases/remove_access_list_entry_usecase.dart';
+import 'features/wireless/domain/usecases/update_access_list_entry_usecase.dart';
+import 'features/wireless/domain/usecases/update_wireless_ssid_usecase.dart';
+import 'features/wireless/domain/usecases/get_wireless_password_usecase.dart';
+import 'features/wireless/domain/usecases/update_wireless_password_usecase.dart';
+import 'features/wireless/domain/usecases/add_virtual_wireless_interface_usecase.dart';
+import 'features/wireless/presentation/bloc/wireless_bloc.dart';
+
+// Features - Logs
+import 'features/logs/data/datasources/logs_remote_data_source.dart';
+import 'features/logs/data/repositories/logs_repository_impl.dart';
+import 'features/logs/domain/repositories/logs_repository.dart';
+import 'features/logs/domain/usecases/get_logs_usecase.dart';
+import 'features/logs/domain/usecases/follow_logs_usecase.dart';
+import 'features/logs/domain/usecases/clear_logs_usecase.dart';
+import 'features/logs/domain/usecases/search_logs_usecase.dart';
+import 'features/logs/presentation/bloc/logs_bloc.dart';
+
+// Features - Backup
+import 'features/backup/data/datasources/backup_remote_data_source.dart';
+import 'features/backup/data/repositories/backup_repository_impl.dart';
+import 'features/backup/domain/repositories/backup_repository.dart';
+import 'features/backup/domain/usecases/get_backups_usecase.dart';
+import 'features/backup/domain/usecases/create_backup_usecase.dart';
+import 'features/backup/domain/usecases/delete_backup_usecase.dart';
+import 'features/backup/domain/usecases/restore_backup_usecase.dart';
+import 'features/backup/domain/usecases/export_config_usecase.dart';
+import 'features/backup/presentation/bloc/backup_bloc.dart';
+
+// Features - Queues
+import 'features/queues/data/repositories/queues_repository_impl.dart';
+import 'features/queues/domain/repositories/queues_repository.dart';
+import 'features/queues/domain/usecases/get_queues_usecase.dart';
+import 'features/queues/domain/usecases/add_queue_usecase.dart';
+import 'features/queues/domain/usecases/edit_queue_usecase.dart';
+import 'features/queues/domain/usecases/delete_queue_usecase.dart';
+import 'features/queues/domain/usecases/toggle_queue_usecase.dart';
+import 'features/queues/domain/usecases/get_queue_by_id_usecase.dart';
+import 'features/queues/presentation/bloc/queues_bloc.dart';
+
+// Features - Cloud
+import 'features/cloud/data/datasources/cloud_remote_data_source.dart';
+import 'features/cloud/data/repositories/cloud_repository_impl.dart';
+import 'features/cloud/domain/repositories/cloud_repository.dart';
+import 'features/cloud/presentation/bloc/cloud_bloc.dart';
+
+// Features - Let's Encrypt
+import 'features/letsencrypt/data/datasources/letsencrypt_remote_data_source.dart';
+import 'features/letsencrypt/data/repositories/letsencrypt_repository_impl.dart';
+import 'features/letsencrypt/domain/repositories/letsencrypt_repository.dart';
+import 'features/letsencrypt/presentation/bloc/letsencrypt_bloc.dart';
+
+final sl = GetIt.instance;
+
+Future<void> init() async {
+  //! Features - Auth
+  // Bloc
+  sl.registerFactory(
+    () => AuthBloc(
+      loginUseCase: sl(),
+      logoutUseCase: sl(),
+      saveCredentialsUseCase: sl(),
+      getSavedCredentialsUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => SavedRouterBloc(
+      getSavedRoutersUseCase: sl(),
+      saveRouterUseCase: sl(),
+      deleteRouterUseCase: sl(),
+      updateRouterUseCase: sl(),
+      setDefaultRouterUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => LoginUseCase(sl()));
+  sl.registerLazySingleton(() => LogoutUseCase(sl()));
+  sl.registerLazySingleton(() => SaveCredentialsUseCase(sl()));
+  sl.registerLazySingleton(() => GetSavedCredentialsUseCase(sl()));
+  sl.registerLazySingleton(() => GetSavedRoutersUseCase(sl()));
+  sl.registerLazySingleton(() => SaveRouterUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteRouterUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateRouterUseCase(sl()));
+  sl.registerLazySingleton(() => SetDefaultRouterUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<SavedRouterRepository>(
+    () => SavedRouterRepositoryImpl(
+      localDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(),
+  );
+
+  sl.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(
+      secureStorage: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<SavedRouterLocalDataSource>(
+    () => SavedRouterLocalDataSourceImpl(),
+  );
+
+  //! Features - Dashboard
+  // Bloc
+  sl.registerFactory(
+    () => DashboardBloc(
+      getSystemResourcesUseCase: sl(),
+      getInterfacesUseCase: sl(),
+      toggleInterfaceUseCase: sl(),
+      getIpAddressesUseCase: sl(),
+      addIpAddressUseCase: sl(),
+      updateIpAddressUseCase: sl(),
+      removeIpAddressUseCase: sl(),
+      toggleIpAddressUseCase: sl(),
+      getFirewallRulesUseCase: sl(),
+      toggleFirewallRuleUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetSystemResourcesUseCase(sl()));
+  sl.registerLazySingleton(() => GetInterfacesUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleInterfaceUseCase(sl()));
+  sl.registerLazySingleton(() => GetIpAddressesUseCase(sl()));
+  sl.registerLazySingleton(() => AddIpAddressUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateIpAddressUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveIpAddressUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleIpAddressUseCase(sl()));
+  sl.registerLazySingleton(() => GetFirewallRulesUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleFirewallRuleUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<DashboardRepository>(
+    () => DashboardRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<DashboardRemoteDataSource>(
+    () => DashboardRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - HotSpot
+  // Bloc
+  sl.registerFactory(
+    () => HotspotBloc(
+      getServersUseCase: sl(),
+      getUsersUseCase: sl(),
+      getActiveUsersUseCase: sl(),
+      getProfilesUseCase: sl(),
+      addUserUseCase: sl(),
+      editUserUseCase: sl(),
+      deleteUserUseCase: sl(),
+      resetUserCountersUseCase: sl(),
+      toggleUserUseCase: sl(),
+      disconnectUserUseCase: sl(),
+      setupHotspotUseCase: sl(),
+      repository: sl(),
+      // New UseCases
+      getIpBindingsUseCase: sl(),
+      addIpBindingUseCase: sl(),
+      editIpBindingUseCase: sl(),
+      deleteIpBindingUseCase: sl(),
+      toggleIpBindingUseCase: sl(),
+      getHostsUseCase: sl(),
+      removeHostUseCase: sl(),
+      makeHostBindingUseCase: sl(),
+      getWalledGardenUseCase: sl(),
+      addWalledGardenUseCase: sl(),
+      editWalledGardenUseCase: sl(),
+      deleteWalledGardenUseCase: sl(),
+      toggleWalledGardenUseCase: sl(),
+      addProfileUseCase: sl(),
+      editProfileUseCase: sl(),
+      deleteProfileUseCase: sl(),
+      resetHotspotUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetServersUseCase(sl()));
+  sl.registerLazySingleton(() => GetUsersUseCase(sl()));
+  sl.registerLazySingleton(() => GetActiveUsersUseCase(sl()));
+  sl.registerLazySingleton(() => GetProfilesUseCase(sl()));
+  sl.registerLazySingleton(() => AddUserUseCase(sl()));
+  sl.registerLazySingleton(() => EditUserUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteUserUseCase(sl()));
+  sl.registerLazySingleton(() => ResetUserCountersUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleUserUseCase(sl()));
+  sl.registerLazySingleton(() => DisconnectUserUseCase(sl()));
+  sl.registerLazySingleton(() => SetupHotspotUseCase(sl()));
+  // New UseCases
+  sl.registerLazySingleton(() => GetIpBindingsUseCase(sl()));
+  sl.registerLazySingleton(() => AddIpBindingUseCase(sl()));
+  sl.registerLazySingleton(() => EditIpBindingUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteIpBindingUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleIpBindingUseCase(sl()));
+  sl.registerLazySingleton(() => GetHostsUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveHostUseCase(sl()));
+  sl.registerLazySingleton(() => MakeHostBindingUseCase(sl()));
+  sl.registerLazySingleton(() => GetWalledGardenUseCase(sl()));
+  sl.registerLazySingleton(() => AddWalledGardenUseCase(sl()));
+  sl.registerLazySingleton(() => EditWalledGardenUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteWalledGardenUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleWalledGardenUseCase(sl()));
+  sl.registerLazySingleton(() => AddProfileUseCase(sl()));
+  sl.registerLazySingleton(() => EditProfileUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteProfileUseCase(sl()));
+  sl.registerLazySingleton(() => ResetHotspotUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<HotspotRepository>(
+    () => HotspotRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<HotspotRemoteDataSource>(
+    () => HotspotRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Firewall
+  // Bloc
+  sl.registerFactory(
+    () => FirewallBloc(
+      getFirewallRulesUseCase: sl(),
+      toggleFirewallRuleUseCase: sl(),
+      getAddressListNamesUseCase: sl(),
+      getAddressListByNameUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => firewall_usecases.GetFirewallRulesUseCase(sl()));
+  sl.registerLazySingleton(() => firewall_usecases.ToggleFirewallRuleUseCase(sl()));
+  sl.registerLazySingleton(() => GetAddressListNamesUseCase(sl()));
+  sl.registerLazySingleton(() => GetAddressListByNameUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<FirewallRepository>(
+    () => FirewallRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<FirewallRemoteDataSource>(
+    () => FirewallRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - IP Services
+  // Bloc
+  sl.registerFactory(
+    () => IpServiceBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<IpServiceRepository>(
+    () => IpServiceRepositoryImpl(
+      remoteDataSource: sl(),
+      certificateDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<IpServiceRemoteDataSource>(
+    () => IpServiceRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Certificates
+  // Bloc
+  sl.registerFactory(
+    () => CertificateBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<CertificateRepository>(
+    () => CertificateRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<CertificateRemoteDataSource>(
+    () => CertificateRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - DHCP
+  // Bloc
+  sl.registerFactory(
+    () => DhcpBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<DhcpRepository>(
+    () => DhcpRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<DhcpRemoteDataSource>(
+    () => DhcpRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Cloud
+  // Bloc
+  sl.registerFactory(
+    () => CloudBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<CloudRepository>(
+    () => CloudRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<CloudRemoteDataSource>(
+    () => CloudRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Let's Encrypt
+  // Bloc
+  sl.registerFactory(
+    () => LetsEncryptBloc(
+      repository: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<LetsEncryptRepository>(
+    () => LetsEncryptRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<LetsEncryptRemoteDataSource>(
+    () => LetsEncryptRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Tools
+  // Bloc
+  sl.registerFactory(
+    () => ToolsBloc(
+      pingUseCase: sl(),
+      tracerouteUseCase: sl(),
+      dnsLookupUseCase: sl(),
+      getInterfacesUseCase: sl(),
+      getIpAddressesUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => PingUseCase(sl()));
+  sl.registerLazySingleton(() => TracerouteUseCase(sl()));
+  sl.registerLazySingleton(() => DnsLookupUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<ToolsRepository>(
+    () => ToolsRepositoryImpl(
+      routerOsClient: sl(),
+      legacyClient: sl(),  // Legacy client for streaming (package has bugs)
+    ),
+  );
+
+  //! Features - Queues
+  // Bloc
+  sl.registerFactory(
+    () => QueuesBloc(
+      getQueuesUseCase: sl(),
+      getQueueByIdUseCase: sl(),
+      addQueueUseCase: sl(),
+      editQueueUseCase: sl(),
+      deleteQueueUseCase: sl(),
+      toggleQueueUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetQueuesUseCase(sl()));
+  sl.registerLazySingleton(() => GetQueueByIdUseCase(sl()));
+  sl.registerLazySingleton(() => AddQueueUseCase(sl()));
+  sl.registerLazySingleton(() => EditQueueUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteQueueUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleQueueUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<QueuesRepository>(
+    () => QueuesRepositoryImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Wireless
+  // Data sources
+  sl.registerLazySingleton<WirelessRemoteDataSource>(
+    () => WirelessRemoteDataSourceImpl(authRemoteDataSource: sl()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<WirelessRepository>(
+    () => WirelessRepositoryImpl(sl()),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetWirelessInterfacesUseCase(sl()));
+  sl.registerLazySingleton(() => GetWirelessRegistrationsUseCase(sl()));
+  sl.registerLazySingleton(() => GetRegistrationsByInterfaceUseCase(sl()));
+  sl.registerLazySingleton(() => DisconnectClientUseCase(sl()));
+  sl.registerLazySingleton(() => GetSecurityProfilesUseCase(sl()));
+  sl.registerLazySingleton(() => EnableWirelessInterfaceUseCase(sl()));
+  sl.registerLazySingleton(() => DisableWirelessInterfaceUseCase(sl()));
+  sl.registerLazySingleton(() => CreateSecurityProfileUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateSecurityProfileUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteSecurityProfileUseCase(sl()));
+  sl.registerLazySingleton(() => ScanWirelessNetworksUseCase(sl()));
+  sl.registerLazySingleton(() => GetAccessListUseCase(sl()));
+  sl.registerLazySingleton(() => AddAccessListEntryUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveAccessListEntryUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateAccessListEntryUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateWirelessSsidUseCase(sl()));
+  sl.registerLazySingleton(() => GetWirelessPasswordUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateWirelessPasswordUseCase(sl()));
+  sl.registerLazySingleton(() => AddVirtualWirelessInterfaceUseCase(sl()));
+
+  // Bloc
+  sl.registerFactory(
+    () => WirelessBloc(
+      getWirelessInterfacesUseCase: sl(),
+      getWirelessRegistrationsUseCase: sl(),
+      getRegistrationsByInterfaceUseCase: sl(),
+      disconnectClientUseCase: sl(),
+      getSecurityProfilesUseCase: sl(),
+      enableWirelessInterfaceUseCase: sl(),
+      disableWirelessInterfaceUseCase: sl(),
+      createSecurityProfileUseCase: sl(),
+      updateSecurityProfileUseCase: sl(),
+      deleteSecurityProfileUseCase: sl(),
+      scanWirelessNetworksUseCase: sl(),
+      getAccessListUseCase: sl(),
+      addAccessListEntryUseCase: sl(),
+      removeAccessListEntryUseCase: sl(),
+      updateAccessListEntryUseCase: sl(),
+      updateWirelessSsidUseCase: sl(),
+      getWirelessPasswordUseCase: sl(),
+      updateWirelessPasswordUseCase: sl(),
+      addVirtualWirelessInterfaceUseCase: sl(),
+    ),
+  );
+
+  //! Features - Logs
+  // Bloc
+  sl.registerFactory(
+    () => LogsBloc(
+      getLogsUseCase: sl(),
+      followLogsUseCase: sl(),
+      clearLogsUseCase: sl(),
+      searchLogsUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetLogsUseCase(sl()));
+  sl.registerLazySingleton(() => FollowLogsUseCase(sl()));
+  sl.registerLazySingleton(() => ClearLogsUseCase(sl()));
+  sl.registerLazySingleton(() => SearchLogsUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<LogsRepository>(
+    () => LogsRepositoryImpl(
+      remoteDataSource: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<LogsRemoteDataSource>(
+    () => LogsRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Features - Backup
+  // Bloc
+  sl.registerFactory(
+    () => BackupBloc(
+      getBackupsUseCase: sl(),
+      createBackupUseCase: sl(),
+      deleteBackupUseCase: sl(),
+      restoreBackupUseCase: sl(),
+      exportConfigUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetBackupsUseCase(sl()));
+  sl.registerLazySingleton(() => CreateBackupUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteBackupUseCase(sl()));
+  sl.registerLazySingleton(() => RestoreBackupUseCase(sl()));
+  sl.registerLazySingleton(() => ExportConfigUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<BackupRepository>(
+    () => BackupRepositoryImpl(
+      sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<BackupRemoteDataSource>(
+    () => BackupRemoteDataSourceImpl(
+      authRemoteDataSource: sl(),
+    ),
+  );
+
+  //! Core
+  sl.registerLazySingleton(() => const FlutterSecureStorage());
+  
+  // RouterOS Client V2 - gets the client from auth remote data source
+  sl.registerLazySingleton<RouterOSClientV2>(
+    () => sl<AuthRemoteDataSource>().client!,
+  );
+  
+  // Legacy RouterOS Client - for streaming operations (package has bugs)
+  sl.registerLazySingleton<RouterOSClient>(
+    () => sl<AuthRemoteDataSource>().legacyClient!,
+  );
+
+  // Domain-specific RouterOS Clients (using old client for now - will migrate later)
+  // For now, we'll comment them out as they depend on RouterOSClient
+
+  //! External
+}
+
+
+
+==============================================================================
+FILE PATH: features\dashboard\domain\entities\router_interface.dart
+==============================================================================
+
+import 'package:equatable/equatable.dart';
+
+class RouterInterface extends Equatable {
+  final String id;
+  final String name;
+  final String type;
+  final bool running;
+  final bool disabled;
+  final String? comment;
+  final String? macAddress;
+
+  const RouterInterface({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.running,
+    required this.disabled,
+    this.comment,
+    this.macAddress,
+  });
+
+  @override
+  List<Object?> get props => [
+        id,
+        name,
+        type,
+        running,
+        disabled,
+        comment,
+        macAddress,
+      ];
+}
+
+
+
+==============================================================================
+FILE PATH: features\dashboard\domain\repositories\dashboard_repository.dart
+==============================================================================
+
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/failures.dart';
+import '../entities/system_resource.dart';
+import '../entities/router_interface.dart';
+import '../entities/ip_address.dart';
+import '../entities/firewall_rule.dart';
+import '../entities/dhcp_lease.dart';
+
+abstract class DashboardRepository {
+  Future<Either<Failure, SystemResource>> getSystemResources();
+  Future<Either<Failure, List<RouterInterface>>> getInterfaces();
+  Future<Either<Failure, bool>> enableInterface(String id);
+  Future<Either<Failure, bool>> disableInterface(String id);
+  Future<Either<Failure, List<IpAddress>>> getIpAddresses();
+  Future<Either<Failure, bool>> addIpAddress({
+    required String address,
+    required String interfaceName,
+    String? comment,
+  });
+  Future<Either<Failure, bool>> updateIpAddress({
+    required String id,
+    String? address,
+    String? interfaceName,
+    String? comment,
+  });
+  Future<Either<Failure, bool>> removeIpAddress(String id);
+  Future<Either<Failure, bool>> toggleIpAddress(String id, bool enable);
+  Future<Either<Failure, List<FirewallRule>>> getFirewallRules();
+  Future<Either<Failure, bool>> enableFirewallRule(String id);
+  Future<Either<Failure, bool>> disableFirewallRule(String id);
+  Future<Either<Failure, List<DhcpLease>>> getDhcpLeases();
+}
+
+
+
+==============================================================================
+FILE PATH: features\dashboard\domain\usecases\get_interfaces_usecase.dart
+==============================================================================
+
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/failures.dart';
+import '../entities/router_interface.dart';
+import '../repositories/dashboard_repository.dart';
+
+class GetInterfacesUseCase {
+  final DashboardRepository repository;
+
+  GetInterfacesUseCase(this.repository);
+
+  Future<Either<Failure, List<RouterInterface>>> call() async {
+    return await repository.getInterfaces();
+  }
+}
+
+
+
+==============================================================================
+FILE PATH: features\dashboard\data\models\router_interface_model.dart
+==============================================================================
+
+import '../../domain/entities/router_interface.dart';
+
+class RouterInterfaceModel extends RouterInterface {
+  const RouterInterfaceModel({
+    required super.id,
+    required super.name,
+    required super.type,
+    required super.running,
+    required super.disabled,
+    super.comment,
+    super.macAddress,
+  });
+
+  factory RouterInterfaceModel.fromMap(Map<String, String> map) {
+    return RouterInterfaceModel(
+      id: map['.id'] ?? '',
+      name: map['name'] ?? '',
+      type: map['type'] ?? '',
+      running: map['running'] == 'true',
+      disabled: map['disabled'] == 'true',
+      comment: map['comment'],
+      macAddress: map['mac-address'],
+    );
+  }
+}
+
+
+
+==============================================================================
+FILE PATH: features\dashboard\data\datasources\dashboard_remote_data_source.dart
+==============================================================================
+
+import '../../../../core/network/routeros_client_v2.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../../../auth/data/datasources/auth_remote_data_source.dart';
+import '../models/system_resource_model.dart';
+import '../models/router_interface_model.dart';
+import '../models/ip_address_model.dart';
+import '../models/firewall_rule_model.dart';
+import '../models/dhcp_lease_model.dart';
+
+abstract class DashboardRemoteDataSource {
+  Future<SystemResourceModel> getSystemResources();
+  Future<List<RouterInterfaceModel>> getInterfaces();
+  Future<bool> enableInterface(String id);
+  Future<bool> disableInterface(String id);
+  Future<List<IpAddressModel>> getIpAddresses();
+  Future<bool> addIpAddress({
+    required String address,
+    required String interfaceName,
+    String? comment,
+  });
+  Future<bool> updateIpAddress({
+    required String id,
+    String? address,
+    String? interfaceName,
+    String? comment,
+  });
+  Future<bool> removeIpAddress(String id);
+  Future<bool> toggleIpAddress(String id, bool enable);
+  Future<List<FirewallRuleModel>> getFirewallRules();
+  Future<bool> enableFirewallRule(String id);
+  Future<bool> disableFirewallRule(String id);
+  Future<List<DhcpLeaseModel>> getDhcpLeases();
+}
+
+class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
+  final AuthRemoteDataSource authRemoteDataSource;
+
+  DashboardRemoteDataSourceImpl({required this.authRemoteDataSource});
+
+  RouterOSClientV2 get client {
+    if (authRemoteDataSource.client == null) {
+      throw ServerException('Not connected to router');
+    }
+    return authRemoteDataSource.client!;
+  }
+
+  @override
+  Future<SystemResourceModel> getSystemResources() async {
+    try {
+      final response = await client.getSystemResources();
+      
+      if (response.isEmpty) {
+        throw ServerException('No system resource data received');
+      }
+      
+      return SystemResourceModel.fromMap(response.first);
+    } catch (e) {
+      throw ServerException('Failed to get system resources: $e');
+    }
+  }
+
+  @override
+  Future<List<RouterInterfaceModel>> getInterfaces() async {
+    try {
+      final response = await client.getInterfaces();
+      
+      return response.map((item) => RouterInterfaceModel.fromMap(item)).toList();
+    } catch (e) {
+      throw ServerException('Failed to get interfaces: $e');
+    }
+  }
+
+  @override
+  Future<bool> enableInterface(String id) async {
+    try {
+      return await client.enableInterface(id);
+    } catch (e) {
+      throw ServerException('Failed to enable interface: $e');
+    }
+  }
+
+  @override
+  Future<bool> disableInterface(String id) async {
+    try {
+      return await client.disableInterface(id);
+    } catch (e) {
+      throw ServerException('Failed to disable interface: $e');
+    }
+  }
+
+  @override
+  Future<List<IpAddressModel>> getIpAddresses() async {
+    try {
+      final response = await client.getIpAddresses();
+      
+      return response.map((item) => IpAddressModel.fromMap(item)).toList();
+    } catch (e) {
+      throw ServerException('Failed to get IP addresses: $e');
+    }
+  }
+
+  @override
+  Future<bool> addIpAddress({
+    required String address,
+    required String interfaceName,
+    String? comment,
+  }) async {
+    try {
+      return await client.addIpAddress(
+        address: address,
+        interfaceName: interfaceName,
+        comment: comment,
+      );
+    } catch (e) {
+      throw ServerException('Failed to add IP address: $e');
+    }
+  }
+
+  @override
+  Future<bool> updateIpAddress({
+    required String id,
+    String? address,
+    String? interfaceName,
+    String? comment,
+  }) async {
+    try {
+      return await client.updateIpAddress(
+        id: id,
+        address: address,
+        interfaceName: interfaceName,
+        comment: comment,
+      );
+    } catch (e) {
+      throw ServerException('Failed to update IP address: $e');
+    }
+  }
+
+  @override
+  Future<bool> removeIpAddress(String id) async {
+    try {
+      return await client.removeIpAddress(id);
+    } catch (e) {
+      throw ServerException('Failed to remove IP address: $e');
+    }
+  }
+
+  @override
+  Future<bool> toggleIpAddress(String id, bool enable) async {
+    try {
+      return await client.toggleIpAddress(id, enable);
+    } catch (e) {
+      throw ServerException('Failed to toggle IP address: $e');
+    }
+  }
+
+  @override
+  Future<List<FirewallRuleModel>> getFirewallRules() async {
+    try {
+      // Dashboard uses filter rules by default
+      final response = await client.getFirewallRules('/ip/firewall/filter');
+      
+      return response.map((item) => FirewallRuleModel.fromMap(item)).toList();
+    } catch (e) {
+      throw ServerException('Failed to get firewall rules: $e');
+    }
+  }
+
+  @override
+  Future<bool> enableFirewallRule(String id) async {
+    try {
+      return await client.enableFirewallRule('/ip/firewall/filter', id);
+    } catch (e) {
+      throw ServerException('Failed to enable firewall rule: $e');
+    }
+  }
+
+  @override
+  Future<bool> disableFirewallRule(String id) async {
+    try {
+      return await client.disableFirewallRule('/ip/firewall/filter', id);
+    } catch (e) {
+      throw ServerException('Failed to disable firewall rule: $e');
+    }
+  }
+
+  @override
+  Future<List<DhcpLeaseModel>> getDhcpLeases() async {
+    try {
+      final response = await client.getDhcpLeases();
+      
+      return response.map((item) => DhcpLeaseModel.fromMap(item)).toList();
+    } catch (e) {
+      throw ServerException('Failed to get DHCP leases: $e');
+    }
+  }
+}
+
+
+
+==============================================================================
+FILE PATH: features\dashboard\data\repositories\dashboard_repository_impl.dart
+==============================================================================
+
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../../../../core/errors/failures.dart';
+import '../../domain/entities/system_resource.dart';
+import '../../domain/entities/router_interface.dart';
+import '../../domain/entities/ip_address.dart';
+import '../../domain/entities/firewall_rule.dart';
+import '../../domain/entities/dhcp_lease.dart';
+import '../../domain/repositories/dashboard_repository.dart';
+import '../datasources/dashboard_remote_data_source.dart';
+
+class DashboardRepositoryImpl implements DashboardRepository {
+  final DashboardRemoteDataSource remoteDataSource;
+
+  DashboardRepositoryImpl({
+    required this.remoteDataSource,
+  });
+
+  @override
+  Future<Either<Failure, SystemResource>> getSystemResources() async {
+    try {
+      final result = await remoteDataSource.getSystemResources();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<RouterInterface>>> getInterfaces() async {
+    try {
+      final result = await remoteDataSource.getInterfaces();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> enableInterface(String id) async {
+    try {
+      final result = await remoteDataSource.enableInterface(id);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> disableInterface(String id) async {
+    try {
+      final result = await remoteDataSource.disableInterface(id);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<IpAddress>>> getIpAddresses() async {
+    try {
+      final result = await remoteDataSource.getIpAddresses();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> addIpAddress({
+    required String address,
+    required String interfaceName,
+    String? comment,
+  }) async {
+    try {
+      final result = await remoteDataSource.addIpAddress(
+        address: address,
+        interfaceName: interfaceName,
+        comment: comment,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> updateIpAddress({
+    required String id,
+    String? address,
+    String? interfaceName,
+    String? comment,
+  }) async {
+    try {
+      final result = await remoteDataSource.updateIpAddress(
+        id: id,
+        address: address,
+        interfaceName: interfaceName,
+        comment: comment,
+      );
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> removeIpAddress(String id) async {
+    try {
+      final result = await remoteDataSource.removeIpAddress(id);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> toggleIpAddress(String id, bool enable) async {
+    try {
+      final result = await remoteDataSource.toggleIpAddress(id, enable);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<FirewallRule>>> getFirewallRules() async {
+    try {
+      final result = await remoteDataSource.getFirewallRules();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> enableFirewallRule(String id) async {
+    try {
+      final result = await remoteDataSource.enableFirewallRule(id);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> disableFirewallRule(String id) async {
+    try {
+      final result = await remoteDataSource.disableFirewallRule(id);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<DhcpLease>>> getDhcpLeases() async {
+    try {
+      final result = await remoteDataSource.getDhcpLeases();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('Unexpected error: $e'));
+    }
+  }
+}
+
+
+
+==============================================================================
+FILE PATH: features\dashboard\presentation\bloc\dashboard_bloc.dart
+==============================================================================
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/usecases/get_system_resources_usecase.dart';
+import '../../domain/usecases/get_interfaces_usecase.dart';
+import '../../domain/usecases/toggle_interface_usecase.dart';
+import '../../domain/usecases/get_ip_addresses_usecase.dart';
+import '../../domain/usecases/ip_address_usecases.dart';
+import '../../domain/usecases/get_firewall_rules_usecase.dart';
+import '../../domain/usecases/toggle_firewall_rule_usecase.dart';
+import 'dashboard_event.dart';
+import 'dashboard_state.dart';
+
+class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
+  final GetSystemResourcesUseCase getSystemResourcesUseCase;
+  final GetInterfacesUseCase getInterfacesUseCase;
+  final ToggleInterfaceUseCase toggleInterfaceUseCase;
+  final GetIpAddressesUseCase getIpAddressesUseCase;
+  final AddIpAddressUseCase addIpAddressUseCase;
+  final UpdateIpAddressUseCase updateIpAddressUseCase;
+  final RemoveIpAddressUseCase removeIpAddressUseCase;
+  final ToggleIpAddressUseCase toggleIpAddressUseCase;
+  final GetFirewallRulesUseCase getFirewallRulesUseCase;
+  final ToggleFirewallRuleUseCase toggleFirewallRuleUseCase;
+
+  DashboardBloc({
+    required this.getSystemResourcesUseCase,
+    required this.getInterfacesUseCase,
+    required this.toggleInterfaceUseCase,
+    required this.getIpAddressesUseCase,
+    required this.addIpAddressUseCase,
+    required this.updateIpAddressUseCase,
+    required this.removeIpAddressUseCase,
+    required this.toggleIpAddressUseCase,
+    required this.getFirewallRulesUseCase,
+    required this.toggleFirewallRuleUseCase,
+  }) : super(const DashboardInitial()) {
+    on<LoadDashboardData>(_onLoadDashboardData);
+    on<RefreshSystemResources>(_onRefreshSystemResources);
+    on<LoadInterfaces>(_onLoadInterfaces);
+    on<ToggleInterface>(_onToggleInterface);
+    on<LoadIpAddresses>(_onLoadIpAddresses);
+    on<AddIpAddress>(_onAddIpAddress);
+    on<UpdateIpAddress>(_onUpdateIpAddress);
+    on<RemoveIpAddress>(_onRemoveIpAddress);
+    on<ToggleIpAddress>(_onToggleIpAddress);
+    on<LoadFirewallRules>(_onLoadFirewallRules);
+    on<ToggleFirewallRule>(_onToggleFirewallRule);
+    on<ClearError>(_onClearError);
+  }
+
+  void _onClearError(
+    ClearError event,
+    Emitter<DashboardState> emit,
+  ) {
+    if (state is DashboardLoaded) {
+      final currentState = state as DashboardLoaded;
+      emit(currentState.copyWith(clearError: true));
+    }
+  }
+
+  Future<void> _onLoadDashboardData(
+    LoadDashboardData event,
+    Emitter<DashboardState> emit,
+  ) async {
+    emit(const DashboardLoading());
+
+    final result = await getSystemResourcesUseCase();
+
+    await result.fold(
+      (failure) async {
+        emit(DashboardError(failure.message));
+      },
+      (systemResource) async {
+        emit(DashboardLoaded(systemResource: systemResource));
+      },
+    );
+  }
+
+  Future<void> _onRefreshSystemResources(
+    RefreshSystemResources event,
+    Emitter<DashboardState> emit,
+  ) async {
+    final result = await getSystemResourcesUseCase();
+
+    await result.fold(
+      (failure) async {
+        if (state is DashboardLoaded) {
+          // Keep current state, just set error message
+          final currentState = state as DashboardLoaded;
+          emit(currentState.copyWith(errorMessage: failure.message));
+        } else {
+          emit(DashboardError(failure.message));
+        }
+      },
+      (systemResource) async {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          emit(currentState.copyWith(systemResource: systemResource, clearError: true));
+        } else {
+          emit(DashboardLoaded(systemResource: systemResource));
+        }
+      },
+    );
+  }
+
+  Future<void> _onLoadInterfaces(
+    LoadInterfaces event,
+    Emitter<DashboardState> emit,
+  ) async {
+    final result = await getInterfacesUseCase();
+
+    await result.fold(
+      (failure) async {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          if (!emit.isDone) {
+            emit(currentState.copyWith(errorMessage: failure.message));
+          }
+        } else {
+          emit(DashboardError(failure.message));
+        }
+      },
+      (interfaces) async {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          if (!emit.isDone) {
+            emit(currentState.copyWith(interfaces: interfaces, clearError: true));
+          }
+        } else {
+          if (!emit.isDone) {
+            emit(DashboardLoaded(interfaces: interfaces));
+          }
+        }
+      },
+    );
+  }
+
+  Future<void> _onToggleInterface(
+    ToggleInterface event,
+    Emitter<DashboardState> emit,
+  ) async {
+    final result = await toggleInterfaceUseCase(event.id, event.enable);
+
+    result.fold(
+      (failure) {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          emit(currentState.copyWith(errorMessage: failure.message));
+        } else {
+          emit(DashboardError(failure.message));
+        }
+      },
+      (success) {
+        if (success) {
+          add(const LoadInterfaces());
+        }
+      },
+    );
+  }
+
+  Future<void> _onLoadIpAddresses(
+    LoadIpAddresses event,
+    Emitter<DashboardState> emit,
+  ) async {
+    final result = await getIpAddressesUseCase();
+
+    await result.fold(
+      (failure) async {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          if (!emit.isDone) {
+            emit(currentState.copyWith(errorMessage: failure.message));
+          }
+        } else {
+          emit(DashboardError(failure.message));
+        }
+      },
+      (ipAddresses) async {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          if (!emit.isDone) {
+            emit(currentState.copyWith(ipAddresses: ipAddresses, clearError: true));
+          }
+        } else {
+          if (!emit.isDone) {
+            emit(DashboardLoaded(ipAddresses: ipAddresses));
+          }
+        }
+      },
+    );
+  }
+
+  Future<void> _onAddIpAddress(
+    AddIpAddress event,
+    Emitter<DashboardState> emit,
+  ) async {
+    final result = await addIpAddressUseCase(
+      address: event.address,
+      interfaceName: event.interfaceName,
+      comment: event.comment,
+    );
+
+    result.fold(
+      (failure) {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          emit(currentState.copyWith(errorMessage: failure.message));
+        } else {
+          emit(DashboardError(failure.message));
+        }
+      },
+      (success) {
+        if (success) {
+          add(const LoadIpAddresses());
+        }
+      },
+    );
+  }
+
+  Future<void> _onUpdateIpAddress(
+    UpdateIpAddress event,
+    Emitter<DashboardState> emit,
+  ) async {
+    final result = await updateIpAddressUseCase(
+      id: event.id,
+      address: event.address,
+      interfaceName: event.interfaceName,
+      comment: event.comment,
+    );
+
+    result.fold(
+      (failure) {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          emit(currentState.copyWith(errorMessage: failure.message));
+        } else {
+          emit(DashboardError(failure.message));
+        }
+      },
+      (success) {
+        if (success) {
+          add(const LoadIpAddresses());
+        }
+      },
+    );
+  }
+
+  Future<void> _onRemoveIpAddress(
+    RemoveIpAddress event,
+    Emitter<DashboardState> emit,
+  ) async {
+    final result = await removeIpAddressUseCase(event.id);
+
+    result.fold(
+      (failure) {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          emit(currentState.copyWith(errorMessage: failure.message));
+        } else {
+          emit(DashboardError(failure.message));
+        }
+      },
+      (success) {
+        if (success) {
+          add(const LoadIpAddresses());
+        }
+      },
+    );
+  }
+
+  Future<void> _onToggleIpAddress(
+    ToggleIpAddress event,
+    Emitter<DashboardState> emit,
+  ) async {
+    final result = await toggleIpAddressUseCase(event.id, event.enable);
+
+    result.fold(
+      (failure) {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          emit(currentState.copyWith(errorMessage: failure.message));
+        } else {
+          emit(DashboardError(failure.message));
+        }
+      },
+      (success) {
+        if (success) {
+          add(const LoadIpAddresses());
+        }
+      },
+    );
+  }
+
+  Future<void> _onLoadFirewallRules(
+    LoadFirewallRules event,
+    Emitter<DashboardState> emit,
+  ) async {
+    final result = await getFirewallRulesUseCase();
+
+    await result.fold(
+      (failure) async {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          if (!emit.isDone) {
+            emit(currentState.copyWith(errorMessage: failure.message));
+          }
+        } else {
+          emit(DashboardError(failure.message));
+        }
+      },
+      (firewallRules) async {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          if (!emit.isDone) {
+            emit(currentState.copyWith(firewallRules: firewallRules, clearError: true));
+          }
+        } else {
+          if (!emit.isDone) {
+            emit(DashboardLoaded(firewallRules: firewallRules));
+          }
+        }
+      },
+    );
+  }
+
+  Future<void> _onToggleFirewallRule(
+    ToggleFirewallRule event,
+    Emitter<DashboardState> emit,
+  ) async {
+    final result = await toggleFirewallRuleUseCase(event.id, event.enable);
+
+    await result.fold(
+      (failure) async {
+        if (state is DashboardLoaded) {
+          final currentState = state as DashboardLoaded;
+          if (!emit.isDone) {
+            emit(currentState.copyWith(errorMessage: failure.message));
+          }
+        } else {
+          if (!emit.isDone) {
+            emit(DashboardError(failure.message));
+          }
+        }
+      },
+      (success) async {
+        if (success) {
+          // Reload firewall rules
+          add(const LoadFirewallRules());
+        }
+      },
+    );
+  }
+}
+
+
+
+==============================================================================
+FILE PATH: features\dashboard\presentation\bloc\dashboard_event.dart
+==============================================================================
+
+import 'package:equatable/equatable.dart';
+
+abstract class DashboardEvent extends Equatable {
+  const DashboardEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class LoadDashboardData extends DashboardEvent {
+  const LoadDashboardData();
+}
+
+class RefreshSystemResources extends DashboardEvent {
+  const RefreshSystemResources();
+}
+
+class LoadInterfaces extends DashboardEvent {
+  const LoadInterfaces();
+}
+
+class ToggleInterface extends DashboardEvent {
+  final String id;
+  final bool enable;
+
+  const ToggleInterface({required this.id, required this.enable});
+
+  @override
+  List<Object> get props => [id, enable];
+}
+
+class LoadIpAddresses extends DashboardEvent {
+  const LoadIpAddresses();
+}
+
+class AddIpAddress extends DashboardEvent {
+  final String address;
+  final String interfaceName;
+  final String? comment;
+
+  const AddIpAddress({
+    required this.address,
+    required this.interfaceName,
+    this.comment,
+  });
+
+  @override
+  List<Object?> get props => [address, interfaceName, comment];
+}
+
+class UpdateIpAddress extends DashboardEvent {
+  final String id;
+  final String? address;
+  final String? interfaceName;
+  final String? comment;
+
+  const UpdateIpAddress({
+    required this.id,
+    this.address,
+    this.interfaceName,
+    this.comment,
+  });
+
+  @override
+  List<Object?> get props => [id, address, interfaceName, comment];
+}
+
+class RemoveIpAddress extends DashboardEvent {
+  final String id;
+
+  const RemoveIpAddress(this.id);
+
+  @override
+  List<Object> get props => [id];
+}
+
+class ToggleIpAddress extends DashboardEvent {
+  final String id;
+  final bool enable;
+
+  const ToggleIpAddress({required this.id, required this.enable});
+
+  @override
+  List<Object> get props => [id, enable];
+}
+
+class LoadFirewallRules extends DashboardEvent {
+  const LoadFirewallRules();
+}
+
+class ToggleFirewallRule extends DashboardEvent {
+  final String id;
+  final bool enable;
+
+  const ToggleFirewallRule({required this.id, required this.enable});
+
+  @override
+  List<Object> get props => [id, enable];
+}
+
+class ClearError extends DashboardEvent {
+  const ClearError();
+}
+
+
+
+==============================================================================
+FILE PATH: features\dashboard\presentation\bloc\dashboard_state.dart
+==============================================================================
+
+import 'package:equatable/equatable.dart';
+import '../../domain/entities/system_resource.dart';
+import '../../domain/entities/router_interface.dart';
+import '../../domain/entities/ip_address.dart';
+import '../../domain/entities/firewall_rule.dart';
+
+abstract class DashboardState extends Equatable {
+  const DashboardState();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class DashboardInitial extends DashboardState {
+  const DashboardInitial();
+}
+
+class DashboardLoading extends DashboardState {
+  const DashboardLoading();
+}
+
+class DashboardLoaded extends DashboardState {
+  final SystemResource? systemResource;
+  final List<RouterInterface>? interfaces;
+  final List<IpAddress>? ipAddresses;
+  final List<FirewallRule>? firewallRules;
+  final String? errorMessage; // For showing errors without losing data
+
+  const DashboardLoaded({
+    this.systemResource,
+    this.interfaces,
+    this.ipAddresses,
+    this.firewallRules,
+    this.errorMessage,
+  });
+
+  DashboardLoaded copyWith({
+    SystemResource? systemResource,
+    List<RouterInterface>? interfaces,
+    List<IpAddress>? ipAddresses,
+    List<FirewallRule>? firewallRules,
+    String? errorMessage,
+    bool clearError = false,
+  }) {
+    return DashboardLoaded(
+      systemResource: systemResource ?? this.systemResource,
+      interfaces: interfaces ?? this.interfaces,
+      ipAddresses: ipAddresses ?? this.ipAddresses,
+      firewallRules: firewallRules ?? this.firewallRules,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+    );
+  }
+
+  @override
+  List<Object?> get props => [systemResource, interfaces, ipAddresses, firewallRules, errorMessage];
+}
+
+class DashboardError extends DashboardState {
+  final String message;
+
+  const DashboardError(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+class DashboardOperationLoading extends DashboardState {
+  const DashboardOperationLoading();
+}
+
+class DashboardOperationSuccess extends DashboardState {
+  final String message;
+
+  const DashboardOperationSuccess(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+
+
+
+==============================================================================
+FILE PATH: core\network\routeros_client.dart
+==============================================================================
+
+import 'clients/routeros_system_client.dart';
+import 'clients/routeros_hotspot_client.dart';
+import 'clients/routeros_diagnostic_client.dart';
+import 'clients/routeros_backup_client.dart';
+import 'clients/routeros_logs_client.dart';
+import 'clients/routeros_queues_client.dart';
+import 'clients/routeros_wireless_client.dart';
+import 'clients/routeros_dhcp_client.dart';
+
+/// Main RouterOS client that provides access to all specialized clients
+class RouterOSClient {
+  final String host;
+  final int port;
+  final bool useSsl;
+
+  late final RouterOSSystemClient _systemClient;
+  late final RouterOSHotspotClient _hotspotClient;
+  late final RouterOSDiagnosticClient _diagnosticClient;
+  late final RouterOSBackupClient _backupClient;
+  late final RouterOSLogsClient _logsClient;
+  late final RouterOSQueuesClient _queuesClient;
+  late final RouterOSWirelessClient _wirelessClient;
+  late final RouterOSDhcpClient _dhcpClient;
+
+  RouterOSClient({
+    required this.host,
+    required this.port,
+    this.useSsl = false,
+  }) {
+    _systemClient = RouterOSSystemClient(
+      host: host,
+      port: port,
+      useSsl: useSsl,
+    );
+    _hotspotClient = RouterOSHotspotClient(
+      host: host,
+      port: port,
+      useSsl: useSsl,
+    );
+    _diagnosticClient = RouterOSDiagnosticClient(
+      host: host,
+      port: port,
+      useSsl: useSsl,
+    );
+    _backupClient = RouterOSBackupClient(
+      host: host,
+      port: port,
+      useSsl: useSsl,
+    );
+    _logsClient = RouterOSLogsClient(
+      host: host,
+      port: port,
+      useSsl: useSsl,
+    );
+    _queuesClient = RouterOSQueuesClient(
+      host: host,
+      port: port,
+      useSsl: useSsl,
+    );
+    _wirelessClient = RouterOSWirelessClient(
+      host: host,
+      port: port,
+      useSsl: useSsl,
+    );
+    _dhcpClient = RouterOSDhcpClient(
+      host: host,
+      port: port,
+      useSsl: useSsl,
+    );
+  }
+
+  bool get isConnected => _systemClient.isConnected;
+
+  /// Connect to RouterOS device
+  Future<void> connect() async {
+    await _systemClient.connect();
+    
+    // Share the system client's socket with all other clients
+    final socket = _systemClient.socket;
+    if (socket != null) {
+      _hotspotClient.useExistingSocket(socket);
+      _diagnosticClient.useExistingSocket(socket);
+      _backupClient.useExistingSocket(socket);
+      _logsClient.useExistingSocket(socket);
+      _queuesClient.useExistingSocket(socket);
+      _wirelessClient.useExistingSocket(socket);
+      _dhcpClient.useExistingSocket(socket);
+    }
+  }
+
+  /// Disconnect from RouterOS device
+  Future<void> disconnect() async {
+    await _systemClient.disconnect();
+  }
+
+  /// Login to RouterOS
+  Future<bool> login(String username, String password) async {
+    return _systemClient.login(username, password);
+  }
+
+  // ==================== SYSTEM CLIENT METHODS ====================
+
+  /// Get system resources
+  Future<List<Map<String, String>>> getSystemResources() async {
+    return _systemClient.getSystemResources();
+  }
+
+  /// Get all interfaces
+  Future<List<Map<String, String>>> getInterfaces() async {
+    return _systemClient.getInterfaces();
+  }
+
+  /// Enable an interface
+  Future<bool> enableInterface(String id) async {
+    return _systemClient.enableInterface(id);
+  }
+
+  /// Disable an interface
+  Future<bool> disableInterface(String id) async {
+    return _systemClient.disableInterface(id);
+  }
+
+  /// Monitor interface traffic
+  Future<Map<String, String>> monitorTraffic(String interfaceName) async {
+    return _systemClient.monitorTraffic(interfaceName);
+  }
+
+  /// Get all IP addresses
+  Future<List<Map<String, String>>> getIpAddresses() async {
+    return _systemClient.getIpAddresses();
+  }
+
+  /// Add IP address
+  Future<bool> addIpAddress({
+    required String address,
+    required String interfaceName,
+    String? comment,
+  }) async {
+    return _systemClient.addIpAddress(
+      address: address,
+      interfaceName: interfaceName,
+      comment: comment,
+    );
+  }
+
+  /// Remove IP address
+  Future<bool> removeIpAddress(String id) async {
+    return _systemClient.removeIpAddress(id);
+  }
+
+  /// Get DHCP leases
+  Future<List<Map<String, String>>> getDhcpLeases() async {
+    return _systemClient.sendCommand(['/ip/dhcp-server/lease/print']);
+  }
+
+  /// Get IP pools
+  Future<List<Map<String, String>>> getIpPools() async {
+    return _systemClient.getIpPools();
+  }
+
+  /// Add IP pool
+  Future<bool> addIpPool({
+    required String name,
+    required String ranges,
+  }) async {
+    return _systemClient.addIpPool(name: name, ranges: ranges);
+  }
+
+  /// Remove IP pool
+  Future<bool> removeIpPool(String id) async {
+    return _systemClient.removeIpPool(id);
+  }
+
+  // ==================== HOTSPOT CLIENT METHODS ====================
+  // NOTE: All hotspot methods use _systemClient.sendCommand directly because
+  // only _systemClient listens to the socket. The specialized clients don't work
+  // with shared socket architecture.
+
+  /// Check if hotspot package is enabled
+  Future<bool> isHotspotPackageEnabled() async {
+    try {
+      final response = await _systemClient.sendCommand(['/system/package/print']);
+      for (final package in response) {
+        if (package['name'] == 'hotspot' || package['name'] == 'routeros') {
+          return package['disabled'] != 'true';
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get all hotspot servers
+  Future<List<Map<String, String>>> getHotspotServers() async {
+    return _systemClient.sendCommand(['/ip/hotspot/print']);
+  }
+
+  /// Enable a hotspot server
+  Future<bool> enableHotspotServer(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/enable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable a hotspot server
+  Future<bool> disableHotspotServer(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/disable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get hotspot users
+  Future<List<Map<String, String>>> getHotspotUsers() async {
+    return _systemClient.sendCommand(['/ip/hotspot/user/print']);
+  }
+
+  /// Add hotspot user
+  Future<bool> addHotspotUser({
+    required String name,
+    required String password,
+    String? profile,
+    String? comment,
+    String? server,
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/user/add', '=name=$name', '=password=$password'];
+      if (profile != null && profile.isNotEmpty) cmd.add('=profile=$profile');
+      if (comment != null && comment.isNotEmpty) cmd.add('=comment=$comment');
+      if (server != null && server.isNotEmpty) cmd.add('=server=$server');
+      if (limitUptime != null && limitUptime.isNotEmpty) cmd.add('=limit-uptime=$limitUptime');
+      if (limitBytesIn != null && limitBytesIn.isNotEmpty) cmd.add('=limit-bytes-in=$limitBytesIn');
+      if (limitBytesOut != null && limitBytesOut.isNotEmpty) cmd.add('=limit-bytes-out=$limitBytesOut');
+      if (limitBytesTotal != null && limitBytesTotal.isNotEmpty) cmd.add('=limit-bytes-total=$limitBytesTotal');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove hotspot user
+  Future<bool> removeHotspotUser(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/user/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get hotspot active users
+  Future<List<Map<String, String>>> getHotspotActiveUsers() async {
+    return _systemClient.sendCommand(['/ip/hotspot/active/print']);
+  }
+
+  /// Get hotspot hosts
+  Future<List<Map<String, String>>> getHotspotHosts() async {
+    return _systemClient.sendCommand(['/ip/hotspot/host/print']);
+  }
+
+  /// Get hotspot IP bindings
+  Future<List<Map<String, String>>> getHotspotIpBindings() async {
+    return _systemClient.sendCommand(['/ip/hotspot/ip-binding/print']);
+  }
+
+  /// Add hotspot IP binding
+  Future<bool> addHotspotIpBinding({
+    String? mac,
+    String? address,
+    String? toAddress,
+    String? server,
+    String type = 'regular',
+    String? comment,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/ip-binding/add', '=type=$type'];
+      if (mac != null && mac.isNotEmpty) cmd.add('=mac-address=$mac');
+      if (address != null && address.isNotEmpty) cmd.add('=address=$address');
+      if (toAddress != null && toAddress.isNotEmpty) cmd.add('=to-address=$toAddress');
+      if (server != null && server.isNotEmpty) cmd.add('=server=$server');
+      if (comment != null && comment.isNotEmpty) cmd.add('=comment=$comment');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Edit hotspot IP binding
+  Future<bool> editHotspotIpBinding({
+    required String id,
+    String? mac,
+    String? address,
+    String? toAddress,
+    String? server,
+    String? type,
+    String? comment,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/ip-binding/set', '=.id=$id'];
+      if (mac != null) cmd.add('=mac-address=$mac');
+      if (address != null) cmd.add('=address=$address');
+      if (toAddress != null) cmd.add('=to-address=$toAddress');
+      if (server != null) cmd.add('=server=$server');
+      if (type != null) cmd.add('=type=$type');
+      if (comment != null) cmd.add('=comment=$comment');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove hotspot IP binding
+  Future<bool> removeHotspotIpBinding(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/ip-binding/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Enable hotspot IP binding
+  Future<bool> enableHotspotIpBinding(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/ip-binding/enable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable hotspot IP binding
+  Future<bool> disableHotspotIpBinding(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/ip-binding/disable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get walled garden entries
+  Future<List<Map<String, String>>> getWalledGarden() async {
+    return _systemClient.sendCommand(['/ip/hotspot/walled-garden/print']);
+  }
+
+  /// Add walled garden entry
+  Future<bool> addWalledGardenEntry({
+    String? dstHost,
+    String? dstPort,
+    String? protocol,
+    String? action = 'allow',
+    String? comment,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/walled-garden/add', '=action=$action'];
+      if (dstHost != null && dstHost.isNotEmpty) cmd.add('=dst-host=$dstHost');
+      if (dstPort != null && dstPort.isNotEmpty) cmd.add('=dst-port=$dstPort');
+      if (protocol != null && protocol.isNotEmpty) cmd.add('=protocol=$protocol');
+      if (comment != null && comment.isNotEmpty) cmd.add('=comment=$comment');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove walled garden entry
+  Future<bool> removeWalledGardenEntry(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/walled-garden/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get hotspot user profiles
+  Future<List<Map<String, String>>> getHotspotUserProfiles() async {
+    return _systemClient.sendCommand(['/ip/hotspot/user/profile/print']);
+  }
+
+  /// Edit hotspot user
+  Future<bool> editHotspotUser({
+    required String id,
+    String? name,
+    String? password,
+    String? profile,
+    String? comment,
+    String? server,
+    String? limitUptime,
+    String? limitBytesIn,
+    String? limitBytesOut,
+    String? limitBytesTotal,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/user/set', '=.id=$id'];
+      if (name != null) cmd.add('=name=$name');
+      if (password != null) cmd.add('=password=$password');
+      if (profile != null) cmd.add('=profile=$profile');
+      if (comment != null) cmd.add('=comment=$comment');
+      if (server != null) cmd.add('=server=$server');
+      if (limitUptime != null) cmd.add('=limit-uptime=$limitUptime');
+      if (limitBytesIn != null) cmd.add('=limit-bytes-in=$limitBytesIn');
+      if (limitBytesOut != null) cmd.add('=limit-bytes-out=$limitBytesOut');
+      if (limitBytesTotal != null) cmd.add('=limit-bytes-total=$limitBytesTotal');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Enable hotspot user
+  Future<bool> enableHotspotUser(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/user/enable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable hotspot user
+  Future<bool> disableHotspotUser(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/user/disable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Reset hotspot user counters
+  Future<bool> resetHotspotUserCounters(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/user/reset-counters', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disconnect hotspot user
+  Future<bool> disconnectHotspotUser(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/active/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get hotspot profiles (alias for getHotspotUserProfiles)
+  Future<List<Map<String, String>>> getHotspotProfiles() async {
+    return getHotspotUserProfiles();
+  }
+
+  /// Setup hotspot (basic configuration)
+  Future<bool> setupHotspot({
+    required String interface,
+    String? addressPool,
+    String? profile,
+    String? name,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/setup', '=interface=$interface'];
+      if (addressPool != null) cmd.add('=address-pool=$addressPool');
+      if (profile != null) cmd.add('=profile=$profile');
+      if (name != null) cmd.add('=name=$name');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove hotspot host
+  Future<bool> removeHotspotHost(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/host/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Make hotspot host binding
+  Future<bool> makeHotspotHostBinding({
+    required String macAddress,
+    String? type,
+    String? address,
+    String? toAddress,
+    String? server,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/ip-binding/add', '=mac-address=$macAddress'];
+      if (type != null) cmd.add('=type=$type');
+      if (address != null) cmd.add('=address=$address');
+      if (toAddress != null) cmd.add('=to-address=$toAddress');
+      if (server != null) cmd.add('=server=$server');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Add walled garden
+  Future<bool> addWalledGarden({
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstHost,
+    String? dstPort,
+    String? path,
+    String? protocol,
+    String? action,
+    String? method,
+    String? comment,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/walled-garden/add'];
+      if (server != null) cmd.add('=server=$server');
+      if (srcAddress != null) cmd.add('=src-address=$srcAddress');
+      if (dstAddress != null) cmd.add('=dst-address=$dstAddress');
+      if (dstHost != null) cmd.add('=dst-host=$dstHost');
+      if (dstPort != null) cmd.add('=dst-port=$dstPort');
+      if (path != null) cmd.add('=path=$path');
+      if (protocol != null) cmd.add('=protocol=$protocol');
+      if (action != null) cmd.add('=action=$action');
+      if (method != null) cmd.add('=method=$method');
+      if (comment != null) cmd.add('=comment=$comment');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Edit walled garden
+  Future<bool> editWalledGarden({
+    required String id,
+    String? server,
+    String? srcAddress,
+    String? dstAddress,
+    String? dstHost,
+    String? dstPort,
+    String? path,
+    String? protocol,
+    String? action,
+    String? method,
+    String? comment,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/walled-garden/set', '=.id=$id'];
+      if (server != null) cmd.add('=server=$server');
+      if (srcAddress != null) cmd.add('=src-address=$srcAddress');
+      if (dstAddress != null) cmd.add('=dst-address=$dstAddress');
+      if (dstHost != null) cmd.add('=dst-host=$dstHost');
+      if (dstPort != null) cmd.add('=dst-port=$dstPort');
+      if (path != null) cmd.add('=path=$path');
+      if (protocol != null) cmd.add('=protocol=$protocol');
+      if (action != null) cmd.add('=action=$action');
+      if (method != null) cmd.add('=method=$method');
+      if (comment != null) cmd.add('=comment=$comment');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove walled garden
+  Future<bool> removeWalledGarden(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/walled-garden/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Enable walled garden
+  Future<bool> enableWalledGarden(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/walled-garden/enable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable walled garden
+  Future<bool> disableWalledGarden(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/walled-garden/disable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Add hotspot profile
+  Future<bool> addHotspotProfile({
+    required String name,
+    String? hotspotAddress,
+    String? dnsName,
+    String? htmlDirectory,
+    int? rateLimit,
+    String? httpCookieLifetime,
+    String? httpProxy,
+    String? smtpServer,
+    String? loginBy,
+    String? splitUserDomain,
+    String? useRadius,
+    String? radiusAccounting,
+    String? radiusInterimUpdate,
+    String? nasPortType,
+    String? nasIdentifier,
+    String? radiusLocationId,
+    String? radiusLocationName,
+    String? radiusCalledStationId,
+    String? advertise,
+    String? advertiseUrl,
+    String? advertiseMacAddress,
+    String? advertiseInterface,
+    String? advertiseInterval,
+    String? comment,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/profile/add', '=name=$name'];
+      if (hotspotAddress != null) cmd.add('=hotspot-address=$hotspotAddress');
+      if (dnsName != null) cmd.add('=dns-name=$dnsName');
+      if (htmlDirectory != null) cmd.add('=html-directory=$htmlDirectory');
+      if (rateLimit != null) cmd.add('=rate-limit=$rateLimit');
+      if (httpCookieLifetime != null) cmd.add('=http-cookie-lifetime=$httpCookieLifetime');
+      if (httpProxy != null) cmd.add('=http-proxy=$httpProxy');
+      if (smtpServer != null) cmd.add('=smtp-server=$smtpServer');
+      if (loginBy != null) cmd.add('=login-by=$loginBy');
+      if (splitUserDomain != null) cmd.add('=split-user-domain=$splitUserDomain');
+      if (useRadius != null) cmd.add('=use-radius=$useRadius');
+      if (radiusAccounting != null) cmd.add('=radius-accounting=$radiusAccounting');
+      if (radiusInterimUpdate != null) cmd.add('=radius-interim-update=$radiusInterimUpdate');
+      if (nasPortType != null) cmd.add('=nas-port-type=$nasPortType');
+      if (nasIdentifier != null) cmd.add('=nas-identifier=$nasIdentifier');
+      if (radiusLocationId != null) cmd.add('=radius-location-id=$radiusLocationId');
+      if (radiusLocationName != null) cmd.add('=radius-location-name=$radiusLocationName');
+      if (radiusCalledStationId != null) cmd.add('=radius-called-station-id=$radiusCalledStationId');
+      if (advertise != null) cmd.add('=advertise=$advertise');
+      if (advertiseUrl != null) cmd.add('=advertise-url=$advertiseUrl');
+      if (advertiseMacAddress != null) cmd.add('=advertise-mac-address=$advertiseMacAddress');
+      if (advertiseInterface != null) cmd.add('=advertise-interface=$advertiseInterface');
+      if (advertiseInterval != null) cmd.add('=advertise-interval=$advertiseInterval');
+      if (comment != null) cmd.add('=comment=$comment');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Edit hotspot profile
+  Future<bool> editHotspotProfile({
+    required String id,
+    String? name,
+    String? hotspotAddress,
+    String? dnsName,
+    String? htmlDirectory,
+    int? rateLimit,
+    String? httpCookieLifetime,
+    String? httpProxy,
+    String? smtpServer,
+    String? loginBy,
+    String? splitUserDomain,
+    String? useRadius,
+    String? radiusAccounting,
+    String? radiusInterimUpdate,
+    String? nasPortType,
+    String? nasIdentifier,
+    String? radiusLocationId,
+    String? radiusLocationName,
+    String? radiusCalledStationId,
+    String? advertise,
+    String? advertiseUrl,
+    String? advertiseMacAddress,
+    String? advertiseInterface,
+    String? advertiseInterval,
+    String? comment,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/profile/set', '=.id=$id'];
+      if (name != null) cmd.add('=name=$name');
+      if (hotspotAddress != null) cmd.add('=hotspot-address=$hotspotAddress');
+      if (dnsName != null) cmd.add('=dns-name=$dnsName');
+      if (htmlDirectory != null) cmd.add('=html-directory=$htmlDirectory');
+      if (rateLimit != null) cmd.add('=rate-limit=$rateLimit');
+      if (httpCookieLifetime != null) cmd.add('=http-cookie-lifetime=$httpCookieLifetime');
+      if (httpProxy != null) cmd.add('=http-proxy=$httpProxy');
+      if (smtpServer != null) cmd.add('=smtp-server=$smtpServer');
+      if (loginBy != null) cmd.add('=login-by=$loginBy');
+      if (splitUserDomain != null) cmd.add('=split-user-domain=$splitUserDomain');
+      if (useRadius != null) cmd.add('=use-radius=$useRadius');
+      if (radiusAccounting != null) cmd.add('=radius-accounting=$radiusAccounting');
+      if (radiusInterimUpdate != null) cmd.add('=radius-interim-update=$radiusInterimUpdate');
+      if (nasPortType != null) cmd.add('=nas-port-type=$nasPortType');
+      if (nasIdentifier != null) cmd.add('=nas-identifier=$nasIdentifier');
+      if (radiusLocationId != null) cmd.add('=radius-location-id=$radiusLocationId');
+      if (radiusLocationName != null) cmd.add('=radius-location-name=$radiusLocationName');
+      if (radiusCalledStationId != null) cmd.add('=radius-called-station-id=$radiusCalledStationId');
+      if (advertise != null) cmd.add('=advertise=$advertise');
+      if (advertiseUrl != null) cmd.add('=advertise-url=$advertiseUrl');
+      if (advertiseMacAddress != null) cmd.add('=advertise-mac-address=$advertiseMacAddress');
+      if (advertiseInterface != null) cmd.add('=advertise-interface=$advertiseInterface');
+      if (advertiseInterval != null) cmd.add('=advertise-interval=$advertiseInterval');
+      if (comment != null) cmd.add('=comment=$comment');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove hotspot profile
+  Future<bool> removeHotspotProfile(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/profile/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Add hotspot user profile
+  Future<bool> addHotspotUserProfile({
+    required String name,
+    String? sessionTimeout,
+    String? idleTimeout,
+    String? sharedUsers,
+    String? rateLimit,
+    String? keepaliveTimeout,
+    String? statusAutorefresh,
+    String? onLogin,
+    String? onLogout,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/user/profile/add', '=name=$name'];
+      if (sessionTimeout != null) cmd.add('=session-timeout=$sessionTimeout');
+      if (idleTimeout != null) cmd.add('=idle-timeout=$idleTimeout');
+      if (sharedUsers != null) cmd.add('=shared-users=$sharedUsers');
+      if (rateLimit != null) cmd.add('=rate-limit=$rateLimit');
+      if (keepaliveTimeout != null) cmd.add('=keepalive-timeout=$keepaliveTimeout');
+      if (statusAutorefresh != null) cmd.add('=status-autorefresh=$statusAutorefresh');
+      if (onLogin != null) cmd.add('=on-login=$onLogin');
+      if (onLogout != null) cmd.add('=on-logout=$onLogout');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Edit hotspot user profile
+  Future<bool> editHotspotUserProfile({
+    required String id,
+    String? name,
+    String? sessionTimeout,
+    String? idleTimeout,
+    String? sharedUsers,
+    String? rateLimit,
+    String? keepaliveTimeout,
+    String? statusAutorefresh,
+    String? onLogin,
+    String? onLogout,
+  }) async {
+    try {
+      final cmd = ['/ip/hotspot/user/profile/set', '=.id=$id'];
+      if (name != null) cmd.add('=name=$name');
+      if (sessionTimeout != null) cmd.add('=session-timeout=$sessionTimeout');
+      if (idleTimeout != null) cmd.add('=idle-timeout=$idleTimeout');
+      if (sharedUsers != null) cmd.add('=shared-users=$sharedUsers');
+      if (rateLimit != null) cmd.add('=rate-limit=$rateLimit');
+      if (keepaliveTimeout != null) cmd.add('=keepalive-timeout=$keepaliveTimeout');
+      if (statusAutorefresh != null) cmd.add('=status-autorefresh=$statusAutorefresh');
+      if (onLogin != null) cmd.add('=on-login=$onLogin');
+      if (onLogout != null) cmd.add('=on-logout=$onLogout');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Remove hotspot user profile
+  Future<bool> removeHotspotUserProfile(String id) async {
+    try {
+      await _systemClient.sendCommand(['/ip/hotspot/user/profile/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Reset hotspot with selective deletion
+  Future<bool> resetHotspot({
+    bool deleteUsers = true,
+    bool deleteProfiles = true,
+    bool deleteIpBindings = true,
+    bool deleteWalledGarden = true,
+    bool deleteServers = true,
+    bool deleteServerProfiles = true,
+    bool deleteIpPools = false,
+  }) async {
+    try {
+      // Delete items in order to avoid dependency issues
+      if (deleteUsers) {
+        final users = await _systemClient.sendCommand(['/ip/hotspot/user/print']);
+        for (final user in users) {
+          if (user['.id'] != null) {
+            await _systemClient.sendCommand(['/ip/hotspot/user/remove', '=.id=${user['.id']}']);
+          }
+        }
+      }
+      if (deleteIpBindings) {
+        final bindings = await _systemClient.sendCommand(['/ip/hotspot/ip-binding/print']);
+        for (final binding in bindings) {
+          if (binding['.id'] != null) {
+            await _systemClient.sendCommand(['/ip/hotspot/ip-binding/remove', '=.id=${binding['.id']}']);
+          }
+        }
+      }
+      if (deleteWalledGarden) {
+        final entries = await _systemClient.sendCommand(['/ip/hotspot/walled-garden/print']);
+        for (final entry in entries) {
+          if (entry['.id'] != null) {
+            await _systemClient.sendCommand(['/ip/hotspot/walled-garden/remove', '=.id=${entry['.id']}']);
+          }
+        }
+      }
+      if (deleteServers) {
+        final servers = await _systemClient.sendCommand(['/ip/hotspot/print']);
+        for (final server in servers) {
+          if (server['.id'] != null) {
+            await _systemClient.sendCommand(['/ip/hotspot/remove', '=.id=${server['.id']}']);
+          }
+        }
+      }
+      if (deleteProfiles) {
+        final profiles = await _systemClient.sendCommand(['/ip/hotspot/user/profile/print']);
+        for (final profile in profiles) {
+          if (profile['.id'] != null && profile['name'] != 'default') {
+            await _systemClient.sendCommand(['/ip/hotspot/user/profile/remove', '=.id=${profile['.id']}']);
+          }
+        }
+      }
+      if (deleteServerProfiles) {
+        final profiles = await _systemClient.sendCommand(['/ip/hotspot/profile/print']);
+        for (final profile in profiles) {
+          if (profile['.id'] != null && profile['name'] != 'default') {
+            await _systemClient.sendCommand(['/ip/hotspot/profile/remove', '=.id=${profile['.id']}']);
+          }
+        }
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ==================== DIAGNOSTIC CLIENT METHODS ====================
+
+  /// Ping a target host
+  Future<List<Map<String, String>>> ping({
+    required String target,
+    int count = 4,
+    int size = 56,
+    int ttl = 64,
+    String? srcAddress,
+    Duration? timeout,
+  }) async {
+    final cmd = ['/ping', '=address=$target', '=count=$count', '=size=$size', '=ttl=$ttl'];
+    if (srcAddress != null) cmd.add('=src-address=$srcAddress');
+    return _systemClient.sendCommand(cmd, timeout: timeout ?? Duration(seconds: 30));
+  }
+
+  /// Start ping stream
+  Future<Stream<Map<String, String>>> startPing({
+    required String target,
+    int size = 56,
+    int ttl = 64,
+    String? srcAddress,
+  }) async {
+    final cmd = ['/ping', '=address=$target', '=size=$size', '=ttl=$ttl'];
+    if (srcAddress != null) cmd.add('=src-address=$srcAddress');
+    return _systemClient.startStream(cmd);
+  }
+
+  /// Traceroute to target host
+  Future<List<Map<String, String>>> traceroute({
+    required String target,
+    int? maxHops,
+    int? size,
+    int? timeout,
+    String? srcAddress,
+    int? port,
+    String? protocol,
+  }) async {
+    final cmd = ['/tool/traceroute', '=address=$target'];
+    if (maxHops != null) cmd.add('=max-hops=$maxHops');
+    if (size != null) cmd.add('=size=$size');
+    if (timeout != null) cmd.add('=timeout=${timeout}ms');
+    if (srcAddress != null) cmd.add('=src-address=$srcAddress');
+    if (port != null) cmd.add('=port=$port');
+    if (protocol != null) cmd.add('=protocol=$protocol');
+    return _systemClient.sendCommand(cmd, timeout: Duration(seconds: 60));
+  }
+
+  /// Start traceroute stream
+  Future<Stream<Map<String, String>>> startTraceroute({
+    required String target,
+    int? maxHops,
+    int? size,
+    int? timeout,
+    String? srcAddress,
+    int? port,
+    String? protocol,
+  }) async {
+    final cmd = ['/tool/traceroute', '=address=$target'];
+    if (maxHops != null) cmd.add('=max-hops=$maxHops');
+    if (size != null) cmd.add('=size=$size');
+    if (timeout != null) cmd.add('=timeout=${timeout}ms');
+    if (srcAddress != null) cmd.add('=src-address=$srcAddress');
+    if (port != null) cmd.add('=port=$port');
+    if (protocol != null) cmd.add('=protocol=$protocol');
+    return _systemClient.startStream(cmd);
+  }
+
+  /// DNS lookup
+  Future<List<Map<String, String>>> dnsLookup({
+    required String name,
+    String? server,
+    String? type,
+  }) async {
+    final cmd = ['/put', '[:resolve $name]'];
+    return _systemClient.sendCommand(cmd);
+  }
+
+  /// Bandwidth test
+  Future<List<Map<String, String>>> bandwidthTest({
+    required String address,
+    int? duration,
+    String? direction,
+    String? protocol,
+    int? localTxSpeed,
+    int? remoteTxSpeed,
+    String? localUdpTxSize,
+    String? remoteUdpTxSize,
+    String? user,
+    String? password,
+  }) async {
+    final cmd = ['/tool/bandwidth-test', '=address=$address'];
+    if (duration != null) cmd.add('=duration=$duration');
+    if (direction != null) cmd.add('=direction=$direction');
+    if (protocol != null) cmd.add('=protocol=$protocol');
+    if (localTxSpeed != null) cmd.add('=local-tx-speed=$localTxSpeed');
+    if (remoteTxSpeed != null) cmd.add('=remote-tx-speed=$remoteTxSpeed');
+    if (localUdpTxSize != null) cmd.add('=local-udp-tx-size=$localUdpTxSize');
+    if (remoteUdpTxSize != null) cmd.add('=remote-udp-tx-size=$remoteUdpTxSize');
+    if (user != null) cmd.add('=user=$user');
+    if (password != null) cmd.add('=password=$password');
+    return _systemClient.sendCommand(cmd, timeout: Duration(seconds: duration ?? 10 + 5));
+  }
+
+  /// Start bandwidth test stream
+  Future<Stream<Map<String, String>>> startBandwidthTest({
+    required String address,
+    int? duration,
+    String? direction,
+    String? protocol,
+    int? localTxSpeed,
+    int? remoteTxSpeed,
+    String? localUdpTxSize,
+    String? remoteUdpTxSize,
+    String? user,
+    String? password,
+  }) async {
+    final cmd = ['/tool/bandwidth-test', '=address=$address'];
+    if (duration != null) cmd.add('=duration=$duration');
+    if (direction != null) cmd.add('=direction=$direction');
+    if (protocol != null) cmd.add('=protocol=$protocol');
+    if (localTxSpeed != null) cmd.add('=local-tx-speed=$localTxSpeed');
+    if (remoteTxSpeed != null) cmd.add('=remote-tx-speed=$remoteTxSpeed');
+    if (localUdpTxSize != null) cmd.add('=local-udp-tx-size=$localUdpTxSize');
+    if (remoteUdpTxSize != null) cmd.add('=remote-udp-tx-size=$remoteUdpTxSize');
+    if (user != null) cmd.add('=user=$user');
+    if (password != null) cmd.add('=password=$password');
+    return _systemClient.startStream(cmd);
+  }
+
+  /// Torch (packet sniffer)
+  Future<Stream<Map<String, String>>> startTorch({
+    String? interface,
+    String? srcAddress,
+    String? dstAddress,
+    String? srcPort,
+    String? dstPort,
+    String? protocol,
+    int? port,
+    String? filter,
+  }) async {
+    final cmd = ['/tool/torch'];
+    if (interface != null) cmd.add('=interface=$interface');
+    if (srcAddress != null) cmd.add('=src-address=$srcAddress');
+    if (dstAddress != null) cmd.add('=dst-address=$dstAddress');
+    if (srcPort != null) cmd.add('=src-port=$srcPort');
+    if (dstPort != null) cmd.add('=dst-port=$dstPort');
+    if (protocol != null) cmd.add('=protocol=$protocol');
+    if (port != null) cmd.add('=port=$port');
+    return _systemClient.startStream(cmd);
+  }
+
+  // ==================== BACKUP CLIENT METHODS ====================
+
+  /// Get all available backups
+  Future<List<Map<String, String>>> getBackups() async {
+    return _systemClient.sendCommand(['/file/print', '?type=backup']);
+  }
+
+  /// Create a new backup
+  Future<bool> createBackup({
+    required String name,
+    String? password,
+    bool dontEncrypt = true,
+  }) async {
+    try {
+      final cmd = ['/system/backup/save', '=name=$name'];
+      if (password != null && !dontEncrypt) cmd.add('=password=$password');
+      if (dontEncrypt) cmd.add('=dont-encrypt=yes');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Delete a backup
+  Future<bool> deleteBackup(String name) async {
+    try {
+      await _systemClient.sendCommand(['/file/remove', '=$name']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Restore from backup
+  Future<bool> restoreBackup(String name) async {
+    try {
+      await _systemClient.sendCommand(['/system/backup/load', '=name=$name']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ==================== LOGS CLIENT METHODS ====================
+
+  /// Get system logs
+  Future<List<Map<String, String>>> getLogs({
+    String? topics,
+    String? since,
+    String? until,
+    int? count,
+  }) async {
+    final cmd = ['/log/print'];
+    if (topics != null) cmd.add('?topics~$topics');
+    if (count != null) cmd.add('=count=$count');
+    return _systemClient.sendCommand(cmd);
+  }
+
+  /// Start following logs (streaming)
+  Future<Stream<Map<String, String>>> followLogs({
+    String? topics,
+    bool follow = true,
+  }) async {
+    final cmd = ['/log/print', '=follow=yes'];
+    if (topics != null) cmd.add('?topics~$topics');
+    return _systemClient.startStream(cmd);
+  }
+
+  /// Stop streaming logs
+  Future<void> stopStreaming() async {
+    // For now, just close the connection which will stop all streams
+    // TODO: Implement proper stream stopping in RouterOSBaseClient
+    try {
+      await disconnect();
+    } catch (e) {
+      // Ignore errors when disconnecting
+    }
+  }
+
+  /// Start ping stream
+  Future<Stream<Map<String, String>>> pingStream({
+    required String address,
+    int count = 100,
+    int interval = 1,
+    int? size,
+    int? ttl,
+    String? srcAddress,
+    String? interfaceName,
+    bool doNotFragment = false,
+  }) async {
+    final cmd = ['/ping', '=address=$address', '=count=$count', '=interval=$interval'];
+    if (size != null) cmd.add('=size=$size');
+    if (ttl != null) cmd.add('=ttl=$ttl');
+    if (srcAddress != null) cmd.add('=src-address=$srcAddress');
+    if (interfaceName != null) cmd.add('=interface=$interfaceName');
+    if (doNotFragment) cmd.add('=do-not-fragment=yes');
+    return _systemClient.startStream(cmd);
+  }
+
+  /// Start traceroute stream
+  Future<Stream<Map<String, String>>> tracerouteStream({
+    required String address,
+    int? maxHops,
+    int? size,
+    int? timeout,
+    String? srcAddress,
+    int? port,
+    String? protocol,
+  }) async {
+    final cmd = ['/tool/traceroute', '=address=$address'];
+    if (maxHops != null) cmd.add('=max-hops=$maxHops');
+    if (size != null) cmd.add('=size=$size');
+    if (timeout != null) cmd.add('=timeout=${timeout}ms');
+    if (srcAddress != null) cmd.add('=src-address=$srcAddress');
+    if (port != null) cmd.add('=port=$port');
+    if (protocol != null) cmd.add('=protocol=$protocol');
+    return _systemClient.startStream(cmd);
+  }
+
+  /// Clear logs
+  Future<bool> clearLogs() async {
+    try {
+      // RouterOS doesn't have a direct clear logs command
+      // This is typically done by removing log entries
+      await _systemClient.sendCommand(['/log/print', '=detail']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ==================== QUEUES CLIENT METHODS ====================
+
+  /// Get all simple queues
+  Future<List<Map<String, String>>> getSimpleQueues() async {
+    return _systemClient.sendCommand(['/queue/simple/print']);
+  }
+
+  /// Add a simple queue
+  Future<bool> addSimpleQueue({
+    required String name,
+    required String target,
+    String? maxLimit,
+    String? limitAt,
+    int? queue,
+    String? comment,
+    bool? disabled,
+  }) async {
+    try {
+      final cmd = ['/queue/simple/add', '=name=$name', '=target=$target'];
+      if (maxLimit != null) cmd.add('=max-limit=$maxLimit');
+      if (limitAt != null) cmd.add('=limit-at=$limitAt');
+      if (queue != null) cmd.add('=queue=$queue');
+      if (comment != null) cmd.add('=comment=$comment');
+      if (disabled != null) cmd.add('=disabled=${disabled ? 'yes' : 'no'}');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Update a simple queue
+  Future<bool> updateSimpleQueue({
+    required String id,
+    String? name,
+    String? target,
+    String? maxLimit,
+    String? limitAt,
+    int? queue,
+    String? comment,
+    bool? disabled,
+  }) async {
+    try {
+      final cmd = ['/queue/simple/set', '=.id=$id'];
+      if (name != null) cmd.add('=name=$name');
+      if (target != null) cmd.add('=target=$target');
+      if (maxLimit != null) cmd.add('=max-limit=$maxLimit');
+      if (limitAt != null) cmd.add('=limit-at=$limitAt');
+      if (queue != null) cmd.add('=queue=$queue');
+      if (comment != null) cmd.add('=comment=$comment');
+      if (disabled != null) cmd.add('=disabled=${disabled ? 'yes' : 'no'}');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Delete a simple queue
+  Future<bool> deleteSimpleQueue(String id) async {
+    try {
+      await _systemClient.sendCommand(['/queue/simple/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Enable a simple queue
+  Future<bool> enableSimpleQueue(String id) async {
+    try {
+      await _systemClient.sendCommand(['/queue/simple/enable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable a simple queue
+  Future<bool> disableSimpleQueue(String id) async {
+    try {
+      await _systemClient.sendCommand(['/queue/simple/disable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ==================== WIRELESS CLIENT METHODS ====================
+
+  /// Get wireless interfaces
+  Future<List<Map<String, String>>> getWirelessInterfaces() async {
+    return _systemClient.sendCommand(['/interface/wireless/print']);
+  }
+
+  /// Enable wireless interface
+  Future<bool> enableWirelessInterface(String id) async {
+    try {
+      await _systemClient.sendCommand(['/interface/wireless/enable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Disable wireless interface
+  Future<bool> disableWirelessInterface(String id) async {
+    try {
+      await _systemClient.sendCommand(['/interface/wireless/disable', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get wireless registrations
+  Future<List<Map<String, String>>> getWirelessRegistrations({
+    String? interface,
+  }) async {
+    final cmd = ['/interface/wireless/registration-table/print'];
+    if (interface != null) cmd.add('?interface=$interface');
+    return _systemClient.sendCommand(cmd);
+  }
+
+  /// Disconnect wireless client
+  Future<bool> disconnectWirelessClient({
+    required String interface,
+    required String macAddress,
+  }) async {
+    try {
+      // Find the registration entry and remove it
+      final regs = await _systemClient.sendCommand([
+        '/interface/wireless/registration-table/print',
+        '?interface=$interface',
+        '?mac-address=$macAddress'
+      ]);
+      for (final reg in regs) {
+        if (reg['.id'] != null) {
+          await _systemClient.sendCommand(['/interface/wireless/registration-table/remove', '=.id=${reg['.id']}']);
+        }
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Get wireless security profiles
+  Future<List<Map<String, String>>> getWirelessSecurityProfiles() async {
+    return _systemClient.sendCommand(['/interface/wireless/security-profiles/print']);
+  }
+
+  /// Create wireless security profile
+  Future<bool> createWirelessSecurityProfile({
+    required String name,
+    String? authenticationTypes,
+    String? unicastCiphers,
+    String? groupCiphers,
+    String? wpaPreSharedKey,
+    String? wpa2PreSharedKey,
+    String? supplicantIdentity,
+    String? eapMethods,
+    String? tlsCertificate,
+    String? tlsMode,
+    String? comment,
+  }) async {
+    try {
+      final cmd = ['/interface/wireless/security-profiles/add', '=name=$name'];
+      if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
+      if (unicastCiphers != null) cmd.add('=unicast-ciphers=$unicastCiphers');
+      if (groupCiphers != null) cmd.add('=group-ciphers=$groupCiphers');
+      if (wpaPreSharedKey != null) cmd.add('=wpa-pre-shared-key=$wpaPreSharedKey');
+      if (wpa2PreSharedKey != null) cmd.add('=wpa2-pre-shared-key=$wpa2PreSharedKey');
+      if (supplicantIdentity != null) cmd.add('=supplicant-identity=$supplicantIdentity');
+      if (eapMethods != null) cmd.add('=eap-methods=$eapMethods');
+      if (tlsCertificate != null) cmd.add('=tls-certificate=$tlsCertificate');
+      if (tlsMode != null) cmd.add('=tls-mode=$tlsMode');
+      if (comment != null) cmd.add('=comment=$comment');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Update wireless security profile
+  Future<bool> updateWirelessSecurityProfile({
+    required String id,
+    String? name,
+    String? authenticationTypes,
+    String? unicastCiphers,
+    String? groupCiphers,
+    String? wpaPreSharedKey,
+    String? wpa2PreSharedKey,
+    String? supplicantIdentity,
+    String? eapMethods,
+    String? tlsCertificate,
+    String? tlsMode,
+    String? comment,
+  }) async {
+    try {
+      final cmd = ['/interface/wireless/security-profiles/set', '=.id=$id'];
+      if (name != null) cmd.add('=name=$name');
+      if (authenticationTypes != null) cmd.add('=authentication-types=$authenticationTypes');
+      if (unicastCiphers != null) cmd.add('=unicast-ciphers=$unicastCiphers');
+      if (groupCiphers != null) cmd.add('=group-ciphers=$groupCiphers');
+      if (wpaPreSharedKey != null) cmd.add('=wpa-pre-shared-key=$wpaPreSharedKey');
+      if (wpa2PreSharedKey != null) cmd.add('=wpa2-pre-shared-key=$wpa2PreSharedKey');
+      if (supplicantIdentity != null) cmd.add('=supplicant-identity=$supplicantIdentity');
+      if (eapMethods != null) cmd.add('=eap-methods=$eapMethods');
+      if (tlsCertificate != null) cmd.add('=tls-certificate=$tlsCertificate');
+      if (tlsMode != null) cmd.add('=tls-mode=$tlsMode');
+      if (comment != null) cmd.add('=comment=$comment');
+      await _systemClient.sendCommand(cmd);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Delete wireless security profile
+  Future<bool> deleteWirelessSecurityProfile(String id) async {
+    try {
+      await _systemClient.sendCommand(['/interface/wireless/security-profiles/remove', '=.id=$id']);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ==================== DHCP METHODS ====================
+
+  /// Get DHCP servers
+  Future<List<Map<String, String>>> getDhcpServers() async {
+    return _systemClient.sendCommand(['/ip/dhcp-server/print']);
+  }
+
+  /// Add DHCP server
+  Future<bool> addDhcpServer({
+    required String name,
+    required String interface,
+    String? addressPool,
+    String? leaseTime,
+    bool? authoritative,
+  }) async {
+    final words = ['/ip/dhcp-server/add', '=name=$name', '=interface=$interface'];
+    if (addressPool != null) words.add('=address-pool=$addressPool');
+    if (leaseTime != null) words.add('=lease-time=$leaseTime');
+    if (authoritative != null) words.add('=authoritative=${authoritative ? 'yes' : 'no'}');
+
+    final result = await _systemClient.sendCommand(words);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Edit DHCP server
+  Future<bool> editDhcpServer({
+    required String id,
+    String? name,
+    String? interface,
+    String? addressPool,
+    String? leaseTime,
+    bool? authoritative,
+  }) async {
+    final words = ['/ip/dhcp-server/set', '=.id=$id'];
+    if (name != null) words.add('=name=$name');
+    if (interface != null) words.add('=interface=$interface');
+    if (addressPool != null) words.add('=address-pool=$addressPool');
+    if (leaseTime != null) words.add('=lease-time=$leaseTime');
+    if (authoritative != null) words.add('=authoritative=${authoritative ? 'yes' : 'no'}');
+
+    final result = await _systemClient.sendCommand(words);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Remove DHCP server
+  Future<bool> removeDhcpServer(String id) async {
+    final result = await _systemClient.sendCommand(['/ip/dhcp-server/remove', '=.id=$id']);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Enable DHCP server
+  Future<bool> enableDhcpServer(String id) async {
+    final result = await _systemClient.sendCommand(['/ip/dhcp-server/enable', '=.id=$id']);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Disable DHCP server
+  Future<bool> disableDhcpServer(String id) async {
+    final result = await _systemClient.sendCommand(['/ip/dhcp-server/disable', '=.id=$id']);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Get DHCP networks
+  Future<List<Map<String, String>>> getDhcpNetworks() async {
+    return _systemClient.sendCommand(['/ip/dhcp-server/network/print']);
+  }
+
+  /// Add DHCP network
+  Future<bool> addDhcpNetwork({
+    required String address,
+    String? gateway,
+    String? netmask,
+    String? dnsServer,
+    String? domain,
+    String? comment,
+  }) async {
+    final words = ['/ip/dhcp-server/network/add', '=address=$address'];
+    if (gateway != null) words.add('=gateway=$gateway');
+    if (netmask != null) words.add('=netmask=$netmask');
+    if (dnsServer != null) words.add('=dns-server=$dnsServer');
+    if (domain != null) words.add('=domain=$domain');
+    if (comment != null) words.add('=comment=$comment');
+
+    final result = await _systemClient.sendCommand(words);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Edit DHCP network
+  Future<bool> editDhcpNetwork({
+    required String id,
+    String? address,
+    String? gateway,
+    String? netmask,
+    String? dnsServer,
+    String? domain,
+    String? comment,
+  }) async {
+    final words = ['/ip/dhcp-server/network/set', '=.id=$id'];
+    if (address != null) words.add('=address=$address');
+    if (gateway != null) words.add('=gateway=$gateway');
+    if (netmask != null) words.add('=netmask=$netmask');
+    if (dnsServer != null) words.add('=dns-server=$dnsServer');
+    if (domain != null) words.add('=domain=$domain');
+    if (comment != null) words.add('=comment=$comment');
+
+    final result = await _systemClient.sendCommand(words);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Remove DHCP network
+  Future<bool> removeDhcpNetwork(String id) async {
+    final result = await _systemClient.sendCommand(['/ip/dhcp-server/network/remove', '=.id=$id']);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Add DHCP lease
+  Future<bool> addDhcpLease({
+    required String address,
+    required String macAddress,
+    String? server,
+    String? comment,
+  }) async {
+    final words = [
+      '/ip/dhcp-server/lease/add',
+      '=address=$address',
+      '=mac-address=$macAddress',
+    ];
+    if (server != null) words.add('=server=$server');
+    if (comment != null) words.add('=comment=$comment');
+
+    final result = await _systemClient.sendCommand(words);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Remove DHCP lease
+  Future<bool> removeDhcpLease(String id) async {
+    final result = await _systemClient.sendCommand(['/ip/dhcp-server/lease/remove', '=.id=$id']);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Make lease static
+  Future<bool> makeDhcpLeaseStatic(String id) async {
+    final result = await _systemClient.sendCommand(['/ip/dhcp-server/lease/make-static', '=.id=$id']);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Enable DHCP lease
+  Future<bool> enableDhcpLease(String id) async {
+    final result = await _systemClient.sendCommand(['/ip/dhcp-server/lease/enable', '=.id=$id']);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  /// Disable DHCP lease
+  Future<bool> disableDhcpLease(String id) async {
+    final result = await _systemClient.sendCommand(['/ip/dhcp-server/lease/disable', '=.id=$id']);
+    return result.isNotEmpty && result.first['ret'] == '';
+  }
+
+  // ==================== LEGACY METHODS (DEPRECATED) ====================
+  // These methods are kept for backward compatibility but delegate to the new clients
+
+  /// Send a command and wait for response (legacy method)
+  @Deprecated('Use specialized client methods instead. This method will be removed in a future version.')
+  Future<List<Map<String, String>>> sendCommand(
+    List<String> words, {
+    Duration? timeout,
+  }) async {
+    return _systemClient.sendCommand(words, timeout: timeout);
+  }
+
+  /// Start streaming command (legacy method)
+  @Deprecated('Use specialized client methods instead. This method will be removed in a future version.')
+  Future<Stream<Map<String, String>>> startStream(List<String> words) async {
+    return _systemClient.startStream(words);
+  }
+
+  /// Stop streaming command (legacy method)
+  @Deprecated('Use specialized client methods instead. This method will be removed in a future version.')
+  Future<void> stopStream(String tag) async {
+    await _systemClient.stopStream(tag);
+  }
+}
+
+
+

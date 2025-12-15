@@ -4,22 +4,26 @@ import '../../domain/entities/router_interface.dart';
 import '../../domain/entities/ip_address.dart';
 import '../../domain/entities/firewall_rule.dart';
 
-abstract class DashboardState extends Equatable {
+/// Sealed class for exhaustive matching in UI
+sealed class DashboardState extends Equatable {
   const DashboardState();
 
   @override
   List<Object?> get props => [];
 }
 
-class DashboardInitial extends DashboardState {
+/// Initial state before any data is loaded
+final class DashboardInitial extends DashboardState {
   const DashboardInitial();
 }
 
-class DashboardLoading extends DashboardState {
+/// Loading state when fetching initial dashboard data
+final class DashboardLoading extends DashboardState {
   const DashboardLoading();
 }
 
-class DashboardLoaded extends DashboardState {
+/// Success state with all dashboard data (non-nullable!)
+final class DashboardLoaded extends DashboardState {
   final SystemResource? systemResource;
   final List<RouterInterface>? interfaces;
   final List<IpAddress>? ipAddresses;
@@ -55,7 +59,8 @@ class DashboardLoaded extends DashboardState {
   List<Object?> get props => [systemResource, interfaces, ipAddresses, firewallRules, errorMessage];
 }
 
-class DashboardError extends DashboardState {
+/// Error state when initial loading fails
+final class DashboardError extends DashboardState {
   final String message;
 
   const DashboardError(this.message);
@@ -64,11 +69,13 @@ class DashboardError extends DashboardState {
   List<Object> get props => [message];
 }
 
-class DashboardOperationLoading extends DashboardState {
+/// Loading state for operations (toggle, enable, disable, etc.)
+final class DashboardOperationLoading extends DashboardState {
   const DashboardOperationLoading();
 }
 
-class DashboardOperationSuccess extends DashboardState {
+/// Success state for operations
+final class DashboardOperationSuccess extends DashboardState {
   final String message;
 
   const DashboardOperationSuccess(this.message);

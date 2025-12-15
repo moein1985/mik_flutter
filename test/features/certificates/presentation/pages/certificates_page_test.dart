@@ -51,7 +51,7 @@ void main() {
     });
 
     testWidgets('should display floating action button', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(CertificateInitial()));
+      await tester.pumpWidget(createWidgetUnderTest(const CertificateLoaded([])));
 
       expect(find.byIcon(Icons.add), findsNWidgets(2)); // FAB and empty state button
       expect(find.text('Create Certificate'), findsNWidgets(2)); // FAB label and empty state button
@@ -310,7 +310,8 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest(CertificateInitial()));
 
       await tester.tap(find.byType(FloatingActionButton));
-      await tester.pumpAndSettle();
+      await tester.pump(); // Use pump() instead of pumpAndSettle()
+      await tester.pump(const Duration(seconds: 1)); // Allow animation to complete
 
       expect(find.text('Create Self-Signed Certificate'), findsOneWidget);
       expect(find.text('Certificate Name'), findsOneWidget);

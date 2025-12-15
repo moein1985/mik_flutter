@@ -17,67 +17,68 @@ class LogsList extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LogsBloc, LogsState>(
       builder: (context, state) {
-        if (state is LogsLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (state is LogsError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error, size: 48, color: Colors.red),
-                const SizedBox(height: 16),
-                Text(state.message),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<LogsBloc>().add(const LoadLogs());
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
-        }
-
-        if (state is LogsLoaded || state is LogsFollowing) {
-          final logs = state is LogsLoaded ? state.logs : (state as LogsFollowing).logs;
-
-          if (logs.isEmpty) {
-            return Center(
+        return switch (state) {
+          LogsInitial() => _buildInitialState(context),
+          LogsLoading() => const Center(child: CircularProgressIndicator()),
+          LogsError(:final message) => Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.article_outlined, size: 48, color: Colors.grey),
+                  const Icon(Icons.error, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
-                  Text(isFollowing ? 'No live logs available' : 'No logs found'),
+                  Text(message),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<LogsBloc>().add(const LoadLogs());
+                    },
+                    child: const Text('Retry'),
+                  ),
                 ],
               ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<LogsBloc>().add(const RefreshLogs());
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: logs.length,
-              itemBuilder: (context, index) {
-                final logEntry = logs[index];
-                return LogEntryWidget(logEntry: logEntry);
-              },
             ),
-          );
-        }
-
-        // Initial state - load data
-        if (!isFollowing) {
-          context.read<LogsBloc>().add(const LoadLogs());
-        }
-        return const Center(child: CircularProgressIndicator());
+          LogsLoaded(:final logs) => _buildLogsList(context, logs),
+          LogsFollowing(:final logs) => _buildLogsList(context, logs),
+          LogsOperationSuccess() => const Center(child: CircularProgressIndicator()),
+        };
       },
+    );
+  }
+
+  Widget _buildInitialState(BuildContext context) {
+    // Initial state - load data
+    if (!isFollowing) {
+      context.read<LogsBloc>().add(const LoadLogs());
+    }
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  Widget _buildLogsList(BuildContext context, List logs) {
+    if (logs.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.article_outlined, size: 48, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(isFollowing ? 'No live logs available' : 'No logs found'),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<LogsBloc>().add(const RefreshLogs());
+      },
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: logs.length,
+        itemBuilder: (context, index) {
+          final logEntry = logs[index];
+          return LogEntryWidget(logEntry: logEntry);
+        },
+      ),
     );
   }
 }

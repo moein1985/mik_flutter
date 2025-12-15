@@ -13,6 +13,8 @@ class HotspotWalledGardenPage extends StatefulWidget {
 }
 
 class _HotspotWalledGardenPageState extends State<HotspotWalledGardenPage> {
+  String? _lastShownMessage;
+
   @override
   void initState() {
     super.initState();
@@ -21,12 +23,15 @@ class _HotspotWalledGardenPageState extends State<HotspotWalledGardenPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Walled Garden'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
             onPressed: () {
               context.read<HotspotBloc>().add(const LoadWalledGarden());
             },
@@ -40,66 +45,62 @@ class _HotspotWalledGardenPageState extends State<HotspotWalledGardenPage> {
       body: BlocConsumer<HotspotBloc, HotspotState>(
         listener: (context, state) {
           if (state is HotspotError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
+            if (_lastShownMessage != state.message) {
+              _lastShownMessage = state.message;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           } else if (state is HotspotOperationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.green,
-              ),
-            );
-            // Reload after successful operation
-            context.read<HotspotBloc>().add(const LoadWalledGarden());
+            if (_lastShownMessage != state.message) {
+              _lastShownMessage = state.message;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              context.read<HotspotBloc>().add(const LoadWalledGarden());
+            }
+          } else {
+            _lastShownMessage = null;
           }
         },
         builder: (context, state) {
-          if (state is HotspotLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is HotspotLoaded) {
-            final entries = state.walledGarden ?? [];
-            if (entries.isEmpty) {
-              return _buildEmptyView();
-            }
-            return _buildEntriesList(entries);
-          }
-
-          return const Center(child: CircularProgressIndicator());
+          return switch (state) {
+            HotspotLoading() => const Center(child: CircularProgressIndicator()),
+            HotspotLoaded(:final walledGarden) => walledGarden == null || walledGarden.isEmpty
+                ? _buildEmptyView(colorScheme)
+                : _buildEntriesList(walledGarden, colorScheme),
+            _ => _buildErrorView(context, colorScheme, state),
+          };
         },
       ),
     );
   }
 
-  Widget _buildEmptyView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildQuickTipCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.deepOrange.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.deepOrange.shade200),
+      ),
+      child: Row(
         children: [
-          Icon(
-            Icons.fence,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No Walled Garden Entries',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Tap + to add a new entry',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
+          Icon(Icons.fence, color: Colors.deepOrange.shade700),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Walled Garden allows specific destinations to be accessible without authentication.',
+              style: TextStyle(
+                color: Colors.deepOrange.shade800,
+                fontSize: 13,
+              ),
             ),
           ),
         ],
@@ -107,138 +108,411 @@ class _HotspotWalledGardenPageState extends State<HotspotWalledGardenPage> {
     );
   }
 
-  Widget _buildEntriesList(List<WalledGarden> entries) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(8),
-      itemCount: entries.length,
-      itemBuilder: (context, index) {
-        final entry = entries[index];
-        return _buildEntryCard(entry);
-      },
+  Widget _buildEmptyView(ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          _buildQuickTipCard(),
+          
+          const SizedBox(height: 48),
+          
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withAlpha(77),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.fence,
+              size: 64,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No Walled Garden Entries',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Tap + to add a new entry',
+            style: TextStyle(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildEntryCard(WalledGarden entry) {
+  Widget _buildErrorView(BuildContext context, ColorScheme colorScheme, HotspotState state) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.errorContainer.withAlpha(77),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.error_outline,
+              size: 64,
+              color: colorScheme.error,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            state is HotspotError ? state.message : 'Unable to load entries',
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: () {
+              context.read<HotspotBloc>().add(const LoadWalledGarden());
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEntriesList(List<WalledGarden> entries, ColorScheme colorScheme) {
+    // Count by action
+    final allowCount = entries.where((e) => e.action.toLowerCase() == 'allow').length;
+    final denyCount = entries.length - allowCount;
+    
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<HotspotBloc>().add(const LoadWalledGarden());
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildQuickTipCard(),
+            
+            const SizedBox(height: 16),
+            
+            // Count summary
+            _buildCountSummary(entries.length, allowCount, denyCount, colorScheme),
+            
+            const SizedBox(height: 16),
+            
+            // Entry cards
+            ...entries.map((entry) => _buildEntryCard(entry, colorScheme)),
+            
+            // Bottom spacing for FAB
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCountSummary(int total, int allow, int deny, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer.withAlpha(77),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.primary.withAlpha(51)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: colorScheme.primary,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '$total entr${total > 1 ? 'ies' : 'y'}',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const Spacer(),
+          if (allow > 0)
+            _buildMiniTag('$allow Allow', Colors.green),
+          if (deny > 0) ...[
+            const SizedBox(width: 8),
+            _buildMiniTag('$deny Deny', Colors.red),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniTag(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withAlpha(26),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          color: color,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEntryCard(WalledGarden entry, ColorScheme colorScheme) {
     final isDisabled = entry.disabled;
+    final actionColor = _getActionColor(entry.action);
     
     String displayText = entry.dstHost ?? entry.dstAddress ?? entry.path ?? 'Unknown';
     
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: ListTile(
-        leading: Icon(
-          Icons.fence,
-          color: isDisabled ? Colors.grey : Colors.teal,
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isDisabled 
+              ? colorScheme.outline.withAlpha(26)
+              : colorScheme.outline.withAlpha(51),
         ),
-        title: Text(
-          displayText,
-          style: TextStyle(
-            color: isDisabled ? Colors.grey : null,
-            decoration: isDisabled ? TextDecoration.lineThrough : null,
+      ),
+      child: Opacity(
+        opacity: isDisabled ? 0.6 : 1.0,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header row
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: actionColor.withAlpha(26),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.fence,
+                      color: actionColor,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayText,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            decoration: isDisabled ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            // Status
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: isDisabled ? Colors.grey : Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              isDisabled ? 'Disabled' : 'Active',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            // Action tag
+                            _buildActionTag(entry.action, actionColor),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (value) => _handleMenuAction(value, entry),
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'toggle',
+                        child: Row(
+                          children: [
+                            Icon(
+                              isDisabled ? Icons.check_circle : Icons.block,
+                              color: isDisabled ? Colors.green : Colors.orange,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(isDisabled ? 'Enable' : 'Disable'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit),
+                            SizedBox(width: 8),
+                            Text('Edit'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, color: colorScheme.error),
+                            const SizedBox(width: 8),
+                            Text('Delete', style: TextStyle(color: colorScheme.error)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 12),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              
+              // Details
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (entry.server != null)
+                    _buildDetailChip(Icons.dns, 'Server: ${entry.server}', colorScheme),
+                  if (entry.dstAddress != null && entry.dstAddress != displayText)
+                    _buildDetailChip(Icons.location_on, entry.dstAddress!, colorScheme),
+                  if (entry.dstPort != null)
+                    _buildDetailChip(Icons.directions_boat, 'Port: ${entry.dstPort}', colorScheme),
+                  if (entry.path != null && entry.path != displayText)
+                    _buildDetailChip(Icons.route, entry.path!, colorScheme),
+                  if (entry.method != null)
+                    _buildDetailChip(Icons.http, entry.method!, colorScheme),
+                ],
+              ),
+              
+              if (entry.comment != null && entry.comment!.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.comment, size: 14, color: colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        entry.comment!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onSurfaceVariant,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
           ),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (entry.server != null)
-              Text('Server: ${entry.server}'),
-            if (entry.dstHost != null && entry.dstHost != displayText)
-              Text('Host: ${entry.dstHost}'),
-            if (entry.dstAddress != null)
-              Text('Address: ${entry.dstAddress}'),
-            if (entry.dstPort != null)
-              Text('Port: ${entry.dstPort}'),
-            if (entry.path != null && entry.path != displayText)
-              Text('Path: ${entry.path}'),
-            _buildActionBadge(entry.action),
-            if (entry.method != null)
-              Text('Method: ${entry.method}'),
-            if (entry.comment != null && entry.comment!.isNotEmpty)
-              Text('Comment: ${entry.comment}'),
-          ],
-        ),
-        trailing: PopupMenuButton<String>(
-          onSelected: (value) {
-            switch (value) {
-              case 'toggle':
-                context.read<HotspotBloc>().add(
-                  ToggleWalledGarden(id: entry.id, enable: isDisabled),
-                );
-                break;
-              case 'edit':
-                _showAddEditDialog(context, entry: entry);
-                break;
-              case 'delete':
-                _showDeleteConfirmation(context, entry);
-                break;
-            }
-          },
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'toggle',
-              child: Row(
-                children: [
-                  Icon(isDisabled ? Icons.check_circle : Icons.block),
-                  const SizedBox(width: 8),
-                  Text(isDisabled ? 'Enable' : 'Disable'),
-                ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'edit',
-              child: Row(
-                children: [
-                  Icon(Icons.edit),
-                  SizedBox(width: 8),
-                  Text('Edit'),
-                ],
-              ),
-            ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(Icons.delete, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Delete', style: TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-          ],
-        ),
-        isThreeLine: true,
       ),
     );
   }
 
-  Widget _buildActionBadge(String action) {
-    Color color;
-    switch (action.toLowerCase()) {
-      case 'allow':
-        color = Colors.green;
-        break;
-      case 'deny':
-        color = Colors.red;
-        break;
-      default:
-        color = Colors.grey;
-    }
-
+  Widget _buildActionTag(String action, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(4),
+        color: color.withAlpha(26),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         action.toUpperCase(),
         style: TextStyle(
-          fontSize: 11,
+          fontSize: 10,
           color: color,
           fontWeight: FontWeight.bold,
         ),
       ),
     );
+  }
+
+  Widget _buildDetailChip(IconData icon, String label, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withAlpha(128),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getActionColor(String action) {
+    switch (action.toLowerCase()) {
+      case 'allow':
+        return Colors.green;
+      case 'deny':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  void _handleMenuAction(String action, WalledGarden entry) {
+    switch (action) {
+      case 'toggle':
+        context.read<HotspotBloc>().add(
+          ToggleWalledGarden(id: entry.id, enable: entry.disabled),
+        );
+        break;
+      case 'edit':
+        _showAddEditDialog(context, entry: entry);
+        break;
+      case 'delete':
+        _showDeleteConfirmation(context, entry);
+        break;
+    }
   }
 
   void _showDeleteConfirmation(BuildContext context, WalledGarden entry) {

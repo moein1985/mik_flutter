@@ -34,3 +34,11 @@ class SslCertificateFailure extends Failure {
   @override
   List<Object> get props => [message, noCertificate];
 }
+
+class NotFoundFailure extends Failure {
+  const NotFoundFailure(super.message);
+}
+
+class ValidationFailure extends Failure {
+  const ValidationFailure(super.message);
+}

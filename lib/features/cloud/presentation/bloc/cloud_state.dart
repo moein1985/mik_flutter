@@ -1,22 +1,22 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/cloud_status.dart';
 
-abstract class CloudState extends Equatable {
+sealed class CloudState extends Equatable {
   const CloudState();
 
   @override
   List<Object?> get props => [];
 }
 
-class CloudInitial extends CloudState {
+final class CloudInitial extends CloudState {
   const CloudInitial();
 }
 
-class CloudLoading extends CloudState {
+final class CloudLoading extends CloudState {
   const CloudLoading();
 }
 
-class CloudLoaded extends CloudState {
+final class CloudLoaded extends CloudState {
   final CloudStatus status;
 
   const CloudLoaded(this.status);
@@ -25,7 +25,7 @@ class CloudLoaded extends CloudState {
   List<Object> get props => [status];
 }
 
-class CloudError extends CloudState {
+final class CloudError extends CloudState {
   final String message;
 
   const CloudError(this.message);
@@ -34,7 +34,7 @@ class CloudError extends CloudState {
   List<Object> get props => [message];
 }
 
-class CloudOperationSuccess extends CloudState {
+final class CloudOperationSuccess extends CloudState {
   final String message;
   final CloudStatus? previousStatus;
 
@@ -44,7 +44,7 @@ class CloudOperationSuccess extends CloudState {
   List<Object?> get props => [message, previousStatus];
 }
 
-class CloudOperationInProgress extends CloudState {
+final class CloudOperationInProgress extends CloudState {
   final String operation;
   final CloudStatus? currentStatus;
 

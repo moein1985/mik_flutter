@@ -3,8 +3,8 @@ import '../../domain/entities/dns_lookup_result.dart';
 import '../../domain/entities/ping_result.dart';
 import '../../domain/entities/traceroute_hop.dart';
 
-/// Base class for all Tools states
-abstract class ToolsState extends Equatable {
+/// Sealed class for all Tools states with exhaustive matching
+sealed class ToolsState extends Equatable {
   const ToolsState();
 
   @override
@@ -12,17 +12,17 @@ abstract class ToolsState extends Equatable {
 }
 
 /// Initial state when Tools page is first loaded
-class ToolsInitial extends ToolsState {
+final class ToolsInitial extends ToolsState {
   const ToolsInitial();
 }
 
 /// State when ping operation is in progress
-class PingInProgress extends ToolsState {
+final class PingInProgress extends ToolsState {
   const PingInProgress();
 }
 
-/// State when ping operation is updating with new packets
-class PingUpdating extends ToolsState {
+/// State when ping operation is updating with new packets (non-nullable!)
+final class PingUpdating extends ToolsState {
   final PingResult result;
 
   const PingUpdating(this.result);
@@ -31,8 +31,8 @@ class PingUpdating extends ToolsState {
   List<Object?> get props => [result];
 }
 
-/// State when ping operation is completed
-class PingCompleted extends ToolsState {
+/// State when ping operation is completed (non-nullable!)
+final class PingCompleted extends ToolsState {
   final PingResult result;
 
   const PingCompleted(this.result);
@@ -42,7 +42,7 @@ class PingCompleted extends ToolsState {
 }
 
 /// State when ping operation failed
-class PingFailed extends ToolsState {
+final class PingFailed extends ToolsState {
   final String error;
 
   const PingFailed(this.error);
@@ -52,12 +52,12 @@ class PingFailed extends ToolsState {
 }
 
 /// State when traceroute operation is in progress
-class TracerouteInProgress extends ToolsState {
+final class TracerouteInProgress extends ToolsState {
   const TracerouteInProgress();
 }
 
-/// State when traceroute operation is updating with new hops
-class TracerouteUpdating extends ToolsState {
+/// State when traceroute operation is updating with new hops (non-nullable!)
+final class TracerouteUpdating extends ToolsState {
   final List<TracerouteHop> hops;
 
   const TracerouteUpdating(this.hops);
@@ -66,8 +66,8 @@ class TracerouteUpdating extends ToolsState {
   List<Object?> get props => [hops];
 }
 
-/// State when traceroute operation is completed
-class TracerouteCompleted extends ToolsState {
+/// State when traceroute operation is completed (non-nullable!)
+final class TracerouteCompleted extends ToolsState {
   final List<TracerouteHop> hops;
 
   const TracerouteCompleted(this.hops);
@@ -77,7 +77,7 @@ class TracerouteCompleted extends ToolsState {
 }
 
 /// State when traceroute operation failed
-class TracerouteFailed extends ToolsState {
+final class TracerouteFailed extends ToolsState {
   final String error;
 
   const TracerouteFailed(this.error);
@@ -87,12 +87,12 @@ class TracerouteFailed extends ToolsState {
 }
 
 /// State when DNS lookup operation is in progress
-class DnsLookupInProgress extends ToolsState {
+final class DnsLookupInProgress extends ToolsState {
   const DnsLookupInProgress();
 }
 
-/// State when DNS lookup operation is completed
-class DnsLookupCompleted extends ToolsState {
+/// State when DNS lookup operation is completed (non-nullable!)
+final class DnsLookupCompleted extends ToolsState {
   final DnsLookupResult result;
 
   const DnsLookupCompleted(this.result);
@@ -102,7 +102,7 @@ class DnsLookupCompleted extends ToolsState {
 }
 
 /// State when DNS lookup operation failed
-class DnsLookupFailed extends ToolsState {
+final class DnsLookupFailed extends ToolsState {
   final String error;
 
   const DnsLookupFailed(this.error);
@@ -112,7 +112,7 @@ class DnsLookupFailed extends ToolsState {
 }
 
 /// State when any operation encounters an error
-class ToolsError extends ToolsState {
+final class ToolsError extends ToolsState {
   final String message;
 
   const ToolsError(this.message);
@@ -121,8 +121,8 @@ class ToolsError extends ToolsState {
   List<Object?> get props => [message];
 }
 
-/// State containing network info for ping options
-class NetworkInfoLoaded extends ToolsState {
+/// State containing network info for ping options (non-nullable!)
+final class NetworkInfoLoaded extends ToolsState {
   final List<String> interfaces;
   final List<String> ipAddresses;
 

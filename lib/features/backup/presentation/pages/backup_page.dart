@@ -242,10 +242,10 @@ class _BackupPageState extends State<BackupPage> {
             }
           },
           builder: (context, state) {
-            List<BackupFile> backups = [];
-            if (state is BackupLoaded) {
-              backups = state.backups;
-            }
+            final backups = switch (state) {
+              BackupLoaded(:final backups) => backups,
+              _ => <BackupFile>[],
+            };
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),

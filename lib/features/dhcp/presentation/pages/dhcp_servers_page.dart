@@ -51,62 +51,61 @@ class _DhcpServersTabState extends State<DhcpServersTab> {
 
     return BlocBuilder<DhcpBloc, DhcpState>(
       builder: (context, state) {
-        if (state is DhcpLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        List<DhcpServer> allServers = [];
-        if (state is DhcpLoaded && state.servers != null) {
-          allServers = state.servers!;
-        }
-
-        final servers = _filterServers(allServers);
-
-        // Calculate statistics
-        final activeCount = allServers.where((s) => !s.disabled && !s.invalid).length;
-        final disabledCount = allServers.where((s) => s.disabled).length;
-        final totalCount = allServers.length;
-
-        return RefreshIndicator(
-          onRefresh: () async {
-            context.read<DhcpBloc>().add(const LoadDhcpServers());
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Quick Tip Card
-                _buildQuickTipCard(colorScheme),
-
-                const SizedBox(height: 16),
-
-                // Summary Card
-                _buildSummaryCard(activeCount, disabledCount, totalCount, colorScheme),
-
-                const SizedBox(height: 16),
-
-                // Search Bar
-                _buildSearchBar(colorScheme),
-
-                const SizedBox(height: 16),
-
-                // Servers List
-                if (allServers.isEmpty)
-                  _buildEmptyState(context)
-                else if (servers.isEmpty)
-                  _buildNoResultsState()
-                else
-                  ...servers.map((server) => _buildServerCard(context, server, colorScheme)),
-
-                // Extra space for FAB
-                const SizedBox(height: 80),
-              ],
-            ),
-          ),
-        );
+        return switch (state) {
+          DhcpLoading() => const Center(child: CircularProgressIndicator()),
+          DhcpLoaded(:final servers) => _buildServersList(context, servers ?? [], colorScheme),
+          _ => _buildServersList(context, [], colorScheme),
+        };
       },
+    );
+  }
+
+  Widget _buildServersList(BuildContext context, List<DhcpServer> allServers, ColorScheme colorScheme) {
+    final servers = _filterServers(allServers);
+
+    // Calculate statistics
+    final activeCount = allServers.where((s) => !s.disabled && !s.invalid).length;
+    final disabledCount = allServers.where((s) => s.disabled).length;
+    final totalCount = allServers.length;
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<DhcpBloc>().add(const LoadDhcpServers());
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Quick Tip Card
+            _buildQuickTipCard(colorScheme),
+
+            const SizedBox(height: 16),
+
+            // Summary Card
+            _buildSummaryCard(activeCount, disabledCount, totalCount, colorScheme),
+
+            const SizedBox(height: 16),
+
+            // Search Bar
+            _buildSearchBar(colorScheme),
+
+            const SizedBox(height: 16),
+
+            // Servers List
+            if (allServers.isEmpty)
+              _buildEmptyState(context)
+            else if (servers.isEmpty)
+              _buildNoResultsState()
+            else
+              ...servers.map((server) => _buildServerCard(context, server, colorScheme)),
+
+            // Extra space for FAB
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
     );
   }
 

@@ -2,22 +2,22 @@ import 'package:equatable/equatable.dart';
 import '../../domain/entities/router_credentials.dart';
 import '../../domain/entities/router_session.dart';
 
-abstract class AuthState extends Equatable {
+sealed class AuthState extends Equatable {
   const AuthState();
 
   @override
   List<Object?> get props => [];
 }
 
-class AuthInitial extends AuthState {
+final class AuthInitial extends AuthState {
   const AuthInitial();
 }
 
-class AuthLoading extends AuthState {
+final class AuthLoading extends AuthState {
   const AuthLoading();
 }
 
-class AuthAuthenticated extends AuthState {
+final class AuthAuthenticated extends AuthState {
   final RouterSession session;
 
   const AuthAuthenticated(this.session);
@@ -26,7 +26,7 @@ class AuthAuthenticated extends AuthState {
   List<Object?> get props => [session];
 }
 
-class AuthUnauthenticated extends AuthState {
+final class AuthUnauthenticated extends AuthState {
   final RouterCredentials? savedCredentials;
 
   const AuthUnauthenticated({this.savedCredentials});
@@ -35,7 +35,7 @@ class AuthUnauthenticated extends AuthState {
   List<Object?> get props => [savedCredentials];
 }
 
-class AuthError extends AuthState {
+final class AuthError extends AuthState {
   final String message;
   final bool isSslCertificateError;
 

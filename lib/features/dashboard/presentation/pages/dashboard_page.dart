@@ -68,255 +68,257 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       body: BlocConsumer<DashboardBloc, DashboardState>(
         listener: (context, state) {
-          if (state is DashboardLoaded && state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: Colors.red,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-            context.read<DashboardBloc>().add(const ClearError());
-          }
-          if (state is DashboardError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
-          } else if (state is DashboardOperationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.green,
-              ),
-            );
+          switch (state) {
+            case DashboardLoaded(:final errorMessage?) when errorMessage.isNotEmpty:
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(errorMessage),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              context.read<DashboardBloc>().add(const ClearError());
+            case DashboardLoaded():
+              // No error message
+              break;
+            case DashboardError(:final message):
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            case DashboardOperationSuccess(:final message):
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            case DashboardInitial():
+            case DashboardLoading():
+            case DashboardOperationLoading():
+              // No action needed
+              break;
           }
         },
         builder: (context, state) {
-          if (state is DashboardLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is DashboardLoaded) {
-            final systemResource = state.systemResource;
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                context.read<DashboardBloc>().add(const RefreshSystemResources());
-              },
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // System Info Card (Full Width)
-                    if (systemResource != null) ...[
-                      Card(
-                        elevation: 2,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.router, color: theme.colorScheme.primary),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    l10n.systemResources,
-                                    style: theme.textTheme.titleLarge,
-                                  ),
-                                ],
-                              ),
-                              const Divider(height: 24),
-                              _buildInfoRow('Version', systemResource.version),
-                              _buildInfoRow('Uptime', systemResource.uptime),
-                              _buildInfoRow('Platform', systemResource.platform),
-                              _buildInfoRow('Board', systemResource.boardName),
-                              _buildInfoRow('Architecture', systemResource.architectureName),
-                              const SizedBox(height: 16),
-                              _buildProgressRow(
-                                'CPU Load',
-                                systemResource.cpuLoad,
-                                theme.colorScheme.primary,
-                              ),
-                              const SizedBox(height: 8),
-                              _buildMemoryRow(
-                                'Memory',
-                                systemResource.freeMemory,
-                                systemResource.totalMemory,
-                                theme.colorScheme.secondary,
-                              ),
-                              const SizedBox(height: 8),
-                              _buildMemoryRow(
-                                'Storage',
-                                systemResource.freeHddSpace,
-                                systemResource.totalHddSpace,
-                                Colors.orange,
-                              ),
-                            ],
+          return switch (state) {
+            DashboardLoading() => const Center(child: CircularProgressIndicator()),
+            DashboardLoaded(:final systemResource) => RefreshIndicator(
+                onRefresh: () async {
+                  context.read<DashboardBloc>().add(const RefreshSystemResources());
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // System Info Card (Full Width)
+                      if (systemResource != null) ...[
+                        Card(
+                          elevation: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.router, color: theme.colorScheme.primary),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      l10n.systemResources,
+                                      style: theme.textTheme.titleLarge,
+                                    ),
+                                  ],
+                                ),
+                                const Divider(height: 24),
+                                _buildInfoRow('Version', systemResource.version),
+                                _buildInfoRow('Uptime', systemResource.uptime),
+                                _buildInfoRow('Platform', systemResource.platform),
+                                _buildInfoRow('Board', systemResource.boardName),
+                                _buildInfoRow('Architecture', systemResource.architectureName),
+                                const SizedBox(height: 16),
+                                _buildProgressRow(
+                                  'CPU Load',
+                                  systemResource.cpuLoad,
+                                  theme.colorScheme.primary,
+                                ),
+                                const SizedBox(height: 8),
+                                _buildMemoryRow(
+                                  'Memory',
+                                  systemResource.freeMemory,
+                                  systemResource.totalMemory,
+                                  theme.colorScheme.secondary,
+                                ),
+                                const SizedBox(height: 8),
+                                _buildMemoryRow(
+                                  'Storage',
+                                  systemResource.freeHddSpace,
+                                  systemResource.totalHddSpace,
+                                  Colors.orange,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
+                        const SizedBox(height: 24),
+                      ],
+
+                      // Sectioned Dashboard Layout
+                      _buildDashboardSection(
+                        context,
+                        l10n.networkManagement,
+                        Icons.settings_ethernet,
+                        Colors.blue,
+                        [
+                          _buildSectionCard(
+                            context,
+                            l10n.interfaces,
+                            Icons.settings_ethernet,
+                            Colors.blue.shade100,
+                            () => context.push(AppRoutes.interfaces),
+                          ),
+                          _buildSectionCard(
+                            context,
+                            l10n.ipAddresses,
+                            Icons.public,
+                            Colors.green.shade100,
+                            () => context.push(AppRoutes.ipAddresses),
+                          ),
+                          _buildSectionCard(
+                            context,
+                            l10n.dhcpServer,
+                            Icons.dns,
+                            Colors.purple.shade100,
+                            () => context.push(AppRoutes.dhcp),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 24),
+
+                      _buildDashboardSection(
+                        context,
+                        l10n.securityAccess,
+                        Icons.security,
+                        Colors.red,
+                        [
+                          _buildSectionCard(
+                            context,
+                            l10n.firewall,
+                            Icons.security,
+                            Colors.red.shade100,
+                            () => context.push(AppRoutes.firewall),
+                          ),
+                          _buildSectionCard(
+                            context,
+                            'HotSpot',
+                            Icons.wifi,
+                            Colors.orange.shade100,
+                            () => context.push(AppRoutes.hotspot),
+                          ),
+                          _buildSectionCard(
+                            context,
+                            'Certificates',
+                            Icons.verified_user,
+                            Colors.indigo.shade100,
+                            () => context.push(AppRoutes.certificates),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildDashboardSection(
+                        context,
+                        l10n.monitoringTools,
+                        Icons.monitor,
+                        Colors.purple,
+                        [
+                          _buildSectionCard(
+                            context,
+                            'Network Tools',
+                            Icons.build,
+                            Colors.indigo.shade100,
+                            () => context.push(AppRoutes.tools),
+                          ),
+                          _buildSectionCard(
+                            context,
+                            l10n.systemLogs,
+                            Icons.article,
+                            Colors.blueGrey.shade100,
+                            () => context.push(AppRoutes.logs),
+                          ),
+                          _buildSectionCard(
+                            context,
+                            'Cloud',
+                            Icons.cloud,
+                            Colors.lightBlue.shade100,
+                            () => context.push(AppRoutes.cloud),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildDashboardSection(
+                        context,
+                        l10n.advancedFeatures,
+                        Icons.settings,
+                        Colors.teal,
+                        [
+                          _buildSectionCard(
+                            context,
+                            l10n.queues,
+                            Icons.queue,
+                            Colors.deepOrange.shade100,
+                            () => context.push(AppRoutes.queues),
+                          ),
+                          _buildSectionCard(
+                            context,
+                            l10n.wirelessManagement,
+                            Icons.wifi,
+                            Colors.cyan.shade100,
+                            () => context.push(AppRoutes.wireless),
+                          ),
+                          _buildSectionCard(
+                            context,
+                            'Backup & Restore',
+                            Icons.backup,
+                            Colors.amber.shade100,
+                            () => context.push(AppRoutes.backup),
+                          ),
+                          _buildSectionCard(
+                            context,
+                            'Services',
+                            Icons.dns,
+                            Colors.teal.shade100,
+                            () => context.push(AppRoutes.services),
+                          ),
+                        ],
+                      ),
                     ],
-
-                    // Sectioned Dashboard Layout
-                    _buildDashboardSection(
-                      context,
-                      l10n.networkManagement,
-                      Icons.settings_ethernet,
-                      Colors.blue,
-                      [
-                        _buildSectionCard(
-                          context,
-                          l10n.interfaces,
-                          Icons.settings_ethernet,
-                          Colors.blue.shade100,
-                          () => context.push(AppRoutes.interfaces),
-                        ),
-                        _buildSectionCard(
-                          context,
-                          l10n.ipAddresses,
-                          Icons.public,
-                          Colors.green.shade100,
-                          () => context.push(AppRoutes.ipAddresses),
-                        ),
-                        _buildSectionCard(
-                          context,
-                          l10n.dhcpServer,
-                          Icons.dns,
-                          Colors.purple.shade100,
-                          () => context.push(AppRoutes.dhcp),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    _buildDashboardSection(
-                      context,
-                      l10n.securityAccess,
-                      Icons.security,
-                      Colors.red,
-                      [
-                        _buildSectionCard(
-                          context,
-                          l10n.firewall,
-                          Icons.security,
-                          Colors.red.shade100,
-                          () => context.push(AppRoutes.firewall),
-                        ),
-                        _buildSectionCard(
-                          context,
-                          'HotSpot',
-                          Icons.wifi,
-                          Colors.orange.shade100,
-                          () => context.push(AppRoutes.hotspot),
-                        ),
-                        _buildSectionCard(
-                          context,
-                          'Certificates',
-                          Icons.verified_user,
-                          Colors.indigo.shade100,
-                          () => context.push(AppRoutes.certificates),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    _buildDashboardSection(
-                      context,
-                      l10n.monitoringTools,
-                      Icons.monitor,
-                      Colors.purple,
-                      [
-                        _buildSectionCard(
-                          context,
-                          'Network Tools',
-                          Icons.build,
-                          Colors.indigo.shade100,
-                          () => context.push(AppRoutes.tools),
-                        ),
-                        _buildSectionCard(
-                          context,
-                          l10n.systemLogs,
-                          Icons.article,
-                          Colors.blueGrey.shade100,
-                          () => context.push(AppRoutes.logs),
-                        ),
-                        _buildSectionCard(
-                          context,
-                          'Cloud',
-                          Icons.cloud,
-                          Colors.lightBlue.shade100,
-                          () => context.push(AppRoutes.cloud),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    _buildDashboardSection(
-                      context,
-                      l10n.advancedFeatures,
-                      Icons.settings,
-                      Colors.teal,
-                      [
-                        _buildSectionCard(
-                          context,
-                          l10n.queues,
-                          Icons.queue,
-                          Colors.deepOrange.shade100,
-                          () => context.push(AppRoutes.queues),
-                        ),
-                        _buildSectionCard(
-                          context,
-                          l10n.wirelessManagement,
-                          Icons.wifi,
-                          Colors.cyan.shade100,
-                          () => context.push(AppRoutes.wireless),
-                        ),
-                        _buildSectionCard(
-                          context,
-                          'Backup & Restore',
-                          Icons.backup,
-                          Colors.amber.shade100,
-                          () => context.push(AppRoutes.backup),
-                        ),
-                        _buildSectionCard(
-                          context,
-                          'Services',
-                          Icons.dns,
-                          Colors.teal.shade100,
-                          () => context.push(AppRoutes.services),
-                        ),
-                      ],
+                  ),
+                ),
+              ),
+            DashboardInitial() || DashboardError() || DashboardOperationSuccess() || DashboardOperationLoading() => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+                    const SizedBox(height: 16),
+                    Text(l10n.error),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<DashboardBloc>().add(const LoadDashboardData());
+                      },
+                      child: Text(l10n.confirm),
                     ),
                   ],
                 ),
               ),
-            );
-          }
-
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.grey),
-                const SizedBox(height: 16),
-                Text(l10n.error),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<DashboardBloc>().add(const LoadDashboardData());
-                  },
-                  child: Text(l10n.confirm),
-                ),
-              ],
-            ),
-          );
+          };
         },
       ),
     );

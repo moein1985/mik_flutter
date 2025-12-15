@@ -52,63 +52,62 @@ class _DhcpLeasesTabState extends State<DhcpLeasesTab> {
 
     return BlocBuilder<DhcpBloc, DhcpState>(
       builder: (context, state) {
-        if (state is DhcpLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        List<DhcpLease> allLeases = [];
-        if (state is DhcpLoaded && state.leases != null) {
-          allLeases = state.leases!;
-        }
-
-        final leases = _filterLeases(allLeases);
-
-        // Calculate statistics
-        final boundCount = allLeases.where((l) => l.status.toLowerCase() == 'bound' && !l.disabled).length;
-        final staticCount = allLeases.where((l) => !l.dynamic).length;
-        final dynamicCount = allLeases.where((l) => l.dynamic).length;
-        final totalCount = allLeases.length;
-
-        return RefreshIndicator(
-          onRefresh: () async {
-            context.read<DhcpBloc>().add(const LoadDhcpLeases());
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Quick Tip Card
-                _buildQuickTipCard(colorScheme),
-
-                const SizedBox(height: 16),
-
-                // Summary Card
-                _buildSummaryCard(boundCount, staticCount, dynamicCount, totalCount, colorScheme),
-
-                const SizedBox(height: 16),
-
-                // Search Bar
-                _buildSearchBar(colorScheme),
-
-                const SizedBox(height: 16),
-
-                // Leases List
-                if (allLeases.isEmpty)
-                  _buildEmptyState(context)
-                else if (leases.isEmpty)
-                  _buildNoResultsState()
-                else
-                  ...leases.map((lease) => _buildLeaseCard(context, lease, colorScheme)),
-
-                // Extra space for FAB
-                const SizedBox(height: 80),
-              ],
-            ),
-          ),
-        );
+        return switch (state) {
+          DhcpLoading() => const Center(child: CircularProgressIndicator()),
+          DhcpLoaded(:final leases) => _buildLeasesList(context, leases ?? [], colorScheme),
+          _ => _buildLeasesList(context, [], colorScheme),
+        };
       },
+    );
+  }
+
+  Widget _buildLeasesList(BuildContext context, List<DhcpLease> allLeases, ColorScheme colorScheme) {
+    final leases = _filterLeases(allLeases);
+
+    // Calculate statistics
+    final boundCount = allLeases.where((l) => l.status.toLowerCase() == 'bound' && !l.disabled).length;
+    final staticCount = allLeases.where((l) => !l.dynamic).length;
+    final dynamicCount = allLeases.where((l) => l.dynamic).length;
+    final totalCount = allLeases.length;
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<DhcpBloc>().add(const LoadDhcpLeases());
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Quick Tip Card
+            _buildQuickTipCard(colorScheme),
+
+            const SizedBox(height: 16),
+
+            // Summary Card
+            _buildSummaryCard(boundCount, staticCount, dynamicCount, totalCount, colorScheme),
+
+            const SizedBox(height: 16),
+
+            // Search Bar
+            _buildSearchBar(colorScheme),
+
+            const SizedBox(height: 16),
+
+            // Leases List
+            if (allLeases.isEmpty)
+              _buildEmptyState(context)
+            else if (leases.isEmpty)
+              _buildNoResultsState()
+            else
+              ...leases.map((lease) => _buildLeaseCard(context, lease, colorScheme)),
+
+            // Extra space for FAB
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
     );
   }
 

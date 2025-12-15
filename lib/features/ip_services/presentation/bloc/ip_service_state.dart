@@ -2,22 +2,22 @@ import 'package:equatable/equatable.dart';
 import '../../../certificates/domain/entities/certificate.dart';
 import '../../domain/entities/ip_service.dart';
 
-abstract class IpServiceState extends Equatable {
+sealed class IpServiceState extends Equatable {
   const IpServiceState();
 
   @override
   List<Object?> get props => [];
 }
 
-class IpServiceInitial extends IpServiceState {
+final class IpServiceInitial extends IpServiceState {
   const IpServiceInitial();
 }
 
-class IpServiceLoading extends IpServiceState {
+final class IpServiceLoading extends IpServiceState {
   const IpServiceLoading();
 }
 
-class IpServiceLoaded extends IpServiceState {
+final class IpServiceLoaded extends IpServiceState {
   final List<IpService> services;
   final List<Certificate> availableCertificates;
 
@@ -44,7 +44,7 @@ class IpServiceLoaded extends IpServiceState {
   List<Object?> get props => [services, availableCertificates];
 }
 
-class IpServiceOperationSuccess extends IpServiceState {
+final class IpServiceOperationSuccess extends IpServiceState {
   final String message;
   final List<IpService> services;
   final List<Certificate> availableCertificates;
@@ -55,7 +55,7 @@ class IpServiceOperationSuccess extends IpServiceState {
   List<Object?> get props => [message, services, availableCertificates];
 }
 
-class IpServiceError extends IpServiceState {
+final class IpServiceError extends IpServiceState {
   final String message;
 
   const IpServiceError(this.message);
@@ -65,7 +65,7 @@ class IpServiceError extends IpServiceState {
 }
 
 /// State when creating certificate for api-ssl
-class IpServiceCreatingCertificate extends IpServiceState {
+final class IpServiceCreatingCertificate extends IpServiceState {
   final String message;
 
   const IpServiceCreatingCertificate(this.message);

@@ -373,8 +373,8 @@ class AppRouter {
                 GoRoute(
                   path: 'add',
                   name: 'add-queue',
-                  builder: (context, state) => BlocProvider.value(
-                    value: context.read<QueuesBloc>(),
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => sl<QueuesBloc>(),
                     child: const AddEditQueuePage(),
                   ),
                 ),
@@ -383,8 +383,8 @@ class AppRouter {
                   name: 'edit-queue',
                   builder: (context, state) {
                     final queueId = state.pathParameters['id']!;
-                    return BlocProvider.value(
-                      value: context.read<QueuesBloc>(),
+                    return BlocProvider(
+                      create: (_) => sl<QueuesBloc>(),
                       child: AddEditQueuePage(queueId: queueId),
                     );
                   },

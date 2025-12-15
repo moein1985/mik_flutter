@@ -1,22 +1,22 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/log_entry.dart';
 
-abstract class LogsState extends Equatable {
+sealed class LogsState extends Equatable {
   const LogsState();
 
   @override
   List<Object?> get props => [];
 }
 
-class LogsInitial extends LogsState {
+final class LogsInitial extends LogsState {
   const LogsInitial();
 }
 
-class LogsLoading extends LogsState {
+final class LogsLoading extends LogsState {
   const LogsLoading();
 }
 
-class LogsLoaded extends LogsState {
+final class LogsLoaded extends LogsState {
   final List<LogEntry> logs;
   final bool isFollowing;
   final String? currentFilter;
@@ -31,7 +31,7 @@ class LogsLoaded extends LogsState {
   List<Object?> get props => [logs, isFollowing, currentFilter];
 }
 
-class LogsError extends LogsState {
+final class LogsError extends LogsState {
   final String message;
 
   const LogsError(this.message);
@@ -40,7 +40,7 @@ class LogsError extends LogsState {
   List<Object?> get props => [message];
 }
 
-class LogsFollowing extends LogsState {
+final class LogsFollowing extends LogsState {
   final List<LogEntry> logs;
   final String? currentFilter;
 
@@ -53,7 +53,7 @@ class LogsFollowing extends LogsState {
   List<Object?> get props => [logs, currentFilter];
 }
 
-class LogsOperationSuccess extends LogsState {
+final class LogsOperationSuccess extends LogsState {
   final String message;
 
   const LogsOperationSuccess(this.message);

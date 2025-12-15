@@ -34,11 +34,11 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
           color: isDisabled 
-              ? colorScheme.outline.withOpacity(0.2)
-              : typeColor.withOpacity(0.3),
+              ? colorScheme.outline.withAlpha(51)
+              : typeColor.withAlpha(77),
         ),
       ),
-      color: isDisabled ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : null,
+      color: isDisabled ? colorScheme.surfaceContainerHighest.withAlpha(128) : null,
       child: Column(
         children: [
           // Header - Always visible
@@ -66,7 +66,7 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
                       color: isDisabled ? Colors.grey : Colors.green,
                       boxShadow: isDisabled ? null : [
                         BoxShadow(
-                          color: Colors.green.withOpacity(0.4),
+                          color: Colors.green.withAlpha(102),
                           blurRadius: 4,
                           spreadRadius: 1,
                         ),
@@ -78,7 +78,7 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: typeColor.withOpacity(0.1),
+                      color: typeColor.withAlpha(26),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -148,7 +148,7 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
                     onChanged: (value) {
                       widget.onToggle(value);
                     },
-                    activeColor: Colors.green,
+                    activeThumbColor: Colors.green,
                   ),
                   // Expand icon
                   Icon(
@@ -170,9 +170,9 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha(26),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withAlpha(77)),
       ),
       child: Text(
         text,
@@ -191,7 +191,7 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
     if (params.isEmpty) {
       return Container(
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          color: colorScheme.surfaceContainerHighest.withAlpha(77),
           borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
         ),
         padding: const EdgeInsets.all(16),
@@ -207,7 +207,7 @@ class _FirewallRuleCardState extends State<FirewallRuleCard> {
 
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withAlpha(77),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
       ),
       padding: const EdgeInsets.all(16),

@@ -59,7 +59,7 @@ class QueuesBloc extends Bloc<QueuesEvent, QueuesState> {
   }
 
   Future<void> _onAddQueue(AddQueue event, Emitter<QueuesState> emit) async {
-    emit(const AddingQueue());
+    emit(const QueueOperationInProgress());
 
     final result = await addQueueUseCase.call(event.queueData);
 
@@ -74,7 +74,7 @@ class QueuesBloc extends Bloc<QueuesEvent, QueuesState> {
   }
 
   Future<void> _onUpdateQueue(UpdateQueue event, Emitter<QueuesState> emit) async {
-    emit(const UpdatingQueue());
+    emit(const QueueOperationInProgress());
 
     final result = await editQueueUseCase.call(event.queueId, event.queueData);
 
@@ -89,7 +89,7 @@ class QueuesBloc extends Bloc<QueuesEvent, QueuesState> {
   }
 
   Future<void> _onDeleteQueue(DeleteQueue event, Emitter<QueuesState> emit) async {
-    emit(const DeletingQueue());
+    emit(const QueueOperationInProgress());
 
     final result = await deleteQueueUseCase.call(event.queueId);
 

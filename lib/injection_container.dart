@@ -2,6 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
 // Core
+import 'core/config/app_config.dart';
 import 'core/network/routeros_client_v2.dart';
 import 'core/network/routeros_client.dart';
 
@@ -10,6 +11,7 @@ import 'features/auth/data/datasources/auth_local_data_source.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
 import 'features/auth/data/datasources/saved_router_local_data_source.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/auth/data/repositories/fake_auth_repository_impl.dart';
 import 'features/auth/data/repositories/saved_router_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/repositories/saved_router_repository.dart';
@@ -28,6 +30,7 @@ import 'features/auth/presentation/bloc/saved_router_bloc.dart';
 // Features - Dashboard
 import 'features/dashboard/data/datasources/dashboard_remote_data_source.dart';
 import 'features/dashboard/data/repositories/dashboard_repository_impl.dart';
+import 'features/dashboard/data/repositories/fake_dashboard_repository_impl.dart';
 import 'features/dashboard/domain/repositories/dashboard_repository.dart';
 import 'features/dashboard/domain/usecases/get_system_resources_usecase.dart';
 import 'features/dashboard/domain/usecases/get_interfaces_usecase.dart';
@@ -41,6 +44,7 @@ import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
 // Features - HotSpot
 import 'features/hotspot/data/datasources/hotspot_remote_data_source.dart';
 import 'features/hotspot/data/repositories/hotspot_repository_impl.dart';
+import 'features/hotspot/data/repositories/fake_hotspot_repository_impl.dart';
 import 'features/hotspot/domain/repositories/hotspot_repository.dart';
 import 'features/hotspot/domain/usecases/get_servers_usecase.dart';
 import 'features/hotspot/domain/usecases/get_users_usecase.dart';
@@ -86,23 +90,27 @@ import 'features/firewall/presentation/bloc/firewall_bloc.dart';
 // Features - IP Services
 import 'features/ip_services/data/datasources/ip_service_remote_data_source.dart';
 import 'features/ip_services/data/repositories/ip_service_repository_impl.dart';
+import 'features/ip_services/data/repositories/fake_ip_service_repository_impl.dart';
 import 'features/ip_services/domain/repositories/ip_service_repository.dart';
 import 'features/ip_services/presentation/bloc/ip_service_bloc.dart';
 
 // Features - Certificates
 import 'features/certificates/data/datasources/certificate_remote_data_source.dart';
 import 'features/certificates/data/repositories/certificate_repository_impl.dart';
+import 'features/certificates/data/repositories/fake_certificate_repository_impl.dart';
 import 'features/certificates/domain/repositories/certificate_repository.dart';
 import 'features/certificates/presentation/bloc/certificate_bloc.dart';
 
 // Features - DHCP
 import 'features/dhcp/data/datasources/dhcp_remote_data_source.dart';
 import 'features/dhcp/data/repositories/dhcp_repository_impl.dart';
+import 'features/dhcp/data/repositories/fake_dhcp_repository_impl.dart';
 import 'features/dhcp/domain/repositories/dhcp_repository.dart';
 import 'features/dhcp/presentation/bloc/dhcp_bloc.dart';
 
 // Features - Tools
 import 'features/tools/data/repositories/tools_repository_impl.dart';
+import 'features/tools/data/repositories/fake_tools_repository_impl.dart';
 import 'features/tools/domain/repositories/tools_repository.dart';
 import 'features/tools/domain/usecases/ping_usecase.dart';
 import 'features/tools/domain/usecases/traceroute_usecase.dart';
@@ -112,6 +120,7 @@ import 'features/tools/presentation/bloc/tools_bloc.dart';
 // Features - Wireless
 import 'features/wireless/data/datasources/wireless_remote_data_source.dart';
 import 'features/wireless/data/repositories/wireless_repository_impl.dart';
+import 'features/wireless/data/repositories/fake_wireless_repository_impl.dart';
 import 'features/wireless/domain/repositories/wireless_repository.dart';
 import 'features/wireless/domain/usecases/get_wireless_interfaces_usecase.dart';
 import 'features/wireless/domain/usecases/get_wireless_registrations_usecase.dart';
@@ -130,6 +139,7 @@ import 'features/wireless/presentation/bloc/wireless_bloc.dart';
 // Features - Logs
 import 'features/logs/data/datasources/logs_remote_data_source.dart';
 import 'features/logs/data/repositories/logs_repository_impl.dart';
+import 'features/logs/data/repositories/fake_logs_repository_impl.dart';
 import 'features/logs/domain/repositories/logs_repository.dart';
 import 'features/logs/domain/usecases/get_logs_usecase.dart';
 import 'features/logs/domain/usecases/follow_logs_usecase.dart';
@@ -140,6 +150,7 @@ import 'features/logs/presentation/bloc/logs_bloc.dart';
 // Features - Backup
 import 'features/backup/data/datasources/backup_remote_data_source.dart';
 import 'features/backup/data/repositories/backup_repository_impl.dart';
+import 'features/backup/data/repositories/fake_backup_repository_impl.dart';
 import 'features/backup/domain/repositories/backup_repository.dart';
 import 'features/backup/domain/usecases/get_backups_usecase.dart';
 import 'features/backup/domain/usecases/create_backup_usecase.dart';
@@ -150,6 +161,7 @@ import 'features/backup/presentation/bloc/backup_bloc.dart';
 
 // Features - Queues
 import 'features/queues/data/repositories/queues_repository_impl.dart';
+import 'features/queues/data/repositories/fake_queues_repository_impl.dart';
 import 'features/queues/domain/repositories/queues_repository.dart';
 import 'features/queues/domain/usecases/get_queues_usecase.dart';
 import 'features/queues/domain/usecases/add_queue_usecase.dart';
@@ -162,6 +174,7 @@ import 'features/queues/presentation/bloc/queues_bloc.dart';
 // Features - Cloud
 import 'features/cloud/data/datasources/cloud_remote_data_source.dart';
 import 'features/cloud/data/repositories/cloud_repository_impl.dart';
+import 'features/cloud/data/repositories/fake_cloud_repository_impl.dart';
 import 'features/cloud/domain/repositories/cloud_repository.dart';
 import 'features/cloud/presentation/bloc/cloud_bloc.dart';
 
@@ -207,12 +220,18 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SetDefaultRouterUseCase(sl()));
 
   // Repository
-  sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
-      remoteDataSource: sl(),
-      localDataSource: sl(),
-    ),
-  );
+  if (AppConfig.useFakeRepositories) {
+    sl.registerLazySingleton<AuthRepository>(
+      () => FakeAuthRepositoryImpl(),
+    );
+  } else {
+    sl.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(
+        remoteDataSource: sl(),
+        localDataSource: sl(),
+      ),
+    );
+  }
 
   sl.registerLazySingleton<SavedRouterRepository>(
     () => SavedRouterRepositoryImpl(
@@ -266,17 +285,25 @@ Future<void> init() async {
 
   // Repository
   sl.registerLazySingleton<DashboardRepository>(
-    () => DashboardRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
+    () {
+      if (AppConfig.useFakeRepositories) {
+        return FakeDashboardRepositoryImpl();
+      } else {
+        return DashboardRepositoryImpl(
+          remoteDataSource: sl(),
+        );
+      }
+    },
   );
 
-  // Data sources
-  sl.registerLazySingleton<DashboardRemoteDataSource>(
-    () => DashboardRemoteDataSourceImpl(
-      authRemoteDataSource: sl(),
-    ),
-  );
+  // Data sources (only needed for real repository)
+  if (!AppConfig.useFakeRepositories) {
+    sl.registerLazySingleton<DashboardRemoteDataSource>(
+      () => DashboardRemoteDataSourceImpl(
+        authRemoteDataSource: sl(),
+      ),
+    );
+  }
 
   //! Features - HotSpot
   // Bloc
@@ -348,17 +375,25 @@ Future<void> init() async {
 
   // Repository
   sl.registerLazySingleton<HotspotRepository>(
-    () => HotspotRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
+    () {
+      if (AppConfig.useFakeRepositories) {
+        return FakeHotspotRepositoryImpl();
+      } else {
+        return HotspotRepositoryImpl(
+          remoteDataSource: sl(),
+        );
+      }
+    },
   );
 
-  // Data sources
-  sl.registerLazySingleton<HotspotRemoteDataSource>(
-    () => HotspotRemoteDataSourceImpl(
-      authRemoteDataSource: sl(),
-    ),
-  );
+  // Data sources (only needed for real repository)
+  if (!AppConfig.useFakeRepositories) {
+    sl.registerLazySingleton<HotspotRemoteDataSource>(
+      () => HotspotRemoteDataSourceImpl(
+        authRemoteDataSource: sl(),
+      ),
+    );
+  }
 
   //! Features - Firewall
   // Bloc
@@ -400,12 +435,18 @@ Future<void> init() async {
   );
 
   // Repository
-  sl.registerLazySingleton<IpServiceRepository>(
-    () => IpServiceRepositoryImpl(
-      remoteDataSource: sl(),
-      certificateDataSource: sl(),
-    ),
-  );
+  if (AppConfig.useFakeRepositories) {
+    sl.registerLazySingleton<IpServiceRepository>(
+      () => FakeIpServiceRepositoryImpl(),
+    );
+  } else {
+    sl.registerLazySingleton<IpServiceRepository>(
+      () => IpServiceRepositoryImpl(
+        remoteDataSource: sl(),
+        certificateDataSource: sl(),
+      ),
+    );
+  }
 
   // Data sources
   sl.registerLazySingleton<IpServiceRemoteDataSource>(
@@ -423,11 +464,17 @@ Future<void> init() async {
   );
 
   // Repository
-  sl.registerLazySingleton<CertificateRepository>(
-    () => CertificateRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
-  );
+  if (AppConfig.useFakeRepositories) {
+    sl.registerLazySingleton<CertificateRepository>(
+      () => FakeCertificateRepositoryImpl(),
+    );
+  } else {
+    sl.registerLazySingleton<CertificateRepository>(
+      () => CertificateRepositoryImpl(
+        remoteDataSource: sl(),
+      ),
+    );
+  }
 
   // Data sources
   sl.registerLazySingleton<CertificateRemoteDataSource>(
@@ -445,11 +492,17 @@ Future<void> init() async {
   );
 
   // Repository
-  sl.registerLazySingleton<DhcpRepository>(
-    () => DhcpRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
-  );
+  if (AppConfig.useFakeRepositories) {
+    sl.registerLazySingleton<DhcpRepository>(
+      () => FakeDhcpRepositoryImpl(),
+    );
+  } else {
+    sl.registerLazySingleton<DhcpRepository>(
+      () => DhcpRepositoryImpl(
+        remoteDataSource: sl(),
+      ),
+    );
+  }
 
   // Data sources
   sl.registerLazySingleton<DhcpRemoteDataSource>(
@@ -467,11 +520,17 @@ Future<void> init() async {
   );
 
   // Repository
-  sl.registerLazySingleton<CloudRepository>(
-    () => CloudRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
-  );
+  if (AppConfig.useFakeRepositories) {
+    sl.registerLazySingleton<CloudRepository>(
+      () => FakeCloudRepositoryImpl(),
+    );
+  } else {
+    sl.registerLazySingleton<CloudRepository>(
+      () => CloudRepositoryImpl(
+        remoteDataSource: sl(),
+      ),
+    );
+  }
 
   // Data sources
   sl.registerLazySingleton<CloudRemoteDataSource>(
@@ -520,12 +579,16 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DnsLookupUseCase(sl()));
 
   // Repository
-  sl.registerLazySingleton<ToolsRepository>(
-    () => ToolsRepositoryImpl(
-      routerOsClient: sl(),
-      legacyClient: sl(),  // Legacy client for streaming (package has bugs)
-    ),
-  );
+  sl.registerLazySingleton<ToolsRepository>(() {
+    if (AppConfig.useFakeRepositories) {
+      return FakeToolsRepositoryImpl();
+    } else {
+      return ToolsRepositoryImpl(
+        routerOsClient: sl(),
+        legacyClient: sl(),  // Legacy client for streaming (package has bugs)
+      );
+    }
+  });
 
   //! Features - Queues
   // Bloc
@@ -550,21 +613,33 @@ Future<void> init() async {
 
   // Repository
   sl.registerLazySingleton<QueuesRepository>(
-    () => QueuesRepositoryImpl(
-      authRemoteDataSource: sl(),
-    ),
+    () {
+      if (AppConfig.useFakeRepositories) {
+        return FakeQueuesRepositoryImpl();
+      } else {
+        return QueuesRepositoryImpl(
+          authRemoteDataSource: sl(),
+        );
+      }
+    },
   );
 
   //! Features - Wireless
   // Data sources
-  sl.registerLazySingleton<WirelessRemoteDataSource>(
-    () => WirelessRemoteDataSourceImpl(authRemoteDataSource: sl()),
-  );
+  if (!AppConfig.useFakeRepositories) {
+    sl.registerLazySingleton<WirelessRemoteDataSource>(
+      () => WirelessRemoteDataSourceImpl(authRemoteDataSource: sl()),
+    );
+  }
 
   // Repository
-  sl.registerLazySingleton<WirelessRepository>(
-    () => WirelessRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<WirelessRepository>(() {
+    if (AppConfig.useFakeRepositories) {
+      return FakeWirelessRepositoryImpl();
+    } else {
+      return WirelessRepositoryImpl(sl());
+    }
+  });
 
   // Use cases
   sl.registerLazySingleton(() => GetWirelessInterfacesUseCase(sl()));
@@ -630,11 +705,17 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SearchLogsUseCase(sl()));
 
   // Repository
-  sl.registerLazySingleton<LogsRepository>(
-    () => LogsRepositoryImpl(
-      remoteDataSource: sl(),
-    ),
-  );
+  if (AppConfig.useFakeRepositories) {
+    sl.registerLazySingleton<LogsRepository>(
+      () => FakeLogsRepositoryImpl(),
+    );
+  } else {
+    sl.registerLazySingleton<LogsRepository>(
+      () => LogsRepositoryImpl(
+        remoteDataSource: sl(),
+      ),
+    );
+  }
 
   // Data sources
   sl.registerLazySingleton<LogsRemoteDataSource>(
@@ -663,11 +744,17 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ExportConfigUseCase(sl()));
 
   // Repository
-  sl.registerLazySingleton<BackupRepository>(
-    () => BackupRepositoryImpl(
-      sl(),
-    ),
-  );
+  if (AppConfig.useFakeRepositories) {
+    sl.registerLazySingleton<BackupRepository>(
+      () => FakeBackupRepositoryImpl(),
+    );
+  } else {
+    sl.registerLazySingleton<BackupRepository>(
+      () => BackupRepositoryImpl(
+        sl(),
+      ),
+    );
+  }
 
   // Data sources
   sl.registerLazySingleton<BackupRemoteDataSource>(

@@ -1,22 +1,22 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/certificate.dart';
 
-abstract class CertificateState extends Equatable {
+sealed class CertificateState extends Equatable {
   const CertificateState();
 
   @override
   List<Object?> get props => [];
 }
 
-class CertificateInitial extends CertificateState {
+final class CertificateInitial extends CertificateState {
   const CertificateInitial();
 }
 
-class CertificateLoading extends CertificateState {
+final class CertificateLoading extends CertificateState {
   const CertificateLoading();
 }
 
-class CertificateLoaded extends CertificateState {
+final class CertificateLoaded extends CertificateState {
   final List<Certificate> certificates;
 
   const CertificateLoaded(this.certificates);
@@ -29,7 +29,7 @@ class CertificateLoaded extends CertificateState {
   List<Object?> get props => [certificates];
 }
 
-class CertificateOperationSuccess extends CertificateState {
+final class CertificateOperationSuccess extends CertificateState {
   final String message;
   final List<Certificate> certificates;
 
@@ -39,7 +39,7 @@ class CertificateOperationSuccess extends CertificateState {
   List<Object?> get props => [message, certificates];
 }
 
-class CertificateCreating extends CertificateState {
+final class CertificateCreating extends CertificateState {
   final String message;
 
   const CertificateCreating(this.message);
@@ -48,7 +48,7 @@ class CertificateCreating extends CertificateState {
   List<Object?> get props => [message];
 }
 
-class CertificateError extends CertificateState {
+final class CertificateError extends CertificateState {
   final String message;
 
   const CertificateError(this.message);

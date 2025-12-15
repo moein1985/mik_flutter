@@ -14,11 +14,19 @@ class HotspotUsersPage extends StatefulWidget {
 
 class _HotspotUsersPageState extends State<HotspotUsersPage> {
   String? _lastShownMessage;
+  String _searchQuery = '';
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     context.read<HotspotBloc>().add(const LoadHotspotUsers());
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _showSnackBarOnce(String message, {bool isError = false}) {
@@ -38,14 +46,27 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
     }
   }
 
+  List<HotspotUser> _filterUsers(List<HotspotUser> users) {
+    if (_searchQuery.isEmpty) return users;
+    return users.where((user) {
+      final query = _searchQuery.toLowerCase();
+      return user.name.toLowerCase().contains(query) ||
+          (user.comment?.toLowerCase().contains(query) ?? false) ||
+          (user.profile?.toLowerCase().contains(query) ?? false);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('HotSpot Users'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
             onPressed: () {
               context.read<HotspotBloc>().add(const LoadHotspotUsers());
             },
@@ -57,246 +78,457 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
         listener: (context, state) {
           if (state is HotspotOperationSuccess) {
             _showSnackBarOnce(state.message);
+            // Reload users after operation
+            context.read<HotspotBloc>().add(const LoadHotspotUsers());
           } else if (state is HotspotError) {
             _showSnackBarOnce(state.message, isError: true);
           }
         },
         builder: (context, state) {
-          if (state is HotspotLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final users = state is HotspotLoaded ? state.users : null;
-
-          if (users != null) {
-            if (users.isEmpty) {
-              return const Center(
-                child: Text('No users found'),
-              );
-            }
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                context.read<HotspotBloc>().add(const LoadHotspotUsers());
-              },
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: users.length,
-                itemBuilder: (context, index) {
-                  final user = users[index];
-                  return _buildUserCard(context, user);
-                },
-              ),
-            );
-          }
-
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.grey),
-                const SizedBox(height: 16),
-                Text(state is HotspotError
-                    ? state.message
-                    : 'Unable to load users'),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<HotspotBloc>().add(const LoadHotspotUsers());
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
+          return switch (state) {
+            HotspotLoading() => const Center(child: CircularProgressIndicator()),
+            HotspotLoaded(:final users) => users == null || users.isEmpty
+                ? _buildEmptyView(colorScheme)
+                : _buildUsersView(context, users, colorScheme),
+            _ => _buildEmptyView(colorScheme),
+          };
         },
       ),
     );
   }
 
-  Widget _buildUserCard(BuildContext context, HotspotUser user) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        leading: CircleAvatar(
-          backgroundColor: user.disabled ? Colors.grey : Colors.green,
-          child: Icon(
-            user.disabled ? Icons.person_off : Icons.person,
-            color: Colors.white,
-          ),
-        ),
-        title: Row(
+  Widget _buildUsersView(BuildContext context, List<HotspotUser> users, ColorScheme colorScheme) {
+    final filteredUsers = _filterUsers(users);
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<HotspotBloc>().add(const LoadHotspotUsers());
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
+            // Quick Tip
+            _buildQuickTipCard(),
+            
+            const SizedBox(height: 16),
+            
+            // Search Bar
+            _buildSearchBar(colorScheme),
+            
+            const SizedBox(height: 16),
+
+            // User count
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
               child: Text(
-                user.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                _searchQuery.isEmpty 
+                    ? '${users.length} user${users.length > 1 ? 's' : ''}'
+                    : '${filteredUsers.length} of ${users.length} users',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
-            Switch(
-              value: !user.disabled,
-              onChanged: (value) {
-                context.read<HotspotBloc>().add(
-                      ToggleHotspotUser(id: user.id, enable: value),
-                    );
-              },
-            ),
+            
+            // User cards
+            if (filteredUsers.isEmpty && _searchQuery.isNotEmpty)
+              _buildNoResultsView(colorScheme)
+            else
+              ...filteredUsers.map((user) => _buildUserCard(context, user, colorScheme)),
+            
+            // Bottom spacing for FAB
+            const SizedBox(height: 80),
           ],
         ),
-        subtitle: Row(
-          children: [
-            if (user.profile != null)
-              Chip(
-                label: Text(user.profile!, style: const TextStyle(fontSize: 11)),
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-              ),
-            const SizedBox(width: 8),
-            Chip(
-              label: Text(
-                user.disabled ? 'Disabled' : 'Enabled',
-                style: const TextStyle(fontSize: 11, color: Colors.white),
-              ),
-              backgroundColor: user.disabled ? Colors.red : Colors.green,
-              visualDensity: VisualDensity.compact,
-              padding: EdgeInsets.zero,
-            ),
-          ],
-        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickTipCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Icon(Icons.people, color: Colors.blue.shade700),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Manage HotSpot user accounts, set limits, and track usage statistics.',
+              style: TextStyle(
+                color: Colors.blue.shade800,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(ColorScheme colorScheme) {
+    return TextField(
+      controller: _searchController,
+      decoration: InputDecoration(
+        hintText: 'Search users...',
+        prefixIcon: const Icon(Icons.search),
+        suffixIcon: _searchQuery.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() => _searchQuery = '');
+                },
+              )
+            : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.outline.withAlpha(51)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.outline.withAlpha(51)),
+        ),
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest.withAlpha(77),
+      ),
+      onChanged: (value) => setState(() => _searchQuery = value),
+    );
+  }
+
+  Widget _buildEmptyView(ColorScheme colorScheme) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          _buildQuickTipCard(),
+          
+          const SizedBox(height: 48),
+          
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withAlpha(77),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.people_outline,
+              size: 64,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No Users Found',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Tap + to add a new HotSpot user',
+            style: TextStyle(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoResultsView(ColorScheme colorScheme) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        child: Column(
+          children: [
+            Icon(Icons.search_off, size: 48, color: colorScheme.onSurfaceVariant),
+            const SizedBox(height: 16),
+            Text(
+              'No users match "$_searchQuery"',
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserCard(BuildContext context, HotspotUser user, ColorScheme colorScheme) {
+    final isEnabled = !user.disabled;
+    final statusColor = isEnabled ? Colors.green : Colors.grey;
+    
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: colorScheme.outline.withAlpha(51)),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          leading: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: statusColor.withAlpha(26),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isEnabled ? Icons.person : Icons.person_off,
+              color: statusColor,
+              size: 24,
+            ),
+          ),
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  user.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              // Status dot
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Toggle switch
+              Switch(
+                value: isEnabled,
+                onChanged: (value) {
+                  context.read<HotspotBloc>().add(
+                    ToggleHotspotUser(id: user.id, enable: value),
+                  );
+                },
+              ),
+            ],
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
               children: [
-                // Basic Info Section
-                _buildSectionTitle('Basic Info'),
-                _buildInfoRow('Server', user.server ?? 'all'),
-                if (user.comment != null && user.comment!.isNotEmpty)
-                  _buildInfoRow('Comment', user.comment!),
-
-                const Divider(height: 24),
-
-                // Limits Section
-                _buildSectionTitle('Limits', icon: Icons.speed),
-                if (user.hasLimits) ...[
-                  if (user.limitUptime != null && user.limitUptime!.isNotEmpty)
-                    _buildInfoRow('Uptime Limit', user.limitUptime!),
-                  if (user.limitBytesIn != null && user.limitBytesIn!.isNotEmpty)
-                    _buildInfoRow('Download Limit', _formatBytes(user.limitBytesIn!)),
-                  if (user.limitBytesOut != null && user.limitBytesOut!.isNotEmpty)
-                    _buildInfoRow('Upload Limit', _formatBytes(user.limitBytesOut!)),
-                  if (user.limitBytesTotal != null && user.limitBytesTotal!.isNotEmpty)
-                    _buildInfoRow('Total Limit', _formatBytes(user.limitBytesTotal!)),
-                ] else
-                  const Text(
-                    'No limits set',
-                    style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-                  ),
-
-                const Divider(height: 24),
-
-                // Statistics Section
-                _buildSectionTitle('Statistics', icon: Icons.bar_chart),
-                if (user.hasStatistics) ...[
-                  if (user.uptime != null && user.uptime!.isNotEmpty)
-                    _buildInfoRow('Uptime', user.uptime!),
-                  if (user.bytesIn != null && user.bytesIn!.isNotEmpty)
-                    _buildInfoRow('Downloaded', _formatBytes(user.bytesIn!)),
-                  if (user.bytesOut != null && user.bytesOut!.isNotEmpty)
-                    _buildInfoRow('Uploaded', _formatBytes(user.bytesOut!)),
-                ] else
-                  const Text(
-                    'No usage statistics',
-                    style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-                  ),
-
-                const SizedBox(height: 16),
-
-                // Action Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Edit Button
-                    ElevatedButton.icon(
-                      onPressed: () => _showEditUserDialog(context, user),
-                      icon: const Icon(Icons.edit, size: 18),
-                      label: const Text('Edit'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                    // Reset Statistics Button
-                    if (user.hasStatistics)
-                      ElevatedButton.icon(
-                        onPressed: () => _showResetCountersDialog(context, user),
-                        icon: const Icon(Icons.refresh, size: 18),
-                        label: const Text('Reset Stats'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    // Delete Button
-                    ElevatedButton.icon(
-                      onPressed: () => _showDeleteUserDialog(context, user),
-                      icon: const Icon(Icons.delete, size: 18),
-                      label: const Text('Delete'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ],
+                if (user.profile != null)
+                  _buildTag(user.profile!, Colors.purple, colorScheme),
+                _buildTag(
+                  isEnabled ? 'Enabled' : 'Disabled',
+                  statusColor,
+                  colorScheme,
                 ),
               ],
             ),
           ),
+          children: [
+            const Divider(),
+            const SizedBox(height: 8),
+            
+            // Basic Info Section
+            _buildSectionTitle('Basic Info', Icons.info_outline, colorScheme),
+            const SizedBox(height: 8),
+            _buildInfoRow('Server', user.server ?? 'all', colorScheme),
+            if (user.comment != null && user.comment!.isNotEmpty)
+              _buildInfoRow('Comment', user.comment!, colorScheme),
+
+            const SizedBox(height: 16),
+
+            // Limits Section
+            _buildSectionTitle('Limits', Icons.speed, colorScheme),
+            const SizedBox(height: 8),
+            if (user.hasLimits) ...[
+              if (user.limitUptime != null && user.limitUptime!.isNotEmpty)
+                _buildInfoRow('Uptime', user.limitUptime!, colorScheme),
+              if (user.limitBytesIn != null && user.limitBytesIn!.isNotEmpty)
+                _buildInfoRow('Download', _formatBytes(user.limitBytesIn!), colorScheme),
+              if (user.limitBytesOut != null && user.limitBytesOut!.isNotEmpty)
+                _buildInfoRow('Upload', _formatBytes(user.limitBytesOut!), colorScheme),
+              if (user.limitBytesTotal != null && user.limitBytesTotal!.isNotEmpty)
+                _buildInfoRow('Total', _formatBytes(user.limitBytesTotal!), colorScheme),
+            ] else
+              Text(
+                'No limits set',
+                style: TextStyle(color: colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic, fontSize: 13),
+              ),
+
+            const SizedBox(height: 16),
+
+            // Statistics Section
+            _buildSectionTitle('Statistics', Icons.bar_chart, colorScheme),
+            const SizedBox(height: 8),
+            if (user.hasStatistics) ...[
+              Row(
+                children: [
+                  if (user.bytesIn != null && user.bytesIn!.isNotEmpty)
+                    Expanded(
+                      child: _buildStatCard('Download', _formatBytes(user.bytesIn!), Icons.download, Colors.blue, colorScheme),
+                    ),
+                  if (user.bytesIn != null && user.bytesOut != null)
+                    const SizedBox(width: 12),
+                  if (user.bytesOut != null && user.bytesOut!.isNotEmpty)
+                    Expanded(
+                      child: _buildStatCard('Upload', _formatBytes(user.bytesOut!), Icons.upload, Colors.orange, colorScheme),
+                    ),
+                ],
+              ),
+              if (user.uptime != null && user.uptime!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: _buildInfoRow('Uptime', user.uptime!, colorScheme),
+                ),
+            ] else
+              Text(
+                'No usage statistics',
+                style: TextStyle(color: colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic, fontSize: 13),
+              ),
+
+            const SizedBox(height: 16),
+
+            // Action Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showEditUserDialog(context, user),
+                    icon: const Icon(Icons.edit, size: 18),
+                    label: const Text('Edit'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                if (user.hasStatistics)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showResetCountersDialog(context, user),
+                      icon: Icon(Icons.refresh, size: 18, color: Colors.orange.shade700),
+                      label: Text('Reset', style: TextStyle(color: Colors.orange.shade700)),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.orange.shade300),
+                      ),
+                    ),
+                  ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showDeleteUserDialog(context, user),
+                    icon: Icon(Icons.delete, size: 18, color: colorScheme.error),
+                    label: Text('Delete', style: TextStyle(color: colorScheme.error)),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: colorScheme.error.withAlpha(128)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTag(String label, Color color, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withAlpha(26),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          color: color,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, IconData icon, ColorScheme colorScheme) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: colorScheme.primary),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, ColorScheme colorScheme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title, {IconData? icon}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
+  Widget _buildStatCard(String label, String value, IconData icon, Color color, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withAlpha(26),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
         children: [
-          if (icon != null) ...[
-            Icon(icon, size: 18, color: Colors.blue),
-            const SizedBox(width: 8),
-          ],
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 4),
           Text(
-            title,
-            style: const TextStyle(
+            value,
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
+              color: color,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              '$label:',
-              style: const TextStyle(color: Colors.grey),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -308,9 +540,9 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
     try {
       final bytes = int.tryParse(bytesStr) ?? 0;
       if (bytes < 1024) return '$bytes B';
-      if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(2)} KB';
+      if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
       if (bytes < 1024 * 1024 * 1024) {
-        return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
+        return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
       }
       return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
     } catch (e) {

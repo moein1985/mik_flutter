@@ -1,18 +1,22 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/backup_file.dart';
 
-abstract class BackupState extends Equatable {
+sealed class BackupState extends Equatable {
   const BackupState();
 
   @override
   List<Object?> get props => [];
 }
 
-class BackupInitial extends BackupState {}
+final class BackupInitial extends BackupState {
+  const BackupInitial();
+}
 
-class BackupLoading extends BackupState {}
+final class BackupLoading extends BackupState {
+  const BackupLoading();
+}
 
-class BackupCreating extends BackupState {
+final class BackupCreating extends BackupState {
   final String name;
 
   const BackupCreating(this.name);
@@ -21,7 +25,7 @@ class BackupCreating extends BackupState {
   List<Object?> get props => [name];
 }
 
-class BackupRestoring extends BackupState {
+final class BackupRestoring extends BackupState {
   final String name;
 
   const BackupRestoring(this.name);
@@ -30,7 +34,7 @@ class BackupRestoring extends BackupState {
   List<Object?> get props => [name];
 }
 
-class BackupExporting extends BackupState {
+final class BackupExporting extends BackupState {
   final String fileName;
 
   const BackupExporting(this.fileName);
@@ -39,7 +43,7 @@ class BackupExporting extends BackupState {
   List<Object?> get props => [fileName];
 }
 
-class BackupLoaded extends BackupState {
+final class BackupLoaded extends BackupState {
   final List<BackupFile> backups;
 
   const BackupLoaded(this.backups);
@@ -48,7 +52,7 @@ class BackupLoaded extends BackupState {
   List<Object?> get props => [backups];
 }
 
-class BackupOperationSuccess extends BackupState {
+final class BackupOperationSuccess extends BackupState {
   final String message;
 
   const BackupOperationSuccess(this.message);
@@ -57,7 +61,7 @@ class BackupOperationSuccess extends BackupState {
   List<Object?> get props => [message];
 }
 
-class BackupError extends BackupState {
+final class BackupError extends BackupState {
   final String message;
 
   const BackupError(this.message);

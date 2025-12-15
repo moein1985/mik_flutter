@@ -53,47 +53,38 @@ class CloudPageContent extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          if (state is CloudLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is CloudOperationInProgress) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(state.operation),
-                ],
+          return switch (state) {
+            CloudInitial() => const Center(child: CircularProgressIndicator()),
+            CloudLoading() => const Center(child: CircularProgressIndicator()),
+            CloudOperationInProgress(:final operation) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    Text(operation),
+                  ],
+                ),
               ),
-            );
-          }
-
-          if (state is CloudLoaded) {
-            return _buildContent(context, state);
-          }
-
-          if (state is CloudError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-                  const SizedBox(height: 16),
-                  Text(state.message, textAlign: TextAlign.center),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () => context.read<CloudBloc>().add(const LoadCloudStatus()),
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
-                  ),
-                ],
+            CloudLoaded() => _buildContent(context, state),
+            CloudError(:final message) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                    const SizedBox(height: 16),
+                    Text(message, textAlign: TextAlign.center),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () => context.read<CloudBloc>().add(const LoadCloudStatus()),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Retry'),
+                    ),
+                  ],
+                ),
               ),
-            );
-          }
-
-          return const Center(child: CircularProgressIndicator());
+            CloudOperationSuccess() => _buildContent(context, state as CloudLoaded),
+          };
         },
       ),
     );
