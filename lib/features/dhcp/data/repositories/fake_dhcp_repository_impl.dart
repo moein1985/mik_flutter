@@ -35,6 +35,11 @@ class FakeDhcpRepositoryImpl implements DhcpRepository {
     ),
   ];
 
+  final List<Map<String, String>> _ipPools = [
+    {'id': '1', 'name': 'dhcp_pool', 'ranges': '192.168.88.10-192.168.88.254'},
+    {'id': '2', 'name': 'guest_pool', 'ranges': '192.168.100.10-192.168.100.254'},
+  ];
+
   final List<DhcpLease> _leases = [];
 
   FakeDhcpRepositoryImpl() {
@@ -478,10 +483,7 @@ class FakeDhcpRepositoryImpl implements DhcpRepository {
       return const Left(ServerFailure('Failed to load IP pools'));
     }
 
-    return const Right([
-      {'id': '1', 'name': 'dhcp_pool', 'ranges': '192.168.88.10-192.168.88.254'},
-      {'id': '2', 'name': 'guest_pool', 'ranges': '192.168.100.10-192.168.100.254'},
-    ]);
+    return Right(List.from(_ipPools));
   }
 
   @override
@@ -493,7 +495,71 @@ class FakeDhcpRepositoryImpl implements DhcpRepository {
     if (_shouldSimulateError()) {
       return const Left(ServerFailure('Failed to add IP pool'));
     }
+
+    // Validate pool name
+    if (name.trim().isEmpty) {
+      return const Left(ServerFailure('Pool name cannot be empty'));
+    }
+
+    // Check for duplicate name
+    if (_ipPools.any((p) => p['name'] == name)) {
+      return const Left(ServerFailure('Pool with this name already exists'));
+    }
+
+    // Validate IP range format (basic validation)
+    if (ranges.trim().isEmpty) {
+      return const Left(ServerFailure('IP range cannot be empty'));
+    }
+
+    // Basic IP range validation
+    if (!_isValidIpRange(ranges)) {
+      return const Left(ServerFailure('Invalid IP range format. Use format: 192.168.1.10-192.168.1.100'));
+    }
+
+    _ipPools.add({
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'name': name,
+      'ranges': ranges,
+    });
+
     return const Right(true);
+  }
+
+  /// Validate IP range format
+  bool _isValidIpRange(String ranges) {
+    // Allow multiple ranges separated by comma
+    final rangeParts = ranges.split(',');
+    
+    for (final range in rangeParts) {
+      final trimmed = range.trim();
+      if (trimmed.isEmpty) continue;
+      
+      // Check if it's a range (x.x.x.x-y.y.y.y) or single IP
+      if (trimmed.contains('-')) {
+        final ips = trimmed.split('-');
+        if (ips.length != 2) return false;
+        if (!_isValidIp(ips[0].trim()) || !_isValidIp(ips[1].trim())) {
+          return false;
+        }
+      } else {
+        if (!_isValidIp(trimmed)) return false;
+      }
+    }
+    
+    return true;
+  }
+
+  /// Validate IP address format
+  bool _isValidIp(String ip) {
+    final parts = ip.split('.');
+    if (parts.length != 4) return false;
+    
+    for (final part in parts) {
+      final num = int.tryParse(part);
+      if (num == null || num < 0 || num > 255) return false;
+    }
+    
+    return true;
   }
 
   @override
