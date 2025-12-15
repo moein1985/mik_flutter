@@ -146,7 +146,14 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to load servers: ${failure.message}');
-        emit(HotspotError(failure.message));
+        // Preserve previous data when error occurs
+        HotspotLoaded? previousData;
+        if (state is HotspotLoaded) {
+          previousData = state as HotspotLoaded;
+        } else if (state is HotspotOperationSuccess) {
+          previousData = (state as HotspotOperationSuccess).previousData;
+        }
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (servers) async {
         _log.i('Loaded ${servers.length} servers');
@@ -181,7 +188,14 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to load users: ${failure.message}');
-        emit(HotspotError(failure.message));
+        // Preserve previous data when error occurs
+        HotspotLoaded? previousData;
+        if (state is HotspotLoaded) {
+          previousData = state as HotspotLoaded;
+        } else if (state is HotspotOperationSuccess) {
+          previousData = (state as HotspotOperationSuccess).previousData;
+        }
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (users) async {
         _log.i('Loaded ${users.length} users');
@@ -216,7 +230,14 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to load active users: ${failure.message}');
-        emit(HotspotError(failure.message));
+        // Preserve previous data when error occurs
+        HotspotLoaded? previousData;
+        if (state is HotspotLoaded) {
+          previousData = state as HotspotLoaded;
+        } else if (state is HotspotOperationSuccess) {
+          previousData = (state as HotspotOperationSuccess).previousData;
+        }
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (activeUsers) async {
         _log.i('Loaded ${activeUsers.length} active users');
@@ -305,8 +326,6 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
       (success) async {
         _log.i('User added successfully');
         emit(HotspotOperationSuccess('User added successfully', previousData: previousData));
-        // Reload users
-        add(const LoadHotspotUsers());
       },
     );
   }
@@ -340,8 +359,6 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
       (success) async {
         _log.i('User edited successfully');
         emit(HotspotOperationSuccess('User updated successfully', previousData: previousData));
-        // Reload users
-        add(const LoadHotspotUsers());
       },
     );
   }
@@ -364,8 +381,6 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
       (success) async {
         _log.i('User deleted successfully');
         emit(HotspotOperationSuccess('User deleted successfully', previousData: previousData));
-        // Reload users
-        add(const LoadHotspotUsers());
       },
     );
   }
@@ -387,8 +402,6 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
       (success) async {
         _log.i('User counters reset successfully');
         emit(HotspotOperationSuccess('User statistics reset successfully', previousData: previousData));
-        // Reload users
-        add(const LoadHotspotUsers());
       },
     );
   }
@@ -444,8 +457,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
       ));
     }
     
-    // Reload users to reflect changes
-    add(const LoadHotspotUsers());
+    // Note: Page will reload users after receiving success state
   }
 
   Future<void> _onToggleUser(
@@ -484,8 +496,6 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
       (success) async {
         _log.i('User disconnected successfully');
         emit(HotspotOperationSuccess('User disconnected', previousData: previousData));
-        // Reload active users
-        add(const LoadHotspotActiveUsers());
       },
     );
   }

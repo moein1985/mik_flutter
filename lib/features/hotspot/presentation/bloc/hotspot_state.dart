@@ -67,11 +67,13 @@ final class HotspotLoaded extends HotspotState {
 
 final class HotspotError extends HotspotState {
   final String message;
+  // Preserve the last loaded data to avoid losing state on error
+  final HotspotLoaded? previousData;
 
-  const HotspotError(this.message);
+  const HotspotError(this.message, {this.previousData});
 
   @override
-  List<Object> get props => [message];
+  List<Object?> get props => [message, previousData];
 }
 
 final class HotspotOperationSuccess extends HotspotState {

@@ -76,18 +76,6 @@ class _HotspotPageState extends State<HotspotPage> {
                 ),
               );
             }
-          } else if (state is HotspotOperationSuccess) {
-            // Only show if this is a new message
-            if (_lastShownMessage != state.message) {
-              _lastShownMessage = state.message;
-              _log.i('HotspotPage success: ${state.message}');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
           } else {
             // Reset message tracking for other states
             _lastShownMessage = null;
@@ -106,11 +94,17 @@ class _HotspotPageState extends State<HotspotPage> {
                   )
                 : const Center(child: CircularProgressIndicator()),
             HotspotPackageDisabled() => _buildPackageDisabledView(context, colorScheme),
-            HotspotError(:final message) => message.contains('trap')
-                ? _buildPackageDisabledView(context, colorScheme)
-                : _lastServerCount > 0
-                    ? _buildMainContent(context, colorScheme, _lastServerCount)
-                    : _buildErrorView(context, colorScheme, message),
+            HotspotError(:final message, :final previousData) => () {
+                // Preserve UI with cached data if available
+                if (previousData != null && previousData.servers != null) {
+                  _lastServerCount = previousData.servers!.length;
+                }
+                return message.contains('trap')
+                    ? _buildPackageDisabledView(context, colorScheme)
+                    : _lastServerCount > 0
+                        ? _buildMainContent(context, colorScheme, _lastServerCount)
+                        : _buildErrorView(context, colorScheme, message);
+              }(),
             HotspotLoaded(:final servers) => () {
                 _log.i('HotspotLoaded with ${servers?.length ?? 0} servers');
                 final serverList = servers ?? [];

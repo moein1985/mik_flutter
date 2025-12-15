@@ -90,6 +90,14 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
             HotspotLoaded(:final users) => users == null || users.isEmpty
                 ? _buildEmptyView(colorScheme)
                 : _buildUsersView(context, users, colorScheme),
+            HotspotError(:final previousData) => previousData != null && previousData.users != null && previousData.users!.isNotEmpty
+                ? _buildUsersView(context, previousData.users!, colorScheme)
+                : _buildEmptyView(colorScheme),
+            HotspotOperationSuccess(:final previousData) => previousData != null && previousData.users != null
+                ? (previousData.users!.isEmpty
+                    ? _buildEmptyView(colorScheme)
+                    : _buildUsersView(context, previousData.users!, colorScheme))
+                : _buildEmptyView(colorScheme),
             _ => _buildEmptyView(colorScheme),
           };
         },
