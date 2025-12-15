@@ -612,6 +612,7 @@ class _ServerDialogState extends State<_ServerDialog> {
   final _poolRangesController = TextEditingController();
   bool _isCreatingPool = false;
   String? _poolRangesError;
+  String? _createPoolError; // Error message for pool creation
 
   // Network fields (auto-create network with server)
   final _networkAddressController = TextEditingController();
@@ -674,6 +675,7 @@ class _ServerDialogState extends State<_ServerDialog> {
             _selectedPool = state.poolName;
             _showCreatePool = false;
             _isCreatingPool = false;
+            _createPoolError = null; // Clear error on success
             _poolNameController.clear();
             _poolRangesController.clear();
           });
@@ -687,7 +689,11 @@ class _ServerDialogState extends State<_ServerDialog> {
         } else if (state is DhcpOperationSuccess) {
           Navigator.pop(context);
         } else if (state is DhcpError && _isCreatingPool) {
-          setState(() => _isCreatingPool = false);
+          // Show error inline in dialog instead of snackbar
+          setState(() {
+            _isCreatingPool = false;
+            _createPoolError = state.message;
+          });
         }
       },
       builder: (context, state) {
@@ -876,6 +882,44 @@ class _ServerDialogState extends State<_ServerDialog> {
                             onChanged: (_) => setState(() => _poolRangesError = null),
                           ),
                           const SizedBox(height: 12),
+                          
+                          // Show error message if pool creation failed
+                          if (_createPoolError != null) ...[
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: colorScheme.errorContainer,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: colorScheme.error.withValues(alpha: 0.5)),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.error_outline, 
+                                      size: 20, 
+                                      color: colorScheme.error),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _createPoolError!,
+                                      style: TextStyle(
+                                        color: colorScheme.onErrorContainer,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.close, size: 18),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: () => setState(() => _createPoolError = null),
+                                    color: colorScheme.error,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                          
                           SizedBox(
                             width: double.infinity,
                             child: FilledButton.icon(
@@ -1040,7 +1084,10 @@ class _ServerDialogState extends State<_ServerDialog> {
       return;
     }
     
-    setState(() => _isCreatingPool = true);
+    setState(() {
+      _isCreatingPool = true;
+      _createPoolError = null; // Clear previous error
+    });
     context.read<DhcpBloc>().add(AddIpPool(name: name, ranges: ranges));
   }
 
