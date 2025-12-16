@@ -78,8 +78,12 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
         listener: (context, state) {
           if (state is HotspotOperationSuccess) {
             _showSnackBarOnce(state.message);
-            // Reload users after operation
-            context.read<HotspotBloc>().add(const LoadHotspotUsers());
+            // Reload users after operation with a small delay
+            Future.delayed(const Duration(milliseconds: 1000), () {
+              if (mounted) {
+                context.read<HotspotBloc>().add(const LoadHotspotUsers());
+              }
+            });
           } else if (state is HotspotError) {
             _showSnackBarOnce(state.message, isError: true);
             // Reload to return to normal state
@@ -582,99 +586,166 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
     final limitBytesTotalController =
         TextEditingController(text: user?.limitBytesTotal ?? '');
 
+    final formKey = GlobalKey<FormState>();
+    final isFormValid = ValueNotifier<bool>(isEditing); // If editing, start enabled
+
+    // Validators
+    String? validateName(String? value) {
+      if (isEditing) return null; // Name not editable
+      if (value == null || value.trim().isEmpty) {
+        return 'Username is required';
+      }
+      return null;
+    }
+
+    String? validatePassword(String? value) {
+      if (isEditing) return null; // Password optional when editing
+      if (value == null || value.isEmpty) {
+        return 'Password is required';
+      }
+      if (value.length < 3) {
+        return 'Password must be at least 3 characters';
+      }
+      return null;
+    }
+
+    String? validateTime(String? value) {
+      if (value == null || value.trim().isEmpty) return null; // Optional
+      // Accept formats: 1h30m, 2d5h, or plain seconds
+      final patterns = [
+        r'^\d+[wdhms](\d+[wdhms])*$', // 1h30m, 2d5h
+        r'^\d+$', // plain seconds
+      ];
+      final isValid = patterns.any((pattern) => RegExp(pattern).hasMatch(value));
+      if (!isValid) {
+        return 'Invalid format. Use: 1h30m, 2d5h, or plain seconds';
+      }
+      return null;
+    }
+
+    String? validateBytes(String? value) {
+      if (value == null || value.trim().isEmpty) return null; // Optional
+      // Accept formats: 100M, 1G, 500K, or plain bytes
+      final regex = RegExp(r'^\d+[kKmMgGtT]?$');
+      if (!regex.hasMatch(value)) {
+        return 'Invalid format. Use: 100M, 1G, 500K, or plain bytes';
+      }
+      return null;
+    }
+
+    void validateForm() {
+      isFormValid.value = formKey.currentState?.validate() ?? false;
+    }
+
     showDialog(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
           title: Text(isEditing ? 'Edit User: ${user.name}' : 'Add HotSpot User'),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Basic Fields
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Username *',
-                    border: OutlineInputBorder(),
+            child: Form(
+              key: formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onChanged: validateForm,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Basic Fields
+                  TextFormField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Username *',
+                      border: OutlineInputBorder(),
+                      helperText: 'Required',
+                    ),
+                    enabled: !isEditing,
+                    validator: validateName,
+                    onChanged: (_) => validateForm(),
                   ),
-                  enabled: !isEditing, // Can't change username when editing
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: passwordController,
-                  decoration: InputDecoration(
-                    labelText: isEditing ? 'New Password (leave empty to keep)' : 'Password *',
-                    border: const OutlineInputBorder(),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: passwordController,
+                    decoration: InputDecoration(
+                      labelText: isEditing ? 'New Password (leave empty to keep)' : 'Password *',
+                      border: const OutlineInputBorder(),
+                      helperText: isEditing ? 'Leave empty to keep current' : 'Minimum 3 characters',
+                    ),
+                    obscureText: true,
+                    validator: validatePassword,
+                    onChanged: (_) => validateForm(),
                   ),
-                  obscureText: true,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: commentController,
-                  decoration: const InputDecoration(
-                    labelText: 'Comment (optional)',
-                    border: OutlineInputBorder(),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: commentController,
+                    decoration: const InputDecoration(
+                      labelText: 'Comment (optional)',
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                ),
 
-                const Divider(height: 24),
+                  const Divider(height: 24),
 
-                // Limits Section
-                const Text(
-                  'Limits',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Leave empty for no limit',
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: limitUptimeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Uptime Limit',
-                    hintText: 'e.g., 1h, 30m, 1d',
-                    border: OutlineInputBorder(),
-                    helperText: 'Format: 1h, 30m, 1d, etc.',
+                  // Limits Section
+                  const Text(
+                    'Limits',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: limitBytesInController,
-                  decoration: const InputDecoration(
-                    labelText: 'Download Limit (bytes)',
-                    hintText: 'e.g., 1073741824 for 1GB',
-                    border: OutlineInputBorder(),
-                    helperText: '1GB = 1073741824',
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Leave empty for no limit',
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: limitBytesOutController,
-                  decoration: const InputDecoration(
-                    labelText: 'Upload Limit (bytes)',
-                    hintText: 'e.g., 1073741824 for 1GB',
-                    border: OutlineInputBorder(),
-                    helperText: '1GB = 1073741824',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: limitUptimeController,
+                    decoration: const InputDecoration(
+                      labelText: 'Uptime Limit',
+                      hintText: 'e.g., 1h, 30m, 1d',
+                      border: OutlineInputBorder(),
+                      helperText: 'Format: 1h30m, 2d, or plain seconds',
+                    ),
+                    validator: validateTime,
+                    onChanged: (_) => validateForm(),
                   ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: limitBytesTotalController,
-                  decoration: const InputDecoration(
-                    labelText: 'Total Traffic Limit (bytes)',
-                    hintText: 'e.g., 1073741824 for 1GB',
-                    border: OutlineInputBorder(),
-                    helperText: '1GB = 1073741824',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: limitBytesInController,
+                    decoration: const InputDecoration(
+                      labelText: 'Download Limit',
+                      hintText: 'e.g., 1G, 100M, 500K',
+                      border: OutlineInputBorder(),
+                      helperText: 'Format: 1G, 100M, 500K, or plain bytes',
+                    ),
+                    validator: validateBytes,
+                    onChanged: (_) => validateForm(),
                   ),
-                  keyboardType: TextInputType.number,
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: limitBytesOutController,
+                    decoration: const InputDecoration(
+                      labelText: 'Upload Limit',
+                      hintText: 'e.g., 1G, 100M, 500K',
+                      border: OutlineInputBorder(),
+                      helperText: 'Format: 1G, 100M, 500K, or plain bytes',
+                    ),
+                    validator: validateBytes,
+                    onChanged: (_) => validateForm(),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: limitBytesTotalController,
+                    decoration: const InputDecoration(
+                      labelText: 'Total Traffic Limit',
+                      hintText: 'e.g., 1G, 100M, 500K',
+                      border: OutlineInputBorder(),
+                      helperText: 'Format: 1G, 100M, 500K, or plain bytes',
+                    ),
+                    validator: validateBytes,
+                    onChanged: (_) => validateForm(),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -682,57 +753,54 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
               onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
-              onPressed: () {
-                final name = nameController.text.trim();
-                final password = passwordController.text;
-                final comment = commentController.text.trim();
-                final limitUptime = limitUptimeController.text.trim();
-                final limitBytesIn = limitBytesInController.text.trim();
-                final limitBytesOut = limitBytesOutController.text.trim();
-                final limitBytesTotal = limitBytesTotalController.text.trim();
+            ValueListenableBuilder<bool>(
+              valueListenable: isFormValid,
+              builder: (context, isValid, child) {
+                return ElevatedButton(
+                  onPressed: !isValid ? null : () {
+                    if (!formKey.currentState!.validate()) return;
 
-                if (isEditing) {
-                  // Editing existing user
-                  context.read<HotspotBloc>().add(
-                        EditHotspotUser(
-                          id: user.id,
-                          name: name.isEmpty ? null : name,
-                          password: password.isEmpty ? null : password,
-                          comment: comment.isEmpty ? null : comment,
-                          limitUptime: limitUptime.isEmpty ? null : limitUptime,
-                          limitBytesIn: limitBytesIn.isEmpty ? null : limitBytesIn,
-                          limitBytesOut: limitBytesOut.isEmpty ? null : limitBytesOut,
-                          limitBytesTotal: limitBytesTotal.isEmpty ? null : limitBytesTotal,
-                        ),
-                      );
-                } else {
-                  // Adding new user
-                  if (name.isNotEmpty && password.isNotEmpty) {
-                    context.read<HotspotBloc>().add(
-                          AddHotspotUser(
-                            name: name,
-                            password: password,
-                            comment: comment.isEmpty ? null : comment,
-                            limitUptime: limitUptime.isEmpty ? null : limitUptime,
-                            limitBytesIn: limitBytesIn.isEmpty ? null : limitBytesIn,
-                            limitBytesOut: limitBytesOut.isEmpty ? null : limitBytesOut,
-                            limitBytesTotal: limitBytesTotal.isEmpty ? null : limitBytesTotal,
-                          ),
-                        );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Username and password are required'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                    return;
-                  }
-                }
-                Navigator.pop(dialogContext);
+                    final name = nameController.text.trim();
+                    final password = passwordController.text;
+                    final comment = commentController.text.trim();
+                    final limitUptime = limitUptimeController.text.trim();
+                    final limitBytesIn = limitBytesInController.text.trim();
+                    final limitBytesOut = limitBytesOutController.text.trim();
+                    final limitBytesTotal = limitBytesTotalController.text.trim();
+
+                    if (isEditing) {
+                      // Editing existing user
+                      context.read<HotspotBloc>().add(
+                            EditHotspotUser(
+                              id: user.id,
+                              name: name.isEmpty ? null : name,
+                              password: password.isEmpty ? null : password,
+                              comment: comment.isEmpty ? null : comment,
+                              limitUptime: limitUptime.isEmpty ? null : limitUptime,
+                              limitBytesIn: limitBytesIn.isEmpty ? null : limitBytesIn,
+                              limitBytesOut: limitBytesOut.isEmpty ? null : limitBytesOut,
+                              limitBytesTotal: limitBytesTotal.isEmpty ? null : limitBytesTotal,
+                            ),
+                          );
+                    } else {
+                      // Adding new user
+                      context.read<HotspotBloc>().add(
+                            AddHotspotUser(
+                              name: name,
+                              password: password,
+                              comment: comment.isEmpty ? null : comment,
+                              limitUptime: limitUptime.isEmpty ? null : limitUptime,
+                              limitBytesIn: limitBytesIn.isEmpty ? null : limitBytesIn,
+                              limitBytesOut: limitBytesOut.isEmpty ? null : limitBytesOut,
+                              limitBytesTotal: limitBytesTotal.isEmpty ? null : limitBytesTotal,
+                            ),
+                          );
+                    }
+                    Navigator.pop(dialogContext);
+                  },
+                  child: Text(isEditing ? 'Save' : 'Add'),
+                );
               },
-              child: Text(isEditing ? 'Save' : 'Add'),
             ),
           ],
         );

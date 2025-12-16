@@ -65,16 +65,21 @@ class _HotspotPageState extends State<HotspotPage> {
           }
           
           if (state is HotspotError) {
-            // Only show if this is a new message
-            if (_lastShownMessage != state.message) {
-              _lastShownMessage = state.message;
-              _log.e('HotspotPage error: ${state.message}');
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
-              );
+            // Only show snackbar for server-related errors
+            // (Profile/User/etc errors are handled by their respective pages)
+            if (state.message.contains('server') || 
+                state.message.contains('Server') ||
+                state.message.contains('trap')) {
+              if (_lastShownMessage != state.message) {
+                _lastShownMessage = state.message;
+                _log.e('HotspotPage error: ${state.message}');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             }
           } else {
             // Reset message tracking for other states

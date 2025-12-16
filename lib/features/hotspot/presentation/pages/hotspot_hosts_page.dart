@@ -61,7 +61,12 @@ class _HotspotHostsPageState extends State<HotspotHostsPage> {
                   backgroundColor: Colors.green,
                 ),
               );
-              context.read<HotspotBloc>().add(const LoadHosts());
+              // Reload after successful operation with a small delay
+              Future.delayed(const Duration(milliseconds: 1000), () {
+                if (mounted) {
+                  context.read<HotspotBloc>().add(const LoadHosts());
+                }
+              });
             }
           } else {
             _lastShownMessage = null;

@@ -65,7 +65,12 @@ class _HotspotIpBindingsPageState extends State<HotspotIpBindingsPage> {
                   backgroundColor: Colors.green,
                 ),
               );
-              context.read<HotspotBloc>().add(const LoadIpBindings());
+              // Reload after successful operation with a small delay
+              Future.delayed(const Duration(milliseconds: 1000), () {
+                if (mounted) {
+                  context.read<HotspotBloc>().add(const LoadIpBindings());
+                }
+              });
             }
           } else {
             _lastShownMessage = null;
@@ -467,6 +472,7 @@ class _HotspotIpBindingsPageState extends State<HotspotIpBindingsPage> {
 
   void _showAddEditDialog(BuildContext context, {HotspotIpBinding? binding}) {
     final isEditing = binding != null;
+    final formKey = GlobalKey<FormState>();
     final macController = TextEditingController(text: binding?.mac ?? '');
     final addressController = TextEditingController(text: binding?.address ?? '');
     final toAddressController = TextEditingController(text: binding?.toAddress ?? '');
@@ -474,6 +480,47 @@ class _HotspotIpBindingsPageState extends State<HotspotIpBindingsPage> {
     final commentController = TextEditingController(text: binding?.comment ?? '');
     String selectedType = binding?.type ?? 'regular';
     bool disabled = binding?.disabled ?? false;
+    
+    final isFormValid = ValueNotifier<bool>(false);
+
+    // Validators
+    String? validateMacAddress(String? value) {
+      if (value == null || value.trim().isEmpty) return null; // Optional
+      // MAC format: AA:BB:CC:DD:EE:FF or AA-BB-CC-DD-EE-FF
+      final regex = RegExp(r'^([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$');
+      if (!regex.hasMatch(value)) {
+        return 'Invalid MAC. Use: AA:BB:CC:DD:EE:FF';
+      }
+      return null;
+    }
+
+    String? validateIpAddress(String? value) {
+      if (value == null || value.trim().isEmpty) return null; // Optional
+      // IPv4 format: 192.168.1.100 or with CIDR: 192.168.1.0/24
+      final regex = RegExp(r'^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$');
+      if (!regex.hasMatch(value)) {
+        return 'Invalid IP. Use: 192.168.1.100';
+      }
+      // Validate each octet
+      final parts = value.split('/')[0].split('.');
+      for (final part in parts) {
+        final num = int.tryParse(part);
+        if (num == null || num < 0 || num > 255) {
+          return 'IP octet must be 0-255';
+        }
+      }
+      return null;
+    }
+
+    bool hasAtLeastOneIdentifier() {
+      return macController.text.trim().isNotEmpty || 
+             addressController.text.trim().isNotEmpty;
+    }
+
+    void validateForm() {
+      final isValid = (formKey.currentState?.validate() ?? false) && hasAtLeastOneIdentifier();
+      isFormValid.value = isValid;
+    }
 
     showDialog(
       context: context,
@@ -481,73 +528,92 @@ class _HotspotIpBindingsPageState extends State<HotspotIpBindingsPage> {
         builder: (context, setState) => AlertDialog(
           title: Text(isEditing ? 'Edit IP Binding' : 'Add IP Binding'),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: macController,
-                  decoration: const InputDecoration(
-                    labelText: 'MAC Address',
-                    hintText: 'AA:BB:CC:DD:EE:FF',
+            child: Form(
+              key: formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onChanged: validateForm,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'At least one of MAC or Address is required',
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: addressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Address',
-                    hintText: '192.168.1.100',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: macController,
+                    decoration: const InputDecoration(
+                      labelText: 'MAC Address',
+                      hintText: 'AA:BB:CC:DD:EE:FF',
+                      helperText: 'Format: AA:BB:CC:DD:EE:FF',
+                    ),
+                    validator: validateMacAddress,
+                    onChanged: (_) => validateForm(),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: toAddressController,
-                  decoration: const InputDecoration(
-                    labelText: 'To Address',
-                    hintText: '192.168.1.200',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: addressController,
+                    decoration: const InputDecoration(
+                      labelText: 'Address',
+                      hintText: '192.168.1.100',
+                      helperText: 'IPv4 address',
+                    ),
+                    validator: validateIpAddress,
+                    onChanged: (_) => validateForm(),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: serverController,
-                  decoration: const InputDecoration(
-                    labelText: 'Server',
-                    hintText: 'all or server name',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: toAddressController,
+                    decoration: const InputDecoration(
+                      labelText: 'To Address',
+                      hintText: '192.168.1.200',
+                      helperText: 'Optional',
+                    ),
+                    validator: validateIpAddress,
+                    onChanged: (_) => validateForm(),
                   ),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: selectedType,
-                  decoration: const InputDecoration(
-                    labelText: 'Type',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: serverController,
+                    decoration: const InputDecoration(
+                      labelText: 'Server',
+                      hintText: 'all or server name',
+                    ),
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'regular', child: Text('Regular')),
-                    DropdownMenuItem(value: 'bypassed', child: Text('Bypassed')),
-                    DropdownMenuItem(value: 'blocked', child: Text('Blocked')),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => selectedType = value);
-                    }
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: commentController,
-                  decoration: const InputDecoration(
-                    labelText: 'Comment',
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedType,
+                    decoration: const InputDecoration(
+                      labelText: 'Type',
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'regular', child: Text('Regular')),
+                      DropdownMenuItem(value: 'bypassed', child: Text('Bypassed')),
+                      DropdownMenuItem(value: 'blocked', child: Text('Blocked')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => selectedType = value);
+                      }
+                    },
                   ),
-                ),
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  title: const Text('Disabled'),
-                  value: disabled,
-                  onChanged: (value) {
-                    setState(() => disabled = value);
-                  },
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: commentController,
+                    decoration: const InputDecoration(
+                      labelText: 'Comment',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    title: const Text('Disabled'),
+                    value: disabled,
+                    onChanged: (value) {
+                      setState(() => disabled = value);
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -555,36 +621,51 @@ class _HotspotIpBindingsPageState extends State<HotspotIpBindingsPage> {
               onPressed: () => Navigator.pop(ctx),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                
-                if (isEditing) {
-                  this.context.read<HotspotBloc>().add(
-                    EditIpBinding(
-                      id: binding.id,
-                      mac: macController.text.isNotEmpty ? macController.text : null,
-                      address: addressController.text.isNotEmpty ? addressController.text : null,
-                      toAddress: toAddressController.text.isNotEmpty ? toAddressController.text : null,
-                      server: serverController.text.isNotEmpty ? serverController.text : null,
-                      type: selectedType,
-                      comment: commentController.text.isNotEmpty ? commentController.text : null,
-                    ),
-                  );
-                } else {
-                  this.context.read<HotspotBloc>().add(
-                    AddIpBinding(
-                      mac: macController.text.isNotEmpty ? macController.text : null,
-                      address: addressController.text.isNotEmpty ? addressController.text : null,
-                      toAddress: toAddressController.text.isNotEmpty ? toAddressController.text : null,
-                      server: serverController.text.isNotEmpty ? serverController.text : null,
-                      type: selectedType,
-                      comment: commentController.text.isNotEmpty ? commentController.text : null,
-                    ),
-                  );
-                }
+            ValueListenableBuilder<bool>(
+              valueListenable: isFormValid,
+              builder: (context, isValid, child) {
+                return ElevatedButton(
+                  onPressed: !isValid ? null : () {
+                    if (!formKey.currentState!.validate() || !hasAtLeastOneIdentifier()) {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please provide at least MAC or Address'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    Navigator.pop(ctx);
+                    
+                    if (isEditing) {
+                      this.context.read<HotspotBloc>().add(
+                        EditIpBinding(
+                          id: binding.id,
+                          mac: macController.text.isNotEmpty ? macController.text : null,
+                          address: addressController.text.isNotEmpty ? addressController.text : null,
+                          toAddress: toAddressController.text.isNotEmpty ? toAddressController.text : null,
+                          server: serverController.text.isNotEmpty ? serverController.text : null,
+                          type: selectedType,
+                          comment: commentController.text.isNotEmpty ? commentController.text : null,
+                        ),
+                      );
+                    } else {
+                      this.context.read<HotspotBloc>().add(
+                        AddIpBinding(
+                          mac: macController.text.isNotEmpty ? macController.text : null,
+                          address: addressController.text.isNotEmpty ? addressController.text : null,
+                          toAddress: toAddressController.text.isNotEmpty ? toAddressController.text : null,
+                          server: serverController.text.isNotEmpty ? serverController.text : null,
+                          type: selectedType,
+                          comment: commentController.text.isNotEmpty ? commentController.text : null,
+                        ),
+                      );
+                    }
+                  },
+                  child: Text(isEditing ? 'Save' : 'Add'),
+                );
               },
-              child: Text(isEditing ? 'Save' : 'Add'),
             ),
           ],
         ),

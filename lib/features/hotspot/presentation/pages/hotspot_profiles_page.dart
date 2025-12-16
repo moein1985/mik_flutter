@@ -65,8 +65,12 @@ class _HotspotProfilesPageState extends State<HotspotProfilesPage> {
                   backgroundColor: Colors.green,
                 ),
               );
-              // Reload after successful operation
-              context.read<HotspotBloc>().add(const LoadHotspotProfiles());
+              // Reload after successful operation with a small delay
+              Future.delayed(const Duration(milliseconds: 1000), () {
+                if (mounted) {
+                  context.read<HotspotBloc>().add(const LoadHotspotProfiles());
+                }
+              });
             }
           } else {
             _lastShownMessage = null;
@@ -375,8 +379,53 @@ class _HotspotProfilesPageState extends State<HotspotProfilesPage> {
     );
   }
 
+  // Validators
+  String? _validateName(String? value, bool isEditing) {
+    if (isEditing) return null; // Name not editable
+    if (value == null || value.trim().isEmpty) {
+      return 'Name is required';
+    }
+    return null;
+  }
+
+  String? _validateTime(String? value) {
+    if (value == null || value.trim().isEmpty) return null; // Optional
+    // Accept formats: 1h30m, 2d5h, 00:05:00, 1d 00:00:00, or plain seconds
+    final patterns = [
+      r'^\d+[wdhms](\d+[wdhms])*$', // 1h30m, 2d5h
+      r'^\d{1,2}:\d{2}:\d{2}$', // 00:05:00
+      r'^\d+d\s+\d{1,2}:\d{2}:\d{2}$', // 1d 00:00:00
+      r'^\d+$', // plain seconds
+    ];
+    final isValid = patterns.any((pattern) => RegExp(pattern).hasMatch(value));
+    if (!isValid) {
+      return 'Invalid format. Use: 1h30m, 00:05:00, or 1d 00:00:00';
+    }
+    return null;
+  }
+
+  String? _validateSharedUsers(String? value) {
+    if (value == null || value.trim().isEmpty) return null; // Optional
+    final number = int.tryParse(value);
+    if (number == null || number < 1) {
+      return 'Must be a positive number';
+    }
+    return null;
+  }
+
+  String? _validateRateLimit(String? value) {
+    if (value == null || value.trim().isEmpty) return null; // Optional
+    // Format: 10M/5M, 1G/500M, 100k/50k
+    final regex = RegExp(r'^\d+[kKmMgGtT]?\/\d+[kKmMgGtT]?$');
+    if (!regex.hasMatch(value)) {
+      return 'Invalid format. Use: 10M/5M or 1G/500M';
+    }
+    return null;
+  }
+
   void _showAddEditDialog(BuildContext context, {HotspotProfile? profile}) {
     final isEditing = profile != null;
+    final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController(text: profile?.name ?? '');
     final sessionTimeoutController = TextEditingController(text: profile?.sessionTimeout ?? '');
     final idleTimeoutController = TextEditingController(text: profile?.idleTimeout ?? '');
@@ -384,73 +433,105 @@ class _HotspotProfilesPageState extends State<HotspotProfilesPage> {
     final rateLimitController = TextEditingController(text: profile?.rateLimit ?? '');
     final keepaliveTimeoutController = TextEditingController(text: profile?.keepaliveTimeout ?? '');
     final statusAutorefreshController = TextEditingController(text: profile?.statusAutorefresh ?? '');
+    
+    final isFormValid = ValueNotifier<bool>(isEditing); // If editing, start enabled
+
+    void validateForm() {
+      isFormValid.value = formKey.currentState?.validate() ?? false;
+    }
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(isEditing ? 'Edit Profile' : 'Add Profile'),
         content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name *',
-                  hintText: 'Profile name',
+          child: Form(
+            key: formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            onChanged: validateForm,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Name *',
+                    hintText: 'Profile name',
+                    helperText: 'Required',
+                  ),
+                  enabled: !isEditing,
+                  validator: (value) => _validateName(value, isEditing),
+                  onChanged: (_) => validateForm(),
                 ),
-                enabled: !isEditing, // Can't change name when editing
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: sessionTimeoutController,
-                decoration: const InputDecoration(
-                  labelText: 'Session Timeout',
-                  hintText: '1d 00:00:00',
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: sessionTimeoutController,
+                  decoration: const InputDecoration(
+                    labelText: 'Session Timeout',
+                    hintText: '1d 00:00:00 or 1h30m',
+                    helperText: 'Format: 1h30m, 00:05:00, or 1d 00:00:00',
+                  ),
+                  validator: _validateTime,
+                  onChanged: (_) => validateForm(),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: idleTimeoutController,
-                decoration: const InputDecoration(
-                  labelText: 'Idle Timeout',
-                  hintText: '00:05:00',
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: idleTimeoutController,
+                  decoration: const InputDecoration(
+                    labelText: 'Idle Timeout',
+                    hintText: '00:05:00 or 5m',
+                    helperText: 'Format: 5m, 00:05:00',
+                  ),
+                  validator: _validateTime,
+                  onChanged: (_) => validateForm(),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: sharedUsersController,
-                decoration: const InputDecoration(
-                  labelText: 'Shared Users',
-                  hintText: '1',
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: sharedUsersController,
+                  decoration: const InputDecoration(
+                    labelText: 'Shared Users',
+                    hintText: '1',
+                    helperText: 'Positive number',
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: _validateSharedUsers,
+                  onChanged: (_) => validateForm(),
                 ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: rateLimitController,
-                decoration: const InputDecoration(
-                  labelText: 'Rate Limit',
-                  hintText: '1M/2M',
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: rateLimitController,
+                  decoration: const InputDecoration(
+                    labelText: 'Rate Limit',
+                    hintText: '10M/5M or 1G/500M',
+                    helperText: 'Format: upload/download (e.g., 10M/5M)',
+                  ),
+                  validator: _validateRateLimit,
+                  onChanged: (_) => validateForm(),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: keepaliveTimeoutController,
-                decoration: const InputDecoration(
-                  labelText: 'Keepalive Timeout',
-                  hintText: '00:02:00',
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: keepaliveTimeoutController,
+                  decoration: const InputDecoration(
+                    labelText: 'Keepalive Timeout',
+                    hintText: '00:02:00 or 2m',
+                    helperText: 'Format: 2m, 00:02:00',
+                  ),
+                  validator: _validateTime,
+                  onChanged: (_) => validateForm(),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: statusAutorefreshController,
-                decoration: const InputDecoration(
-                  labelText: 'Status Autorefresh',
-                  hintText: '00:01:00',
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: statusAutorefreshController,
+                  decoration: const InputDecoration(
+                    labelText: 'Status Autorefresh',
+                    hintText: '00:01:00 or 1m',
+                    helperText: 'Format: 1m, 00:01:00',
+                  ),
+                  validator: _validateTime,
+                  onChanged: (_) => validateForm(),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         actions: [
@@ -458,61 +539,45 @@ class _HotspotProfilesPageState extends State<HotspotProfilesPage> {
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.isEmpty && !isEditing) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Profile name is required'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-                return;
-              }
+          ValueListenableBuilder<bool>(
+            valueListenable: isFormValid,
+            builder: (context, isValid, child) {
+              return ElevatedButton(
+                onPressed: !isValid ? null : () {
+                  if (!formKey.currentState!.validate()) return;
 
-              Navigator.pop(ctx);
+                  Navigator.pop(ctx);
 
-              final data = <String, dynamic>{
-                'name': nameController.text,
-                'session-timeout': sessionTimeoutController.text,
-                'idle-timeout': idleTimeoutController.text,
-                'shared-users': sharedUsersController.text,
-                'rate-limit': rateLimitController.text,
-                'keepalive-timeout': keepaliveTimeoutController.text,
-                'status-autorefresh': statusAutorefreshController.text,
-              };
-
-              // Remove empty values
-              data.removeWhere((key, value) => value == null || value.toString().isEmpty);
-
-              if (isEditing) {
-                this.context.read<HotspotBloc>().add(
-                  EditHotspotProfile(
-                    id: profile.id,
-                    name: nameController.text.isNotEmpty ? nameController.text : null,
-                    sessionTimeout: sessionTimeoutController.text.isNotEmpty ? sessionTimeoutController.text : null,
-                    idleTimeout: idleTimeoutController.text.isNotEmpty ? idleTimeoutController.text : null,
-                    sharedUsers: sharedUsersController.text.isNotEmpty ? sharedUsersController.text : null,
-                    rateLimit: rateLimitController.text.isNotEmpty ? rateLimitController.text : null,
-                    keepaliveTimeout: keepaliveTimeoutController.text.isNotEmpty ? keepaliveTimeoutController.text : null,
-                    statusAutorefresh: statusAutorefreshController.text.isNotEmpty ? statusAutorefreshController.text : null,
-                  ),
-                );
-              } else {
-                this.context.read<HotspotBloc>().add(
-                  AddHotspotProfile(
-                    name: nameController.text,
-                    sessionTimeout: sessionTimeoutController.text.isNotEmpty ? sessionTimeoutController.text : null,
-                    idleTimeout: idleTimeoutController.text.isNotEmpty ? idleTimeoutController.text : null,
-                    sharedUsers: sharedUsersController.text.isNotEmpty ? sharedUsersController.text : null,
-                    rateLimit: rateLimitController.text.isNotEmpty ? rateLimitController.text : null,
-                    keepaliveTimeout: keepaliveTimeoutController.text.isNotEmpty ? keepaliveTimeoutController.text : null,
-                    statusAutorefresh: statusAutorefreshController.text.isNotEmpty ? statusAutorefreshController.text : null,
-                  ),
-                );
-              }
+                  if (isEditing) {
+                    this.context.read<HotspotBloc>().add(
+                      EditHotspotProfile(
+                        id: profile.id,
+                        name: nameController.text.isNotEmpty ? nameController.text : null,
+                        sessionTimeout: sessionTimeoutController.text.isNotEmpty ? sessionTimeoutController.text : null,
+                        idleTimeout: idleTimeoutController.text.isNotEmpty ? idleTimeoutController.text : null,
+                        sharedUsers: sharedUsersController.text.isNotEmpty ? sharedUsersController.text : null,
+                        rateLimit: rateLimitController.text.isNotEmpty ? rateLimitController.text : null,
+                        keepaliveTimeout: keepaliveTimeoutController.text.isNotEmpty ? keepaliveTimeoutController.text : null,
+                        statusAutorefresh: statusAutorefreshController.text.isNotEmpty ? statusAutorefreshController.text : null,
+                      ),
+                    );
+                  } else {
+                    this.context.read<HotspotBloc>().add(
+                      AddHotspotProfile(
+                        name: nameController.text,
+                        sessionTimeout: sessionTimeoutController.text.isNotEmpty ? sessionTimeoutController.text : null,
+                        idleTimeout: idleTimeoutController.text.isNotEmpty ? idleTimeoutController.text : null,
+                        sharedUsers: sharedUsersController.text.isNotEmpty ? sharedUsersController.text : null,
+                        rateLimit: rateLimitController.text.isNotEmpty ? rateLimitController.text : null,
+                        keepaliveTimeout: keepaliveTimeoutController.text.isNotEmpty ? keepaliveTimeoutController.text : null,
+                        statusAutorefresh: statusAutorefreshController.text.isNotEmpty ? statusAutorefreshController.text : null,
+                      ),
+                    );
+                  }
+                },
+                child: Text(isEditing ? 'Save' : 'Add'),
+              );
             },
-            child: Text(isEditing ? 'Save' : 'Add'),
           ),
         ],
       ),

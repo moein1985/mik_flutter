@@ -61,8 +61,12 @@ class _HotspotActiveUsersPageState extends State<HotspotActiveUsersPage> {
                   backgroundColor: Colors.green,
                 ),
               );
-              // Reload active users after disconnect
-              context.read<HotspotBloc>().add(const LoadHotspotActiveUsers());
+              // Reload active users after disconnect with a small delay
+              Future.delayed(const Duration(milliseconds: 1000), () {
+                if (mounted) {
+                  context.read<HotspotBloc>().add(const LoadHotspotActiveUsers());
+                }
+              });
             }
           } else {
             _lastShownMessage = null;

@@ -65,7 +65,12 @@ class _HotspotWalledGardenPageState extends State<HotspotWalledGardenPage> {
                   backgroundColor: Colors.green,
                 ),
               );
-              context.read<HotspotBloc>().add(const LoadWalledGarden());
+              // Reload after successful operation with a small delay
+              Future.delayed(const Duration(milliseconds: 1000), () {
+                if (mounted) {
+                  context.read<HotspotBloc>().add(const LoadWalledGarden());
+                }
+              });
             }
           } else {
             _lastShownMessage = null;
@@ -546,6 +551,7 @@ class _HotspotWalledGardenPageState extends State<HotspotWalledGardenPage> {
 
   void _showAddEditDialog(BuildContext context, {WalledGarden? entry}) {
     final isEditing = entry != null;
+    final formKey = GlobalKey<FormState>();
     final serverController = TextEditingController(text: entry?.server ?? '');
     final dstHostController = TextEditingController(text: entry?.dstHost ?? '');
     final dstAddressController = TextEditingController(text: entry?.dstAddress ?? '');
@@ -555,6 +561,64 @@ class _HotspotWalledGardenPageState extends State<HotspotWalledGardenPage> {
     String selectedAction = entry?.action ?? 'allow';
     String selectedMethod = entry?.method ?? '';
     bool disabled = entry?.disabled ?? false;
+    
+    final isFormValid = ValueNotifier<bool>(false);
+
+    // Validators
+    String? validateDomain(String? value) {
+      if (value == null || value.trim().isEmpty) return null; // Optional
+      // Domain format: example.com, *.google.com, subdomain.example.com
+      final regex = RegExp(r'^(\*\.)?[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$');
+      if (!regex.hasMatch(value)) {
+        return 'Invalid domain. Use: example.com or *.google.com';
+      }
+      return null;
+    }
+
+    String? validateIpAddressOrCidr(String? value) {
+      if (value == null || value.trim().isEmpty) return null; // Optional
+      // IPv4 with optional CIDR: 192.168.1.100 or 192.168.1.0/24
+      final regex = RegExp(r'^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$');
+      if (!regex.hasMatch(value)) {
+        return 'Invalid IP. Use: 192.168.1.100 or 192.168.1.0/24';
+      }
+      // Validate each octet
+      final ipPart = value.split('/')[0];
+      final parts = ipPart.split('.');
+      for (final part in parts) {
+        final num = int.tryParse(part);
+        if (num == null || num < 0 || num > 255) {
+          return 'IP octet must be 0-255';
+        }
+      }
+      // Validate CIDR if present
+      if (value.contains('/')) {
+        final cidr = int.tryParse(value.split('/')[1]);
+        if (cidr == null || cidr < 0 || cidr > 32) {
+          return 'CIDR must be 0-32';
+        }
+      }
+      return null;
+    }
+
+    String? validatePort(String? value) {
+      if (value == null || value.trim().isEmpty) return null; // Optional
+      final port = int.tryParse(value);
+      if (port == null || port < 1 || port > 65535) {
+        return 'Port must be 1-65535';
+      }
+      return null;
+    }
+
+    bool hasAtLeastOneDestination() {
+      return dstHostController.text.trim().isNotEmpty || 
+             dstAddressController.text.trim().isNotEmpty;
+    }
+
+    void validateForm() {
+      final isValid = (formKey.currentState?.validate() ?? false) && hasAtLeastOneDestination();
+      isFormValid.value = isValid;
+    }
 
     showDialog(
       context: context,
@@ -562,96 +626,116 @@ class _HotspotWalledGardenPageState extends State<HotspotWalledGardenPage> {
         builder: (context, setState) => AlertDialog(
           title: Text(isEditing ? 'Edit Walled Garden' : 'Add Walled Garden'),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: serverController,
-                  decoration: const InputDecoration(
-                    labelText: 'Server',
-                    hintText: 'all or server name',
+            child: Form(
+              key: formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onChanged: validateForm,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'At least one of Destination Host or Destination Address is required',
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: dstHostController,
-                  decoration: const InputDecoration(
-                    labelText: 'Destination Host',
-                    hintText: '*.google.com',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: serverController,
+                    decoration: const InputDecoration(
+                      labelText: 'Server',
+                      hintText: 'all or server name',
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: dstAddressController,
-                  decoration: const InputDecoration(
-                    labelText: 'Destination Address',
-                    hintText: '0.0.0.0/0',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: dstHostController,
+                    decoration: const InputDecoration(
+                      labelText: 'Destination Host',
+                      hintText: '*.google.com',
+                      helperText: 'Domain name with optional wildcard',
+                    ),
+                    validator: validateDomain,
+                    onChanged: (_) => validateForm(),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: dstPortController,
-                  decoration: const InputDecoration(
-                    labelText: 'Destination Port',
-                    hintText: '80,443',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: dstAddressController,
+                    decoration: const InputDecoration(
+                      labelText: 'Destination Address',
+                      hintText: '0.0.0.0/0',
+                      helperText: 'IPv4 with optional CIDR',
+                    ),
+                    validator: validateIpAddressOrCidr,
+                    onChanged: (_) => validateForm(),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: pathController,
-                  decoration: const InputDecoration(
-                    labelText: 'Path',
-                    hintText: '/api/*',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: dstPortController,
+                    decoration: const InputDecoration(
+                      labelText: 'Destination Port',
+                      hintText: '80,443',
+                      helperText: 'Port number 1-65535',
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: validatePort,
+                    onChanged: (_) => validateForm(),
                   ),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: selectedAction,
-                  decoration: const InputDecoration(
-                    labelText: 'Action',
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: pathController,
+                    decoration: const InputDecoration(
+                      labelText: 'Path',
+                      hintText: '/api/*',
+                    ),
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'allow', child: Text('Allow')),
-                    DropdownMenuItem(value: 'deny', child: Text('Deny')),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => selectedAction = value);
-                    }
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: selectedMethod.isEmpty ? null : selectedMethod,
-                  decoration: const InputDecoration(
-                    labelText: 'HTTP Method (optional)',
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedAction,
+                    decoration: const InputDecoration(
+                      labelText: 'Action',
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: 'allow', child: Text('Allow')),
+                      DropdownMenuItem(value: 'deny', child: Text('Deny')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => selectedAction = value);
+                      }
+                    },
                   ),
-                  items: const [
-                    DropdownMenuItem(value: '', child: Text('Any')),
-                    DropdownMenuItem(value: 'GET', child: Text('GET')),
-                    DropdownMenuItem(value: 'POST', child: Text('POST')),
-                    DropdownMenuItem(value: 'HEAD', child: Text('HEAD')),
-                  ],
-                  onChanged: (value) {
-                    setState(() => selectedMethod = value ?? '');
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: commentController,
-                  decoration: const InputDecoration(
-                    labelText: 'Comment',
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    initialValue: selectedMethod.isEmpty ? null : selectedMethod,
+                    decoration: const InputDecoration(
+                      labelText: 'HTTP Method (optional)',
+                    ),
+                    items: const [
+                      DropdownMenuItem(value: '', child: Text('Any')),
+                      DropdownMenuItem(value: 'GET', child: Text('GET')),
+                      DropdownMenuItem(value: 'POST', child: Text('POST')),
+                      DropdownMenuItem(value: 'HEAD', child: Text('HEAD')),
+                    ],
+                    onChanged: (value) {
+                      setState(() => selectedMethod = value ?? '');
+                    },
                   ),
-                ),
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  title: const Text('Disabled'),
-                  value: disabled,
-                  onChanged: (value) {
-                    setState(() => disabled = value);
-                  },
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: commentController,
+                    decoration: const InputDecoration(
+                      labelText: 'Comment',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SwitchListTile(
+                    title: const Text('Disabled'),
+                    value: disabled,
+                    onChanged: (value) {
+                      setState(() => disabled = value);
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -659,40 +743,55 @@ class _HotspotWalledGardenPageState extends State<HotspotWalledGardenPage> {
               onPressed: () => Navigator.pop(ctx),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                
-                if (isEditing) {
-                  this.context.read<HotspotBloc>().add(
-                    EditWalledGarden(
-                      id: entry.id,
-                      server: serverController.text.isNotEmpty ? serverController.text : null,
-                      dstHost: dstHostController.text.isNotEmpty ? dstHostController.text : null,
-                      dstAddress: dstAddressController.text.isNotEmpty ? dstAddressController.text : null,
-                      dstPort: dstPortController.text.isNotEmpty ? dstPortController.text : null,
-                      path: pathController.text.isNotEmpty ? pathController.text : null,
-                      action: selectedAction,
-                      method: selectedMethod.isNotEmpty ? selectedMethod : null,
-                      comment: commentController.text.isNotEmpty ? commentController.text : null,
-                    ),
-                  );
-                } else {
-                  this.context.read<HotspotBloc>().add(
-                    AddWalledGarden(
-                      server: serverController.text.isNotEmpty ? serverController.text : null,
-                      dstHost: dstHostController.text.isNotEmpty ? dstHostController.text : null,
-                      dstAddress: dstAddressController.text.isNotEmpty ? dstAddressController.text : null,
-                      dstPort: dstPortController.text.isNotEmpty ? dstPortController.text : null,
-                      path: pathController.text.isNotEmpty ? pathController.text : null,
-                      action: selectedAction,
-                      method: selectedMethod.isNotEmpty ? selectedMethod : null,
-                      comment: commentController.text.isNotEmpty ? commentController.text : null,
-                    ),
-                  );
-                }
+            ValueListenableBuilder<bool>(
+              valueListenable: isFormValid,
+              builder: (context, isValid, child) {
+                return ElevatedButton(
+                  onPressed: !isValid ? null : () {
+                    if (!formKey.currentState!.validate() || !hasAtLeastOneDestination()) {
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please provide at least Destination Host or Destination Address'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    Navigator.pop(ctx);
+                    
+                    if (isEditing) {
+                      this.context.read<HotspotBloc>().add(
+                        EditWalledGarden(
+                          id: entry.id,
+                          server: serverController.text.isNotEmpty ? serverController.text : null,
+                          dstHost: dstHostController.text.isNotEmpty ? dstHostController.text : null,
+                          dstAddress: dstAddressController.text.isNotEmpty ? dstAddressController.text : null,
+                          dstPort: dstPortController.text.isNotEmpty ? dstPortController.text : null,
+                          path: pathController.text.isNotEmpty ? pathController.text : null,
+                          action: selectedAction,
+                          method: selectedMethod.isNotEmpty ? selectedMethod : null,
+                          comment: commentController.text.isNotEmpty ? commentController.text : null,
+                        ),
+                      );
+                    } else {
+                      this.context.read<HotspotBloc>().add(
+                        AddWalledGarden(
+                          server: serverController.text.isNotEmpty ? serverController.text : null,
+                          dstHost: dstHostController.text.isNotEmpty ? dstHostController.text : null,
+                          dstAddress: dstAddressController.text.isNotEmpty ? dstAddressController.text : null,
+                          dstPort: dstPortController.text.isNotEmpty ? dstPortController.text : null,
+                          path: pathController.text.isNotEmpty ? pathController.text : null,
+                          action: selectedAction,
+                          method: selectedMethod.isNotEmpty ? selectedMethod : null,
+                          comment: commentController.text.isNotEmpty ? commentController.text : null,
+                        ),
+                      );
+                    }
+                  },
+                  child: Text(isEditing ? 'Save' : 'Add'),
+                );
               },
-              child: Text(isEditing ? 'Save' : 'Add'),
             ),
           ],
         ),
