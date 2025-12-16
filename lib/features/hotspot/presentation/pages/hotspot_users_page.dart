@@ -82,6 +82,8 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
             context.read<HotspotBloc>().add(const LoadHotspotUsers());
           } else if (state is HotspotError) {
             _showSnackBarOnce(state.message, isError: true);
+            // Reload to return to normal state
+            context.read<HotspotBloc>().add(const LoadHotspotUsers());
           }
         },
         builder: (context, state) {

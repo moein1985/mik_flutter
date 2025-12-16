@@ -163,6 +163,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = state as HotspotLoaded;
         } else if (state is HotspotOperationSuccess) {
           previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
         }
         
         if (previousData != null) {
@@ -194,6 +196,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = state as HotspotLoaded;
         } else if (state is HotspotOperationSuccess) {
           previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
         }
         emit(HotspotError(failure.message, previousData: previousData));
       },
@@ -205,6 +209,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = state as HotspotLoaded;
         } else if (state is HotspotOperationSuccess) {
           previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
         }
         
         if (previousData != null) {
@@ -236,6 +242,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = state as HotspotLoaded;
         } else if (state is HotspotOperationSuccess) {
           previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
         }
         emit(HotspotError(failure.message, previousData: previousData));
       },
@@ -247,6 +255,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = state as HotspotLoaded;
         } else if (state is HotspotOperationSuccess) {
           previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
         }
         
         if (previousData != null) {
@@ -272,7 +282,16 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to load profiles: ${failure.message}');
-        emit(HotspotError(failure.message));
+        // Preserve previous data when error occurs
+        HotspotLoaded? previousData;
+        if (state is HotspotLoaded) {
+          previousData = state as HotspotLoaded;
+        } else if (state is HotspotOperationSuccess) {
+          previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
+        }
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (profiles) async {
         _log.i('Loaded ${profiles.length} profiles');
@@ -282,6 +301,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = state as HotspotLoaded;
         } else if (state is HotspotOperationSuccess) {
           previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
         }
         
         if (previousData != null) {
@@ -321,7 +342,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to add user: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('User added successfully');
@@ -354,7 +375,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to edit user: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('User edited successfully');
@@ -376,7 +397,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to delete user: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('User deleted successfully');
@@ -397,7 +418,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to reset user counters: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('User counters reset successfully');
@@ -414,7 +435,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     final previousData = state is HotspotLoaded ? state as HotspotLoaded : null;
     
     if (previousData == null || previousData.users == null || previousData.users!.isEmpty) {
-      emit(const HotspotError('No users found'));
+      emit(HotspotError('No users found', previousData: previousData));
       return;
     }
 
@@ -442,7 +463,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
 
     if (failureCount > 0 && successCount == 0) {
       _log.e('Failed to reset all counters');
-      emit(HotspotError('Failed to reset counters for all users'));
+      emit(HotspotError('Failed to reset counters for all users', previousData: previousData));
     } else if (failureCount > 0) {
       _log.w('Partially reset counters: $successCount succeeded, $failureCount failed');
       emit(HotspotOperationSuccess(
@@ -465,12 +486,13 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     Emitter<HotspotState> emit,
   ) async {
     _log.i('Toggling user ${event.id}: enable=${event.enable}');
+    final previousData = state is HotspotLoaded ? state as HotspotLoaded : null;
     final result = await toggleUserUseCase(id: event.id, enable: event.enable);
 
     await result.fold(
       (failure) async {
         _log.e('Failed to toggle user: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('User toggled successfully');
@@ -491,7 +513,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to disconnect user: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('User disconnected successfully');
@@ -517,7 +539,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to setup hotspot: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('HotSpot setup completed successfully');
@@ -532,12 +554,13 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     Emitter<HotspotState> emit,
   ) async {
     _log.i('Checking hotspot package status...');
+    final previousData = state is HotspotLoaded ? state as HotspotLoaded : null;
     final result = await repository.isHotspotPackageEnabled();
 
     await result.fold(
       (failure) async {
         _log.e('Failed to check hotspot package: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (enabled) async {
         _log.i('Hotspot package enabled: $enabled');
@@ -614,7 +637,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to add IP pool: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('IP pool added successfully');
@@ -637,7 +660,16 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to load IP bindings: ${failure.message}');
-        emit(HotspotError(failure.message));
+        // Preserve previous data when error occurs
+        HotspotLoaded? previousData;
+        if (state is HotspotLoaded) {
+          previousData = state as HotspotLoaded;
+        } else if (state is HotspotOperationSuccess) {
+          previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
+        }
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (bindings) async {
         _log.i('Loaded ${bindings.length} IP bindings');
@@ -646,6 +678,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = state as HotspotLoaded;
         } else if (state is HotspotOperationSuccess) {
           previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
         }
         
         if (previousData != null) {
@@ -677,12 +711,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to add IP binding: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('IP binding added successfully');
         emit(HotspotOperationSuccess('IP Binding added', previousData: previousData));
-        add(const LoadIpBindings());
       },
     );
   }
@@ -708,12 +741,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to edit IP binding: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('IP binding updated successfully');
         emit(HotspotOperationSuccess('IP Binding updated', previousData: previousData));
-        add(const LoadIpBindings());
       },
     );
   }
@@ -730,12 +762,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to delete IP binding: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('IP binding deleted successfully');
         emit(HotspotOperationSuccess('IP Binding deleted', previousData: previousData));
-        add(const LoadIpBindings());
       },
     );
   }
@@ -745,15 +776,17 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     Emitter<HotspotState> emit,
   ) async {
     _log.i('Toggling IP binding ${event.id}: enable=${event.enable}');
+    final previousData = state is HotspotLoaded ? state as HotspotLoaded : null;
     final result = await toggleIpBindingUseCase(id: event.id, enable: event.enable);
 
     await result.fold(
       (failure) async {
         _log.e('Failed to toggle IP binding: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('IP binding toggled successfully');
+        // Reload to refresh the list
         add(const LoadIpBindings());
       },
     );
@@ -771,7 +804,16 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to load hosts: ${failure.message}');
-        emit(HotspotError(failure.message));
+        // Preserve previous data when error occurs
+        HotspotLoaded? previousData;
+        if (state is HotspotLoaded) {
+          previousData = state as HotspotLoaded;
+        } else if (state is HotspotOperationSuccess) {
+          previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
+        }
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (hosts) async {
         _log.i('Loaded ${hosts.length} hosts');
@@ -780,6 +822,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = state as HotspotLoaded;
         } else if (state is HotspotOperationSuccess) {
           previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
         }
         
         if (previousData != null) {
@@ -803,12 +847,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to remove host: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('Host removed successfully');
         emit(HotspotOperationSuccess('Host removed', previousData: previousData));
-        add(const LoadHosts());
       },
     );
   }
@@ -828,13 +871,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to make host binding: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('Host binding created successfully');
         emit(HotspotOperationSuccess('Host binding created', previousData: previousData));
-        add(const LoadHosts());
-        add(const LoadIpBindings());
       },
     );
   }
@@ -851,7 +892,16 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to load walled garden: ${failure.message}');
-        emit(HotspotError(failure.message));
+        // Preserve previous data when error occurs
+        HotspotLoaded? previousData;
+        if (state is HotspotLoaded) {
+          previousData = state as HotspotLoaded;
+        } else if (state is HotspotOperationSuccess) {
+          previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
+        }
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (entries) async {
         _log.i('Loaded ${entries.length} walled garden entries');
@@ -860,6 +910,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = state as HotspotLoaded;
         } else if (state is HotspotOperationSuccess) {
           previousData = (state as HotspotOperationSuccess).previousData;
+        } else if (state is HotspotError) {
+          previousData = (state as HotspotError).previousData;
         }
         
         if (previousData != null) {
@@ -894,12 +946,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to add walled garden: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('Walled garden entry added');
         emit(HotspotOperationSuccess('Walled Garden entry added', previousData: previousData));
-        add(const LoadWalledGarden());
       },
     );
   }
@@ -928,12 +979,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to edit walled garden: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('Walled garden updated');
         emit(HotspotOperationSuccess('Walled Garden updated', previousData: previousData));
-        add(const LoadWalledGarden());
       },
     );
   }
@@ -950,12 +1000,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to delete walled garden: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('Walled garden deleted');
         emit(HotspotOperationSuccess('Walled Garden deleted', previousData: previousData));
-        add(const LoadWalledGarden());
       },
     );
   }
@@ -965,15 +1014,17 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     Emitter<HotspotState> emit,
   ) async {
     _log.i('Toggling walled garden ${event.id}: enable=${event.enable}');
+    final previousData = state is HotspotLoaded ? state as HotspotLoaded : null;
     final result = await toggleWalledGardenUseCase(id: event.id, enable: event.enable);
 
     await result.fold(
       (failure) async {
         _log.e('Failed to toggle walled garden: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('Walled garden toggled');
+        // Reload to refresh the list
         add(const LoadWalledGarden());
       },
     );
@@ -1004,12 +1055,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to add profile: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('Profile added successfully');
         emit(HotspotOperationSuccess('Profile added', previousData: previousData));
-        add(const LoadHotspotProfiles());
       },
     );
   }
@@ -1038,12 +1088,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to edit profile: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('Profile updated successfully');
         emit(HotspotOperationSuccess('Profile updated', previousData: previousData));
-        add(const LoadHotspotProfiles());
       },
     );
   }
@@ -1060,12 +1109,11 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to delete profile: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('Profile deleted successfully');
         emit(HotspotOperationSuccess('Profile deleted', previousData: previousData));
-        add(const LoadHotspotProfiles());
       },
     );
   }
@@ -1077,6 +1125,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     Emitter<HotspotState> emit,
   ) async {
     _log.i('Starting HotSpot reset...');
+    final previousData = state is HotspotLoaded ? state as HotspotLoaded : null;
     emit(const HotspotResetInProgress('Resetting HotSpot...'));
 
     final result = await resetHotspotUseCase(ResetHotspotParams(
@@ -1092,7 +1141,7 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
     await result.fold(
       (failure) async {
         _log.e('Failed to reset hotspot: ${failure.message}');
-        emit(HotspotError(failure.message));
+        emit(HotspotError(failure.message, previousData: previousData));
       },
       (success) async {
         _log.i('HotSpot reset completed successfully');

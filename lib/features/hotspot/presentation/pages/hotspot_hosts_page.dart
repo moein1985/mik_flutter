@@ -49,6 +49,8 @@ class _HotspotHostsPageState extends State<HotspotHostsPage> {
                   backgroundColor: Colors.red,
                 ),
               );
+              // Reload to return to normal state
+              context.read<HotspotBloc>().add(const LoadHosts());
             }
           } else if (state is HotspotOperationSuccess) {
             if (_lastShownMessage != state.message) {

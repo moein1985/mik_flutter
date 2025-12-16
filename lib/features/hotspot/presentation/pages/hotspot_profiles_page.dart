@@ -53,6 +53,8 @@ class _HotspotProfilesPageState extends State<HotspotProfilesPage> {
                   backgroundColor: Colors.red,
                 ),
               );
+              // Reload to return to normal state
+              context.read<HotspotBloc>().add(const LoadHotspotProfiles());
             }
           } else if (state is HotspotOperationSuccess) {
             if (_lastShownMessage != state.message) {

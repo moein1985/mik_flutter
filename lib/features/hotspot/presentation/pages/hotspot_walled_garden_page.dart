@@ -53,6 +53,8 @@ class _HotspotWalledGardenPageState extends State<HotspotWalledGardenPage> {
                   backgroundColor: Colors.red,
                 ),
               );
+              // Reload to return to normal state
+              context.read<HotspotBloc>().add(const LoadWalledGarden());
             }
           } else if (state is HotspotOperationSuccess) {
             if (_lastShownMessage != state.message) {

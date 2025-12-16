@@ -49,6 +49,8 @@ class _HotspotActiveUsersPageState extends State<HotspotActiveUsersPage> {
                   backgroundColor: Colors.red,
                 ),
               );
+              // Reload to return to normal state
+              context.read<HotspotBloc>().add(const LoadHotspotActiveUsers());
             }
           } else if (state is HotspotOperationSuccess) {
             if (_lastShownMessage != state.message) {
