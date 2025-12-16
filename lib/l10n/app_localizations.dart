@@ -1196,48 +1196,6 @@ abstract class AppLocalizations {
   /// **'Returns the IPv6 address of a domain. Used for modern IPv6 networks.'**
   String get recordTypeAAAADesc;
 
-  /// Description of MX record type
-  ///
-  /// In en, this message translates to:
-  /// **'Mail Exchange - Points to mail servers that handle email for the domain.'**
-  String get recordTypeMXDesc;
-
-  /// Description of TXT record type
-  ///
-  /// In en, this message translates to:
-  /// **'Text records - Contains arbitrary text, often used for domain verification and SPF/DKIM email security.'**
-  String get recordTypeTXTDesc;
-
-  /// Description of CNAME record type
-  ///
-  /// In en, this message translates to:
-  /// **'Canonical Name - Creates an alias from one domain to another (e.g., www to main domain).'**
-  String get recordTypeCNAMEDesc;
-
-  /// Description of NS record type
-  ///
-  /// In en, this message translates to:
-  /// **'Name Server - Specifies the authoritative DNS servers for the domain.'**
-  String get recordTypeNSDesc;
-
-  /// Description of SOA record type
-  ///
-  /// In en, this message translates to:
-  /// **'Start of Authority - Contains administrative information about the DNS zone.'**
-  String get recordTypeSOADesc;
-
-  /// Description of PTR record type
-  ///
-  /// In en, this message translates to:
-  /// **'Pointer - Used for reverse DNS lookups (IP address to domain name).'**
-  String get recordTypePTRDesc;
-
-  /// Description of SRV record type
-  ///
-  /// In en, this message translates to:
-  /// **'Service - Specifies the location of services like SIP, XMPP, or LDAP.'**
-  String get recordTypeSRVDesc;
-
   /// Ping results section title
   ///
   /// In en, this message translates to:

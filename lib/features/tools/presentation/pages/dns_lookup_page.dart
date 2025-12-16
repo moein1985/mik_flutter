@@ -6,17 +6,11 @@ import '../bloc/tools_bloc.dart';
 import '../bloc/tools_event.dart';
 import '../bloc/tools_state.dart';
 
-/// DNS Record types supported by RouterOS
+/// DNS Record types supported by RouterOS DNS Lookup
+/// Note: RouterOS :resolve command only supports A and AAAA records
 enum DnsRecordType {
   a('A', 'IPv4 Address'),
-  aaaa('AAAA', 'IPv6 Address'),
-  mx('MX', 'Mail Exchange'),
-  txt('TXT', 'Text Record'),
-  cname('CNAME', 'Canonical Name'),
-  ns('NS', 'Name Server'),
-  soa('SOA', 'Start of Authority'),
-  ptr('PTR', 'Pointer Record'),
-  srv('SRV', 'Service Record');
+  aaaa('AAAA', 'IPv6 Address');
 
   final String code;
   final String description;
@@ -272,13 +266,30 @@ class _DnsLookupPageState extends State<DnsLookupPage> {
             children: [
               _buildRecordTypeItem('A', l10n.recordTypeADesc),
               _buildRecordTypeItem('AAAA', l10n.recordTypeAAAADesc),
-              _buildRecordTypeItem('MX', l10n.recordTypeMXDesc),
-              _buildRecordTypeItem('TXT', l10n.recordTypeTXTDesc),
-              _buildRecordTypeItem('CNAME', l10n.recordTypeCNAMEDesc),
-              _buildRecordTypeItem('NS', l10n.recordTypeNSDesc),
-              _buildRecordTypeItem('SOA', l10n.recordTypeSOADesc),
-              _buildRecordTypeItem('PTR', l10n.recordTypePTRDesc),
-              _buildRecordTypeItem('SRV', l10n.recordTypeSRVDesc),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 16, color: Colors.blue.shade700),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Note: RouterOS DNS lookup only supports A and AAAA record types.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue.shade900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

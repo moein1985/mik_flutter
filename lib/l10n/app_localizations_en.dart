@@ -590,34 +590,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Returns the IPv6 address of a domain. Used for modern IPv6 networks.';
 
   @override
-  String get recordTypeMXDesc =>
-      'Mail Exchange - Points to mail servers that handle email for the domain.';
-
-  @override
-  String get recordTypeTXTDesc =>
-      'Text records - Contains arbitrary text, often used for domain verification and SPF/DKIM email security.';
-
-  @override
-  String get recordTypeCNAMEDesc =>
-      'Canonical Name - Creates an alias from one domain to another (e.g., www to main domain).';
-
-  @override
-  String get recordTypeNSDesc =>
-      'Name Server - Specifies the authoritative DNS servers for the domain.';
-
-  @override
-  String get recordTypeSOADesc =>
-      'Start of Authority - Contains administrative information about the DNS zone.';
-
-  @override
-  String get recordTypePTRDesc =>
-      'Pointer - Used for reverse DNS lookups (IP address to domain name).';
-
-  @override
-  String get recordTypeSRVDesc =>
-      'Service - Specifies the location of services like SIP, XMPP, or LDAP.';
-
-  @override
   String get pingResults => 'Ping Results';
 
   @override

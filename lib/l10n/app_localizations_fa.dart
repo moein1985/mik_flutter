@@ -589,34 +589,6 @@ class AppLocalizationsFa extends AppLocalizations {
       'آدرس IPv6 دامنه را برمی‌گرداند. برای شبکه‌های مدرن IPv6 استفاده می‌شود.';
 
   @override
-  String get recordTypeMXDesc =>
-      'تبادل ایمیل - به سرورهای ایمیل که ایمیل دامنه را مدیریت می‌کنند اشاره می‌کند.';
-
-  @override
-  String get recordTypeTXTDesc =>
-      'رکوردهای متنی - شامل متن دلخواه، اغلب برای تأیید دامنه و امنیت ایمیل SPF/DKIM استفاده می‌شود.';
-
-  @override
-  String get recordTypeCNAMEDesc =>
-      'نام متعارف - یک نام مستعار از یک دامنه به دامنه دیگر ایجاد می‌کند (مثل www به دامنه اصلی).';
-
-  @override
-  String get recordTypeNSDesc =>
-      'سرور نام - سرورهای DNS معتبر برای دامنه را مشخص می‌کند.';
-
-  @override
-  String get recordTypeSOADesc =>
-      'شروع اعتبار - شامل اطلاعات مدیریتی درباره منطقه DNS است.';
-
-  @override
-  String get recordTypePTRDesc =>
-      'اشاره‌گر - برای جستجوی معکوس DNS استفاده می‌شود (آدرس IP به نام دامنه).';
-
-  @override
-  String get recordTypeSRVDesc =>
-      'سرویس - محل سرویس‌هایی مانند SIP، XMPP یا LDAP را مشخص می‌کند.';
-
-  @override
   String get pingResults => 'نتایج پینگ';
 
   @override

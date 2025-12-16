@@ -768,8 +768,10 @@ class RouterOSClientV2 {
 
   /// DNS Lookup
   /// 
+  /// Note: Uses RouterOS :resolve command which only supports A and AAAA records
+  /// 
   /// [name] - Domain name to lookup
-  /// [recordType] - DNS record type (A, AAAA, MX, TXT, CNAME, NS, SOA, PTR, SRV)
+  /// [recordType] - DNS record type (only A and AAAA are supported)
   /// [server] - DNS server to use (optional, uses router's default if not specified)
   Future<List<Map<String, String>>> dnsLookup({
     required String name,

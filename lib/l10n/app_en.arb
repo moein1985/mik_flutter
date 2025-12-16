@@ -742,34 +742,6 @@
   "@recordTypeAAAADesc": {
     "description": "Description of AAAA record type"
   },
-  "recordTypeMXDesc": "Mail Exchange - Points to mail servers that handle email for the domain.",
-  "@recordTypeMXDesc": {
-    "description": "Description of MX record type"
-  },
-  "recordTypeTXTDesc": "Text records - Contains arbitrary text, often used for domain verification and SPF/DKIM email security.",
-  "@recordTypeTXTDesc": {
-    "description": "Description of TXT record type"
-  },
-  "recordTypeCNAMEDesc": "Canonical Name - Creates an alias from one domain to another (e.g., www to main domain).",
-  "@recordTypeCNAMEDesc": {
-    "description": "Description of CNAME record type"
-  },
-  "recordTypeNSDesc": "Name Server - Specifies the authoritative DNS servers for the domain.",
-  "@recordTypeNSDesc": {
-    "description": "Description of NS record type"
-  },
-  "recordTypeSOADesc": "Start of Authority - Contains administrative information about the DNS zone.",
-  "@recordTypeSOADesc": {
-    "description": "Description of SOA record type"
-  },
-  "recordTypePTRDesc": "Pointer - Used for reverse DNS lookups (IP address to domain name).",
-  "@recordTypePTRDesc": {
-    "description": "Description of PTR record type"
-  },
-  "recordTypeSRVDesc": "Service - Specifies the location of services like SIP, XMPP, or LDAP.",
-  "@recordTypeSRVDesc": {
-    "description": "Description of SRV record type"
-  },
   "pingResults": "Ping Results",
   "@pingResults": {
     "description": "Ping results section title"

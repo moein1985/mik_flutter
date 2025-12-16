@@ -742,34 +742,6 @@
   "@recordTypeAAAADesc": {
     "description": "توضیح نوع رکورد AAAA"
   },
-  "recordTypeMXDesc": "تبادل ایمیل - به سرورهای ایمیل که ایمیل دامنه را مدیریت می‌کنند اشاره می‌کند.",
-  "@recordTypeMXDesc": {
-    "description": "توضیح نوع رکورد MX"
-  },
-  "recordTypeTXTDesc": "رکوردهای متنی - شامل متن دلخواه، اغلب برای تأیید دامنه و امنیت ایمیل SPF/DKIM استفاده می‌شود.",
-  "@recordTypeTXTDesc": {
-    "description": "توضیح نوع رکورد TXT"
-  },
-  "recordTypeCNAMEDesc": "نام متعارف - یک نام مستعار از یک دامنه به دامنه دیگر ایجاد می‌کند (مثل www به دامنه اصلی).",
-  "@recordTypeCNAMEDesc": {
-    "description": "توضیح نوع رکورد CNAME"
-  },
-  "recordTypeNSDesc": "سرور نام - سرورهای DNS معتبر برای دامنه را مشخص می‌کند.",
-  "@recordTypeNSDesc": {
-    "description": "توضیح نوع رکورد NS"
-  },
-  "recordTypeSOADesc": "شروع اعتبار - شامل اطلاعات مدیریتی درباره منطقه DNS است.",
-  "@recordTypeSOADesc": {
-    "description": "توضیح نوع رکورد SOA"
-  },
-  "recordTypePTRDesc": "اشاره‌گر - برای جستجوی معکوس DNS استفاده می‌شود (آدرس IP به نام دامنه).",
-  "@recordTypePTRDesc": {
-    "description": "توضیح نوع رکورد PTR"
-  },
-  "recordTypeSRVDesc": "سرویس - محل سرویس‌هایی مانند SIP، XMPP یا LDAP را مشخص می‌کند.",
-  "@recordTypeSRVDesc": {
-    "description": "توضیح نوع رکورد SRV"
-  },
   "pingResults": "نتایج پینگ",
   "@pingResults": {
     "description": "عنوان بخش نتایج پینگ"
