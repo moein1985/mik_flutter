@@ -67,9 +67,9 @@ class _HotspotIpBindingsPageState extends State<HotspotIpBindingsPage> {
               );
               // Reload after successful operation with a small delay
               Future.delayed(const Duration(milliseconds: 1000), () {
-                if (mounted) {
-                  context.read<HotspotBloc>().add(const LoadIpBindings());
-                }
+                if (!mounted) return;
+                // ignore: use_build_context_synchronously
+                context.read<HotspotBloc>().add(const LoadIpBindings());
               });
             }
           } else {

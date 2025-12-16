@@ -80,9 +80,9 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
             _showSnackBarOnce(state.message);
             // Reload users after operation with a small delay
             Future.delayed(const Duration(milliseconds: 1000), () {
-              if (mounted) {
-                context.read<HotspotBloc>().add(const LoadHotspotUsers());
-              }
+              if (!mounted) return;
+              // ignore: use_build_context_synchronously
+              context.read<HotspotBloc>().add(const LoadHotspotUsers());
             });
           } else if (state is HotspotError) {
             _showSnackBarOnce(state.message, isError: true);
@@ -588,6 +588,9 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
 
     final formKey = GlobalKey<FormState>();
     final isFormValid = ValueNotifier<bool>(isEditing); // If editing, start enabled
+    
+    // Capture the context that has HotspotBloc
+    final pageContext = context;
 
     // Validators
     String? validateName(String? value) {
@@ -755,7 +758,7 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
             ),
             ValueListenableBuilder<bool>(
               valueListenable: isFormValid,
-              builder: (context, isValid, child) {
+              builder: (_, isValid, child) {
                 return ElevatedButton(
                   onPressed: !isValid ? null : () {
                     if (!formKey.currentState!.validate()) return;
@@ -770,7 +773,7 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
 
                     if (isEditing) {
                       // Editing existing user
-                      context.read<HotspotBloc>().add(
+                      pageContext.read<HotspotBloc>().add(
                             EditHotspotUser(
                               id: user.id,
                               name: name.isEmpty ? null : name,
@@ -784,7 +787,7 @@ class _HotspotUsersPageState extends State<HotspotUsersPage> {
                           );
                     } else {
                       // Adding new user
-                      context.read<HotspotBloc>().add(
+                      pageContext.read<HotspotBloc>().add(
                             AddHotspotUser(
                               name: name,
                               password: password,

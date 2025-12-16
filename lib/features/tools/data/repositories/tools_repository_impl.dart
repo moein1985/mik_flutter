@@ -12,6 +12,8 @@ import '../models/dns_lookup_result_model.dart';
 import '../models/ping_result_model.dart';
 import '../models/traceroute_hop_model.dart';
 
+final _log = AppLogger.tag('ToolsRepositoryImpl');
+
 /// Implementation of ToolsRepository
 /// Uses RouterOSClientV2 for non-streaming operations (better API)
 /// Uses legacy RouterOSClient for streaming (package has bugs with streaming)
@@ -278,7 +280,8 @@ class ToolsRepositoryImpl implements ToolsRepository {
           yield hop;
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      _log.e('Traceroute stream error', error: e, stackTrace: stackTrace);
       throw ServerException('Failed to perform streaming traceroute: $e');
     }
   }

@@ -312,11 +312,21 @@ abstract class RouterOSBaseClient {
       for (final response in _responseData) {
         final responseTag = response['.tag'];
         if (responseTag == _activeStreamingTag) {
-          if (response['type'] == 'done' || response['type'] == 'trap') {
+          if (response['type'] == 'trap') {
+            // For trap responses, emit error before closing
+            final errorMsg = response['message'] ?? 'RouterOS streaming error';
+            _log.e('Stream received trap: $errorMsg');
+            controller.addError(errorMsg);
+            controller.close();
+            _streamControllers.remove(_activeStreamingTag);
+            _activeStreamingTag = null;
+          } else if (response['type'] == 'done') {
+            // Normal completion
             controller.close();
             _streamControllers.remove(_activeStreamingTag);
             _activeStreamingTag = null;
           } else if (response['type'] != 'fatal') {
+            // Regular data
             controller.add(response);
           }
         }

@@ -174,9 +174,9 @@ class _HotspotSetupDialogState extends State<HotspotSetupDialog> {
           } else if (state.message == 'IP Pool added successfully') {
             // Reload setup data to get the new pool with a small delay
             Future.delayed(const Duration(milliseconds: 1000), () {
-              if (mounted) {
-                context.read<HotspotBloc>().add(const LoadSetupData());
-              }
+              if (!mounted) return;
+              // ignore: use_build_context_synchronously
+              context.read<HotspotBloc>().add(const LoadSetupData());
             });
             setState(() {
               _isCreatingPool = false;

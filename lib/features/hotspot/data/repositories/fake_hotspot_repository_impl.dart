@@ -277,6 +277,47 @@ class FakeHotspotRepositoryImpl implements HotspotRepository {
         disabled: false,
       ),
     ];
+    
+    // Set ID counter to max existing ID + 1 to avoid duplicates
+    int maxId = 0;
+    
+    // Check servers
+    for (final server in _servers) {
+      final idNum = int.tryParse(server.id.replaceAll('*', ''));
+      if (idNum != null && idNum > maxId) maxId = idNum;
+    }
+    
+    // Check users
+    for (final user in _users) {
+      final idNum = int.tryParse(user.id.replaceAll('*', ''));
+      if (idNum != null && idNum > maxId) maxId = idNum;
+    }
+    
+    // Check profiles
+    for (final profile in _profiles) {
+      final idNum = int.tryParse(profile.id.replaceAll('*', ''));
+      if (idNum != null && idNum > maxId) maxId = idNum;
+    }
+    
+    // Check IP bindings
+    for (final binding in _ipBindings) {
+      final idNum = int.tryParse(binding.id.replaceAll('*', ''));
+      if (idNum != null && idNum > maxId) maxId = idNum;
+    }
+    
+    // Check hosts
+    for (final host in _hosts) {
+      final idNum = int.tryParse(host.id.replaceAll('*', ''));
+      if (idNum != null && idNum > maxId) maxId = idNum;
+    }
+    
+    // Check walled garden
+    for (final entry in _walledGarden) {
+      final idNum = int.tryParse(entry.id.replaceAll('*', ''));
+      if (idNum != null && idNum > maxId) maxId = idNum;
+    }
+    
+    _idCounter = maxId + 1;
   }
 
   Future<void> _simulateDelay() async {
