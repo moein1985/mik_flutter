@@ -525,7 +525,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearAllResults => 'Clear all diagnostic results';
 
   @override
-  String get targetHost => 'Target Host/IP';
+  String get targetHost => 'Target IP Address';
 
   @override
   String get packetCount => 'Packet Count';
@@ -1018,7 +1018,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseEnterTarget => 'Please enter a target address';
 
   @override
-  String get targetHostHint => 'e.g., 1.1.1.1 or google.com';
+  String get targetHostHint => 'e.g., 1.1.1.1 or 8.8.8.8';
 
   @override
   String get bytes => 'bytes';
@@ -1031,7 +1031,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tracerouteQuickTip =>
-      '💡 Traceroute shows the path packets take to reach a destination, useful for diagnosing routing issues.';
+      '💡 Traceroute shows the path packets take to reach an IP address. Note: Only IP addresses are supported, not domain names.';
 
   @override
   String get maxHopsLabel => 'Max Hops';

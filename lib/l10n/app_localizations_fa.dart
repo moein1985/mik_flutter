@@ -524,7 +524,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get clearAllResults => 'پاک کردن تمام نتایج تشخیصی';
 
   @override
-  String get targetHost => 'میزبان هدف/IP';
+  String get targetHost => 'آدرس IP هدف';
 
   @override
   String get packetCount => 'تعداد بسته';
@@ -1016,7 +1016,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get pleaseEnterTarget => 'لطفاً آدرس مقصد را وارد کنید';
 
   @override
-  String get targetHostHint => 'مثلاً 1.1.1.1 یا google.com';
+  String get targetHostHint => 'مثلاً 1.1.1.1 یا 8.8.8.8';
 
   @override
   String get bytes => 'بایت';
@@ -1029,7 +1029,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get tracerouteQuickTip =>
-      '💡 Traceroute مسیری که بسته‌ها برای رسیدن به مقصد طی می‌کنند را نشان می‌دهد و برای عیب‌یابی مشکلات مسیریابی مفید است.';
+      '💡 Traceroute مسیر بسته‌ها تا یک آدرس IP را نشان می‌دهد. توجه: فقط از آدرس IP پشتیبانی می‌شود، نه نام دامنه.';
 
   @override
   String get maxHopsLabel => 'حداکثر گام';

@@ -1079,7 +1079,7 @@ abstract class AppLocalizations {
   /// Target host input label
   ///
   /// In en, this message translates to:
-  /// **'Target Host/IP'**
+  /// **'Target IP Address'**
   String get targetHost;
 
   /// Ping packet count label
@@ -2003,7 +2003,7 @@ abstract class AppLocalizations {
   /// Hint for target host input
   ///
   /// In en, this message translates to:
-  /// **'e.g., 1.1.1.1 or google.com'**
+  /// **'e.g., 1.1.1.1 or 8.8.8.8'**
   String get targetHostHint;
 
   /// Bytes unit
@@ -2027,7 +2027,7 @@ abstract class AppLocalizations {
   /// Quick tip for traceroute
   ///
   /// In en, this message translates to:
-  /// **'💡 Traceroute shows the path packets take to reach a destination, useful for diagnosing routing issues.'**
+  /// **'💡 Traceroute shows the path packets take to reach an IP address. Note: Only IP addresses are supported, not domain names.'**
   String get tracerouteQuickTip;
 
   /// Maximum hops field label

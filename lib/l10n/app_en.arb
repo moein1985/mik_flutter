@@ -662,7 +662,7 @@
   "@clearAllResults": {
     "description": "Clear results description"
   },
-  "targetHost": "Target Host/IP",
+  "targetHost": "Target IP Address",
   "@targetHost": {
     "description": "Target host input label"
   },
@@ -1308,7 +1308,7 @@
   "@pleaseEnterTarget": {
     "description": "Error message when target is empty"
   },
-  "targetHostHint": "e.g., 1.1.1.1 or google.com",
+  "targetHostHint": "e.g., 1.1.1.1 or 8.8.8.8",
   "@targetHostHint": {
     "description": "Hint for target host input"
   },
@@ -1325,7 +1325,7 @@
     "description": "Timeout label"
   },
   
-  "tracerouteQuickTip": "💡 Traceroute shows the path packets take to reach a destination, useful for diagnosing routing issues.",
+  "tracerouteQuickTip": "💡 Traceroute shows the path packets take to reach an IP address. Note: Only IP addresses are supported, not domain names.",
   "@tracerouteQuickTip": {
     "description": "Quick tip for traceroute"
   },
