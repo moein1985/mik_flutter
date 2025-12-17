@@ -93,8 +93,12 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
   @override
   void initState() {
     super.initState();
+    debugPrint('[AddEditQueuePage] 🟢 Init with queueId: ${widget.queueId}');
     if (widget.queueId != null) {
+      debugPrint('[AddEditQueuePage] 🟢 Loading queue for edit: ${widget.queueId}');
       context.read<QueuesBloc>().add(LoadQueueForEdit(widget.queueId!));
+    } else {
+      debugPrint('[AddEditQueuePage] 🟢 New queue mode');
     }
   }
 
@@ -126,6 +130,12 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
   }
 
   void _populateForm(dynamic queue) {
+    debugPrint('[AddEditQueuePage] 📋 Populating form with queue data:');
+    debugPrint('  - name: ${queue.name}');
+    debugPrint('  - priority: ${queue.priority}');
+    debugPrint('  - upload: ${queue.formattedUploadLimit}');
+    debugPrint('  - download: ${queue.formattedDownloadLimit}');
+    
     _nameController.text = queue.name;
     _targetController.text = queue.target;
     _downloadController.text = queue.formattedDownloadLimit;
@@ -137,20 +147,29 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
   }
 
   void _saveQueue() {
+    debugPrint('[AddEditQueuePage] 💾 Save button pressed');
     if (!_formKey.currentState!.validate()) {
+      debugPrint('[AddEditQueuePage] ❌ Validation failed');
       return;
     }
 
     setState(() => _isLoading = true);
+    debugPrint('[AddEditQueuePage] 💾 Saving queue...');
 
+    final uploadLimit = _uploadController.text.trim();
+    final downloadLimit = _downloadController.text.trim();
+    
     final queueData = {
       'name': _nameController.text.trim(),
       'target': _targetController.text.trim(),
-      'max-limit-download': _downloadController.text.trim(),
-      'max-limit-upload': _uploadController.text.trim(),
       'priority': _selectedPriority.toString(),
       'comment': _commentController.text.trim(),
     };
+    
+    // Only add max-limit if both upload and download are provided
+    if (uploadLimit.isNotEmpty && downloadLimit.isNotEmpty) {
+      queueData['max-limit'] = '$uploadLimit/$downloadLimit';
+    }
 
     if (widget.queueId != null) {
       context.read<QueuesBloc>().add(UpdateQueue(widget.queueId!, queueData));
@@ -167,18 +186,12 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            const Text('⚡'),
-            const SizedBox(width: 8),
-            Text(isEditing ? l10n.editSpeedLimit : l10n.addSpeedLimit),
-          ],
-        ),
+        title: Text(isEditing ? l10n.editSpeedLimit : l10n.addSpeedLimit),
       ),
       body: BlocConsumer<QueuesBloc, QueuesState>(
         listener: (context, state) {
           if (state is QueueOperationSuccess) {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(true);
           } else if (state is QueuesError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -203,14 +216,6 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // قالب‌های آماده
-                  if (!isEditing) ...[
-                    _buildTemplatesSection(l10n, colorScheme),
-                    const SizedBox(height: 24),
-                    Divider(color: colorScheme.outline.withAlpha(77)),
-                    const SizedBox(height: 24),
-                  ],
-
                   // راهنمای سریع
                   _buildQuickGuide(l10n, colorScheme),
                   const SizedBox(height: 24),
@@ -248,8 +253,9 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
                       if (value?.trim().isEmpty ?? true) {
                         return l10n.targetRequired;
                       }
-                      final ipRegex = RegExp(r'^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$');
-                      if (!ipRegex.hasMatch(value!)) {
+                      // Simple IP validation: X.X.X.X or X.X.X.X/Y
+                      final ipRegex = RegExp(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,2})?$');
+                      if (!ipRegex.hasMatch(value!.trim())) {
                         return l10n.invalidIPFormat;
                       }
                       return null;
@@ -530,7 +536,10 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
     final isSelected = _selectedPriority == value;
     
     return InkWell(
-      onTap: () => setState(() => _selectedPriority = value),
+      onTap: () {
+        debugPrint('[AddEditQueuePage] 🎯 Priority changed: $_selectedPriority → $value ($label)');
+        setState(() => _selectedPriority = value);
+      },
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.all(12),

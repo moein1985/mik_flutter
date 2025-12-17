@@ -56,6 +56,7 @@ class QueuesRepositoryImpl implements QueuesRepository {
         target: model.target,
         maxLimit: model.maxLimit.isNotEmpty ? model.maxLimit : null,
         limitAt: model.limitAt.isNotEmpty ? model.limitAt : null,
+        priority: model.priority,
         comment: model.comment.isNotEmpty ? model.comment : null,
         disabled: model.disabled,
       );
@@ -75,6 +76,7 @@ class QueuesRepositoryImpl implements QueuesRepository {
         target: model.target.isNotEmpty ? model.target : null,
         maxLimit: model.maxLimit.isNotEmpty ? model.maxLimit : null,
         limitAt: model.limitAt.isNotEmpty ? model.limitAt : null,
+        priority: model.priority,
         comment: model.comment.isNotEmpty ? model.comment : null,
         disabled: model.disabled,
       );

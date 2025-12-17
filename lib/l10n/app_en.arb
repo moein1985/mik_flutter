@@ -1097,7 +1097,7 @@
   "@errorTogglingQueue": {
     "description": "Error toggling queue message"
   },
-  "speedLimitTitle": "Speed Limits",
+  "speedLimitTitle": "Simple Q",
   "@speedLimitTitle": {
     "description": "Speed limit page title"
   },
@@ -1105,15 +1105,15 @@
   "@speedLimitDescription": {
     "description": "Speed limit description"
   },
-  "addSpeedLimit": "Add Speed Limit",
+  "addSpeedLimit": "Add Simple Q",
   "@addSpeedLimit": {
     "description": "Add speed limit button"
   },
-  "editSpeedLimit": "Edit Speed Limit",
+  "editSpeedLimit": "Edit Simple Q",
   "@editSpeedLimit": {
     "description": "Edit speed limit title"
   },
-  "deleteSpeedLimit": "Delete Speed Limit",
+  "deleteSpeedLimit": "Delete Simple Q",
   "@deleteSpeedLimit": {
     "description": "Delete speed limit title"
   },
@@ -1121,11 +1121,11 @@
   "@deleteSpeedLimitConfirm": {
     "description": "Delete speed limit confirmation"
   },
-  "noSpeedLimits": "No speed limits configured",
+  "noSpeedLimits": "No simple queues configured",
   "@noSpeedLimits": {
     "description": "No speed limits message"
   },
-  "speedLimitsCount": "speed limit(s)",
+  "speedLimitsCount": "simple queue(s)",
   "@speedLimitsCount": {
     "description": "Speed limits count"
   },

@@ -65,11 +65,7 @@ class QueuesBloc extends Bloc<QueuesEvent, QueuesState> {
 
     result.fold(
       (failure) => emit(QueuesError(failure.message)),
-      (_) {
-        emit(const QueueOperationSuccess('Queue added successfully'));
-        // Reload queues to show the new queue
-        add(const LoadQueues());
-      },
+      (_) => emit(const QueueOperationSuccess('Queue added successfully')),
     );
   }
 
@@ -80,11 +76,7 @@ class QueuesBloc extends Bloc<QueuesEvent, QueuesState> {
 
     result.fold(
       (failure) => emit(QueuesError(failure.message)),
-      (_) {
-        emit(const QueueOperationSuccess('Queue updated successfully'));
-        // Reload queues to show the updated queue
-        add(const LoadQueues());
-      },
+      (_) => emit(const QueueOperationSuccess('Queue updated successfully')),
     );
   }
 

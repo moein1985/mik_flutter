@@ -1097,7 +1097,7 @@
   "@errorTogglingQueue": {
     "description": "پیام خطا تغییر وضعیت صف"
   },
-  "speedLimitTitle": "محدودیت سرعت",
+  "speedLimitTitle": "صف ساده",
   "@speedLimitTitle": {
     "description": "عنوان صفحه محدودیت سرعت"
   },
@@ -1105,15 +1105,15 @@
   "@speedLimitDescription": {
     "description": "توضیحات محدودیت سرعت"
   },
-  "addSpeedLimit": "افزودن محدودیت سرعت",
+  "addSpeedLimit": "افزودن صف ساده",
   "@addSpeedLimit": {
     "description": "دکمه افزودن محدودیت سرعت"
   },
-  "editSpeedLimit": "ویرایش محدودیت سرعت",
+  "editSpeedLimit": "ویرایش صف ساده",
   "@editSpeedLimit": {
     "description": "عنوان ویرایش محدودیت سرعت"
   },
-  "deleteSpeedLimit": "حذف محدودیت سرعت",
+  "deleteSpeedLimit": "حذف صف ساده",
   "@deleteSpeedLimit": {
     "description": "عنوان حذف محدودیت سرعت"
   },
@@ -1121,11 +1121,11 @@
   "@deleteSpeedLimitConfirm": {
     "description": "تأیید حذف محدودیت سرعت"
   },
-  "noSpeedLimits": "محدودیت سرعتی تنظیم نشده",
+  "noSpeedLimits": "هیچ صف ساده‌ای تنظیم نشده است",
   "@noSpeedLimits": {
     "description": "پیام عدم وجود محدودیت سرعت"
   },
-  "speedLimitsCount": "محدودیت سرعت",
+  "speedLimitsCount": "صف ساده",
   "@speedLimitsCount": {
     "description": "تعداد محدودیت‌های سرعت"
   },

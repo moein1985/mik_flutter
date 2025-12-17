@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'clients/routeros_system_client.dart';
 import 'clients/routeros_hotspot_client.dart';
 import 'clients/routeros_diagnostic_client.dart';
@@ -1181,6 +1183,7 @@ class RouterOSClient {
     required String target,
     String? maxLimit,
     String? limitAt,
+    int? priority,
     int? queue,
     String? comment,
     bool? disabled,
@@ -1189,6 +1192,8 @@ class RouterOSClient {
       final cmd = ['/queue/simple/add', '=name=$name', '=target=$target'];
       if (maxLimit != null) cmd.add('=max-limit=$maxLimit');
       if (limitAt != null) cmd.add('=limit-at=$limitAt');
+      // Priority format: upload/download (same value for both)
+      if (priority != null) cmd.add('=priority=$priority/$priority');
       if (queue != null) cmd.add('=queue=$queue');
       if (comment != null) cmd.add('=comment=$comment');
       if (disabled != null) cmd.add('=disabled=${disabled ? 'yes' : 'no'}');
@@ -1206,6 +1211,7 @@ class RouterOSClient {
     String? target,
     String? maxLimit,
     String? limitAt,
+    int? priority,
     int? queue,
     String? comment,
     bool? disabled,
@@ -1216,12 +1222,19 @@ class RouterOSClient {
       if (target != null) cmd.add('=target=$target');
       if (maxLimit != null) cmd.add('=max-limit=$maxLimit');
       if (limitAt != null) cmd.add('=limit-at=$limitAt');
+      // Priority format: upload/download (same value for both)
+      if (priority != null) cmd.add('=priority=$priority/$priority');
       if (queue != null) cmd.add('=queue=$queue');
       if (comment != null) cmd.add('=comment=$comment');
       if (disabled != null) cmd.add('=disabled=${disabled ? 'yes' : 'no'}');
+      
+      // Debug log
+      debugPrint('[RouterOSClient] 🔧 Update queue command: $cmd');
+      
       await _systemClient.sendCommand(cmd);
       return true;
     } catch (e) {
+      debugPrint('[RouterOSClient] ❌ Update queue failed: $e');
       return false;
     }
   }

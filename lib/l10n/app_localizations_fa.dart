@@ -865,29 +865,29 @@ class AppLocalizationsFa extends AppLocalizations {
   String get errorTogglingQueue => 'خطا در تغییر وضعیت صف';
 
   @override
-  String get speedLimitTitle => 'محدودیت سرعت';
+  String get speedLimitTitle => 'صف ساده';
 
   @override
   String get speedLimitDescription =>
       'کنترل سرعت دانلود و آپلود برای دستگاه‌ها یا شبکه‌های مشخص';
 
   @override
-  String get addSpeedLimit => 'افزودن محدودیت سرعت';
+  String get addSpeedLimit => 'افزودن صف ساده';
 
   @override
-  String get editSpeedLimit => 'ویرایش محدودیت سرعت';
+  String get editSpeedLimit => 'ویرایش صف ساده';
 
   @override
-  String get deleteSpeedLimit => 'حذف محدودیت سرعت';
+  String get deleteSpeedLimit => 'حذف صف ساده';
 
   @override
   String get deleteSpeedLimitConfirm => 'آیا مطمئن هستید که می‌خواهید حذف کنید';
 
   @override
-  String get noSpeedLimits => 'محدودیت سرعتی تنظیم نشده';
+  String get noSpeedLimits => 'هیچ صف ساده‌ای تنظیم نشده است';
 
   @override
-  String get speedLimitsCount => 'محدودیت سرعت';
+  String get speedLimitsCount => 'صف ساده';
 
   @override
   String get singleDevice => 'یک دستگاه';

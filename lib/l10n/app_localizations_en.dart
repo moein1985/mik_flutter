@@ -868,29 +868,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorTogglingQueue => 'Error changing queue status';
 
   @override
-  String get speedLimitTitle => 'Speed Limits';
+  String get speedLimitTitle => 'Simple Q';
 
   @override
   String get speedLimitDescription =>
       'Control download and upload speed for specific devices or networks';
 
   @override
-  String get addSpeedLimit => 'Add Speed Limit';
+  String get addSpeedLimit => 'Add Simple Q';
 
   @override
-  String get editSpeedLimit => 'Edit Speed Limit';
+  String get editSpeedLimit => 'Edit Simple Q';
 
   @override
-  String get deleteSpeedLimit => 'Delete Speed Limit';
+  String get deleteSpeedLimit => 'Delete Simple Q';
 
   @override
   String get deleteSpeedLimitConfirm => 'Are you sure you want to delete';
 
   @override
-  String get noSpeedLimits => 'No speed limits configured';
+  String get noSpeedLimits => 'No simple queues configured';
 
   @override
-  String get speedLimitsCount => 'speed limit(s)';
+  String get speedLimitsCount => 'simple queue(s)';
 
   @override
   String get singleDevice => 'Single Device';

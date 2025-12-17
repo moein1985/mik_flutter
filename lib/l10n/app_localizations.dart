@@ -1727,7 +1727,7 @@ abstract class AppLocalizations {
   /// Speed limit page title
   ///
   /// In en, this message translates to:
-  /// **'Speed Limits'**
+  /// **'Simple Q'**
   String get speedLimitTitle;
 
   /// Speed limit description
@@ -1739,19 +1739,19 @@ abstract class AppLocalizations {
   /// Add speed limit button
   ///
   /// In en, this message translates to:
-  /// **'Add Speed Limit'**
+  /// **'Add Simple Q'**
   String get addSpeedLimit;
 
   /// Edit speed limit title
   ///
   /// In en, this message translates to:
-  /// **'Edit Speed Limit'**
+  /// **'Edit Simple Q'**
   String get editSpeedLimit;
 
   /// Delete speed limit title
   ///
   /// In en, this message translates to:
-  /// **'Delete Speed Limit'**
+  /// **'Delete Simple Q'**
   String get deleteSpeedLimit;
 
   /// Delete speed limit confirmation
@@ -1763,13 +1763,13 @@ abstract class AppLocalizations {
   /// No speed limits message
   ///
   /// In en, this message translates to:
-  /// **'No speed limits configured'**
+  /// **'No simple queues configured'**
   String get noSpeedLimits;
 
   /// Speed limits count
   ///
   /// In en, this message translates to:
-  /// **'speed limit(s)'**
+  /// **'simple queue(s)'**
   String get speedLimitsCount;
 
   /// Single device label

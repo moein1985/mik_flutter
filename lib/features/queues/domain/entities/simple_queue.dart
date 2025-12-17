@@ -93,10 +93,22 @@ class SimpleQueue extends Equatable {
   bool get isEnabled => !disabled;
 
   /// Get formatted upload limit
-  String get formattedUploadLimit => maxLimitUpload.isNotEmpty ? maxLimitUpload : maxLimit;
+  String get formattedUploadLimit {
+    if (maxLimitUpload.isNotEmpty) return maxLimitUpload;
+    if (maxLimit.isEmpty) return '';
+    // Parse max-limit format: "upload/download"
+    final parts = maxLimit.split('/');
+    return parts.isNotEmpty ? parts[0] : '';
+  }
 
   /// Get formatted download limit
-  String get formattedDownloadLimit => maxLimitDownload.isNotEmpty ? maxLimitDownload : maxLimit;
+  String get formattedDownloadLimit {
+    if (maxLimitDownload.isNotEmpty) return maxLimitDownload;
+    if (maxLimit.isEmpty) return '';
+    // Parse max-limit format: "upload/download"
+    final parts = maxLimit.split('/');
+    return parts.length > 1 ? parts[1] : '';
+  }
 
   @override
   List<Object?> get props => [

@@ -19,6 +19,7 @@ class RouterOSQueuesClient extends RouterOSBaseClient {
     required String target,
     String? maxLimit,
     String? limitAt,
+    int? priority,
     int? queue,
     String? comment,
     bool? disabled,
@@ -26,6 +27,8 @@ class RouterOSQueuesClient extends RouterOSBaseClient {
     final words = ['/queue/simple/add', '=name=$name', '=target=$target'];
     if (maxLimit != null) words.add('=max-limit=$maxLimit');
     if (limitAt != null) words.add('=limit-at=$limitAt');
+    // Priority format: upload/download (same value for both)
+    if (priority != null) words.add('=priority=$priority/$priority');
     if (queue != null) words.add('=queue=$queue');
     if (comment != null) words.add('=comment=$comment');
     if (disabled != null) words.add('=disabled=${disabled ? 'yes' : 'no'}');
@@ -41,6 +44,7 @@ class RouterOSQueuesClient extends RouterOSBaseClient {
     String? target,
     String? maxLimit,
     String? limitAt,
+    int? priority,
     int? queue,
     String? comment,
     bool? disabled,
@@ -50,6 +54,8 @@ class RouterOSQueuesClient extends RouterOSBaseClient {
     if (target != null) words.add('=target=$target');
     if (maxLimit != null) words.add('=max-limit=$maxLimit');
     if (limitAt != null) words.add('=limit-at=$limitAt');
+    // Priority format: upload/download (same value for both)
+    if (priority != null) words.add('=priority=$priority/$priority');
     if (queue != null) words.add('=queue=$queue');
     if (comment != null) words.add('=comment=$comment');
     if (disabled != null) words.add('=disabled=${disabled ? 'yes' : 'no'}');

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../../domain/entities/simple_queue.dart';
 
 /// Model for simple queue data from RouterOS API
@@ -26,6 +28,17 @@ class SimpleQueueModel extends SimpleQueue {
 
   /// Create model from RouterOS queue response
   factory SimpleQueueModel.fromRouterOS(Map<String, String> data) {
+    // Parse priority - MikroTik returns format: "upload/download" (e.g., "5/5")
+    int parsePriority(String? priorityStr) {
+      debugPrint('[SimpleQueueModel] 📊 Raw priority from MikroTik: "$priorityStr"');
+      if (priorityStr == null || priorityStr.isEmpty) return 8;
+      // Handle "upload/download" format - take the first value
+      final parts = priorityStr.split('/');
+      final parsed = int.tryParse(parts[0]) ?? 8;
+      debugPrint('[SimpleQueueModel] 📊 Parsed priority: $parsed');
+      return parsed;
+    }
+
     return SimpleQueueModel(
       id: data['.id'] ?? '',
       name: data['name'] ?? '',
@@ -34,7 +47,7 @@ class SimpleQueueModel extends SimpleQueue {
       burstLimit: data['burst-limit'] ?? '',
       burstThreshold: data['burst-threshold'] ?? '',
       burstTime: data['burst-time'] ?? '',
-      priority: int.tryParse(data['priority'] ?? '8') ?? 8,
+      priority: parsePriority(data['priority']),
       comment: data['comment'] ?? '',
       disabled: data['disabled'] == 'true',
       limitAt: data['limit-at'] ?? '',
@@ -50,8 +63,17 @@ class SimpleQueueModel extends SimpleQueue {
   }
 
   /// Create model from multiple RouterOS responses
+  /// Filters out empty/template queues that have no name or target
   static List<SimpleQueueModel> fromRouterOSList(List<Map<String, String>> dataList) {
-    return dataList.map((data) => SimpleQueueModel.fromRouterOS(data)).toList();
+    return dataList
+        .where((data) {
+          // Filter out queues without name or target (likely default/template queues)
+          final name = data['name'] ?? '';
+          final target = data['target'] ?? '';
+          return name.isNotEmpty && target.isNotEmpty;
+        })
+        .map((data) => SimpleQueueModel.fromRouterOS(data))
+        .toList();
   }
 
   /// Convert to entity
