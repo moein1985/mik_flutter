@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// Application name
   ///
   /// In en, this message translates to:
-  /// **'MikroTik Manager'**
+  /// **'Network Assistant'**
   String get appName;
 
   /// Refresh button text

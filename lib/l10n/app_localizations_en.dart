@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'MikroTik Manager';
+  String get appName => 'Network Assistant';
 
   @override
   String get refresh => 'Refresh';

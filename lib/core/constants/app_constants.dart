@@ -1,6 +1,6 @@
 class AppConstants {
   // App Info
-  static const String appName = 'MikroTik Manager';
+  static const String appName = 'Network Assistant';
   static const String appVersion = '1.0.0';
 
   // API

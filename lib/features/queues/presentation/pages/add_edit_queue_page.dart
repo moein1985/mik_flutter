@@ -45,51 +45,6 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
   int _selectedPriority = 5; // متوسط
   bool _isLoading = false;
 
-  List<SpeedLimitTemplate> _getTemplates(AppLocalizations l10n) {
-    return [
-      SpeedLimitTemplate(
-        name: l10n.templateRegularUser,
-        emoji: '📱',
-        downloadSpeed: '5M',
-        uploadSpeed: '2M',
-        priority: 5,
-        description: l10n.templateRegularUserDesc,
-      ),
-      SpeedLimitTemplate(
-        name: l10n.templateGuestNetwork,
-        emoji: '🏠',
-        downloadSpeed: '3M',
-        uploadSpeed: '1M',
-        priority: 7,
-        description: l10n.templateGuestNetworkDesc,
-      ),
-      SpeedLimitTemplate(
-        name: l10n.templateVIPUser,
-        emoji: '💼',
-        downloadSpeed: '20M',
-        uploadSpeed: '10M',
-        priority: 3,
-        description: l10n.templateVIPUserDesc,
-      ),
-      SpeedLimitTemplate(
-        name: l10n.templateServer,
-        emoji: '🖥️',
-        downloadSpeed: '50M',
-        uploadSpeed: '20M',
-        priority: 2,
-        description: l10n.templateServerDesc,
-      ),
-      SpeedLimitTemplate(
-        name: l10n.templateCamera,
-        emoji: '📹',
-        downloadSpeed: '2M',
-        uploadSpeed: '512k',
-        priority: 2,
-        description: l10n.templateCameraDesc,
-      ),
-    ];
-  }
-
   @override
   void initState() {
     super.initState();
@@ -110,23 +65,6 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
     _uploadController.dispose();
     _commentController.dispose();
     super.dispose();
-  }
-
-  void _applyTemplate(SpeedLimitTemplate template) {
-    setState(() {
-      _nameController.text = template.name;
-      _downloadController.text = template.downloadSpeed;
-      _uploadController.text = template.uploadSpeed;
-      _selectedPriority = template.priority;
-    });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${template.emoji} قالب "${template.name}" اعمال شد'),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   void _populateForm(dynamic queue) {
@@ -347,77 +285,6 @@ class _AddEditQueuePageState extends State<AddEditQueuePage> {
           );
         },
       ),
-    );
-  }
-
-  Widget _buildTemplatesSection(AppLocalizations l10n, ColorScheme colorScheme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.purple.shade50,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text('✨', style: TextStyle(fontSize: 20)),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              l10n.readyTemplates,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Text(
-          l10n.templatesDescription,
-          style: TextStyle(
-            fontSize: 13,
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _getTemplates(l10n).map((template) => _buildTemplateChip(template)).toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTemplateChip(SpeedLimitTemplate template) {
-    return ActionChip(
-      avatar: Text(template.emoji, style: const TextStyle(fontSize: 18)),
-      label: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            template.name,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-          Text(
-            '⬇️${template.downloadSpeed} ⬆️${template.uploadSpeed}',
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.grey.shade600,
-              fontFamily: 'monospace',
-            ),
-          ),
-        ],
-      ),
-      onPressed: () => _applyTemplate(template),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 

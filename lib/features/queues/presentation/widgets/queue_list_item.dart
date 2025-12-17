@@ -140,8 +140,8 @@ class QueueListItem extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.blue.shade50.withOpacity(0.5),
-                        Colors.green.shade50.withOpacity(0.5),
+                        Colors.blue.shade50.withValues(alpha: 0.5),
+                        Colors.green.shade50.withValues(alpha: 0.5),
                       ],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,

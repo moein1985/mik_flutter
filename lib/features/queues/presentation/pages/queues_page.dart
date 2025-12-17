@@ -45,10 +45,11 @@ class _QueuesPageState extends State<QueuesPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           debugPrint('[QueuesPage] 🔵 Navigating to Add Queue: ${AppRoutes.addQueue}');
+          final bloc = context.read<QueuesBloc>();
           await context.push(AppRoutes.addQueue);
           debugPrint('[QueuesPage] 🔵 Returned from Add Queue, refreshing list');
           if (mounted) {
-            context.read<QueuesBloc>().add(const LoadQueues());
+            bloc.add(const LoadQueues());
           }
         },
         icon: const Icon(Icons.add),
@@ -194,10 +195,11 @@ class _QueuesPageState extends State<QueuesPage> {
             onTap: () async {
               final route = '${AppRoutes.queues}/edit/${queue.id}';
               debugPrint('[QueuesPage] 🟡 Navigating to Edit Queue: $route (queueId: ${queue.id})');
+              final bloc = context.read<QueuesBloc>();
               await context.push(route);
               debugPrint('[QueuesPage] 🟡 Returned from Edit Queue, refreshing list');
               if (mounted) {
-                context.read<QueuesBloc>().add(const LoadQueues());
+                bloc.add(const LoadQueues());
               }
             },
             onToggle: (enabled) {

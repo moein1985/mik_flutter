@@ -187,7 +187,7 @@ void main() {
 
       // Assert
       expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('MikroTik Manager'), findsOneWidget);
+      expect(find.text('Network Assistant'), findsOneWidget);
       expect(find.byIcon(Icons.language), findsOneWidget);
       expect(find.byIcon(Icons.refresh), findsOneWidget);
       expect(find.byIcon(Icons.logout), findsOneWidget);

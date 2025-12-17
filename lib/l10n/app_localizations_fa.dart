@@ -9,7 +9,7 @@ class AppLocalizationsFa extends AppLocalizations {
   AppLocalizationsFa([String locale = 'fa']) : super(locale);
 
   @override
-  String get appName => 'مدیریت میکروتیک';
+  String get appName => 'دستیار شبکه';
 
   @override
   String get refresh => 'بروزرسانی';

@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appName": "MikroTik Manager",
+  "appName": "Network Assistant",
   "@appName": {
     "description": "Application name"
   },

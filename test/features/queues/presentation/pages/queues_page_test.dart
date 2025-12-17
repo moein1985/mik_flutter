@@ -75,8 +75,8 @@ void main() {
 
       // Assert
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.text('No queues found'), findsOneWidget);
-      expect(find.byIcon(Icons.queue), findsWidgets);
+      expect(find.text('No simple queues configured'), findsOneWidget);
+      expect(find.byIcon(Icons.speed), findsWidgets);
     });
 
     testWidgets('should display queue list when QueuesLoaded with data',
@@ -110,9 +110,9 @@ void main() {
       expect(find.text('guest-queue'), findsOneWidget);
       expect(find.text('192.168.1.0/24'), findsOneWidget);
       expect(find.text('192.168.2.0/24'), findsOneWidget);
-      // maxLimit appears twice (upload/download)
-      expect(find.text('10M/10M'), findsWidgets);
-      expect(find.text('5M/5M'), findsWidgets);
+      // maxLimit is split to upload/download
+      expect(find.text('10M'), findsWidgets);
+      expect(find.text('5M'), findsWidgets);
     });
 
     testWidgets('should display error view when state is QueuesError',
@@ -171,7 +171,8 @@ void main() {
 
       // Assert
       expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      // Icons.add appears in both FAB and empty view button
+      expect(find.byIcon(Icons.add), findsWidgets);
     });
 
     testWidgets('should display app bar with correct title',
@@ -185,7 +186,7 @@ void main() {
 
       // Assert
       expect(find.byType(AppBar), findsOneWidget);
-      expect(find.text('Simple Queues'), findsOneWidget);
+      expect(find.text('Simple Q'), findsOneWidget);
     });
 
     testWidgets('should show disabled badge for disabled queues',
@@ -209,7 +210,14 @@ void main() {
 
       // Assert
       expect(find.text('disabled-queue'), findsOneWidget);
-      expect(find.text('1 Disabled'), findsOneWidget);
+      // Queue should have reduced opacity when disabled
+      final opacityWidget = tester.widget<Opacity>(
+        find.ancestor(
+          of: find.text('disabled-queue'),
+          matching: find.byType(Opacity),
+        ).first,
+      );
+      expect(opacityWidget.opacity, equals(0.5));
     });
 
     testWidgets('should display loading during operation',

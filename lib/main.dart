@@ -82,7 +82,7 @@ class MyAppState extends State<MyApp> {
         BlocProvider(create: (_) => di.sl<DashboardBloc>()),
       ],
       child: MaterialApp.router(
-        title: 'MikroTik Manager',
+        title: 'Network Assistant',
         debugShowCheckedModeBanner: false,
         locale: _locale,
         

@@ -1,5 +1,5 @@
 name: hsmik
-description: "MikroTik Router Management App with Flutter"
+description: "Network Assistant - Management tool for MikroTik, Cisco, and enterprise routers"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -57,6 +57,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   bloc_test: ^10.0.0
   mockito: ^5.4.4
+  flutter_launcher_icons: ^0.14.2
 
 flutter:
   uses-material-design: true
@@ -65,3 +66,21 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/icon.jpg"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/icons/icon.jpg"
+  windows:
+    generate: true
+    image_path: "assets/icons/icon.jpg"
+  macos:
+    generate: true
+    image_path: "assets/icons/icon.jpg"
+  linux:
+    generate: true
+    image_path: "assets/icons/icon.jpg"
