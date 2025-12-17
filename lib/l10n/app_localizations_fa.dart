@@ -12,6 +12,12 @@ class AppLocalizationsFa extends AppLocalizations {
   String get appName => 'مدیریت میکروتیک';
 
   @override
+  String get refresh => 'بروزرسانی';
+
+  @override
+  String get active => 'فعال';
+
+  @override
   String get login => 'ورود';
 
   @override
@@ -338,6 +344,97 @@ class AppLocalizationsFa extends AppLocalizations {
   String get letsEncryptDnsName => 'نام DNS شما';
 
   @override
+  String get letsEncryptDomainSection => 'دامنه';
+
+  @override
+  String get letsEncryptTechnicalPrereqs => 'پیش‌نیازهای فنی';
+
+  @override
+  String get letsEncryptAllPrereqsMet => 'همه آماده';
+
+  @override
+  String letsEncryptPrereqsIssues(int count) {
+    return '$count مشکل';
+  }
+
+  @override
+  String get letsEncryptShowDetails => 'نمایش جزئیات';
+
+  @override
+  String get letsEncryptHideDetails => 'پنهان کردن جزئیات';
+
+  @override
+  String get letsEncryptUseCloudDdns => 'استفاده از Cloud DDNS (پیشنهادی)';
+
+  @override
+  String get letsEncryptUseCustomDomain => 'استفاده از دامنه اختصاصی';
+
+  @override
+  String get letsEncryptCloudDdnsDesc =>
+      'دامنه رایگان MikroTik - به صورت خودکار تنظیم می‌شود';
+
+  @override
+  String get letsEncryptCustomDomainDesc => 'دامنه‌ای که خودتان ثبت کرده‌اید';
+
+  @override
+  String get letsEncryptEnableCloudDdns => 'فعال‌سازی Cloud DDNS';
+
+  @override
+  String get letsEncryptCloudDdnsEnabling => 'در حال فعال‌سازی...';
+
+  @override
+  String get letsEncryptCloudDdnsWaiting => 'در انتظار اختصاص نام DNS...';
+
+  @override
+  String get letsEncryptCloudNotSupportedTitle => 'Cloud DDNS در دسترس نیست';
+
+  @override
+  String get letsEncryptCloudNotSupportedMessage =>
+      'روتر شما از نوع x86/CHR (مجازی) است و سرویس Cloud DDNS روی این نوع روترها پشتیبانی نمی‌شود.';
+
+  @override
+  String get letsEncryptDontWorry =>
+      'نگران نباشید! می‌توانید از یک دامنه رایگان استفاده کنید.';
+
+  @override
+  String get letsEncryptCustomDomainRequired => 'دامنه اختصاصی (الزامی)';
+
+  @override
+  String get letsEncryptDomainMustPointTo =>
+      'این دامنه باید به IP عمومی روتر شما اشاره کند:';
+
+  @override
+  String get letsEncryptYourIp => 'IP شما';
+
+  @override
+  String get letsEncryptNoFreeDomain => 'دامنه رایگان ندارید؟';
+
+  @override
+  String get letsEncryptFreeDomainProviders => 'از این سرویس‌ها رایگان بگیرید:';
+
+  @override
+  String get letsEncryptDuckDnsSimple => 'DuckDNS.org (ساده و سریع)';
+
+  @override
+  String get letsEncryptVideoGuide => 'راهنمای ویدیویی';
+
+  @override
+  String get letsEncryptDomainPlaceholder => 'example.duckdns.org';
+
+  @override
+  String get letsEncryptGetFreeSslCertificate => 'دریافت گواهی SSL رایگان';
+
+  @override
+  String get letsEncryptEnterDomainToContinue =>
+      'برای ادامه دامنه را وارد کنید';
+
+  @override
+  String get letsEncryptFixIssuesFirst => 'ابتدا مشکلات را رفع کنید';
+
+  @override
+  String get letsEncryptAutoFix => 'رفع خودکار';
+
+  @override
   String get letsEncryptRequestNow => 'درخواست گواهینامه';
 
   @override
@@ -348,6 +445,34 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get letsEncryptFix => 'رفع';
+
+  @override
+  String get letsEncryptCloudNotSupported => 'Cloud DDNS پشتیبانی نمی‌شود';
+
+  @override
+  String get letsEncryptCloudNotSupportedDesc =>
+      'سرویس‌های MikroTik Cloud روی روترهای x86/CHR (مجازی) در دسترس نیست. شما باید از یک دامنه اختصاصی (مثلاً از DuckDNS) که به IP عمومی روتر اشاره می‌کند استفاده کنید.';
+
+  @override
+  String get letsEncryptDnsNameLabel => 'نام DNS / دامنه';
+
+  @override
+  String get letsEncryptDnsNameHelperCloud =>
+      'از Cloud DDNS پر شده (می‌توانید تغییرش دهید)';
+
+  @override
+  String get letsEncryptDnsNameHelperCustom =>
+      'نام دامنه‌ای که به این روتر اشاره می‌کند را وارد کنید';
+
+  @override
+  String get letsEncryptDnsNameHelperRequired =>
+      'الزامی: دامنه‌ای که به IP روتر اشاره می‌کند را وارد کنید';
+
+  @override
+  String get letsEncryptDomainRequired => 'برای ادامه باید نام دامنه وارد کنید';
+
+  @override
+  String get letsEncryptEnterDomainFirst => 'ابتدا نام دامنه وارد کنید';
 
   @override
   String get letsEncryptCheckCloud => 'Cloud DDNS فعال';
@@ -738,6 +863,149 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get errorTogglingQueue => 'خطا در تغییر وضعیت صف';
+
+  @override
+  String get speedLimitTitle => 'محدودیت سرعت';
+
+  @override
+  String get speedLimitDescription =>
+      'کنترل سرعت دانلود و آپلود برای دستگاه‌ها یا شبکه‌های مشخص';
+
+  @override
+  String get addSpeedLimit => 'افزودن محدودیت سرعت';
+
+  @override
+  String get editSpeedLimit => 'ویرایش محدودیت سرعت';
+
+  @override
+  String get deleteSpeedLimit => 'حذف محدودیت سرعت';
+
+  @override
+  String get deleteSpeedLimitConfirm => 'آیا مطمئن هستید که می‌خواهید حذف کنید';
+
+  @override
+  String get noSpeedLimits => 'محدودیت سرعتی تنظیم نشده';
+
+  @override
+  String get speedLimitsCount => 'محدودیت سرعت';
+
+  @override
+  String get singleDevice => 'یک دستگاه';
+
+  @override
+  String get networkDevices => 'شبکه دستگاه‌ها';
+
+  @override
+  String get speedUnits => 'واحدهای سرعت';
+
+  @override
+  String get readyTemplates => 'قالب‌های آماده';
+
+  @override
+  String get templatesDescription =>
+      'راه‌اندازی سریع با تنظیمات از پیش تعریف شده';
+
+  @override
+  String get quickGuide => 'راهنمای سریع';
+
+  @override
+  String get nameLabel => 'نام';
+
+  @override
+  String get nameExample => 'مثال: مدیر دفتر، شبکه مهمان';
+
+  @override
+  String get nameRequired => 'نام الزامی است';
+
+  @override
+  String get targetLabel => 'دستگاه یا شبکه';
+
+  @override
+  String get targetExample => '192.168.1.100 یا 192.168.1.0/24';
+
+  @override
+  String get targetRequired => 'آدرس IP الزامی است';
+
+  @override
+  String get invalidIPFormat => 'فرمت آدرس IP نامعتبر است';
+
+  @override
+  String get speedLimit => 'محدودیت سرعت';
+
+  @override
+  String get download => 'دانلود';
+
+  @override
+  String get upload => 'آپلود';
+
+  @override
+  String get priorityLabel => 'اولویت';
+
+  @override
+  String get commentOptional => 'توضیحات (اختیاری)';
+
+  @override
+  String get commentHint => 'توضیحات اختیاری';
+
+  @override
+  String get saving => 'در حال ذخیره...';
+
+  @override
+  String get templateRegularUser => 'کاربر عادی';
+
+  @override
+  String get templateRegularUserDesc => 'برای کاربران معمولی';
+
+  @override
+  String get templateGuestNetwork => 'شبکه مهمان';
+
+  @override
+  String get templateGuestNetworkDesc => 'محدودیت برای مهمان‌ها';
+
+  @override
+  String get templateVIPUser => 'کاربر ویژه';
+
+  @override
+  String get templateVIPUserDesc => 'برای کاربران VIP';
+
+  @override
+  String get templateServer => 'سرور';
+
+  @override
+  String get templateServerDesc => 'برای سرورها';
+
+  @override
+  String get templateCamera => 'دوربین مداربسته';
+
+  @override
+  String get templateCameraDesc => 'برای دوربین‌ها';
+
+  @override
+  String get priorityHigh => 'اولویت بالا';
+
+  @override
+  String get priorityHighDesc => 'VoIP، ویدیو کنفرانس، سرورها';
+
+  @override
+  String get priorityMedium => 'اولویت متوسط';
+
+  @override
+  String get priorityMediumDesc => 'مرور وب، ایمیل، کاربران عادی';
+
+  @override
+  String get priorityLow => 'اولویت پایین';
+
+  @override
+  String get priorityLowDesc => 'دانلود، تورنت، پشتیبان‌گیری';
+
+  @override
+  String get priorityHighShort => 'بالا';
+
+  @override
+  String get priorityMediumShort => 'متوسط';
+
+  @override
+  String get priorityLowShort => 'پایین';
 
   @override
   String get wirelessManagement => 'مدیریت بی‌سیم';

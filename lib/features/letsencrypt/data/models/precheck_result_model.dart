@@ -37,12 +37,14 @@ class PreCheckResultModel extends PreCheckResult {
     super.publicIp,
     required super.allPassed,
     required super.hasAutoFixableIssues,
+    super.cloudSupported = true,
   });
 
   factory PreCheckResultModel.fromChecks({
     required List<PreCheckItemModel> checks,
     String? dnsName,
     String? publicIp,
+    bool cloudSupported = true,
   }) {
     final allPassed = checks.every((c) => c.passed);
     final hasAutoFixable = checks.any((c) => !c.passed && c.canAutoFix);
@@ -53,6 +55,7 @@ class PreCheckResultModel extends PreCheckResult {
       publicIp: publicIp,
       allPassed: allPassed,
       hasAutoFixableIssues: hasAutoFixable,
+      cloudSupported: cloudSupported,
     );
   }
 
@@ -67,6 +70,7 @@ class PreCheckResultModel extends PreCheckResult {
       publicIp: map['publicIp'] as String?,
       allPassed: map['allPassed'] as bool,
       hasAutoFixableIssues: map['hasAutoFixableIssues'] as bool,
+      cloudSupported: map['cloudSupported'] as bool? ?? true,
     );
   }
 
@@ -77,6 +81,7 @@ class PreCheckResultModel extends PreCheckResult {
       'publicIp': publicIp,
       'allPassed': allPassed,
       'hasAutoFixableIssues': hasAutoFixableIssues,
+      'cloudSupported': cloudSupported,
     };
   }
 }

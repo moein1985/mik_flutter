@@ -20,12 +20,13 @@ class LetsEncryptStatusModel extends LetsEncryptStatus {
     bool isExpired = false;
     bool isExpiringSoon = false;
 
-    // Parse dates
-    if (certData['not-before'] != null) {
-      notBefore = _parseRouterDate(certData['not-before']);
+    // Parse dates from RouterOS fields
+    // RouterOS uses 'invalid-before' and 'invalid-after' field names
+    if (certData['invalid-before'] != null) {
+      notBefore = _parseRouterDate(certData['invalid-before']);
     }
-    if (certData['not-after'] != null) {
-      notAfter = _parseRouterDate(certData['not-after']);
+    if (certData['invalid-after'] != null) {
+      notAfter = _parseRouterDate(certData['invalid-after']);
     }
 
     // Calculate expiry info
@@ -62,11 +63,18 @@ class LetsEncryptStatusModel extends LetsEncryptStatus {
   }
 
   /// Parse RouterOS date format
-  /// RouterOS returns dates like: "Jan/01/2024 00:00:00" or "2024-01-01 00:00:00"
+  /// RouterOS returns dates like: "2025-12-16 17:45:38" or "Jan/01/2024 00:00:00"
   static DateTime? _parseRouterDate(String dateStr) {
     try {
-      // Try different formats
-      // Format 1: "Jan/01/2024 00:00:00"
+      // Format 1: "2025-12-16 17:45:38" (most common in RouterOS)
+      if (dateStr.contains('-') && dateStr.contains(':')) {
+        // Replace space with 'T' to make it ISO format
+        final isoFormat = dateStr.replaceFirst(' ', 'T');
+        final parsed = DateTime.tryParse(isoFormat);
+        if (parsed != null) return parsed;
+      }
+      
+      // Format 2: "Jan/01/2024 00:00:00"
       final monthNames = {
         'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
         'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
@@ -91,7 +99,7 @@ class LetsEncryptStatusModel extends LetsEncryptStatus {
         }
       }
       
-      // Format 2: Try ISO format "2024-01-01T00:00:00"
+      // Format 3: Try ISO format as fallback
       return DateTime.tryParse(dateStr);
     } catch (_) {
       return null;

@@ -47,39 +47,47 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
       final response = await client.sendCommand(['/certificate/print']);
       
       for (var item in response) {
-        if (item['type'] == 're') {
-          final issuer = item['issuer']?.toString().toLowerCase() ?? '';
-          final ca = item['ca']?.toString().toLowerCase() ?? '';
-          final name = item['name']?.toString().toLowerCase() ?? '';
-          final commonName = item['common-name']?.toString().toLowerCase() ?? '';
+        // router_os_client returns data directly (unwrapped)
+        final issuer = item['issuer']?.toString().toLowerCase() ?? '';
+        final ca = item['ca']?.toString().toLowerCase() ?? '';
+        final name = item['name']?.toString() ?? '';
+        final commonName = item['common-name']?.toString().toLowerCase() ?? '';
+        final daysValid = int.tryParse(item['days-valid']?.toString() ?? '0') ?? 0;
+        final trusted = item['trusted'] == 'true' || item['trusted'] == 'yes';
+        final crl = item['crl'] == 'true' || item['crl'] == 'yes';
+        final invalidBefore = item['invalid-before']?.toString() ?? '';
+        final invalidAfter = item['invalid-after']?.toString() ?? '';
           
-          // Log certificate details for debugging
-          _log.d('Certificate: name=$name, issuer=$issuer, ca=$ca, common-name=$commonName');
-          
-          // Check if this is a Let's Encrypt certificate
-          // Let's Encrypt issuer contains R3, R10, R11, E5, E6 etc
-          // Or the common-name contains mynetname.net (MikroTik's DDNS)
-          final isLetsEncrypt = 
-              issuer.contains('let\'s encrypt') ||
-              issuer.contains('letsencrypt') ||
-              issuer.contains('r3') ||
-              issuer.contains('r10') ||
-              issuer.contains('r11') ||
-              issuer.contains('e5') ||
-              issuer.contains('e6') ||
-              ca.contains('let\'s encrypt') ||
-              ca.contains('letsencrypt') ||
-              ca.contains('r3') ||
-              ca.contains('r10') ||
-              ca.contains('r11') ||
-              name.contains('letsencrypt') ||
-              commonName.contains('mynetname.net') ||
-              commonName.contains('sn.mynetname');
-              
-          if (isLetsEncrypt) {
-            _log.i('Found Let\'s Encrypt certificate: ${item['name']}');
-            return LetsEncryptStatusModel.fromCertificate(item);
-          }
+        // Log certificate details for debugging
+        _log.d('Certificate: name=$name, issuer=$issuer, ca=$ca, common-name=$commonName, days-valid=$daysValid, trusted=$trusted, crl=$crl, invalid-before=$invalidBefore, invalid-after=$invalidAfter');
+        
+        // Check if this is a Let's Encrypt certificate
+        // Method 1: Check issuer field (available with 'detail')
+        // Let's Encrypt issuers: R3, R10, R11, R12, R13, E5, E6, E7, etc.
+        final isLetsEncryptIssuer = 
+            issuer.contains('let\'s encrypt') ||
+            issuer.contains('letsencrypt') ||
+            // R-series intermediates
+            RegExp(r'\br\d+\b').hasMatch(issuer) ||
+            // E-series intermediates (ECDSA)
+            RegExp(r'\be\d+\b').hasMatch(issuer);
+        
+        // Method 2: Check by certificate characteristics
+        // Let's Encrypt certs: days-valid=89-90, trusted=yes, has crl flag
+        final looksLikeLetsEncrypt = 
+            (daysValid >= 85 && daysValid <= 92) && 
+            trusted && 
+            crl &&
+            ca.isEmpty; // Let's Encrypt certs don't have local CA
+        
+        // Method 3: Check if name/common-name contains MikroTik's DDNS domain
+        final isMikroTikDdns = 
+            commonName.contains('mynetname.net') ||
+            commonName.contains('sn.mynetname');
+            
+        if (isLetsEncryptIssuer || looksLikeLetsEncrypt || isMikroTikDdns) {
+          _log.i('Found Let\'s Encrypt certificate: $name (issuer match: $isLetsEncryptIssuer, characteristics match: $looksLikeLetsEncrypt, ddns: $isMikroTikDdns)');
+          return LetsEncryptStatusModel.fromCertificate(Map<String, dynamic>.from(item));
         }
       }
       
@@ -99,14 +107,35 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
       final checks = <PreCheckItemModel>[];
       String? dnsName;
       String? publicIp;
+      bool cloudSupported = true;
 
-      // 1. Check Cloud DDNS
+      // 1. Check Cloud DDNS - but handle x86/CHR routers that don't support it
       try {
         final cloudResponse = await client.sendCommand(['/ip/cloud/print']);
         bool cloudEnabled = false;
+        String? cloudStatus;
+        
+        _log.d('Cloud response: $cloudResponse');
         
         for (var item in cloudResponse) {
-          if (item['ddns-enabled'] == 'yes') {
+          // router_os_client returns data directly (unwrapped)
+          cloudStatus = item['status']?.toString().toLowerCase() ?? '';
+          final comment = item['comment']?.toString().toLowerCase() ?? '';
+          
+          _log.d('Cloud item - status: $cloudStatus, comment: $comment');
+          
+          // Check if Cloud is not supported (x86/CHR routers)
+          // RouterOS returns a comment field for x86 routers
+          if (cloudStatus.contains('not supported') || 
+              cloudStatus.contains('hardware') ||
+              cloudStatus.contains('not available') ||
+              comment.contains('not supported') ||
+              comment.contains('x86')) {
+            cloudSupported = false;
+            _log.i('Cloud DDNS not supported on this router (x86/CHR)');
+          }
+          
+          if (item['ddns-enabled'] == 'yes' || item['ddns-enabled'] == 'true') {
             cloudEnabled = true;
           }
           if (item['dns-name'] != null && item['dns-name'].toString().isNotEmpty) {
@@ -117,33 +146,38 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
           }
         }
         
-        checks.add(PreCheckItemModel(
-          type: PreCheckType.cloudEnabled,
-          passed: cloudEnabled,
-          errorMessage: cloudEnabled ? null : 'cloudDdnsNotEnabled',
-          canAutoFix: true,
-        ));
+        // Also check the raw response string for x86 indication
+        final rawResponse = cloudResponse.toString().toLowerCase();
+        if (rawResponse.contains('not supported on x86') || 
+            rawResponse.contains('not supported on chr')) {
+          cloudSupported = false;
+          _log.i('Cloud DDNS not supported (detected from raw response)');
+        }
         
-        checks.add(PreCheckItemModel(
-          type: PreCheckType.dnsAvailable,
-          passed: dnsName != null && dnsName.isNotEmpty,
-          errorMessage: dnsName != null ? null : 'dnsNameNotAvailable',
-          canAutoFix: false, // Need to wait for cloud to assign DNS
-        ));
+        // Only add Cloud checks if Cloud is supported
+        if (cloudSupported) {
+          checks.add(PreCheckItemModel(
+            type: PreCheckType.cloudEnabled,
+            passed: cloudEnabled,
+            errorMessage: cloudEnabled ? null : 'cloudDdnsNotEnabled',
+            canAutoFix: true,
+          ));
+          
+          checks.add(PreCheckItemModel(
+            type: PreCheckType.dnsAvailable,
+            passed: dnsName != null && dnsName.isNotEmpty,
+            errorMessage: dnsName != null ? null : 'dnsNameNotAvailable',
+            canAutoFix: false, // Need to wait for cloud to assign DNS
+          ));
+        } else {
+          // Cloud not supported - user MUST provide custom domain
+          // Skip Cloud checks entirely - they will use custom domain
+          _log.d('Skipping Cloud checks - router does not support Cloud DDNS');
+        }
       } catch (e) {
         _log.w('Failed to check cloud status: $e');
-        checks.add(PreCheckItemModel(
-          type: PreCheckType.cloudEnabled,
-          passed: false,
-          errorMessage: 'cloudCheckFailed',
-          canAutoFix: false,
-        ));
-        checks.add(PreCheckItemModel(
-          type: PreCheckType.dnsAvailable,
-          passed: false,
-          errorMessage: 'cloudCheckFailed',
-          canAutoFix: false,
-        ));
+        // If we can't check Cloud, assume it's not supported and let user provide domain
+        cloudSupported = false;
       }
 
       // 2. Check firewall rules for port 80
@@ -206,12 +240,13 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
         _log.d('Pre-check ${check.type.name}: ${check.passed ? "PASSED" : "FAILED"} ${check.errorMessage ?? ""}');
       }
       
-      _log.i('Pre-checks completed: ${checks.where((c) => c.passed).length}/${checks.length} passed');
+      _log.i('Pre-checks completed: ${checks.where((c) => c.passed).length}/${checks.length} passed, cloudSupported=$cloudSupported');
       
       return PreCheckResultModel.fromChecks(
         checks: checks,
         dnsName: dnsName,
         publicIp: publicIp,
+        cloudSupported: cloudSupported,
       );
     } catch (e, stackTrace) {
       _log.e('Failed to run pre-checks', error: e, stackTrace: stackTrace);
@@ -229,47 +264,46 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
       '?chain=input',
     ]);
     
-    _log.d('Firewall check: found ${response.where((r) => r['type'] == 're').length} input rules');
+    // router_os_client returns data directly (unwrapped)
+    _log.d('Firewall check: found ${response.length} input rules');
     
     bool foundOurRule = false;
     bool foundAcceptForPort80 = false;
     
     // Process rules in order (they come in order from RouterOS)
     for (var item in response) {
-      if (item['type'] == 're') {
-        final action = item['action']?.toString() ?? '';
-        final dstPort = item['dst-port']?.toString() ?? '';
-        final protocol = item['protocol']?.toString() ?? '';
-        final disabled = item['disabled'] == 'true';
-        final comment = item['comment']?.toString() ?? '';
-        
-        if (disabled) continue;
-        
-        // Check if this is our temporary rule
-        if (comment == _firewallRuleComment) {
-          foundOurRule = true;
-          _log.d('Found our temporary firewall rule');
-          return true; // Our rule exists, we're good
-        }
-        
-        // Check if this is an accept rule for port 80
-        if (action == 'accept' &&
-            (protocol == 'tcp' || protocol.isEmpty) &&
-            (dstPort == '80' || dstPort.contains('80'))) {
-          foundAcceptForPort80 = true;
-          _log.d('Found accept rule for port 80');
-          return true; // Accept rule found before any drop
-        }
-        
-        // Check if this is a drop/reject rule that would block port 80
-        // before any accept rule
-        if ((action == 'drop' || action == 'reject') &&
-            (protocol == 'tcp' || protocol.isEmpty) &&
-            (dstPort == '80' || dstPort.contains('80') || dstPort.isEmpty)) {
-          // This rule would block port 80 and there's no accept before it
-          _log.d('Found blocking rule for port 80: action=$action, port=$dstPort, protocol=$protocol');
-          return false;
-        }
+      final action = item['action']?.toString() ?? '';
+      final dstPort = item['dst-port']?.toString() ?? '';
+      final protocol = item['protocol']?.toString() ?? '';
+      final disabled = item['disabled'] == 'true' || item['disabled'] == 'yes';
+      final comment = item['comment']?.toString() ?? '';
+      
+      if (disabled) continue;
+      
+      // Check if this is our temporary rule
+      if (comment == _firewallRuleComment) {
+        foundOurRule = true;
+        _log.d('Found our temporary firewall rule');
+        return true; // Our rule exists, we're good
+      }
+      
+      // Check if this is an accept rule for port 80
+      if (action == 'accept' &&
+          (protocol == 'tcp' || protocol.isEmpty) &&
+          (dstPort == '80' || dstPort.contains('80'))) {
+        foundAcceptForPort80 = true;
+        _log.d('Found accept rule for port 80');
+        return true; // Accept rule found before any drop
+      }
+      
+      // Check if this is a drop/reject rule that would block port 80
+      // before any accept rule
+      if ((action == 'drop' || action == 'reject') &&
+          (protocol == 'tcp' || protocol.isEmpty) &&
+          (dstPort == '80' || dstPort.contains('80') || dstPort.isEmpty)) {
+        // This rule would block port 80 and there's no accept before it
+        _log.d('Found blocking rule for port 80: action=$action, port=$dstPort, protocol=$protocol');
+        return false;
       }
     }
     
@@ -279,24 +313,87 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
     return foundOurRule || foundAcceptForPort80;
   }
 
-  /// Check if www service is using port 80
+  /// Check www service status - returns true if it's ready or can be configured
+  /// MikroTik's /certificate/enable-ssl-certificate needs www service on port 80
   Future<bool> _checkWwwService() async {
     final response = await client.sendCommand(['/ip/service/print', '?name=www']);
     
     for (var item in response) {
-      if (item['type'] == 're') {
-        final disabled = item['disabled'] == 'true';
-        final port = item['port']?.toString() ?? '80';
-        
-        // WWW service MUST be enabled on port 80 for Let's Encrypt to work
-        // Let's Encrypt sends challenge to port 80 and www service must respond
-        if (!disabled && port == '80') {
-          return true; // Good: www is enabled on port 80
-        }
-      }
+      // router_os_client returns data directly (unwrapped)
+      final disabled = item['disabled'] == 'true' || item['disabled'] == 'yes';
+      final port = item['port']?.toString() ?? '80';
+      
+      _log.d('WWW service: disabled=$disabled, port=$port');
+      
+      // WWW service should be enabled on port 80 for Let's Encrypt
+      // We'll auto-configure this before certificate request
+      // For pre-check, we just verify the service exists
+      return true; // Service exists, we can configure it
     }
     
-    return false; // Bad: www is either disabled or not on port 80
+    return false; // Service not found (shouldn't happen)
+  }
+
+  /// Get current www service configuration
+  Future<Map<String, String>> _getWwwServiceConfig() async {
+    final response = await client.sendCommand(['/ip/service/print', '?name=www']);
+    
+    for (var item in response) {
+      return Map<String, String>.from(item);
+    }
+    
+    return {};
+  }
+
+  /// Temporarily configure www service for Let's Encrypt (port 80, enabled)
+  /// Returns the original config so it can be restored later
+  Future<Map<String, String>> _configureWwwForLetsEncrypt() async {
+    _log.i('Configuring www service for Let\'s Encrypt...');
+    
+    // Get current config to restore later
+    final originalConfig = await _getWwwServiceConfig();
+    final originalPort = originalConfig['port'] ?? '80';
+    final originalDisabled = originalConfig['disabled'] == 'true' || originalConfig['disabled'] == 'yes';
+    
+    _log.d('Original www config: port=$originalPort, disabled=$originalDisabled');
+    
+    // Enable www on port 80
+    try {
+      await client.sendCommand([
+        '/ip/service/set',
+        '=numbers=www',
+        '=port=80',
+        '=disabled=no',
+      ]);
+      _log.i('WWW service configured: port=80, enabled');
+    } catch (e) {
+      _log.e('Failed to configure www service', error: e);
+      rethrow;
+    }
+    
+    return originalConfig;
+  }
+
+  /// Restore www service to its original configuration
+  Future<void> _restoreWwwConfig(Map<String, String> originalConfig) async {
+    if (originalConfig.isEmpty) return;
+    
+    final originalPort = originalConfig['port'] ?? '80';
+    final originalDisabled = originalConfig['disabled'] == 'true' || originalConfig['disabled'] == 'yes';
+    
+    _log.i('Restoring www service: port=$originalPort, disabled=$originalDisabled');
+    
+    try {
+      await client.sendCommand([
+        '/ip/service/set',
+        '=numbers=www',
+        '=port=$originalPort',
+        '=disabled=${originalDisabled ? "yes" : "no"}',
+      ]);
+      _log.i('WWW service restored');
+    } catch (e) {
+      _log.w('Failed to restore www service: $e');
+    }
   }
 
   /// Check if there's a NAT rule redirecting port 80 elsewhere
@@ -308,12 +405,11 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
     ]);
     
     for (var item in response) {
-      if (item['type'] == 're') {
-        final disabled = item['disabled'] == 'true';
-        if (!disabled) {
-          // There's an active NAT rule for port 80
-          return false;
-        }
+      // router_os_client returns data directly (unwrapped)
+      final disabled = item['disabled'] == 'true' || item['disabled'] == 'yes';
+      if (!disabled) {
+        // There's an active NAT rule for port 80
+        return false;
       }
     }
     
@@ -332,7 +428,7 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
           final ruleId = await addTemporaryFirewallRule();
           return ruleId.isNotEmpty;
         case PreCheckType.www:
-          return await _enableWwwOnPort80();
+          return await _moveWwwAwayFromPort80();
         default:
           throw ServerException('Cannot auto-fix issue type: $checkType');
       }
@@ -343,23 +439,29 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
     }
   }
 
-  /// Enable www service on port 80
-  Future<bool> _enableWwwOnPort80() async {
-    _log.i('Enabling www service on port 80...');
+  /// Move www service away from port 80 (to port 8080)
+  /// Let's Encrypt creates its own HTTP server on port 80
+  Future<bool> _moveWwwAwayFromPort80() async {
+    _log.i('Moving www service away from port 80 to port 8080...');
     
     final response = await client.sendCommand([
       '/ip/service/set',
       '=numbers=www',
-      '=port=80',
-      '=disabled=no',
+      '=port=8080',
     ]);
     
-    final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
+    final trap = response.firstWhere((r) => r.containsKey('!trap'), orElse: () => {});
     if (trap.isNotEmpty) {
-      throw ServerException(trap['message'] ?? 'Failed to enable www on port 80');
+      final trapData = trap['!trap'];
+      String errorMsg = 'Failed to move www away from port 80';
+      if (trapData is Map<String, dynamic>) {
+        final trapMap = trapData as Map<String, dynamic>;
+        errorMsg = trapMap['message']?.toString() ?? errorMsg;
+      }
+      throw ServerException(errorMsg);
     }
     
-    _log.i('WWW service enabled on port 80');
+    _log.i('WWW service moved to port 8080');
     return true;
   }
 
@@ -369,9 +471,15 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
       '=ddns-enabled=yes',
     ]);
     
-    final trap = response.firstWhere((r) => r['type'] == 'trap', orElse: () => {});
+    final trap = response.firstWhere((r) => r.containsKey('!trap'), orElse: () => {});
     if (trap.isNotEmpty) {
-      throw ServerException(trap['message'] ?? 'Failed to enable Cloud DDNS');
+      final trapData = trap['!trap'];
+      String errorMsg = 'Failed to enable Cloud DDNS';
+      if (trapData is Map<String, dynamic>) {
+        final trapMap = trapData as Map<String, dynamic>;
+        errorMsg = trapMap['message']?.toString() ?? errorMsg;
+      }
+      throw ServerException(errorMsg);
     }
     
     _log.i('Cloud DDNS enabled');
@@ -390,7 +498,8 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
       ]);
       
       for (var item in existingRules) {
-        if (item['type'] == 're' && item['.id'] != null) {
+        // router_os_client returns data directly (unwrapped)
+        if (item['.id'] != null) {
           final existingId = item['.id'] as String;
           _log.i('Temporary rule already exists: $existingId');
           
@@ -405,7 +514,8 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
           
           String? firstRuleId;
           for (var rule in inputRules) {
-            if (rule['type'] == 're' && rule['.id'] != null) {
+            // router_os_client returns data directly (unwrapped)
+            if (rule['.id'] != null) {
               final ruleId = rule['.id'] as String;
               // Skip our own rule
               if (ruleId != existingId) {
@@ -439,7 +549,8 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
       
       String? firstRuleId;
       for (var item in inputRules) {
-        if (item['type'] == 're' && item['.id'] != null) {
+        // router_os_client returns data directly (unwrapped)
+        if (item['.id'] != null) {
           firstRuleId = item['.id'] as String;
           _log.d('First input rule ID: $firstRuleId');
           break;
@@ -490,7 +601,8 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
         ]);
         
         for (var item in createdRules) {
-          if (item['type'] == 're' && item['.id'] != null) {
+          // router_os_client returns data directly (unwrapped)
+          if (item['.id'] != null) {
             ruleId = item['.id'] as String;
             _log.i('Found rule by comment: $ruleId');
             break;
@@ -553,8 +665,16 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
     required String dnsName,
     AcmeProvider provider = AcmeProvider.letsEncrypt,
   }) async {
+    Map<String, String> originalWwwConfig = {};
+    
     try {
       _log.i('Requesting Let\'s Encrypt certificate for: $dnsName');
+      
+      // STEP 1: Configure www service on port 80 (required for HTTP-01 challenge)
+      originalWwwConfig = await _configureWwwForLetsEncrypt();
+      
+      // Small delay to ensure service is ready
+      await Future.delayed(const Duration(milliseconds: 500));
       
       // Build the command
       final command = <String>['/certificate/enable-ssl-certificate', '=dns-name=$dnsName'];
@@ -619,6 +739,11 @@ class LetsEncryptRemoteDataSourceImpl implements LetsEncryptRemoteDataSource {
       _log.e('Failed to request certificate', error: e, stackTrace: stackTrace);
       if (e is ServerException) rethrow;
       throw ServerException('Failed to request certificate: $e');
+    } finally {
+      // ALWAYS restore www service to original config
+      if (originalWwwConfig.isNotEmpty) {
+        await _restoreWwwConfig(originalWwwConfig);
+      }
     }
   }
 

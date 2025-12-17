@@ -49,6 +49,7 @@ class PreCheckResult extends Equatable {
   final String? publicIp; // Router's public IP if available
   final bool allPassed;
   final bool hasAutoFixableIssues;
+  final bool cloudSupported; // Whether MikroTik Cloud is supported (false for x86/CHR)
 
   const PreCheckResult({
     required this.checks,
@@ -56,6 +57,7 @@ class PreCheckResult extends Equatable {
     this.publicIp,
     required this.allPassed,
     required this.hasAutoFixableIssues,
+    this.cloudSupported = true,
   });
 
   /// Get a specific check result
@@ -75,7 +77,7 @@ class PreCheckResult extends Equatable {
       checks.where((c) => !c.passed && c.canAutoFix).toList();
 
   @override
-  List<Object?> get props => [checks, dnsName, publicIp, allPassed, hasAutoFixableIssues];
+  List<Object?> get props => [checks, dnsName, publicIp, allPassed, hasAutoFixableIssues, cloudSupported];
 
   PreCheckResult copyWith({
     List<PreCheckItem>? checks,
@@ -83,6 +85,7 @@ class PreCheckResult extends Equatable {
     String? publicIp,
     bool? allPassed,
     bool? hasAutoFixableIssues,
+    bool? cloudSupported,
   }) {
     return PreCheckResult(
       checks: checks ?? this.checks,
@@ -90,6 +93,7 @@ class PreCheckResult extends Equatable {
       publicIp: publicIp ?? this.publicIp,
       allPassed: allPassed ?? this.allPassed,
       hasAutoFixableIssues: hasAutoFixableIssues ?? this.hasAutoFixableIssues,
+      cloudSupported: cloudSupported ?? this.cloudSupported,
     );
   }
 }

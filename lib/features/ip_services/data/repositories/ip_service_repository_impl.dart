@@ -78,7 +78,8 @@ class IpServiceRepositoryImpl implements IpServiceRepository {
   @override
   Future<Either<Failure, List<Certificate>>> getAvailableCertificates() async {
     try {
-      final certificates = await certificateDataSource.getCertificates();
+      // Use getAllCertificates to include Let's Encrypt certificates for services
+      final certificates = await certificateDataSource.getAllCertificates();
       return Right(certificates.map((m) => m.toEntity()).toList());
     } catch (e) {
       return Left(ServerFailure('Failed to get certificates: $e'));

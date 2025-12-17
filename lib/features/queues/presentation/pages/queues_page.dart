@@ -21,7 +21,6 @@ class _QueuesPageState extends State<QueuesPage> {
   @override
   void initState() {
     super.initState();
-    // Load queues when page opens
     context.read<QueuesBloc>().add(const LoadQueues());
   }
 
@@ -32,22 +31,23 @@ class _QueuesPageState extends State<QueuesPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.simpleQueues),
+        title: Text(l10n.speedLimitTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
+            tooltip: l10n.refresh,
             onPressed: () {
               context.read<QueuesBloc>().add(const RefreshQueues());
             },
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           context.push(AppRoutes.addQueue);
         },
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: Text(l10n.addSpeedLimit),
       ),
       body: BlocConsumer<QueuesBloc, QueuesState>(
         listener: (context, state) {
@@ -98,247 +98,127 @@ class _QueuesPageState extends State<QueuesPage> {
     );
   }
 
-  Widget _buildQuickTipCard() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.cyan.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.cyan.shade200),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.speed, color: Colors.cyan.shade700),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Simple Queues allow you to limit bandwidth for specific targets (IP, network, or interface).',
-              style: TextStyle(
-                color: Colors.cyan.shade800,
-                fontSize: 13,
+  Widget _buildEmptyView(AppLocalizations l10n, ColorScheme colorScheme) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.speed,
+              size: 80,
+              color: colorScheme.primary.withAlpha(128),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              l10n.noSpeedLimits,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.speedLimitDescription,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyView(AppLocalizations l10n, ColorScheme colorScheme) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          _buildQuickTipCard(),
-          
-          const SizedBox(height: 48),
-          
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withAlpha(77),
-              shape: BoxShape.circle,
+            const SizedBox(height: 32),
+            FilledButton.icon(
+              onPressed: () => context.push(AppRoutes.addQueue),
+              icon: const Icon(Icons.add),
+              label: Text(l10n.addSpeedLimit),
             ),
-            child: Icon(
-              Icons.queue,
-              size: 64,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            l10n.noQueues,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.queueManagement,
-            style: TextStyle(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildErrorView(AppLocalizations l10n, ColorScheme colorScheme, String error) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colorScheme.errorContainer.withAlpha(77),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
               Icons.error_outline,
-              size: 64,
-              color: colorScheme.error,
+              size: 80,
+              color: colorScheme.error.withAlpha(128),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.errorLoadingQueues,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
+            const SizedBox(height: 24),
+            Text(
+              l10n.error,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            error,
-            style: TextStyle(color: colorScheme.onSurfaceVariant),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: () {
-              context.read<QueuesBloc>().add(const LoadQueues());
-            },
-            icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              error,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 32),
+            FilledButton.icon(
+              onPressed: () {
+                context.read<QueuesBloc>().add(const LoadQueues());
+              },
+              icon: const Icon(Icons.refresh),
+              label: Text(l10n.retry),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildQueuesList(QueuesLoaded state, AppLocalizations l10n, ColorScheme colorScheme) {
-    // Count enabled/disabled
-    final enabledCount = state.queues.where((q) => q.isEnabled).length;
-    final disabledCount = state.queues.length - enabledCount;
-    
     return RefreshIndicator(
       onRefresh: () async {
         context.read<QueuesBloc>().add(const RefreshQueues());
       },
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
+      child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildQuickTipCard(),
-            
-            const SizedBox(height: 16),
-            
-            // Count summary
-            _buildCountSummary(state.queues.length, enabledCount, disabledCount, colorScheme),
-            
-            const SizedBox(height: 16),
-            
-            // Queue cards
-            ...state.queues.map((queue) => QueueListItem(
-              queue: queue,
-              onTap: () {
-                context.push('${AppRoutes.queues}/edit/${queue.id}');
-              },
-              onToggle: (enabled) {
-                context.read<QueuesBloc>().add(
-                  ToggleQueue(queue.id, enabled),
-                );
-              },
-              onDelete: () {
-                _showDeleteConfirmation(context, queue.id, queue.name);
-              },
-            )),
-            
-            // Bottom spacing for FAB
-            const SizedBox(height: 80),
-          ],
-        ),
+        itemCount: state.queues.length,
+        itemBuilder: (context, index) {
+          final queue = state.queues[index];
+          return QueueListItem(
+            queue: queue,
+            onTap: () {
+              context.push('${AppRoutes.queues}/edit/${queue.id}');
+            },
+            onToggle: (enabled) {
+              context.read<QueuesBloc>().add(ToggleQueue(queue.id, enabled));
+            },
+            onDelete: () => _showDeleteDialog(context, queue.id, queue.name, l10n),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildCountSummary(int total, int enabled, int disabled, ColorScheme colorScheme) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withAlpha(77),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.primary.withAlpha(51)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: colorScheme.primary,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            '$total queue${total > 1 ? 's' : ''}',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          const Spacer(),
-          if (enabled > 0)
-            _buildMiniTag('$enabled Active', Colors.green),
-          if (disabled > 0) ...[
-            const SizedBox(width: 8),
-            _buildMiniTag('$disabled Disabled', Colors.grey),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMiniTag(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withAlpha(26),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          color: color,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(BuildContext context, String queueId, String queueName) {
-    final l10n = AppLocalizations.of(context)!;
-
+  void _showDeleteDialog(BuildContext context, String queueId, String queueName, AppLocalizations l10n) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteQueue),
-        content: Text(
-          l10n.deleteQueueConfirm,
-        ),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.deleteSpeedLimit),
+        content: Text('${l10n.deleteSpeedLimitConfirm} "$queueName"?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(l10n.cancel),
           ),
-          TextButton(
+          FilledButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(dialogContext).pop();
               context.read<QueuesBloc>().add(DeleteQueue(queueId));
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: Text(l10n.deleteQueue),
+            child: Text(l10n.delete),
           ),
         ],
       ),

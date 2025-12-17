@@ -209,9 +209,9 @@ class RouterOSClientV2 {
   /// Send command (alias for talk, for backward compatibility)
   Future<List<Map<String, String>>> sendCommand(
     List<String> words, {
-    Duration timeout = const Duration(seconds: 10),
+    Duration timeout = const Duration(seconds: 15),
   }) async {
-    return talk(words);
+    return talk(words, null, timeout);
   }
 
   /// Stream data from a command with tag support

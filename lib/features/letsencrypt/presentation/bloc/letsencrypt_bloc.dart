@@ -73,10 +73,11 @@ class LetsEncryptBloc extends Bloc<LetsEncryptEvent, LetsEncryptState> {
 
     final result = await repository.autoFix(event.checkType);
 
-    result.fold(
+    final failed = result.fold(
       (failure) {
         _log.e('Auto-fix failed: ${failure.message}');
         emit(LetsEncryptError(failure.message, errorKey: 'autoFixFailed'));
+        return true;
       },
       (success) {
         _log.i('Auto-fix successful for ${event.checkType}');
@@ -84,10 +85,24 @@ class LetsEncryptBloc extends Bloc<LetsEncryptEvent, LetsEncryptState> {
           checkType: event.checkType,
           message: 'autoFixSuccess',
         ));
-        // Re-run pre-checks after single auto-fix
-        add(const RunPreChecks());
+        return false;
       },
     );
+    
+    if (failed) return;
+    
+    // Add delay for RouterOS to apply changes
+    // Especially important for Cloud DDNS which may take time to sync
+    if (event.checkType == PreCheckType.cloudEnabled) {
+      _log.d('Waiting 5 seconds for Cloud DDNS to sync...');
+      await Future.delayed(const Duration(seconds: 5));
+    } else {
+      _log.d('Waiting 2 seconds for changes to apply...');
+      await Future.delayed(const Duration(seconds: 2));
+    }
+    
+    // Re-run pre-checks after single auto-fix
+    add(const RunPreChecks());
   }
 
   Future<void> _onAutoFixAll(
@@ -117,11 +132,24 @@ class LetsEncryptBloc extends Bloc<LetsEncryptEvent, LetsEncryptState> {
       if (failed) return; // Stop on first failure
     }
     
-    // All fixes successful, run pre-checks once
+    // All fixes successful
+    _log.i('All auto-fixes completed successfully');
     emit(const AutoFixSuccess(
       checkType: PreCheckType.cloudEnabled, // dummy, won't be shown
       message: 'allIssuesFixed',
     ));
+    
+    // Add delay for RouterOS to apply all changes
+    // Cloud DDNS may take up to 60 seconds for first update
+    if (event.checkTypes.contains(PreCheckType.cloudEnabled)) {
+      _log.d('Waiting 5 seconds for Cloud DDNS to sync...');
+      await Future.delayed(const Duration(seconds: 5));
+    } else {
+      _log.d('Waiting 2 seconds for changes to apply...');
+      await Future.delayed(const Duration(seconds: 2));
+    }
+    
+    // Run pre-checks once
     add(const RunPreChecks());
   }
 

@@ -4,6 +4,14 @@
   "@appName": {
     "description": "نام برنامه"
   },
+  "refresh": "بروزرسانی",
+  "@refresh": {
+    "description": "متن دکمه بروزرسانی"
+  },
+  "active": "فعال",
+  "@active": {
+    "description": "برچسب وضعیت فعال"
+  },
   "login": "ورود",
   "@login": {
     "description": "دکمه ورود یا عنوان صفحه"
@@ -437,6 +445,121 @@
   "@letsEncryptDnsName": {
     "description": "برچسب نام DNS"
   },
+  "letsEncryptDomainSection": "دامنه",
+  "@letsEncryptDomainSection": {
+    "description": "عنوان بخش دامنه"
+  },
+  "letsEncryptTechnicalPrereqs": "پیش‌نیازهای فنی",
+  "@letsEncryptTechnicalPrereqs": {
+    "description": "عنوان بخش پیش‌نیازهای فنی"
+  },
+  "letsEncryptAllPrereqsMet": "همه آماده",
+  "@letsEncryptAllPrereqsMet": {
+    "description": "نشانگر آماده بودن همه پیش‌نیازها"
+  },
+  "letsEncryptPrereqsIssues": "{count} مشکل",
+  "@letsEncryptPrereqsIssues": {
+    "description": "تعداد مشکلات پیش‌نیاز",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "letsEncryptShowDetails": "نمایش جزئیات",
+  "@letsEncryptShowDetails": {
+    "description": "دکمه نمایش جزئیات"
+  },
+  "letsEncryptHideDetails": "پنهان کردن جزئیات",
+  "@letsEncryptHideDetails": {
+    "description": "دکمه پنهان کردن جزئیات"
+  },
+  "letsEncryptUseCloudDdns": "استفاده از Cloud DDNS (پیشنهادی)",
+  "@letsEncryptUseCloudDdns": {
+    "description": "گزینه رادیویی Cloud DDNS"
+  },
+  "letsEncryptUseCustomDomain": "استفاده از دامنه اختصاصی",
+  "@letsEncryptUseCustomDomain": {
+    "description": "گزینه رادیویی دامنه اختصاصی"
+  },
+  "letsEncryptCloudDdnsDesc": "دامنه رایگان MikroTik - به صورت خودکار تنظیم می‌شود",
+  "@letsEncryptCloudDdnsDesc": {
+    "description": "توضیحات Cloud DDNS"
+  },
+  "letsEncryptCustomDomainDesc": "دامنه‌ای که خودتان ثبت کرده‌اید",
+  "@letsEncryptCustomDomainDesc": {
+    "description": "توضیحات دامنه اختصاصی"
+  },
+  "letsEncryptEnableCloudDdns": "فعال‌سازی Cloud DDNS",
+  "@letsEncryptEnableCloudDdns": {
+    "description": "دکمه فعال‌سازی Cloud DDNS"
+  },
+  "letsEncryptCloudDdnsEnabling": "در حال فعال‌سازی...",
+  "@letsEncryptCloudDdnsEnabling": {
+    "description": "پیام در حال فعال‌سازی Cloud DDNS"
+  },
+  "letsEncryptCloudDdnsWaiting": "در انتظار اختصاص نام DNS...",
+  "@letsEncryptCloudDdnsWaiting": {
+    "description": "پیام انتظار برای اختصاص نام DNS"
+  },
+  "letsEncryptCloudNotSupportedTitle": "Cloud DDNS در دسترس نیست",
+  "@letsEncryptCloudNotSupportedTitle": {
+    "description": "عنوان عدم پشتیبانی Cloud"
+  },
+  "letsEncryptCloudNotSupportedMessage": "روتر شما از نوع x86/CHR (مجازی) است و سرویس Cloud DDNS روی این نوع روترها پشتیبانی نمی‌شود.",
+  "@letsEncryptCloudNotSupportedMessage": {
+    "description": "پیام عدم پشتیبانی Cloud"
+  },
+  "letsEncryptDontWorry": "نگران نباشید! می‌توانید از یک دامنه رایگان استفاده کنید.",
+  "@letsEncryptDontWorry": {
+    "description": "پیام اطمینان‌بخش"
+  },
+  "letsEncryptCustomDomainRequired": "دامنه اختصاصی (الزامی)",
+  "@letsEncryptCustomDomainRequired": {
+    "description": "عنوان دامنه اختصاصی الزامی"
+  },
+  "letsEncryptDomainMustPointTo": "این دامنه باید به IP عمومی روتر شما اشاره کند:",
+  "@letsEncryptDomainMustPointTo": {
+    "description": "پیام اشاره دامنه به IP"
+  },
+  "letsEncryptYourIp": "IP شما",
+  "@letsEncryptYourIp": {
+    "description": "برچسب IP شما"
+  },
+  "letsEncryptNoFreeDomain": "دامنه رایگان ندارید؟",
+  "@letsEncryptNoFreeDomain": {
+    "description": "سوال نداشتن دامنه رایگان"
+  },
+  "letsEncryptFreeDomainProviders": "از این سرویس‌ها رایگان بگیرید:",
+  "@letsEncryptFreeDomainProviders": {
+    "description": "معرفی ارائه‌دهندگان دامنه رایگان"
+  },
+  "letsEncryptDuckDnsSimple": "DuckDNS.org (ساده و سریع)",
+  "@letsEncryptDuckDnsSimple": {
+    "description": "توضیحات DuckDNS"
+  },
+  "letsEncryptVideoGuide": "راهنمای ویدیویی",
+  "@letsEncryptVideoGuide": {
+    "description": "دکمه راهنمای ویدیویی"
+  },
+  "letsEncryptDomainPlaceholder": "example.duckdns.org",
+  "@letsEncryptDomainPlaceholder": {
+    "description": "متن راهنمای ورودی دامنه"
+  },
+  "letsEncryptGetFreeSslCertificate": "دریافت گواهی SSL رایگان",
+  "@letsEncryptGetFreeSslCertificate": {
+    "description": "دکمه اصلی عملیات"
+  },
+  "letsEncryptEnterDomainToContinue": "برای ادامه دامنه را وارد کنید",
+  "@letsEncryptEnterDomainToContinue": {
+    "description": "پیام دکمه غیرفعال وقتی دامنه نیست"
+  },
+  "letsEncryptFixIssuesFirst": "ابتدا مشکلات را رفع کنید",
+  "@letsEncryptFixIssuesFirst": {
+    "description": "پیام دکمه غیرفعال وقتی مشکل وجود دارد"
+  },
+  "letsEncryptAutoFix": "رفع خودکار",
+  "@letsEncryptAutoFix": {
+    "description": "دکمه رفع خودکار"
+  },
   "letsEncryptRequestNow": "درخواست گواهینامه",
   "@letsEncryptRequestNow": {
     "description": "دکمه درخواست گواهینامه"
@@ -452,6 +575,38 @@
   "letsEncryptFix": "رفع",
   "@letsEncryptFix": {
     "description": "دکمه رفع مشکل"
+  },
+  "letsEncryptCloudNotSupported": "Cloud DDNS پشتیبانی نمی‌شود",
+  "@letsEncryptCloudNotSupported": {
+    "description": "عنوان وقتی MikroTik Cloud پشتیبانی نمی‌شود"
+  },
+  "letsEncryptCloudNotSupportedDesc": "سرویس‌های MikroTik Cloud روی روترهای x86/CHR (مجازی) در دسترس نیست. شما باید از یک دامنه اختصاصی (مثلاً از DuckDNS) که به IP عمومی روتر اشاره می‌کند استفاده کنید.",
+  "@letsEncryptCloudNotSupportedDesc": {
+    "description": "توضیحات وقتی Cloud پشتیبانی نمی‌شود"
+  },
+  "letsEncryptDnsNameLabel": "نام DNS / دامنه",
+  "@letsEncryptDnsNameLabel": {
+    "description": "برچسب فیلد نام DNS"
+  },
+  "letsEncryptDnsNameHelperCloud": "از Cloud DDNS پر شده (می‌توانید تغییرش دهید)",
+  "@letsEncryptDnsNameHelperCloud": {
+    "description": "متن راهنما وقتی Cloud DNS موجوده"
+  },
+  "letsEncryptDnsNameHelperCustom": "نام دامنه‌ای که به این روتر اشاره می‌کند را وارد کنید",
+  "@letsEncryptDnsNameHelperCustom": {
+    "description": "متن راهنما وقتی Cloud DNS نیست"
+  },
+  "letsEncryptDnsNameHelperRequired": "الزامی: دامنه‌ای که به IP روتر اشاره می‌کند را وارد کنید",
+  "@letsEncryptDnsNameHelperRequired": {
+    "description": "متن راهنما وقتی Cloud پشتیبانی نمی‌شود"
+  },
+  "letsEncryptDomainRequired": "برای ادامه باید نام دامنه وارد کنید",
+  "@letsEncryptDomainRequired": {
+    "description": "هشدار وقتی دامنه الزامی ولی وارد نشده"
+  },
+  "letsEncryptEnterDomainFirst": "ابتدا نام دامنه وارد کنید",
+  "@letsEncryptEnterDomainFirst": {
+    "description": "متن دکمه وقتی دامنه وارد نشده"
   },
   "letsEncryptCheckCloud": "Cloud DDNS فعال",
   "@letsEncryptCheckCloud": {
@@ -941,6 +1096,209 @@
   "errorTogglingQueue": "خطا در تغییر وضعیت صف",
   "@errorTogglingQueue": {
     "description": "پیام خطا تغییر وضعیت صف"
+  },
+  "speedLimitTitle": "محدودیت سرعت",
+  "@speedLimitTitle": {
+    "description": "عنوان صفحه محدودیت سرعت"
+  },
+  "speedLimitDescription": "کنترل سرعت دانلود و آپلود برای دستگاه‌ها یا شبکه‌های مشخص",
+  "@speedLimitDescription": {
+    "description": "توضیحات محدودیت سرعت"
+  },
+  "addSpeedLimit": "افزودن محدودیت سرعت",
+  "@addSpeedLimit": {
+    "description": "دکمه افزودن محدودیت سرعت"
+  },
+  "editSpeedLimit": "ویرایش محدودیت سرعت",
+  "@editSpeedLimit": {
+    "description": "عنوان ویرایش محدودیت سرعت"
+  },
+  "deleteSpeedLimit": "حذف محدودیت سرعت",
+  "@deleteSpeedLimit": {
+    "description": "عنوان حذف محدودیت سرعت"
+  },
+  "deleteSpeedLimitConfirm": "آیا مطمئن هستید که می‌خواهید حذف کنید",
+  "@deleteSpeedLimitConfirm": {
+    "description": "تأیید حذف محدودیت سرعت"
+  },
+  "noSpeedLimits": "محدودیت سرعتی تنظیم نشده",
+  "@noSpeedLimits": {
+    "description": "پیام عدم وجود محدودیت سرعت"
+  },
+  "speedLimitsCount": "محدودیت سرعت",
+  "@speedLimitsCount": {
+    "description": "تعداد محدودیت‌های سرعت"
+  },
+  "singleDevice": "یک دستگاه",
+  "@singleDevice": {
+    "description": "برچسب یک دستگاه"
+  },
+  "networkDevices": "شبکه دستگاه‌ها",
+  "@networkDevices": {
+    "description": "برچسب شبکه دستگاه‌ها"
+  },
+  "speedUnits": "واحدهای سرعت",
+  "@speedUnits": {
+    "description": "برچسب واحدهای سرعت"
+  },
+  "readyTemplates": "قالب‌های آماده",
+  "@readyTemplates": {
+    "description": "عنوان قالب‌های آماده"
+  },
+  "templatesDescription": "راه‌اندازی سریع با تنظیمات از پیش تعریف شده",
+  "@templatesDescription": {
+    "description": "توضیحات قالب‌ها"
+  },
+  "quickGuide": "راهنمای سریع",
+  "@quickGuide": {
+    "description": "عنوان راهنمای سریع"
+  },
+  "nameLabel": "نام",
+  "@nameLabel": {
+    "description": "برچسب نام"
+  },
+  "nameExample": "مثال: مدیر دفتر، شبکه مهمان",
+  "@nameExample": {
+    "description": "متن راهنمای نام"
+  },
+  "nameRequired": "نام الزامی است",
+  "@nameRequired": {
+    "description": "خطای الزامی بودن نام"
+  },
+  "targetLabel": "دستگاه یا شبکه",
+  "@targetLabel": {
+    "description": "برچسب هدف"
+  },
+  "targetExample": "192.168.1.100 یا 192.168.1.0/24",
+  "@targetExample": {
+    "description": "متن راهنمای هدف"
+  },
+  "targetRequired": "آدرس IP الزامی است",
+  "@targetRequired": {
+    "description": "خطای الزامی بودن هدف"
+  },
+  "invalidIPFormat": "فرمت آدرس IP نامعتبر است",
+  "@invalidIPFormat": {
+    "description": "خطای فرمت نامعتبر IP"
+  },
+  "speedLimit": "محدودیت سرعت",
+  "@speedLimit": {
+    "description": "برچسب محدودیت سرعت"
+  },
+  "download": "دانلود",
+  "@download": {
+    "description": "برچسب دانلود"
+  },
+  "upload": "آپلود",
+  "@upload": {
+    "description": "برچسب آپلود"
+  },
+  "priorityLabel": "اولویت",
+  "@priorityLabel": {
+    "description": "برچسب اولویت"
+  },
+  "commentOptional": "توضیحات (اختیاری)",
+  "@commentOptional": {
+    "description": "برچسب توضیحات اختیاری"
+  },
+  "commentHint": "مثلاً: کاربر ویژه، شبکه مهمان",
+  "@commentHint": {
+    "description": "متن راهنمای توضیحات"
+  },
+  "saving": "در حال ذخیره...",
+  "@saving": {
+    "description": "متن ذخیره‌سازی"
+  },
+  "templateRegularUser": "کاربر عادی",
+  "@templateRegularUser": {
+    "description": "نام قالب کاربر عادی"
+  },
+  "templateRegularUserDesc": "برای کاربران معمولی",
+  "@templateRegularUserDesc": {
+    "description": "توضیح قالب کاربر عادی"
+  },
+  "templateGuestNetwork": "شبکه مهمان",
+  "@templateGuestNetwork": {
+    "description": "نام قالب شبکه مهمان"
+  },
+  "templateGuestNetworkDesc": "محدودیت برای مهمان‌ها",
+  "@templateGuestNetworkDesc": {
+    "description": "توضیح قالب شبکه مهمان"
+  },
+  "templateVIPUser": "کاربر ویژه",
+  "@templateVIPUser": {
+    "description": "نام قالب کاربر ویژه"
+  },
+  "templateVIPUserDesc": "برای کاربران VIP",
+  "@templateVIPUserDesc": {
+    "description": "توضیح قالب کاربر ویژه"
+  },
+  "templateServer": "سرور",
+  "@templateServer": {
+    "description": "نام قالب سرور"
+  },
+  "templateServerDesc": "برای سرورها",
+  "@templateServerDesc": {
+    "description": "توضیح قالب سرور"
+  },
+  "templateCamera": "دوربین مداربسته",
+  "@templateCamera": {
+    "description": "نام قالب دوربین"
+  },
+  "templateCameraDesc": "برای دوربین‌ها",
+  "@templateCameraDesc": {
+    "description": "توضیح قالب دوربین"
+  },
+  "priorityHigh": "اولویت بالا",
+  "@priorityHigh": {
+    "description": "برچسب اولویت بالا"
+  },
+  "priorityHighDesc": "VoIP، ویدیو کنفرانس، سرورها",
+  "@priorityHighDesc": {
+    "description": "توضیح اولویت بالا"
+  },
+  "priorityMedium": "اولویت متوسط",
+  "@priorityMedium": {
+    "description": "برچسب اولویت متوسط"
+  },
+  "priorityMediumDesc": "مرور وب، ایمیل، کاربران عادی",
+  "@priorityMediumDesc": {
+    "description": "توضیح اولویت متوسط"
+  },
+  "priorityLow": "اولویت پایین",
+  "@priorityLow": {
+    "description": "برچسب اولویت پایین"
+  },
+  "priorityLowDesc": "دانلود، تورنت، پشتیبان‌گیری",
+  "@priorityLowDesc": {
+    "description": "توضیح اولویت پایین"
+  },
+  "priorityHighShort": "بالا",
+  "@priorityHighShort": {
+    "description": "برچسب کوتاه اولویت بالا"
+  },
+  "priorityMediumShort": "متوسط",
+  "@priorityMediumShort": {
+    "description": "برچسب کوتاه اولویت متوسط"
+  },
+  "priorityLowShort": "پایین",
+  "@priorityLowShort": {
+    "description": "برچسب کوتاه اولویت پایین"
+  },
+  "edit": "ویرایش",
+  "@edit": {
+    "description": "متن دکمه ویرایش"
+  },
+  "@commentOptional": {
+    "description": "برچسب توضیحات اختیاری"
+  },
+  "commentHint": "توضیحات اختیاری",
+  "@commentHint": {
+    "description": "راهنمای توضیحات"
+  },
+  "saving": "در حال ذخیره...",
+  "@saving": {
+    "description": "وضعیت ذخیره‌سازی"
   },
   "wirelessManagement": "مدیریت بی‌سیم",
   "@wirelessManagement": {

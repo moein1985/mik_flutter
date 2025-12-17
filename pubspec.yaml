@@ -44,6 +44,9 @@ dependencies:
   # PiP (Picture-in-Picture)
   floating: ^6.0.0
   
+  # URL Launcher
+  url_launcher: ^6.3.1
+  
   # RouterOS API Client with Tag Support (local fork with self-signed cert support)
   router_os_client:
     path: packages/router_os_client

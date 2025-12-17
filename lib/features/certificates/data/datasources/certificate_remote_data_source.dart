@@ -94,7 +94,12 @@ class CertificateException implements Exception {
 }
 
 abstract class CertificateRemoteDataSource {
+  /// Get all certificates (excluding Let's Encrypt for Local CA tab)
   Future<List<CertificateModel>> getCertificates();
+  
+  /// Get ALL certificates including Let's Encrypt (for service selection)
+  Future<List<CertificateModel>> getAllCertificates();
+  
   Future<void> createSelfSignedCertificate({
     required String name,
     required String commonName,
@@ -119,9 +124,42 @@ class CertificateRemoteDataSourceImpl implements CertificateRemoteDataSource {
     return client;
   }
 
+  /// Check if a certificate is a Let's Encrypt certificate
+  bool _isLetsEncryptCertificate(Map<String, String> cert) {
+    final issuer = cert['issuer']?.toString().toLowerCase() ?? '';
+    final ca = cert['ca']?.toString().toLowerCase() ?? '';
+    final commonName = cert['common-name']?.toString().toLowerCase() ?? '';
+    final daysValid = int.tryParse(cert['days-valid']?.toString() ?? '0') ?? 0;
+    final trusted = cert['trusted'] == 'true' || cert['trusted'] == 'yes';
+    final crl = cert['crl'] == 'true' || cert['crl'] == 'yes';
+    
+    // Method 1: Check issuer field (needs detail command)
+    final isLetsEncryptIssuer = 
+        issuer.contains('let\'s encrypt') ||
+        issuer.contains('letsencrypt') ||
+        RegExp(r'\br\d+\b').hasMatch(issuer) || // R13, R12, etc.
+        RegExp(r'\be\d+\b').hasMatch(issuer);   // E5, E6, etc.
+    
+    // Method 2: Check certificate characteristics
+    // Let's Encrypt certs are 90 days (with some variation)
+    final isLetsEncryptCharacteristics = 
+        daysValid >= 85 && daysValid <= 92 &&
+        trusted &&
+        crl &&
+        ca.isEmpty; // Not a CA itself
+    
+    // Method 3: Check for MikroTik Cloud DDNS domains
+    final isMikrotikDdns = 
+        commonName.contains('.mynetname.net') ||
+        commonName.contains('sn.mynetname');
+    
+    return isLetsEncryptIssuer || isLetsEncryptCharacteristics || isMikrotikDdns;
+  }
+
   @override
   Future<List<CertificateModel>> getCertificates() async {
     _log.d('Getting all certificates...');
+    // Get certificate list - issuer field may not be available without detail view
     final response = await _client.sendCommand(['/certificate/print']);
     _log.d('Raw certificate response: $response');
     
@@ -140,12 +178,37 @@ class CertificateRemoteDataSourceImpl implements CertificateRemoteDataSource {
     
     _log.d('Filtered certificate data: ${certificateData.length} items');
     
-    final certs = certificateData.map((data) => CertificateModel.fromRouterOS(data)).toList();
+    // Filter out Let's Encrypt certificates - they belong in the Let's Encrypt tab
+    final nonLetsEncryptData = certificateData.where((data) => !_isLetsEncryptCertificate(data)).toList();
+    _log.d('After filtering Let\'s Encrypt: ${nonLetsEncryptData.length} items');
+    
+    final certs = nonLetsEncryptData.map((data) => CertificateModel.fromRouterOS(data)).toList();
     for (final c in certs) {
       _log.d('Certificate: ${c.name}, privateKey=${c.privateKey}, trusted=${c.trusted}');
     }
     
-    _log.i('Found ${certs.length} certificates');
+    _log.i('Found ${certs.length} local certificates (Let\'s Encrypt certs excluded)');
+    return certs;
+  }
+
+  @override
+  Future<List<CertificateModel>> getAllCertificates() async {
+    _log.d('Getting ALL certificates (including Let\'s Encrypt)...');
+    
+    final response = await _client.sendCommand(['/certificate/print']);
+    
+    // Filter out protocol items
+    final certificateData = response.where((data) {
+      if (data['type'] == 'done' || data['type'] == 'trap') {
+        return false;
+      }
+      return data.containsKey('name') || data.containsKey('.id');
+    }).toList();
+    
+    _log.d('Found ${certificateData.length} total certificates');
+    
+    final certs = certificateData.map((data) => CertificateModel.fromRouterOS(data)).toList();
+    _log.i('Returning ${certs.length} certificates for service selection');
     return certs;
   }
 

@@ -12,6 +12,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appName => 'MikroTik Manager';
 
   @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get active => 'Active';
+
+  @override
   String get login => 'Login';
 
   @override
@@ -338,6 +344,98 @@ class AppLocalizationsEn extends AppLocalizations {
   String get letsEncryptDnsName => 'Your DNS Name';
 
   @override
+  String get letsEncryptDomainSection => 'Domain';
+
+  @override
+  String get letsEncryptTechnicalPrereqs => 'Technical Prerequisites';
+
+  @override
+  String get letsEncryptAllPrereqsMet => 'All ready';
+
+  @override
+  String letsEncryptPrereqsIssues(int count) {
+    return '$count issue(s)';
+  }
+
+  @override
+  String get letsEncryptShowDetails => 'Show details';
+
+  @override
+  String get letsEncryptHideDetails => 'Hide details';
+
+  @override
+  String get letsEncryptUseCloudDdns => 'Use Cloud DDNS (Recommended)';
+
+  @override
+  String get letsEncryptUseCustomDomain => 'Use Custom Domain';
+
+  @override
+  String get letsEncryptCloudDdnsDesc =>
+      'Free MikroTik domain - automatically configured';
+
+  @override
+  String get letsEncryptCustomDomainDesc =>
+      'A domain you have registered yourself';
+
+  @override
+  String get letsEncryptEnableCloudDdns => 'Enable Cloud DDNS';
+
+  @override
+  String get letsEncryptCloudDdnsEnabling => 'Enabling...';
+
+  @override
+  String get letsEncryptCloudDdnsWaiting =>
+      'Waiting for DNS name assignment...';
+
+  @override
+  String get letsEncryptCloudNotSupportedTitle => 'Cloud DDNS Not Available';
+
+  @override
+  String get letsEncryptCloudNotSupportedMessage =>
+      'Your router is an x86/CHR (virtual) type and Cloud DDNS service is not supported on these routers.';
+
+  @override
+  String get letsEncryptDontWorry => 'Don\'t worry! You can use a free domain.';
+
+  @override
+  String get letsEncryptCustomDomainRequired => 'Custom Domain (Required)';
+
+  @override
+  String get letsEncryptDomainMustPointTo =>
+      'This domain must point to your router\'s public IP:';
+
+  @override
+  String get letsEncryptYourIp => 'Your IP';
+
+  @override
+  String get letsEncryptNoFreeDomain => 'Don\'t have a free domain?';
+
+  @override
+  String get letsEncryptFreeDomainProviders =>
+      'Get one free from these services:';
+
+  @override
+  String get letsEncryptDuckDnsSimple => 'DuckDNS.org (Simple & Fast)';
+
+  @override
+  String get letsEncryptVideoGuide => 'Video Guide';
+
+  @override
+  String get letsEncryptDomainPlaceholder => 'example.duckdns.org';
+
+  @override
+  String get letsEncryptGetFreeSslCertificate => 'Get Free SSL Certificate';
+
+  @override
+  String get letsEncryptEnterDomainToContinue => 'Enter domain to continue';
+
+  @override
+  String get letsEncryptFixIssuesFirst => 'Fix issues first';
+
+  @override
+  String get letsEncryptAutoFix => 'Auto Fix';
+
+  @override
   String get letsEncryptRequestNow => 'Request Certificate';
 
   @override
@@ -348,6 +446,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get letsEncryptFix => 'Fix';
+
+  @override
+  String get letsEncryptCloudNotSupported => 'Cloud DDNS Not Supported';
+
+  @override
+  String get letsEncryptCloudNotSupportedDesc =>
+      'MikroTik Cloud services are not available on x86/CHR (virtual) routers. You must use a custom domain (e.g., from DuckDNS) that points to your router\'s public IP.';
+
+  @override
+  String get letsEncryptDnsNameLabel => 'DNS Name / Domain';
+
+  @override
+  String get letsEncryptDnsNameHelperCloud =>
+      'Auto-filled from Cloud DDNS (you can change it)';
+
+  @override
+  String get letsEncryptDnsNameHelperCustom =>
+      'Enter your domain name pointing to this router';
+
+  @override
+  String get letsEncryptDnsNameHelperRequired =>
+      'Required: Enter a domain that points to your router\'s IP';
+
+  @override
+  String get letsEncryptDomainRequired =>
+      'You must enter a domain name to continue';
+
+  @override
+  String get letsEncryptEnterDomainFirst => 'Enter Domain Name First';
 
   @override
   String get letsEncryptCheckCloud => 'Cloud DDNS Enabled';
@@ -739,6 +866,148 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorTogglingQueue => 'Error changing queue status';
+
+  @override
+  String get speedLimitTitle => 'Speed Limits';
+
+  @override
+  String get speedLimitDescription =>
+      'Control download and upload speed for specific devices or networks';
+
+  @override
+  String get addSpeedLimit => 'Add Speed Limit';
+
+  @override
+  String get editSpeedLimit => 'Edit Speed Limit';
+
+  @override
+  String get deleteSpeedLimit => 'Delete Speed Limit';
+
+  @override
+  String get deleteSpeedLimitConfirm => 'Are you sure you want to delete';
+
+  @override
+  String get noSpeedLimits => 'No speed limits configured';
+
+  @override
+  String get speedLimitsCount => 'speed limit(s)';
+
+  @override
+  String get singleDevice => 'Single Device';
+
+  @override
+  String get networkDevices => 'Network Devices';
+
+  @override
+  String get speedUnits => 'Speed Units';
+
+  @override
+  String get readyTemplates => 'Ready Templates';
+
+  @override
+  String get templatesDescription => 'Quick setup with predefined settings';
+
+  @override
+  String get quickGuide => 'Quick Guide';
+
+  @override
+  String get nameLabel => 'Name';
+
+  @override
+  String get nameExample => 'e.g., Office Manager, Guest Network';
+
+  @override
+  String get nameRequired => 'Name is required';
+
+  @override
+  String get targetLabel => 'Device or Network';
+
+  @override
+  String get targetExample => '192.168.1.100 or 192.168.1.0/24';
+
+  @override
+  String get targetRequired => 'IP address is required';
+
+  @override
+  String get invalidIPFormat => 'Invalid IP address format';
+
+  @override
+  String get speedLimit => 'Speed Limit';
+
+  @override
+  String get download => 'Download';
+
+  @override
+  String get upload => 'Upload';
+
+  @override
+  String get priorityLabel => 'Priority';
+
+  @override
+  String get commentOptional => 'Comment (Optional)';
+
+  @override
+  String get commentHint => 'Optional description';
+
+  @override
+  String get saving => 'Saving...';
+
+  @override
+  String get templateRegularUser => 'Regular User';
+
+  @override
+  String get templateRegularUserDesc => 'For regular users';
+
+  @override
+  String get templateGuestNetwork => 'Guest Network';
+
+  @override
+  String get templateGuestNetworkDesc => 'Limited for guests';
+
+  @override
+  String get templateVIPUser => 'VIP User';
+
+  @override
+  String get templateVIPUserDesc => 'For VIP users';
+
+  @override
+  String get templateServer => 'Server';
+
+  @override
+  String get templateServerDesc => 'For servers';
+
+  @override
+  String get templateCamera => 'Security Camera';
+
+  @override
+  String get templateCameraDesc => 'For cameras';
+
+  @override
+  String get priorityHigh => 'High Priority';
+
+  @override
+  String get priorityHighDesc => 'VoIP, video conferencing, servers';
+
+  @override
+  String get priorityMedium => 'Medium Priority';
+
+  @override
+  String get priorityMediumDesc => 'Web browsing, email, regular users';
+
+  @override
+  String get priorityLow => 'Low Priority';
+
+  @override
+  String get priorityLowDesc => 'Downloads, torrents, backups';
+
+  @override
+  String get priorityHighShort => 'High';
+
+  @override
+  String get priorityMediumShort => 'Medium';
+
+  @override
+  String get priorityLowShort => 'Low';
 
   @override
   String get wirelessManagement => 'Wireless Management';

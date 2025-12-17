@@ -4,6 +4,14 @@
   "@appName": {
     "description": "Application name"
   },
+  "refresh": "Refresh",
+  "@refresh": {
+    "description": "Refresh button text"
+  },
+  "active": "Active",
+  "@active": {
+    "description": "Active status label"
+  },
   "login": "Login",
   "@login": {
     "description": "Login button or page title"
@@ -437,6 +445,121 @@
   "@letsEncryptDnsName": {
     "description": "DNS name label"
   },
+  "letsEncryptDomainSection": "Domain",
+  "@letsEncryptDomainSection": {
+    "description": "Domain section title"
+  },
+  "letsEncryptTechnicalPrereqs": "Technical Prerequisites",
+  "@letsEncryptTechnicalPrereqs": {
+    "description": "Technical prerequisites section title"
+  },
+  "letsEncryptAllPrereqsMet": "All ready",
+  "@letsEncryptAllPrereqsMet": {
+    "description": "All prerequisites met indicator"
+  },
+  "letsEncryptPrereqsIssues": "{count} issue(s)",
+  "@letsEncryptPrereqsIssues": {
+    "description": "Number of prerequisite issues",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "letsEncryptShowDetails": "Show details",
+  "@letsEncryptShowDetails": {
+    "description": "Show details button"
+  },
+  "letsEncryptHideDetails": "Hide details",
+  "@letsEncryptHideDetails": {
+    "description": "Hide details button"
+  },
+  "letsEncryptUseCloudDdns": "Use Cloud DDNS (Recommended)",
+  "@letsEncryptUseCloudDdns": {
+    "description": "Radio option for Cloud DDNS"
+  },
+  "letsEncryptUseCustomDomain": "Use Custom Domain",
+  "@letsEncryptUseCustomDomain": {
+    "description": "Radio option for custom domain"
+  },
+  "letsEncryptCloudDdnsDesc": "Free MikroTik domain - automatically configured",
+  "@letsEncryptCloudDdnsDesc": {
+    "description": "Cloud DDNS description"
+  },
+  "letsEncryptCustomDomainDesc": "A domain you have registered yourself",
+  "@letsEncryptCustomDomainDesc": {
+    "description": "Custom domain description"
+  },
+  "letsEncryptEnableCloudDdns": "Enable Cloud DDNS",
+  "@letsEncryptEnableCloudDdns": {
+    "description": "Enable Cloud DDNS button"
+  },
+  "letsEncryptCloudDdnsEnabling": "Enabling...",
+  "@letsEncryptCloudDdnsEnabling": {
+    "description": "Cloud DDNS enabling message"
+  },
+  "letsEncryptCloudDdnsWaiting": "Waiting for DNS name assignment...",
+  "@letsEncryptCloudDdnsWaiting": {
+    "description": "Waiting for Cloud DDNS to assign name"
+  },
+  "letsEncryptCloudNotSupportedTitle": "Cloud DDNS Not Available",
+  "@letsEncryptCloudNotSupportedTitle": {
+    "description": "Cloud not supported title"
+  },
+  "letsEncryptCloudNotSupportedMessage": "Your router is an x86/CHR (virtual) type and Cloud DDNS service is not supported on these routers.",
+  "@letsEncryptCloudNotSupportedMessage": {
+    "description": "Cloud not supported message"
+  },
+  "letsEncryptDontWorry": "Don't worry! You can use a free domain.",
+  "@letsEncryptDontWorry": {
+    "description": "Reassurance message"
+  },
+  "letsEncryptCustomDomainRequired": "Custom Domain (Required)",
+  "@letsEncryptCustomDomainRequired": {
+    "description": "Custom domain required title"
+  },
+  "letsEncryptDomainMustPointTo": "This domain must point to your router's public IP:",
+  "@letsEncryptDomainMustPointTo": {
+    "description": "Domain must point to IP message"
+  },
+  "letsEncryptYourIp": "Your IP",
+  "@letsEncryptYourIp": {
+    "description": "Your IP label"
+  },
+  "letsEncryptNoFreeDomain": "Don't have a free domain?",
+  "@letsEncryptNoFreeDomain": {
+    "description": "No free domain question"
+  },
+  "letsEncryptFreeDomainProviders": "Get one free from these services:",
+  "@letsEncryptFreeDomainProviders": {
+    "description": "Free domain providers intro"
+  },
+  "letsEncryptDuckDnsSimple": "DuckDNS.org (Simple & Fast)",
+  "@letsEncryptDuckDnsSimple": {
+    "description": "DuckDNS description"
+  },
+  "letsEncryptVideoGuide": "Video Guide",
+  "@letsEncryptVideoGuide": {
+    "description": "Video guide button"
+  },
+  "letsEncryptDomainPlaceholder": "example.duckdns.org",
+  "@letsEncryptDomainPlaceholder": {
+    "description": "Domain input placeholder"
+  },
+  "letsEncryptGetFreeSslCertificate": "Get Free SSL Certificate",
+  "@letsEncryptGetFreeSslCertificate": {
+    "description": "Main action button"
+  },
+  "letsEncryptEnterDomainToContinue": "Enter domain to continue",
+  "@letsEncryptEnterDomainToContinue": {
+    "description": "Disabled button message when no domain"
+  },
+  "letsEncryptFixIssuesFirst": "Fix issues first",
+  "@letsEncryptFixIssuesFirst": {
+    "description": "Disabled button message when issues exist"
+  },
+  "letsEncryptAutoFix": "Auto Fix",
+  "@letsEncryptAutoFix": {
+    "description": "Auto fix button"
+  },
   "letsEncryptRequestNow": "Request Certificate",
   "@letsEncryptRequestNow": {
     "description": "Request certificate button"
@@ -452,6 +575,38 @@
   "letsEncryptFix": "Fix",
   "@letsEncryptFix": {
     "description": "Fix single issue button"
+  },
+  "letsEncryptCloudNotSupported": "Cloud DDNS Not Supported",
+  "@letsEncryptCloudNotSupported": {
+    "description": "Title when MikroTik Cloud is not supported"
+  },
+  "letsEncryptCloudNotSupportedDesc": "MikroTik Cloud services are not available on x86/CHR (virtual) routers. You must use a custom domain (e.g., from DuckDNS) that points to your router's public IP.",
+  "@letsEncryptCloudNotSupportedDesc": {
+    "description": "Description when Cloud is not supported"
+  },
+  "letsEncryptDnsNameLabel": "DNS Name / Domain",
+  "@letsEncryptDnsNameLabel": {
+    "description": "DNS name text field label"
+  },
+  "letsEncryptDnsNameHelperCloud": "Auto-filled from Cloud DDNS (you can change it)",
+  "@letsEncryptDnsNameHelperCloud": {
+    "description": "Helper text when Cloud DNS is available"
+  },
+  "letsEncryptDnsNameHelperCustom": "Enter your domain name pointing to this router",
+  "@letsEncryptDnsNameHelperCustom": {
+    "description": "Helper text when no Cloud DNS"
+  },
+  "letsEncryptDnsNameHelperRequired": "Required: Enter a domain that points to your router's IP",
+  "@letsEncryptDnsNameHelperRequired": {
+    "description": "Helper text when Cloud not supported"
+  },
+  "letsEncryptDomainRequired": "You must enter a domain name to continue",
+  "@letsEncryptDomainRequired": {
+    "description": "Warning when domain is required but not entered"
+  },
+  "letsEncryptEnterDomainFirst": "Enter Domain Name First",
+  "@letsEncryptEnterDomainFirst": {
+    "description": "Button text when domain not entered"
   },
   "letsEncryptCheckCloud": "Cloud DDNS Enabled",
   "@letsEncryptCheckCloud": {
@@ -941,6 +1096,209 @@
   "errorTogglingQueue": "Error changing queue status",
   "@errorTogglingQueue": {
     "description": "Error toggling queue message"
+  },
+  "speedLimitTitle": "Speed Limits",
+  "@speedLimitTitle": {
+    "description": "Speed limit page title"
+  },
+  "speedLimitDescription": "Control download and upload speed for specific devices or networks",
+  "@speedLimitDescription": {
+    "description": "Speed limit description"
+  },
+  "addSpeedLimit": "Add Speed Limit",
+  "@addSpeedLimit": {
+    "description": "Add speed limit button"
+  },
+  "editSpeedLimit": "Edit Speed Limit",
+  "@editSpeedLimit": {
+    "description": "Edit speed limit title"
+  },
+  "deleteSpeedLimit": "Delete Speed Limit",
+  "@deleteSpeedLimit": {
+    "description": "Delete speed limit title"
+  },
+  "deleteSpeedLimitConfirm": "Are you sure you want to delete",
+  "@deleteSpeedLimitConfirm": {
+    "description": "Delete speed limit confirmation"
+  },
+  "noSpeedLimits": "No speed limits configured",
+  "@noSpeedLimits": {
+    "description": "No speed limits message"
+  },
+  "speedLimitsCount": "speed limit(s)",
+  "@speedLimitsCount": {
+    "description": "Speed limits count"
+  },
+  "singleDevice": "Single Device",
+  "@singleDevice": {
+    "description": "Single device label"
+  },
+  "networkDevices": "Network Devices",
+  "@networkDevices": {
+    "description": "Network devices label"
+  },
+  "speedUnits": "Speed Units",
+  "@speedUnits": {
+    "description": "Speed units label"
+  },
+  "readyTemplates": "Ready Templates",
+  "@readyTemplates": {
+    "description": "Ready templates title"
+  },
+  "templatesDescription": "Quick setup with predefined settings",
+  "@templatesDescription": {
+    "description": "Templates description"
+  },
+  "quickGuide": "Quick Guide",
+  "@quickGuide": {
+    "description": "Quick guide title"
+  },
+  "nameLabel": "Name",
+  "@nameLabel": {
+    "description": "Name label"
+  },
+  "nameExample": "e.g., Office Manager, Guest Network",
+  "@nameExample": {
+    "description": "Name example placeholder"
+  },
+  "nameRequired": "Name is required",
+  "@nameRequired": {
+    "description": "Name required error"
+  },
+  "targetLabel": "Device or Network",
+  "@targetLabel": {
+    "description": "Target label"
+  },
+  "targetExample": "192.168.1.100 or 192.168.1.0/24",
+  "@targetExample": {
+    "description": "Target example placeholder"
+  },
+  "targetRequired": "IP address is required",
+  "@targetRequired": {
+    "description": "Target required error"
+  },
+  "invalidIPFormat": "Invalid IP address format",
+  "@invalidIPFormat": {
+    "description": "Invalid IP format error"
+  },
+  "speedLimit": "Speed Limit",
+  "@speedLimit": {
+    "description": "Speed limit label"
+  },
+  "download": "Download",
+  "@download": {
+    "description": "Download label"
+  },
+  "upload": "Upload",
+  "@upload": {
+    "description": "Upload label"
+  },
+  "priorityLabel": "Priority",
+  "@priorityLabel": {
+    "description": "Priority label"
+  },
+  "commentOptional": "Comment (Optional)",
+  "@commentOptional": {
+    "description": "Comment optional label"
+  },
+  "commentHint": "e.g., VIP user, Guest network",
+  "@commentHint": {
+    "description": "Comment hint text"
+  },
+  "saving": "Saving...",
+  "@saving": {
+    "description": "Saving text"
+  },
+  "templateRegularUser": "Regular User",
+  "@templateRegularUser": {
+    "description": "Regular user template name"
+  },
+  "templateRegularUserDesc": "For regular users",
+  "@templateRegularUserDesc": {
+    "description": "Regular user template description"
+  },
+  "templateGuestNetwork": "Guest Network",
+  "@templateGuestNetwork": {
+    "description": "Guest network template name"
+  },
+  "templateGuestNetworkDesc": "Limited for guests",
+  "@templateGuestNetworkDesc": {
+    "description": "Guest network template description"
+  },
+  "templateVIPUser": "VIP User",
+  "@templateVIPUser": {
+    "description": "VIP user template name"
+  },
+  "templateVIPUserDesc": "For VIP users",
+  "@templateVIPUserDesc": {
+    "description": "VIP user template description"
+  },
+  "templateServer": "Server",
+  "@templateServer": {
+    "description": "Server template name"
+  },
+  "templateServerDesc": "For servers",
+  "@templateServerDesc": {
+    "description": "Server template description"
+  },
+  "templateCamera": "Security Camera",
+  "@templateCamera": {
+    "description": "Camera template name"
+  },
+  "templateCameraDesc": "For cameras",
+  "@templateCameraDesc": {
+    "description": "Camera template description"
+  },
+  "priorityHigh": "High Priority",
+  "@priorityHigh": {
+    "description": "High priority label"
+  },
+  "priorityHighDesc": "VoIP, video conferencing, servers",
+  "@priorityHighDesc": {
+    "description": "High priority description"
+  },
+  "priorityMedium": "Medium Priority",
+  "@priorityMedium": {
+    "description": "Medium priority label"
+  },
+  "priorityMediumDesc": "Web browsing, email, regular users",
+  "@priorityMediumDesc": {
+    "description": "Medium priority description"
+  },
+  "priorityLow": "Low Priority",
+  "@priorityLow": {
+    "description": "Low priority label"
+  },
+  "priorityLowDesc": "Downloads, torrents, backups",
+  "@priorityLowDesc": {
+    "description": "Low priority description"
+  },
+  "priorityHighShort": "High",
+  "@priorityHighShort": {
+    "description": "High priority short label"
+  },
+  "priorityMediumShort": "Medium",
+  "@priorityMediumShort": {
+    "description": "Medium priority short label"
+  },
+  "priorityLowShort": "Low",
+  "@priorityLowShort": {
+    "description": "Low priority short label"
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit button text"
+  },
+  "@commentOptional": {
+    "description": "Comment optional label"
+  },
+  "commentHint": "Optional description",
+  "@commentHint": {
+    "description": "Comment hint"
+  },
+  "saving": "Saving...",
+  "@saving": {
+    "description": "Saving status"
   },
   "wirelessManagement": "Wireless Management",
   "@wirelessManagement": {

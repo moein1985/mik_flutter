@@ -104,6 +104,18 @@ abstract class AppLocalizations {
   /// **'MikroTik Manager'**
   String get appName;
 
+  /// Refresh button text
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// Active status label
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
   /// Login button or page title
   ///
   /// In en, this message translates to:
@@ -746,6 +758,174 @@ abstract class AppLocalizations {
   /// **'Your DNS Name'**
   String get letsEncryptDnsName;
 
+  /// Domain section title
+  ///
+  /// In en, this message translates to:
+  /// **'Domain'**
+  String get letsEncryptDomainSection;
+
+  /// Technical prerequisites section title
+  ///
+  /// In en, this message translates to:
+  /// **'Technical Prerequisites'**
+  String get letsEncryptTechnicalPrereqs;
+
+  /// All prerequisites met indicator
+  ///
+  /// In en, this message translates to:
+  /// **'All ready'**
+  String get letsEncryptAllPrereqsMet;
+
+  /// Number of prerequisite issues
+  ///
+  /// In en, this message translates to:
+  /// **'{count} issue(s)'**
+  String letsEncryptPrereqsIssues(int count);
+
+  /// Show details button
+  ///
+  /// In en, this message translates to:
+  /// **'Show details'**
+  String get letsEncryptShowDetails;
+
+  /// Hide details button
+  ///
+  /// In en, this message translates to:
+  /// **'Hide details'**
+  String get letsEncryptHideDetails;
+
+  /// Radio option for Cloud DDNS
+  ///
+  /// In en, this message translates to:
+  /// **'Use Cloud DDNS (Recommended)'**
+  String get letsEncryptUseCloudDdns;
+
+  /// Radio option for custom domain
+  ///
+  /// In en, this message translates to:
+  /// **'Use Custom Domain'**
+  String get letsEncryptUseCustomDomain;
+
+  /// Cloud DDNS description
+  ///
+  /// In en, this message translates to:
+  /// **'Free MikroTik domain - automatically configured'**
+  String get letsEncryptCloudDdnsDesc;
+
+  /// Custom domain description
+  ///
+  /// In en, this message translates to:
+  /// **'A domain you have registered yourself'**
+  String get letsEncryptCustomDomainDesc;
+
+  /// Enable Cloud DDNS button
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Cloud DDNS'**
+  String get letsEncryptEnableCloudDdns;
+
+  /// Cloud DDNS enabling message
+  ///
+  /// In en, this message translates to:
+  /// **'Enabling...'**
+  String get letsEncryptCloudDdnsEnabling;
+
+  /// Waiting for Cloud DDNS to assign name
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for DNS name assignment...'**
+  String get letsEncryptCloudDdnsWaiting;
+
+  /// Cloud not supported title
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud DDNS Not Available'**
+  String get letsEncryptCloudNotSupportedTitle;
+
+  /// Cloud not supported message
+  ///
+  /// In en, this message translates to:
+  /// **'Your router is an x86/CHR (virtual) type and Cloud DDNS service is not supported on these routers.'**
+  String get letsEncryptCloudNotSupportedMessage;
+
+  /// Reassurance message
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t worry! You can use a free domain.'**
+  String get letsEncryptDontWorry;
+
+  /// Custom domain required title
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Domain (Required)'**
+  String get letsEncryptCustomDomainRequired;
+
+  /// Domain must point to IP message
+  ///
+  /// In en, this message translates to:
+  /// **'This domain must point to your router\'s public IP:'**
+  String get letsEncryptDomainMustPointTo;
+
+  /// Your IP label
+  ///
+  /// In en, this message translates to:
+  /// **'Your IP'**
+  String get letsEncryptYourIp;
+
+  /// No free domain question
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have a free domain?'**
+  String get letsEncryptNoFreeDomain;
+
+  /// Free domain providers intro
+  ///
+  /// In en, this message translates to:
+  /// **'Get one free from these services:'**
+  String get letsEncryptFreeDomainProviders;
+
+  /// DuckDNS description
+  ///
+  /// In en, this message translates to:
+  /// **'DuckDNS.org (Simple & Fast)'**
+  String get letsEncryptDuckDnsSimple;
+
+  /// Video guide button
+  ///
+  /// In en, this message translates to:
+  /// **'Video Guide'**
+  String get letsEncryptVideoGuide;
+
+  /// Domain input placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'example.duckdns.org'**
+  String get letsEncryptDomainPlaceholder;
+
+  /// Main action button
+  ///
+  /// In en, this message translates to:
+  /// **'Get Free SSL Certificate'**
+  String get letsEncryptGetFreeSslCertificate;
+
+  /// Disabled button message when no domain
+  ///
+  /// In en, this message translates to:
+  /// **'Enter domain to continue'**
+  String get letsEncryptEnterDomainToContinue;
+
+  /// Disabled button message when issues exist
+  ///
+  /// In en, this message translates to:
+  /// **'Fix issues first'**
+  String get letsEncryptFixIssuesFirst;
+
+  /// Auto fix button
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Fix'**
+  String get letsEncryptAutoFix;
+
   /// Request certificate button
   ///
   /// In en, this message translates to:
@@ -769,6 +949,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Fix'**
   String get letsEncryptFix;
+
+  /// Title when MikroTik Cloud is not supported
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud DDNS Not Supported'**
+  String get letsEncryptCloudNotSupported;
+
+  /// Description when Cloud is not supported
+  ///
+  /// In en, this message translates to:
+  /// **'MikroTik Cloud services are not available on x86/CHR (virtual) routers. You must use a custom domain (e.g., from DuckDNS) that points to your router\'s public IP.'**
+  String get letsEncryptCloudNotSupportedDesc;
+
+  /// DNS name text field label
+  ///
+  /// In en, this message translates to:
+  /// **'DNS Name / Domain'**
+  String get letsEncryptDnsNameLabel;
+
+  /// Helper text when Cloud DNS is available
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-filled from Cloud DDNS (you can change it)'**
+  String get letsEncryptDnsNameHelperCloud;
+
+  /// Helper text when no Cloud DNS
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your domain name pointing to this router'**
+  String get letsEncryptDnsNameHelperCustom;
+
+  /// Helper text when Cloud not supported
+  ///
+  /// In en, this message translates to:
+  /// **'Required: Enter a domain that points to your router\'s IP'**
+  String get letsEncryptDnsNameHelperRequired;
+
+  /// Warning when domain is required but not entered
+  ///
+  /// In en, this message translates to:
+  /// **'You must enter a domain name to continue'**
+  String get letsEncryptDomainRequired;
+
+  /// Button text when domain not entered
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Domain Name First'**
+  String get letsEncryptEnterDomainFirst;
 
   /// Cloud DDNS check
   ///
@@ -1495,6 +1723,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error changing queue status'**
   String get errorTogglingQueue;
+
+  /// Speed limit page title
+  ///
+  /// In en, this message translates to:
+  /// **'Speed Limits'**
+  String get speedLimitTitle;
+
+  /// Speed limit description
+  ///
+  /// In en, this message translates to:
+  /// **'Control download and upload speed for specific devices or networks'**
+  String get speedLimitDescription;
+
+  /// Add speed limit button
+  ///
+  /// In en, this message translates to:
+  /// **'Add Speed Limit'**
+  String get addSpeedLimit;
+
+  /// Edit speed limit title
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Speed Limit'**
+  String get editSpeedLimit;
+
+  /// Delete speed limit title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Speed Limit'**
+  String get deleteSpeedLimit;
+
+  /// Delete speed limit confirmation
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete'**
+  String get deleteSpeedLimitConfirm;
+
+  /// No speed limits message
+  ///
+  /// In en, this message translates to:
+  /// **'No speed limits configured'**
+  String get noSpeedLimits;
+
+  /// Speed limits count
+  ///
+  /// In en, this message translates to:
+  /// **'speed limit(s)'**
+  String get speedLimitsCount;
+
+  /// Single device label
+  ///
+  /// In en, this message translates to:
+  /// **'Single Device'**
+  String get singleDevice;
+
+  /// Network devices label
+  ///
+  /// In en, this message translates to:
+  /// **'Network Devices'**
+  String get networkDevices;
+
+  /// Speed units label
+  ///
+  /// In en, this message translates to:
+  /// **'Speed Units'**
+  String get speedUnits;
+
+  /// Ready templates title
+  ///
+  /// In en, this message translates to:
+  /// **'Ready Templates'**
+  String get readyTemplates;
+
+  /// Templates description
+  ///
+  /// In en, this message translates to:
+  /// **'Quick setup with predefined settings'**
+  String get templatesDescription;
+
+  /// Quick guide title
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Guide'**
+  String get quickGuide;
+
+  /// Name label
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get nameLabel;
+
+  /// Name example placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Office Manager, Guest Network'**
+  String get nameExample;
+
+  /// Name required error
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get nameRequired;
+
+  /// Target label
+  ///
+  /// In en, this message translates to:
+  /// **'Device or Network'**
+  String get targetLabel;
+
+  /// Target example placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'192.168.1.100 or 192.168.1.0/24'**
+  String get targetExample;
+
+  /// Target required error
+  ///
+  /// In en, this message translates to:
+  /// **'IP address is required'**
+  String get targetRequired;
+
+  /// Invalid IP format error
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid IP address format'**
+  String get invalidIPFormat;
+
+  /// Speed limit label
+  ///
+  /// In en, this message translates to:
+  /// **'Speed Limit'**
+  String get speedLimit;
+
+  /// Download label
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// Upload label
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get upload;
+
+  /// Priority label
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get priorityLabel;
+
+  /// Comment optional label
+  ///
+  /// In en, this message translates to:
+  /// **'Comment (Optional)'**
+  String get commentOptional;
+
+  /// Comment hint
+  ///
+  /// In en, this message translates to:
+  /// **'Optional description'**
+  String get commentHint;
+
+  /// Saving status
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get saving;
+
+  /// Regular user template name
+  ///
+  /// In en, this message translates to:
+  /// **'Regular User'**
+  String get templateRegularUser;
+
+  /// Regular user template description
+  ///
+  /// In en, this message translates to:
+  /// **'For regular users'**
+  String get templateRegularUserDesc;
+
+  /// Guest network template name
+  ///
+  /// In en, this message translates to:
+  /// **'Guest Network'**
+  String get templateGuestNetwork;
+
+  /// Guest network template description
+  ///
+  /// In en, this message translates to:
+  /// **'Limited for guests'**
+  String get templateGuestNetworkDesc;
+
+  /// VIP user template name
+  ///
+  /// In en, this message translates to:
+  /// **'VIP User'**
+  String get templateVIPUser;
+
+  /// VIP user template description
+  ///
+  /// In en, this message translates to:
+  /// **'For VIP users'**
+  String get templateVIPUserDesc;
+
+  /// Server template name
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get templateServer;
+
+  /// Server template description
+  ///
+  /// In en, this message translates to:
+  /// **'For servers'**
+  String get templateServerDesc;
+
+  /// Camera template name
+  ///
+  /// In en, this message translates to:
+  /// **'Security Camera'**
+  String get templateCamera;
+
+  /// Camera template description
+  ///
+  /// In en, this message translates to:
+  /// **'For cameras'**
+  String get templateCameraDesc;
+
+  /// High priority label
+  ///
+  /// In en, this message translates to:
+  /// **'High Priority'**
+  String get priorityHigh;
+
+  /// High priority description
+  ///
+  /// In en, this message translates to:
+  /// **'VoIP, video conferencing, servers'**
+  String get priorityHighDesc;
+
+  /// Medium priority label
+  ///
+  /// In en, this message translates to:
+  /// **'Medium Priority'**
+  String get priorityMedium;
+
+  /// Medium priority description
+  ///
+  /// In en, this message translates to:
+  /// **'Web browsing, email, regular users'**
+  String get priorityMediumDesc;
+
+  /// Low priority label
+  ///
+  /// In en, this message translates to:
+  /// **'Low Priority'**
+  String get priorityLow;
+
+  /// Low priority description
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads, torrents, backups'**
+  String get priorityLowDesc;
+
+  /// High priority short label
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get priorityHighShort;
+
+  /// Medium priority short label
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get priorityMediumShort;
+
+  /// Low priority short label
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get priorityLowShort;
 
   /// Wireless management page title
   ///
