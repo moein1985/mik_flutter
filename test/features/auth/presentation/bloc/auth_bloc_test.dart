@@ -28,6 +28,7 @@ void main() {
       logoutUseCase: mockLogoutUseCase,
       saveCredentialsUseCase: mockSaveCredentialsUseCase,
       getSavedCredentialsUseCase: mockGetSavedCredentialsUseCase,
+      getRouterClient: mockGetRouterClientCallback,
     );
   });
 

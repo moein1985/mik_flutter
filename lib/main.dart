@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'injection_container.dart' as di;
 import 'l10n/app_localizations.dart';
 import 'core/utils/logger.dart';
@@ -10,6 +11,11 @@ import 'core/utils/bloc_observer.dart';
 import 'core/router/app_router.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
+
+const String _glitchtipDsn = String.fromEnvironment(
+  'GLITCHTIP_DSN',
+  defaultValue: 'https://d96581f7386a4bac97b44f9b6091fe1f@selfhosting-sentry.duckdns.org/1',
+);
 
 /// Custom HttpOverrides to accept self-signed SSL certificates
 /// Used for connecting to MikroTik routers with self-signed certificates
@@ -27,22 +33,34 @@ extension MyAppExtension on BuildContext {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Allow self-signed SSL certificates for MikroTik routers
   HttpOverrides.global = MyHttpOverrides();
-  
-  // Initialize logging
-  AppLogger.i('🚀 App starting...', tag: 'Main');
-  
-  // Set up Bloc observer
-  Bloc.observer = AppBlocObserver();
-  AppLogger.i('✅ Bloc observer initialized', tag: 'Main');
-  
-  // Initialize dependencies
-  await di.init();
-  AppLogger.i('✅ Dependencies initialized', tag: 'Main');
-  
-  runApp(const MyApp());
+
+  Future<void> bootstrap() async {
+    // Initialize logging
+    AppLogger.i('🚀 App starting...', tag: 'Main');
+
+    // Set up Bloc observer
+    Bloc.observer = AppBlocObserver();
+    AppLogger.i('✅ Bloc observer initialized', tag: 'Main');
+
+    // Initialize dependencies
+    await di.init();
+    AppLogger.i('✅ Dependencies initialized', tag: 'Main');
+
+    runApp(const MyApp());
+  }
+
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = _glitchtipDsn;
+      options.tracesSampleRate = 0.2; // Adjust as needed
+      options.sendDefaultPii = false;
+      options.environment = 'production';
+    },
+    appRunner: bootstrap,
+  );
 }
 
 class MyApp extends StatefulWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../../l10n/app_localizations.dart';
 import '../../../../main.dart';
@@ -307,17 +308,48 @@ class _LoginPageState extends State<LoginPage> {
                           icon: const Icon(Icons.folder_open),
                           label: const Text('Saved Routers'),
                         ),
-                        // Language Switch Button
-                        IconButton(
-                          icon: const Icon(Icons.language),
-                          tooltip: 'Change Language',
-                          onPressed: () {
-                            final currentLocale = Localizations.localeOf(context);
-                            final newLocale = currentLocale.languageCode == 'en'
-                                ? const Locale('fa', '')
-                                : const Locale('en', '');
-                            MyApp.of(context)?.setLocale(newLocale);
-                          },
+                        Row(
+                          children: [
+                            // Test Crash Button (for GlitchTip testing)
+                            IconButton(
+                              icon: const Icon(Icons.bug_report, color: Colors.orange),
+                              tooltip: 'Send Test Crash to GlitchTip',
+                              onPressed: () {
+                                try {
+                                  Sentry.captureException(
+                                    Exception('🧪 GlitchTip Test Crash from Login Page'),
+                                    stackTrace: StackTrace.current,
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('✅ Test crash sent to GlitchTip!'),
+                                      backgroundColor: Colors.green,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('❌ Failed to send: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            // Language Switch Button
+                            IconButton(
+                              icon: const Icon(Icons.language),
+                              tooltip: 'Change Language',
+                              onPressed: () {
+                                final currentLocale = Localizations.localeOf(context);
+                                final newLocale = currentLocale.languageCode == 'en'
+                                    ? const Locale('fa', '')
+                                    : const Locale('en', '');
+                                MyApp.of(context)?.setLocale(newLocale);
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),

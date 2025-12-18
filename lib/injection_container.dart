@@ -195,6 +195,7 @@ Future<void> init() async {
       logoutUseCase: sl(),
       saveCredentialsUseCase: sl(),
       getSavedCredentialsUseCase: sl(),
+      getRouterClient: () => sl<AuthRemoteDataSource>().legacyClient!,
     ),
   );
 
