@@ -80,13 +80,22 @@ class RouterOSClientV2 {
         password: password,
         useSsl: useSsl,
         verbose: false,
+        timeout: const Duration(seconds: 15), // Add timeout for connection/login
         onBadCertificate: useSsl ? (certificate) {
           _log.w('Accepting self-signed certificate: ${certificate.subject}');
           return true; // Accept all certificates (for self-signed certs)
         } : null,
       );
       
-      final success = await _client!.login();
+      // Add timeout to the login operation
+      final success = await _client!.login().timeout(
+        const Duration(seconds: 15),
+        onTimeout: () {
+          _log.w('Login timeout after 15 seconds');
+          _isConnected = false;
+          throw ConnectionException('Connection timeout - check host and port');
+        },
+      );
       _isConnected = success;
       
       if (success) {
@@ -96,6 +105,10 @@ class RouterOSClientV2 {
       }
       
       return success;
+    } on TimeoutException catch (e) {
+      _log.w('Login timeout: $e');
+      _isConnected = false;
+      throw ConnectionException('Connection timeout - check host and port');
     } on ros.LoginError catch (e) {
       _log.e('Login error: ${e.message}');
       _isConnected = false;

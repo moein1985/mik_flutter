@@ -109,16 +109,25 @@ class RouterOSClient {
       if (!verbose) {
         Logger.level = Level.off;
       }
+      
+      // Use timeout from configuration or default to 15 seconds
+      final connectionTimeout = timeout ?? const Duration(seconds: 15);
+      
       if (useSsl) {
         _secureSocket = await SecureSocket.connect(
           address,
           port,
           context: context,
           onBadCertificate: onBadCertificate,
+          timeout: connectionTimeout,
         );
         _socket = _secureSocket;
       } else {
-        _socket = await Socket.connect(address, port);
+        _socket = await Socket.connect(
+          address, 
+          port,
+          timeout: connectionTimeout,
+        );
       }
       _socket?.setOption(SocketOption.tcpNoDelay, true);
       logger.i("RouterOSClient socket connection opened.");
@@ -127,6 +136,10 @@ class RouterOSClient {
     } on SocketException catch (e) {
       throw CreateSocketError(
         'Failed to connect to socket. Host: $address, port: $port. Error: ${e.message}',
+      );
+    } on TimeoutException catch (e) {
+      throw CreateSocketError(
+        'Connection timeout. Host: $address, port: $port. Error: ${e.message}',
       );
     }
   }

@@ -167,16 +167,10 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = (state as HotspotError).previousData;
         }
         
-        if (previousData != null) {
-          if (!emit.isDone) {
-            emit(previousData.copyWith(servers: servers));
-          }
-        } else {
-          if (!emit.isDone) {
-            emit(HotspotLoaded(servers: servers));
-          }
+        if (!emit.isDone) {
+          emit(previousData!.copyWith(servers: servers));
         }
-      },
+            },
     );
   }
 
@@ -213,16 +207,10 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = (state as HotspotError).previousData;
         }
         
-        if (previousData != null) {
-          if (!emit.isDone) {
-            emit(previousData.copyWith(users: users));
-          }
-        } else {
-          if (!emit.isDone) {
-            emit(HotspotLoaded(users: users));
-          }
+        if (!emit.isDone) {
+          emit(previousData!.copyWith(users: users));
         }
-      },
+            },
     );
   }
 
@@ -259,16 +247,10 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = (state as HotspotError).previousData;
         }
         
-        if (previousData != null) {
-          if (!emit.isDone) {
-            emit(previousData.copyWith(activeUsers: activeUsers));
-          }
-        } else {
-          if (!emit.isDone) {
-            emit(HotspotLoaded(activeUsers: activeUsers));
-          }
+        if (!emit.isDone) {
+          emit(previousData!.copyWith(activeUsers: activeUsers));
         }
-      },
+            },
     );
   }
 
@@ -305,16 +287,10 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = (state as HotspotError).previousData;
         }
         
-        if (previousData != null) {
-          if (!emit.isDone) {
-            emit(previousData.copyWith(profiles: profiles));
-          }
-        } else {
-          if (!emit.isDone) {
-            emit(HotspotLoaded(profiles: profiles));
-          }
+        if (!emit.isDone) {
+          emit(previousData!.copyWith(profiles: profiles));
         }
-      },
+            },
     );
   }
 
@@ -682,12 +658,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = (state as HotspotError).previousData;
         }
         
-        if (previousData != null) {
-          if (!emit.isDone) emit(previousData.copyWith(ipBindings: bindings));
-        } else {
-          if (!emit.isDone) emit(HotspotLoaded(ipBindings: bindings));
-        }
-      },
+        if (!emit.isDone) emit(previousData!.copyWith(ipBindings: bindings));
+            },
     );
   }
 
@@ -826,12 +798,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = (state as HotspotError).previousData;
         }
         
-        if (previousData != null) {
-          if (!emit.isDone) emit(previousData.copyWith(hosts: hosts));
-        } else {
-          if (!emit.isDone) emit(HotspotLoaded(hosts: hosts));
-        }
-      },
+        if (!emit.isDone) emit(previousData!.copyWith(hosts: hosts));
+            },
     );
   }
 
@@ -914,12 +882,8 @@ class HotspotBloc extends Bloc<HotspotEvent, HotspotState> {
           previousData = (state as HotspotError).previousData;
         }
         
-        if (previousData != null) {
-          if (!emit.isDone) emit(previousData.copyWith(walledGarden: entries));
-        } else {
-          if (!emit.isDone) emit(HotspotLoaded(walledGarden: entries));
-        }
-      },
+        if (!emit.isDone) emit(previousData!.copyWith(walledGarden: entries));
+            },
     );
   }
 
