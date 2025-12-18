@@ -46,6 +46,7 @@ import '../../features/logs/presentation/bloc/logs_bloc.dart';
 import '../../features/logs/presentation/pages/logs_page.dart';
 import '../../features/backup/presentation/bloc/backup_bloc.dart';
 import '../../features/backup/presentation/pages/backup_page.dart';
+import '../../features/about/presentation/pages/about_page.dart';
 
 /// Route names as constants
 class AppRoutes {
@@ -79,6 +80,7 @@ class AppRoutes {
   static const String wireless = '/dashboard/wireless';
   static const String logs = '/dashboard/logs';
   static const String backup = '/dashboard/backup';
+  static const String about = '/dashboard/about';
 }
 
 /// Global navigator key for use outside of widget context
@@ -420,6 +422,13 @@ class AppRouter {
                 create: (_) => sl<BackupBloc>(),
                 child: const BackupPage(),
               ),
+            ),
+
+            // About route
+            GoRoute(
+              path: 'about',
+              name: 'about',
+              builder: (context, state) => const AboutPage(),
             ),
 
             // Firewall and nested routes
