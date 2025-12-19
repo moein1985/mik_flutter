@@ -38,7 +38,7 @@ class AboutPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'MikroTik Manager',
+                    'Network Assistant',
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -86,8 +86,8 @@ class AboutPage extends StatelessWidget {
                     const SizedBox(height: 12),
                     Text(
                       isRtl
-                          ? 'برنامه مدیریت میکروتیک یک ابزار قدرتمند برای مدیریت روترهای میکروتیک است. این برنامه امکاناتی مانند مدیریت فایروال، DHCP، اینترفیس‌ها، HotSpot، و ابزارهای شبکه را در اختیار شما قرار می‌دهد.'
-                          : 'MikroTik Manager is a powerful tool for managing MikroTik routers. This app provides features like Firewall management, DHCP, Interfaces, HotSpot, and network tools.',
+                          ? 'دستیار شبکه یک ابزار قدرتمند برای مدیریت روترهای میکروتیک است. این برنامه امکاناتی مانند مدیریت فایروال، DHCP، اینترفیس‌ها، HotSpot، و ابزارهای شبکه را در اختیار شما قرار می‌دهد.'
+                          : 'Network Assistant is a powerful tool for managing MikroTik routers. This app provides features like Firewall management, DHCP, Interfaces, HotSpot, and network tools.',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         height: 1.5,
                       ),
@@ -168,7 +168,7 @@ class AboutPage extends StatelessWidget {
                         Icon(Icons.rocket_launch, color: colorScheme.primary),
                         const SizedBox(width: 8),
                         Text(
-                          isRtl ? 'برنامه‌های آینده' : 'Future Plans',
+                          isRtl ? 'توسعه‌های آینده' : 'Future Plans',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -179,8 +179,8 @@ class AboutPage extends StatelessWidget {
                     _buildPlanItem(
                       context,
                       isRtl
-                          ? 'پشتیبانی از روترهای Cisco در نسخه‌های آینده'
-                          : 'Cisco router support in future versions',
+                          ? 'پشتیبانی از روترها و سوئیچ‌های Cisco در نسخه‌های آینده'
+                          : 'Cisco router and switch support in future versions',
                     ),
                     const SizedBox(height: 8),
                     _buildPlanItem(
@@ -250,7 +250,7 @@ class AboutPage extends StatelessWidget {
             // Copyright
             Center(
               child: Text(
-                '© 2024 معین محسنی (Moein Mohseni)',
+                '© 2025 معین محسنی (Moein Mohseni)',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -375,7 +375,7 @@ class AboutPage extends StatelessWidget {
     final uri = Uri(
       scheme: 'mailto',
       path: email,
-      queryParameters: {'subject': 'MikroTik Manager - Contact'},
+      queryParameters: {'subject': 'Network Assistant - Contact'},
     );
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);

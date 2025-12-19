@@ -34,3 +34,4 @@ plugins {
 }
 
 include(":app")
+rootProject.name = "mik_flutter_android"

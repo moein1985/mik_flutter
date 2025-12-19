@@ -9,6 +9,8 @@ import 'l10n/app_localizations.dart';
 import 'core/utils/logger.dart';
 import 'core/utils/bloc_observer.dart';
 import 'core/router/app_router.dart';
+import 'core/config/bazaar_config.dart';
+import 'core/subscription/subscription_service.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
@@ -48,6 +50,15 @@ void main() async {
     // Initialize dependencies
     await di.init();
     AppLogger.i('✅ Dependencies initialized', tag: 'Main');
+
+    // Initialize Cafe Bazaar Subscription
+    try {
+      final subscriptionService = di.sl<SubscriptionService>();
+      await subscriptionService.initialize(BazaarConfig.rsaPublicKey);
+      AppLogger.i('✅ Subscription service initialized', tag: 'Main');
+    } catch (e) {
+      AppLogger.w('⚠️ Subscription service initialization failed: $e', tag: 'Main');
+    }
 
     runApp(const MyApp());
   }

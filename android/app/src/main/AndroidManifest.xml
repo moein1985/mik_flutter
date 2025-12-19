@@ -56,5 +56,7 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="https" />
         </intent>
+        <!-- Allow visibility to Cafe Bazaar app for Poolakey purchases -->
+        <package android:name="com.farsitel.bazaar" />
     </queries>
 </manifest>

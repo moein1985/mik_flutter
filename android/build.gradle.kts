@@ -4,6 +4,8 @@ allprojects {
         maven { url = uri("https://maven.aliyun.com/repository/public") }
         google()
         mavenCentral()
+        // JitPack repository for Poolakey (Cafe Bazaar IAP)
+        maven { url = uri("https://jitpack.io") }
     }
 }
 

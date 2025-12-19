@@ -184,6 +184,9 @@ import 'features/letsencrypt/data/repositories/letsencrypt_repository_impl.dart'
 import 'features/letsencrypt/domain/repositories/letsencrypt_repository.dart';
 import 'features/letsencrypt/presentation/bloc/letsencrypt_bloc.dart';
 
+// Core - Subscription
+import 'core/subscription/subscription_service.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -766,6 +769,9 @@ Future<void> init() async {
 
   //! Core
   sl.registerLazySingleton(() => const FlutterSecureStorage());
+  
+  // Subscription Service
+  sl.registerLazySingleton(() => SubscriptionService());
   
   // RouterOS Client V2 - gets the client from auth remote data source
   sl.registerLazySingleton<RouterOSClientV2>(

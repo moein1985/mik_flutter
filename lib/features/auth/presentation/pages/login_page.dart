@@ -4,6 +4,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../../l10n/app_localizations.dart';
 import '../../../../main.dart';
+import '../../../about/presentation/pages/about_page.dart';
 import '../../domain/entities/saved_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -335,6 +336,19 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   );
                                 }
+                              },
+                            ),
+                            // About Button
+                            IconButton(
+                              icon: const Icon(Icons.info_outline),
+                              tooltip: 'About',
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const AboutPage(),
+                                  ),
+                                );
                               },
                             ),
                             // Language Switch Button

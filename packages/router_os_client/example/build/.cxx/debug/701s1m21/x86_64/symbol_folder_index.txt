@@ -1,0 +1,1 @@
+C:\Users\Moein\Documents\Codes\mik_flutter\packages\router_os_client\example\build\app\intermediates\cxx\debug\701s1m21\obj\x86_64
