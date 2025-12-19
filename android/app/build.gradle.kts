@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "app.hsco.mik"
+    namespace = "com.example.hsmik"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -30,13 +30,13 @@ android {
     }
 
     defaultConfig {
-        applicationId = "app.hsco.mik"
+        applicationId = "com.example.hsmik"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode = 2  // Manually set for Cafe Bazaar
+        versionName = "1.0.0"
     }
 
     signingConfigs {
