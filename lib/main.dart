@@ -51,13 +51,19 @@ void main() async {
     await di.init();
     AppLogger.i('✅ Dependencies initialized', tag: 'Main');
 
-    // Initialize Cafe Bazaar Subscription
-    try {
-      final subscriptionService = di.sl<SubscriptionService>();
-      await subscriptionService.initialize(BazaarConfig.rsaPublicKey);
-      AppLogger.i('✅ Subscription service initialized', tag: 'Main');
-    } catch (e) {
-      AppLogger.w('⚠️ Subscription service initialization failed: $e', tag: 'Main');
+    // Initialize Cafe Bazaar Subscription (only if enabled)
+    if (BazaarConfig.subscriptionEnabled) {
+      Future.microtask(() async {
+        try {
+          final subscriptionService = di.sl<SubscriptionService>();
+          await subscriptionService.initialize(BazaarConfig.rsaPublicKey);
+          AppLogger.i('✅ Subscription service initialized', tag: 'Main');
+        } catch (e) {
+          AppLogger.w('⚠️ Subscription service initialization failed: $e', tag: 'Main');
+        }
+      });
+    } else {
+      AppLogger.i('ℹ️ Subscription disabled (BazaarConfig.subscriptionEnabled = false)', tag: 'Main');
     }
 
     runApp(const MyApp());

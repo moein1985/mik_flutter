@@ -35,7 +35,7 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 2  // Manually set for Cafe Bazaar
+        versionCode = 3  // Manually set for Cafe Bazaar
         versionName = "1.0.0"
     }
 

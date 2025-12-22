@@ -1,5 +1,8 @@
 /// Configuration for Cafe Bazaar subscription
 class BazaarConfig {
+  // Enable/disable subscription (set to false for testing without Bazaar)
+  static const bool subscriptionEnabled = true;
+  
   // RSA Public Key from Cafe Bazaar panel
   static const String rsaPublicKey = 'MIHNMA0GCSqGSIb3DQEBAQUAA4G7ADCBtwKBrwC+Hwps1HJdKraXWIEy+ZAd8yIKfIAaikKPMkhdufZYj9HKoFERPwMzo6vaNf76u3YlgCmcgjIomxaIFemKpBs3fLDgD+QDB0pDwt9aTYH5dUoBGgW0Il4Z/iE88f0GBoh0bVbdL7dQWWYVxOYUBR36LS9sBzAxhbVKsS/YZ5wdP7NJhJVkY8EWFFQVQ/i2Du+cHVNkIIHRx5BN1Fa/rVfVdqfCFrzL0JC2TRXG4EsCAwEAAQ==';
   
