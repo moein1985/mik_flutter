@@ -5,6 +5,7 @@ import '../../../../core/router/app_router.dart';
 import '../bloc/app_auth_bloc.dart';
 import '../bloc/app_auth_event.dart';
 import '../bloc/app_auth_state.dart';
+import '../../../../core/utils/logger.dart';
 
 class AppLoginPage extends StatefulWidget {
   const AppLoginPage({super.key});
@@ -55,9 +56,13 @@ class _AppLoginPageState extends State<AppLoginPage> {
     return Scaffold(
       body: BlocConsumer<AppAuthBloc, AppAuthState>(
         listener: (context, state) {
+          final _log = AppLogger.tag('AppLoginPage');
+          _log.i('Auth state changed in listener: ${state.runtimeType}');
           if (state is AppAuthAuthenticated) {
+            _log.i('Navigating to home after biometric/auth success for user=${state.user.id} at ${DateTime.now().toIso8601String()}');
             context.go(AppRoutes.home);
           } else if (state is AppAuthError) {
+            _log.i('Auth error shown to user: ${state.message}');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -66,7 +68,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 controller: _oldCtrl,
                 decoration: InputDecoration(labelText: l10n.password),
                 obscureText: true,
-                validator: (v) => (v == null || v.isEmpty) ? l10n.invalidCredentials : null,
+                validator: (v) {
+                  final authState = context.read<AppAuthBloc>().state;
+                  if (authState is! AppAuthAuthenticated) return l10n.mustBeLoggedIn;
+                  final currentHash = authState.user.passwordHash;
+                  final emptyHash = sha256.convert(utf8.encode('')).toString();
+                  if (v == null || v.isEmpty) {
+                    // allow initial set if current password is empty hash
+                    if (currentHash == emptyHash) return null;
+                    return l10n.invalidCredentials;
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(

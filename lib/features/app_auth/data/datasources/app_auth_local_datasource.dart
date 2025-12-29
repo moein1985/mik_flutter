@@ -15,6 +15,9 @@ abstract class AppAuthLocalDataSource {
   Future<void> updateBiometricStatus(String userId, bool enabled);
   Future<void> changePassword(String userId, String oldPassword, String newPassword);
   Future<AppUser?> getUserById(String userId);
+  /// Returns the first user that has biometric enabled, or null
+  Future<AppUser?> getUserByBiometric();
+  Future<bool> hasBiometricEnabledUsers();
   Future<void> ensureDefaultAdminExists();
 }
 
@@ -54,23 +57,19 @@ class AppAuthLocalDataSourceImpl implements AppAuthLocalDataSource {
 
   @override
   Future<AppUser?> getLoggedInUser() async {
-    print('DEBUG: getLoggedInUser() START');
     _log.i('getLoggedInUser: START');
     final userId = sharedPreferences.getString(_sessionKey);
     _log.i('getLoggedInUser: session userId = $userId');
     if (userId == null) {
       _log.i('No session user id found');
-      print('DEBUG: getLoggedInUser() END - no userId');
       return null;
     }
     AppUser? user;
     try {
       user = await getUserById(userId);
       _log.i('getLoggedInUser: found user = ${user != null}');
-      print('DEBUG: getLoggedInUser() END - foundUser=${user != null}');
     } catch (e, st) {
       _log.e('getLoggedInUser error: $e\n$st');
-      print('DEBUG: getLoggedInUser() ERROR: $e');
       rethrow;
     }
     return user;
@@ -80,6 +79,16 @@ class AppAuthLocalDataSourceImpl implements AppAuthLocalDataSource {
   Future<AppUser?> getUserById(String userId) async {
     final userModel = _userBox.get(userId);
     return userModel?.toEntity();
+  }
+
+  @override
+  Future<AppUser?> getUserByBiometric() async {
+    for (var userModel in _userBox.values) {
+      if (userModel.biometricEnabled) {
+        return userModel.toEntity();
+      }
+    }
+    return null;
   }
 
   @override
@@ -138,6 +147,19 @@ class AppAuthLocalDataSourceImpl implements AppAuthLocalDataSource {
       userModel.biometricEnabled = enabled;
       await userModel.save();
     }
+  }
+
+  @override
+  Future<bool> hasBiometricEnabledUsers() async {
+    _log.i('Checking Hive for biometric-enabled users');
+    for (var user in _userBox.values) {
+      if (user.biometricEnabled) {
+        _log.i('Found biometric-enabled user: id=${user.id} username=${user.username}');
+        return true;
+      }
+    }
+    _log.i('No biometric-enabled users found');
+    return false;
   }
 
   @override

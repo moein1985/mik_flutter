@@ -19,17 +19,13 @@ class AppAuthRepositoryImpl implements AppAuthRepository {
 
   @override
   Future<Either<Failure, AppUser?>> getLoggedInUser() async {
-    print('DEBUG: AppAuthRepositoryImpl.getLoggedInUser() START');
     try {
       _log.i('getLoggedInUser: calling localDataSource');
-      print('DEBUG: calling localDataSource.getLoggedInUser()');
       final user = await localDataSource.getLoggedInUser();
       _log.i('getLoggedInUser: localDataSource returned user=${user != null}');
-      print('DEBUG: AppAuthRepositoryImpl.getLoggedInUser() END - user=${user!=null}');
       return Right(user);
     } catch (e) {
       _log.e('getLoggedInUser failed: $e');
-      print('DEBUG: AppAuthRepositoryImpl.getLoggedInUser() ERROR: $e');
       return Left(CacheFailure('Failed to get logged in user: ${e.toString()}'));
     }
   }
@@ -81,6 +77,7 @@ class AppAuthRepositoryImpl implements AppAuthRepository {
   @override
   Future<Either<Failure, bool>> authenticateWithBiometric() async {
     try {
+      _log.i('Attempting biometric authentication (repo)');
       final authenticated = await localAuth.authenticate(
         localizedReason: 'Please authenticate to access the app',
         options: const AuthenticationOptions(
@@ -88,8 +85,10 @@ class AppAuthRepositoryImpl implements AppAuthRepository {
           biometricOnly: true,
         ),
       );
+      _log.i('Biometric auth result (repo): $authenticated');
       return Right(authenticated);
-    } catch (e) {
+    } catch (e, st) {
+      _log.e('Biometric authentication failed (repo): $e', error: e, stackTrace: st);
       return Left(AuthenticationFailure('Biometric authentication failed: ${e.toString()}'));
     }
   }
@@ -97,9 +96,12 @@ class AppAuthRepositoryImpl implements AppAuthRepository {
   @override
   Future<Either<Failure, void>> enableBiometric(String userId) async {
     try {
+      _log.i('Enabling biometric for user: $userId');
       await localDataSource.updateBiometricStatus(userId, true);
+      _log.i('Enabled biometric for user: $userId');
       return const Right(null);
-    } catch (e) {
+    } catch (e, st) {
+      _log.e('Failed to enable biometric for $userId: $e', error: e, stackTrace: st);
       return Left(CacheFailure('Failed to enable biometric: ${e.toString()}'));
     }
   }
@@ -107,9 +109,12 @@ class AppAuthRepositoryImpl implements AppAuthRepository {
   @override
   Future<Either<Failure, void>> disableBiometric(String userId) async {
     try {
+      _log.i('Disabling biometric for user: $userId');
       await localDataSource.updateBiometricStatus(userId, false);
+      _log.i('Disabled biometric for user: $userId');
       return const Right(null);
-    } catch (e) {
+    } catch (e, st) {
+      _log.e('Failed to disable biometric for $userId: $e', error: e, stackTrace: st);
       return Left(CacheFailure('Failed to disable biometric: ${e.toString()}'));
     }
   }
@@ -121,6 +126,45 @@ class AppAuthRepositoryImpl implements AppAuthRepository {
       return const Right(null);
     } catch (e) {
       return Left(CacheFailure('Failed to change password: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> hasBiometricEnabledUsers() async {
+    try {
+      _log.i('Checking for any biometric-enabled users');
+      final exists = await localDataSource.hasBiometricEnabledUsers();
+      _log.i('hasBiometricEnabledUsers: $exists');
+      return Right(exists);
+    } catch (e, st) {
+      _log.e('Failed to check biometric-enabled users: $e', error: e, stackTrace: st);
+      return Left(CacheFailure('Failed to check biometric-enabled users: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AppUser?>> getBiometricUser() async {
+    try {
+      _log.i('Fetching biometric-enabled user');
+      final user = await localDataSource.getUserByBiometric();
+      _log.i('getBiometricUser: found=${user != null}');
+      return Right(user);
+    } catch (e, st) {
+      _log.e('Failed to get biometric user: $e', error: e, stackTrace: st);
+      return Left(CacheFailure('Failed to get biometric user: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> setLoggedInUserById(String userId) async {
+    try {
+      _log.i('Setting logged in user: $userId');
+      await localDataSource.setLoggedInUser(userId);
+      _log.i('Session set for user: $userId');
+      return const Right(null);
+    } catch (e, st) {
+      _log.e('Failed to set logged in user: $e', error: e, stackTrace: st);
+      return Left(CacheFailure('Failed to set logged in user: ${e.toString()}'));
     }
   }
 }

@@ -10,7 +10,6 @@ class GetCurrentUserUseCase {
   GetCurrentUserUseCase(this.repository);
 
   Future<Either<Failure, AppUser?>> call() async {
-    print('DEBUG: GetCurrentUserUseCase.call() START');
     final _log = AppLogger.tag('GetCurrentUserUseCase');
     _log.i('GetCurrentUserUseCase: START');
     final result = await repository.getLoggedInUser();
@@ -18,7 +17,6 @@ class GetCurrentUserUseCase {
       (failure) => _log.i('GetCurrentUserUseCase: failure ${failure.message}'),
       (user) => _log.i('GetCurrentUserUseCase: returned user=${user != null}'),
     );
-    print('DEBUG: GetCurrentUserUseCase.call() END');
     return result;
   }
 }

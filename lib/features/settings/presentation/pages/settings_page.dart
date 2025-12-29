@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../app_auth/presentation/bloc/app_auth_bloc.dart';
 import '../../../app_auth/presentation/bloc/app_auth_event.dart';
+import '../../../app_auth/presentation/bloc/app_auth_state.dart';
 import '../cubit/settings_cubit.dart';
 import '../../../../main.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,9 @@ import '../../../../core/router/app_router.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../injection_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/utils/logger.dart';
+
+final _settingsLog = AppLogger.tag('SettingsPage');
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -26,6 +30,8 @@ class SettingsPage extends StatelessWidget {
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
           final settingsCubit = context.read<SettingsCubit>();
+          final appAuthState = context.watch<AppAuthBloc>().state;
+          final isAuthenticated = appAuthState is AppAuthAuthenticated;
 
           return Scaffold(
             appBar: AppBar(
@@ -39,52 +45,102 @@ class SettingsPage extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.fingerprint),
                   title: Text(l10n.enableBiometricAuth),
-                  subtitle: Text(l10n.biometricAuthDescription),
+                  subtitle: isAuthenticated ? Text(l10n.biometricAuthDescription) : Text(l10n.mustBeLoggedIn),
                   trailing: Switch(
                     value: state.biometricEnabled,
-                    onChanged: (value) async {
-                      final localAuth = LocalAuthentication();
-                      try {
-                        if (value) {
-                          final canCheck = await localAuth.canCheckBiometrics || await localAuth.isDeviceSupported();
-                          if (!canCheck) {
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.biometricComingSoon)),
-                            );
-                            return;
+                    onChanged: isAuthenticated
+                        ? (value) async {
+                            final localAuth = LocalAuthentication();
+
+                            // Check device capability separately so we can show precise errors
+                            try {
+                              _settingsLog.i('Checking biometric capability');
+                              final canCheck = await localAuth.canCheckBiometrics;
+                              final isSupported = await localAuth.isDeviceSupported();
+                              _settingsLog.i('canCheckBiometrics=$canCheck isSupported=$isSupported');
+
+                              if (value && !(canCheck || isSupported)) {
+                                if (!context.mounted) return;
+                                _settingsLog.i('Device does not support biometrics, showing message');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(l10n.biometricComingSoon)),
+                                );
+                                return;
+                              }
+                            } catch (e, st) {
+                              _settingsLog.e('Error checking biometric capability: $e', error: e, stackTrace: st);
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('${l10n.error}: ${e.toString()}')),
+                              );
+                              return;
+                            }
+
+                            // If enabling, authenticate first with a small blocking dialog
+                            if (value) {
+                              if (!context.mounted) return;
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: const [CircularProgressIndicator()],
+                                  ),
+                                ),
+                              );
+
+                              bool didAuth = false;
+                              try {
+                                _settingsLog.i('Starting biometric authentication');
+                                didAuth = await localAuth.authenticate(
+                                  localizedReason: l10n.biometricAuthDescription,
+                                  options: const AuthenticationOptions(biometricOnly: true, stickyAuth: true),
+                                );
+                                _settingsLog.i('Biometric authenticate result: $didAuth');
+                              } catch (e, st) {
+                                _settingsLog.e('Biometric authenticate exception: $e', error: e, stackTrace: st);
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('${l10n.error}: ${e.toString()}')),
+                                  );
+                                }
+                                return;
+                              }
+
+                              if (context.mounted) Navigator.of(context).pop();
+
+                              if (!didAuth) {
+                                _settingsLog.i('Biometric authentication returned false');
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('${l10n.error}: Biometric authentication failed')),
+                                );
+                                return;
+                              }
+                            }
+
+                            // Persist setting and notify AppAuthBloc for per-user update
+                            try {
+                              _settingsLog.i('Persisting biometric setting: $value');
+                              await settingsCubit.setBiometricEnabled(value);
+                              if (!context.mounted) return;
+                              try {
+                                context.read<AppAuthBloc>().add(BiometricToggleRequested(value));
+                              } catch (_) {}
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(value ? l10n.enabled : l10n.disabled)),
+                              );
+                            } catch (e, st) {
+                              _settingsLog.e('Failed to persist biometric setting: $e', error: e, stackTrace: st);
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('${l10n.error}: ${e.toString()}')),
+                              );
+                            }
                           }
-                          final didAuth = await localAuth.authenticate(
-                            localizedReason: l10n.biometricAuthDescription,
-                            options: const AuthenticationOptions(biometricOnly: true),
-                          );
-                          if (!didAuth) {
-                            return;
-                          }
-                        }
-                        await settingsCubit.setBiometricEnabled(value);
-
-                        // Guard using context after async gaps
-                        if (!context.mounted) return;
-
-                        // Also notify AppAuthBloc to enable/disable biometric for current user
-                        try {
-                          context.read<AppAuthBloc>().add(BiometricToggleRequested(value));
-                        } catch (_) {
-                          // AppAuthBloc might not be available in some contexts
-                        }
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(value ? l10n.enabled : l10n.disabled)),
-                        );
-                      } catch (e) {
-                        // Avoid using context after async gaps when widget may be unmounted
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.error)),
-                        );
-                      }
-                    },
+                        : null,
                   ),
                 ),
                 const Divider(),
@@ -173,15 +229,6 @@ class SettingsPage extends StatelessWidget {
           // Account Section
           _buildSectionHeader(context, l10n.account),
           ListTile(
-            leading: const Icon(Icons.person),
-            title: Text(l10n.profile),
-            subtitle: Text(l10n.profileDescription),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              context.push(AppRoutes.profile);
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.lock),
             title: Text(l10n.changePassword),
             trailing: const Icon(Icons.chevron_right),
@@ -243,10 +290,8 @@ class SettingsPage extends StatelessWidget {
                           try {
                             await sl<FlutterSecureStorage>().delete(key: 'credentials');
                           } catch (_) {}
-                          try {
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.remove('biometricEnabled');
-                          } catch (_) {}
+                          // Do NOT remove global biometricEnabled preference on logout.
+                          // This allows biometric setting to persist per-user in Hive and avoids confusion.
 
                           if (!context.mounted) return;
                           context.read<AppAuthBloc>().add(const LogoutRequested());
