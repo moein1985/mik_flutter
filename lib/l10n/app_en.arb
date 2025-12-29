@@ -276,10 +276,6 @@
   "@disconnect": {
     "description": "Disconnect action"
   },
-  "uptime": "Uptime",
-  "@uptime": {
-    "description": "Uptime label"
-  },
   "bytesIn": "Bytes In",
   "@bytesIn": {
     "description": "Bytes received label"
@@ -1198,9 +1194,6 @@
     "description": "Priority label"
   },
   "commentOptional": "Comment (Optional)",
-  "@commentOptional": {
-    "description": "Comment optional label"
-  },
   "commentHint": "e.g., VIP user, Guest network",
   "@commentHint": {
     "description": "Comment hint text"
@@ -1327,10 +1320,6 @@
   "noSecurityProfiles": "No security profiles found",
   "@noSecurityProfiles": {
     "description": "Message when no security profiles are available"
-  },
-  "retry": "Retry",
-  "@retry": {
-    "description": "Retry button text"
   },
   "enabled": "Enabled",
   "@enabled": {
@@ -1544,10 +1533,6 @@
   "@sourceAddressHelp": {
     "description": "Help text for source address field"
   },
-  "interface": "Interface",
-  "@interface": {
-    "description": "Interface field label"
-  },
   "interfaceHelp": "Which network port to send packets from.\n\n• Auto: Router decides automatically\n• Useful when you have multiple routes to a destination\n• Select to test a specific port",
   "@interfaceHelp": {
     "description": "Help text for interface field"
@@ -1676,9 +1661,6 @@
     "description": "Help text for probes per hop"
   },
   "timeoutMsLabel": "Timeout",
-  "@timeoutMsLabel": {
-    "description": "Timeout in milliseconds label"
-  },
   "timeoutMsHelp": "Time to wait for each probe response.\n\n• Default: 1000ms\n• Lower timeout = faster but may miss slow responses\n• Higher timeout = more accurate for high-latency paths",
   "@timeoutMsHelp": {
     "description": "Help text for timeout"
@@ -1765,5 +1747,99 @@
   "ok": "OK",
   "@ok": {
     "description": "OK button text"
+  },
+  "subscriptionTitle": "Subscription",
+  "@subscriptionTitle": {
+    "description": "Title for the subscription page"
+  },
+  "subscriptionError": "An error occurred. Please try again.",
+  "@subscriptionError": {
+    "description": "Error message on subscription page"
+  },
+  "subscriptionSubscribed": "You are subscribed",
+  "@subscriptionSubscribed": {
+    "description": "Status when user is subscribed"
+  },
+  "subscriptionSubscribedUntil": "Subscribed until {date}",
+  "@subscriptionSubscribedUntil": {
+    "description": "Indicates the subscription expiry date",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionTrialActive": "Trial period active",
+  "@subscriptionTrialActive": {
+    "description": "Status when user is in trial period"
+  },
+  "subscriptionTrialEndsIn": "{days} days of free trial remaining",
+  "@subscriptionTrialEndsIn": {
+    "description": "Indicates remaining trial days",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "subscriptionNotSubscribed": "Not Subscribed",
+  "@subscriptionNotSubscribed": {
+    "description": "Status when user has no subscription"
+  },
+  "subscriptionNotSubscribedSubtitle": "You can use the app for 7 days for free.",
+  "@subscriptionNotSubscribedSubtitle": {
+    "description": "Subtitle for non-subscribed users"
+  },
+  "subscriptionStatusTitle": "Subscription Status",
+  "@subscriptionStatusTitle": {
+    "description": "Title for the subscription status card"
+  },
+  "subscriptionPlanTitle": "Subscription Plan",
+  "@subscriptionPlanTitle": {
+    "description": "Title for the subscription plan card"
+  },
+  "subscriptionMonthlyPlan": "Monthly Plan",
+  "@subscriptionMonthlyPlan": {
+    "description": "Name of the monthly subscription plan"
+  },
+  "subscriptionPriceLoading": "Loading...",
+  "@subscriptionPriceLoading": {
+    "description": "Text shown while loading the price"
+  },
+  "subscriptionFeature1": "Access to all premium features",
+  "@subscriptionFeature1": {
+    "description": "A feature of the subscription"
+  },
+  "subscriptionFeature2": "Unlimited device management",
+  "@subscriptionFeature2": {
+    "description": "A feature of the subscription"
+  },
+  "subscriptionFeature3": "Priority support",
+  "@subscriptionFeature3": {
+    "description": "A feature of the subscription"
+  },
+  "subscriptionCtaButtonLoading": "Loading...",
+  "@subscriptionCtaButtonLoading": {
+    "description": "Button text while processing"
+  },
+  "subscriptionCtaButtonSubscribed": "Subscribed",
+  "@subscriptionCtaButtonSubscribed": {
+    "description": "Button text when already subscribed"
+  },
+  "subscriptionCtaButtonPurchase": "Purchase Subscription",
+  "@subscriptionCtaButtonPurchase": {
+    "description": "Button text to purchase subscription"
+  },
+  "subscriptionCtaButtonTrial": "Start 7-day Free Trial",
+  "@subscriptionCtaButtonTrial": {
+    "description": "Button text to start a free trial"
+  },
+  "premiumFeatureTitle": "Premium Feature",
+  "@premiumFeatureTitle": {
+    "description": "Title for a locked feature"
+  },
+  "premiumFeatureSubtitle": "Tap to unlock all features",
+  "@premiumFeatureSubtitle": {
+    "description": "Subtitle for a locked feature"
   }
 }

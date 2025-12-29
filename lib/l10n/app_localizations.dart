@@ -2522,7 +2522,7 @@ abstract class AppLocalizations {
   /// **'Number of probe packets sent per hop.\n\n• Default: 3\n• More probes = more accurate RTT statistics\n• Fewer probes = faster completion'**
   String get countProbesHelp;
 
-  /// Timeout in milliseconds label
+  /// No description provided for @timeoutMsLabel.
   ///
   /// In en, this message translates to:
   /// **'Timeout'**
@@ -2635,6 +2635,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get ok;
+
+  /// Title for the subscription page
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get subscriptionTitle;
+
+  /// Error message on subscription page
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get subscriptionError;
+
+  /// Status when user is subscribed
+  ///
+  /// In en, this message translates to:
+  /// **'You are subscribed'**
+  String get subscriptionSubscribed;
+
+  /// Indicates the subscription expiry date
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribed until {date}'**
+  String subscriptionSubscribedUntil(String date);
+
+  /// Status when user is in trial period
+  ///
+  /// In en, this message translates to:
+  /// **'Trial period active'**
+  String get subscriptionTrialActive;
+
+  /// Indicates remaining trial days
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days of free trial remaining'**
+  String subscriptionTrialEndsIn(int days);
+
+  /// Status when user has no subscription
+  ///
+  /// In en, this message translates to:
+  /// **'Not Subscribed'**
+  String get subscriptionNotSubscribed;
+
+  /// Subtitle for non-subscribed users
+  ///
+  /// In en, this message translates to:
+  /// **'You can use the app for 7 days for free.'**
+  String get subscriptionNotSubscribedSubtitle;
+
+  /// Title for the subscription status card
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Status'**
+  String get subscriptionStatusTitle;
+
+  /// Title for the subscription plan card
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Plan'**
+  String get subscriptionPlanTitle;
+
+  /// Name of the monthly subscription plan
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Plan'**
+  String get subscriptionMonthlyPlan;
+
+  /// Text shown while loading the price
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get subscriptionPriceLoading;
+
+  /// A feature of the subscription
+  ///
+  /// In en, this message translates to:
+  /// **'Access to all premium features'**
+  String get subscriptionFeature1;
+
+  /// A feature of the subscription
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited device management'**
+  String get subscriptionFeature2;
+
+  /// A feature of the subscription
+  ///
+  /// In en, this message translates to:
+  /// **'Priority support'**
+  String get subscriptionFeature3;
+
+  /// Button text while processing
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get subscriptionCtaButtonLoading;
+
+  /// Button text when already subscribed
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribed'**
+  String get subscriptionCtaButtonSubscribed;
+
+  /// Button text to purchase subscription
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase Subscription'**
+  String get subscriptionCtaButtonPurchase;
+
+  /// Button text to start a free trial
+  ///
+  /// In en, this message translates to:
+  /// **'Start 7-day Free Trial'**
+  String get subscriptionCtaButtonTrial;
+
+  /// Title for a locked feature
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Feature'**
+  String get premiumFeatureTitle;
+
+  /// Subtitle for a locked feature
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to unlock all features'**
+  String get premiumFeatureSubtitle;
 }
 
 class _AppLocalizationsDelegate

@@ -59,6 +59,13 @@ class _DashboardPageState extends State<DashboardPage> {
             tooltip: 'About',
           ),
           IconButton(
+            icon: const Icon(Icons.workspace_premium_outlined),
+            onPressed: () {
+              context.push(AppRoutes.dashboardSubscription);
+            },
+            tooltip: 'Subscription',
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
               context.read<DashboardBloc>().add(const RefreshSystemResources());

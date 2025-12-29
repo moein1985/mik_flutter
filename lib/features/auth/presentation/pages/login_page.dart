@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../../l10n/app_localizations.dart';
 import '../../../../main.dart';
@@ -260,8 +262,27 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.appName),
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              context.push(AppRoutes.subscription);
+            },
+            icon: const Icon(Icons.workspace_premium_outlined),
+            label: Text(l10n.subscriptionTitle),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           // Navigation is handled by GoRouter redirect, no need to navigate here
@@ -288,7 +309,6 @@ class _LoginPageState extends State<LoginPage> {
         },
         builder: (context, state) {
           final isLoading = state is AuthLoading;
-          final l10n = AppLocalizations.of(context)!;
 
           return Center(
             child: SingleChildScrollView(

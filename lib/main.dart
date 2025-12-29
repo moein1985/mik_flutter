@@ -13,6 +13,7 @@ import 'core/config/bazaar_config.dart';
 import 'core/subscription/subscription_service.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'features/subscription/presentation/bloc/subscription_bloc.dart';
 
 const String _glitchtipDsn = String.fromEnvironment(
   'GLITCHTIP_DSN',
@@ -115,6 +116,10 @@ class MyAppState extends State<MyApp> {
         // Use the same AuthBloc instance that AppRouter uses
         BlocProvider.value(value: _authBloc),
         BlocProvider(create: (_) => di.sl<DashboardBloc>()),
+        BlocProvider(
+          create: (_) => di.sl<SubscriptionBloc>()
+            ..add(const CheckSubscriptionStatus()),
+        ),
       ],
       child: MaterialApp.router(
         title: 'Network Assistant',

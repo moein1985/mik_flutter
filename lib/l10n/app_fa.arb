@@ -1765,5 +1765,99 @@
   "ok": "تأیید",
   "@ok": {
     "description": "متن دکمه تأیید"
+  },
+  "subscriptionTitle": "اشتراک",
+  "@subscriptionTitle": {
+    "description": "عنوان صفحه اشتراک"
+  },
+  "subscriptionError": "خطایی رخ داد. لطفا دوباره تلاش کنید.",
+  "@subscriptionError": {
+    "description": "پیام خطا در صفحه اشتراک"
+  },
+  "subscriptionSubscribed": "شما مشترک هستید",
+  "@subscriptionSubscribed": {
+    "description": "وضعیت زمانی که کاربر مشترک است"
+  },
+  "subscriptionSubscribedUntil": "مشترک تا {date}",
+  "@subscriptionSubscribedUntil": {
+    "description": "تاریخ انقضای اشتراک را نشان می‌دهد",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionTrialActive": "دوره آزمایشی فعال است",
+  "@subscriptionTrialActive": {
+    "description": "وضعیت زمانی که کاربر در دوره آزمایشی است"
+  },
+  "subscriptionTrialEndsIn": "{days} روز از دوره آزمایشی رایگان باقی مانده است",
+  "@subscriptionTrialEndsIn": {
+    "description": "روزهای باقیمانده از دوره آزمایشی را نشان می‌دهد",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "subscriptionNotSubscribed": "فاقد اشتراک",
+  "@subscriptionNotSubscribed": {
+    "description": "وضعیت زمانی که کاربر اشتراک ندارد"
+  },
+  "subscriptionNotSubscribedSubtitle": "شما می‌توانید تا ۷ روز به صورت رایگان از برنامه استفاده کنید.",
+  "@subscriptionNotSubscribedSubtitle": {
+    "description": "زیرنویس برای کاربرانی که مشترک نیستند"
+  },
+  "subscriptionStatusTitle": "وضعیت اشتراک",
+  "@subscriptionStatusTitle": {
+    "description": "عنوان کارت وضعیت اشتراک"
+  },
+  "subscriptionPlanTitle": "طرح اشتراک",
+  "@subscriptionPlanTitle": {
+    "description": "عنوان کارت طرح اشتراک"
+  },
+  "subscriptionMonthlyPlan": "طرح ماهانه",
+  "@subscriptionMonthlyPlan": {
+    "description": "نام طرح اشتراک ماهانه"
+  },
+  "subscriptionPriceLoading": "درحال بارگذاری...",
+  "@subscriptionPriceLoading": {
+    "description": "متن هنگام بارگذاری قیمت"
+  },
+  "subscriptionFeature1": "دسترسی به تمام امکانات ویژه",
+  "@subscriptionFeature1": {
+    "description": "یکی از ویژگی‌های اشتراک"
+  },
+  "subscriptionFeature2": "مدیریت نامحدود دستگاه",
+  "@subscriptionFeature2": {
+    "description": "یکی از ویژگی‌های اشتراک"
+  },
+  "subscriptionFeature3": "پشتیبانی در اولویت",
+  "@subscriptionFeature3": {
+    "description": "یکی از ویژگی‌های اشتراک"
+  },
+  "subscriptionCtaButtonLoading": "درحال پردازش...",
+  "@subscriptionCtaButtonLoading": {
+    "description": "متن دکمه هنگام پردازش"
+  },
+  "subscriptionCtaButtonSubscribed": "مشترک شده",
+  "@subscriptionCtaButtonSubscribed": {
+    "description": "متن دکمه زمانی که از قبل مشترک است"
+  },
+  "subscriptionCtaButtonPurchase": "خرید اشتراک",
+  "@subscriptionCtaButtonPurchase": {
+    "description": "متن دکمه برای خرید اشتراک"
+  },
+  "subscriptionCtaButtonTrial": "شروع ۷ روز دوره رایگان",
+  "@subscriptionCtaButtonTrial": {
+    "description": "متن دکمه برای شروع دوره آزمایشی رایگان"
+  },
+  "premiumFeatureTitle": "قابلیت ویژه",
+  "@premiumFeatureTitle": {
+    "description": "عنوان برای یک قابلیت قفل شده"
+  },
+  "premiumFeatureSubtitle": "برای باز کردن تمام امکانات ضربه بزنید",
+  "@premiumFeatureSubtitle": {
+    "description": "زیرنویس برای یک قابلیت قفل شده"
   }
 }

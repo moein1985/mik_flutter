@@ -47,6 +47,7 @@ import '../../features/logs/presentation/pages/logs_page.dart';
 import '../../features/backup/presentation/bloc/backup_bloc.dart';
 import '../../features/backup/presentation/pages/backup_page.dart';
 import '../../features/about/presentation/pages/about_page.dart';
+import '../../features/subscription/presentation/pages/subscription_page.dart';
 
 /// Route names as constants
 class AppRoutes {
@@ -81,6 +82,8 @@ class AppRoutes {
   static const String logs = '/dashboard/logs';
   static const String backup = '/dashboard/backup';
   static const String about = '/dashboard/about';
+  static const String subscription = '/subscription';
+  static const String dashboardSubscription = '/dashboard/subscription';
 }
 
 /// Global navigator key for use outside of widget context
@@ -100,9 +103,10 @@ class AppRouter {
         final authState = authBloc.state;
         final isAuthenticated = authState is AuthAuthenticated;
         final isLoggingIn = state.matchedLocation == AppRoutes.login;
+        final isOnSubscription = state.matchedLocation == AppRoutes.subscription;
 
-        // If not authenticated and not on login page, redirect to login
-        if (!isAuthenticated && !isLoggingIn) {
+        // If not authenticated and not on login/subscription page, redirect to login
+        if (!isAuthenticated && !isLoggingIn && !isOnSubscription) {
           return AppRoutes.login;
         }
 
@@ -120,6 +124,13 @@ class AppRouter {
           path: AppRoutes.login,
           name: 'login',
           builder: (context, state) => const LoginPage(),
+        ),
+
+        // Subscription Route (public)
+        GoRoute(
+          path: AppRoutes.subscription,
+          name: 'subscription',
+          builder: (context, state) => const SubscriptionPage(),
         ),
 
         // Dashboard and nested routes
@@ -429,6 +440,13 @@ class AppRouter {
               path: 'about',
               name: 'about',
               builder: (context, state) => const AboutPage(),
+            ),
+
+            // Subscription route (nested under dashboard)
+            GoRoute(
+              path: 'subscription',
+              name: 'dashboard-subscription',
+              builder: (context, state) => const SubscriptionPage(),
             ),
 
             // Firewall and nested routes

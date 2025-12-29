@@ -1,7 +1,7 @@
 name: hsmik
 description: "Network Assistant - Management tool for MikroTik, Cisco, and enterprise routers"
 publish_to: 'none'
-version: 1.0.0+2
+version: 1.0.1+6
 
 environment:
   sdk: ^3.5.0

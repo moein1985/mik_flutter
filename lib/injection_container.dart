@@ -26,6 +26,7 @@ import 'features/auth/domain/usecases/update_router_usecase.dart';
 import 'features/auth/domain/usecases/set_default_router_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/saved_router_bloc.dart';
+import 'features/subscription/presentation/bloc/subscription_bloc.dart';
 
 // Features - Dashboard
 import 'features/dashboard/data/datasources/dashboard_remote_data_source.dart';
@@ -256,6 +257,12 @@ Future<void> init() async {
 
   sl.registerLazySingleton<SavedRouterLocalDataSource>(
     () => SavedRouterLocalDataSourceImpl(),
+  );
+
+  //! Features - Subscription
+  // Bloc
+  sl.registerFactory(
+    () => SubscriptionBloc(subscriptionService: sl()),
   );
 
   //! Features - Dashboard

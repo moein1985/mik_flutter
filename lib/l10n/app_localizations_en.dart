@@ -1353,4 +1353,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get subscriptionTitle => 'Subscription';
+
+  @override
+  String get subscriptionError => 'An error occurred. Please try again.';
+
+  @override
+  String get subscriptionSubscribed => 'You are subscribed';
+
+  @override
+  String subscriptionSubscribedUntil(String date) {
+    return 'Subscribed until $date';
+  }
+
+  @override
+  String get subscriptionTrialActive => 'Trial period active';
+
+  @override
+  String subscriptionTrialEndsIn(int days) {
+    return '$days days of free trial remaining';
+  }
+
+  @override
+  String get subscriptionNotSubscribed => 'Not Subscribed';
+
+  @override
+  String get subscriptionNotSubscribedSubtitle =>
+      'You can use the app for 7 days for free.';
+
+  @override
+  String get subscriptionStatusTitle => 'Subscription Status';
+
+  @override
+  String get subscriptionPlanTitle => 'Subscription Plan';
+
+  @override
+  String get subscriptionMonthlyPlan => 'Monthly Plan';
+
+  @override
+  String get subscriptionPriceLoading => 'Loading...';
+
+  @override
+  String get subscriptionFeature1 => 'Access to all premium features';
+
+  @override
+  String get subscriptionFeature2 => 'Unlimited device management';
+
+  @override
+  String get subscriptionFeature3 => 'Priority support';
+
+  @override
+  String get subscriptionCtaButtonLoading => 'Loading...';
+
+  @override
+  String get subscriptionCtaButtonSubscribed => 'Subscribed';
+
+  @override
+  String get subscriptionCtaButtonPurchase => 'Purchase Subscription';
+
+  @override
+  String get subscriptionCtaButtonTrial => 'Start 7-day Free Trial';
+
+  @override
+  String get premiumFeatureTitle => 'Premium Feature';
+
+  @override
+  String get premiumFeatureSubtitle => 'Tap to unlock all features';
 }

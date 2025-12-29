@@ -1350,4 +1350,72 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get ok => 'تأیید';
+
+  @override
+  String get subscriptionTitle => 'اشتراک';
+
+  @override
+  String get subscriptionError => 'خطایی رخ داد. لطفا دوباره تلاش کنید.';
+
+  @override
+  String get subscriptionSubscribed => 'شما مشترک هستید';
+
+  @override
+  String subscriptionSubscribedUntil(String date) {
+    return 'مشترک تا $date';
+  }
+
+  @override
+  String get subscriptionTrialActive => 'دوره آزمایشی فعال است';
+
+  @override
+  String subscriptionTrialEndsIn(int days) {
+    return '$days روز از دوره آزمایشی رایگان باقی مانده است';
+  }
+
+  @override
+  String get subscriptionNotSubscribed => 'فاقد اشتراک';
+
+  @override
+  String get subscriptionNotSubscribedSubtitle =>
+      'شما می‌توانید تا ۷ روز به صورت رایگان از برنامه استفاده کنید.';
+
+  @override
+  String get subscriptionStatusTitle => 'وضعیت اشتراک';
+
+  @override
+  String get subscriptionPlanTitle => 'طرح اشتراک';
+
+  @override
+  String get subscriptionMonthlyPlan => 'طرح ماهانه';
+
+  @override
+  String get subscriptionPriceLoading => 'درحال بارگذاری...';
+
+  @override
+  String get subscriptionFeature1 => 'دسترسی به تمام امکانات ویژه';
+
+  @override
+  String get subscriptionFeature2 => 'مدیریت نامحدود دستگاه';
+
+  @override
+  String get subscriptionFeature3 => 'پشتیبانی در اولویت';
+
+  @override
+  String get subscriptionCtaButtonLoading => 'درحال پردازش...';
+
+  @override
+  String get subscriptionCtaButtonSubscribed => 'مشترک شده';
+
+  @override
+  String get subscriptionCtaButtonPurchase => 'خرید اشتراک';
+
+  @override
+  String get subscriptionCtaButtonTrial => 'شروع ۷ روز دوره رایگان';
+
+  @override
+  String get premiumFeatureTitle => 'قابلیت ویژه';
+
+  @override
+  String get premiumFeatureSubtitle => 'برای باز کردن تمام امکانات ضربه بزنید';
 }
