@@ -20,6 +20,10 @@
   "@logout": {
     "description": "Logout action"
   },
+  "logoutConfirmation": "Are you sure you want to logout?",
+  "@logoutConfirmation": {
+    "description": "Logout confirmation message"
+  },
   "username": "Username",
   "@username": {
     "description": "Username field label"
@@ -80,6 +84,39 @@
   "@settings": {
     "description": "Settings page title"
   },
+
+  "biometricAuthentication": "Biometric Authentication",
+  "@biometricAuthentication": { "description": "Biometric section title" },
+  "enableBiometricAuth": "Enable Biometric Authentication",
+  "@enableBiometricAuth": { "description": "Enable biometric authentication label" },
+  "biometricAuthDescription": "Use fingerprint or face recognition to sign in",
+  "@biometricAuthDescription": { "description": "Description for biometric authentication" },
+  "biometricComingSoon": "Biometric authentication coming soon",
+  "@biometricComingSoon": { "description": "Biometric coming soon message" },
+  "comingSoon": "Coming soon",
+  "@comingSoon": { "description": "General 'coming soon' message" },
+  "theme": "Theme",
+  "@theme": { "description": "Theme label" },
+  "light": "Light",
+  "@light": { "description": "Light theme option" },
+  "account": "Account",
+  "@account": { "description": "Account section title" },
+  "profileDescription": "View and edit account information",
+  "@profileDescription": { "description": "Description for profile list item" },
+  "profileComingSoon": "Profile page coming soon",
+  "@profileComingSoon": { "description": "Profile coming soon message" },
+  "changePassword": "Change Password",
+  "@changePassword": { "description": "Change password label" },
+  "changePasswordComingSoon": "Change password coming soon",
+  "@changePasswordComingSoon": { "description": "Change password coming soon message" },
+  "about": "About",
+  "@about": { "description": "About section title" },
+  "aboutApp": "About this app",
+  "@aboutApp": { "description": "About this app title" },
+  "aboutAppDescription": "Network Assistant\nPowerful tool for managing MikroTik and SNMP",
+  "@aboutAppDescription": { "description": "Description for About dialog" },
+  "changeTheme": "Change theme",
+  "@changeTheme": { "description": "Change theme action" },
   "systemResources": "System Resources",
   "@systemResources": {
     "description": "System Resources section title"
@@ -1841,5 +1878,72 @@
   "premiumFeatureSubtitle": "Tap to unlock all features",
   "@premiumFeatureSubtitle": {
     "description": "Subtitle for a locked feature"
+  },
+  "welcomeToNetworkAssistant": "Welcome to Network Assistant",
+  "@welcomeToNetworkAssistant": {
+    "description": "Welcome message on home page"
+  },
+  "selectModuleToStart": "Select a module to get started",
+  "@selectModuleToStart": {
+    "description": "Instruction text on home page"
+  },
+  "mikrotikAssist": "MikroTik Assist",
+  "@mikrotikAssist": {
+    "description": "MikroTik module name"
+  },
+  "mikrotikAssistDescription": "Manage your MikroTik routers",
+  "@mikrotikAssistDescription": {
+    "description": "MikroTik module description"
+  },
+  "snmpAssist": "SNMP Assist",
+  "@snmpAssist": {
+    "description": "SNMP module name"
+  },
+  "snmpAssistDescription": "Monitor network devices via SNMP",
+  "@snmpAssistDescription": {
+    "description": "SNMP module description"
+  },
+  "asteriskPbx": "Asterisk PBX",
+  "@asteriskPbx": {
+    "description": "Asterisk PBX module name"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings menu item"
   }
+,
+  "appLogin": "App Login",
+  "@appLogin": {"description": "App login page title"},
+  "register": "Register",
+  "@register": {"description": "Register button or page title"},
+  "createAccount": "Create Account",
+  "@createAccount": {"description": "Create account button text"},
+  "alreadyHaveAccount": "Already have an account?",
+  "@alreadyHaveAccount": {"description": "Already have account prompt"},
+  "dontHaveAccount": "Don't have an account?",
+  "@dontHaveAccount": {"description": "Don't have account prompt"},
+  "loginWithBiometric": "Login with Biometric",
+  "@loginWithBiometric": {"description": "Biometric login button"},
+  "biometricEnabled": "Biometric Enabled",
+  "@biometricEnabled": {"description": "Biometric authentication status"},
+  "enableBiometric": "Enable Biometric",
+  "@enableBiometric": {"description": "Enable biometric button"},
+  "disableBiometric": "Disable Biometric",
+  "@disableBiometric": {"description": "Disable biometric button"},
+  "usernameRequired": "Username is required",
+  "@usernameRequired": {"description": "Username validation error"},
+  "passwordRequired": "Password is required",
+  "@passwordRequired": {"description": "Password validation error"},
+  "passwordTooShort": "Password must be at least 3 characters",
+  "@passwordTooShort": {"description": "Password length validation error"},
+  "registrationSuccess": "Registration successful",
+  "@registrationSuccess": {"description": "Registration success message"},
+  "registrationFailed": "Registration failed",
+  "@registrationFailed": {"description": "Registration failed message"},
+  "userAlreadyExists": "Username already exists",
+  "@userAlreadyExists": {"description": "User already exists error"},
+  "invalidCredentials": "Invalid username or password",
+  "@invalidCredentials": {"description": "Invalid credentials error"},
+  "defaultAdminHint": "Default: admin (no password)",
+  "@defaultAdminHint": {"description": "Hint for default admin credentials"}
 }

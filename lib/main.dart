@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'injection_container.dart' as di;
 import 'l10n/app_localizations.dart';
@@ -11,7 +13,12 @@ import 'core/utils/bloc_observer.dart';
 import 'core/router/app_router.dart';
 import 'core/config/bazaar_config.dart';
 import 'core/subscription/subscription_service.dart';
+import 'core/services/back_button_handler.dart';
+import 'features/app_auth/presentation/bloc/app_auth_bloc.dart';
+import 'features/app_auth/presentation/bloc/app_auth_event.dart';
+import 'features/app_auth/data/datasources/app_auth_local_datasource.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/app_auth/data/models/app_user_model.dart';
 import 'features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'features/subscription/presentation/bloc/subscription_bloc.dart';
 
@@ -44,6 +51,12 @@ void main() async {
     // Initialize logging
     AppLogger.i('🚀 App starting...', tag: 'Main');
 
+    // Initialize Hive
+    await Hive.initFlutter();
+    Hive.registerAdapter(AppUserModelAdapter());
+    await Hive.openBox<AppUserModel>('app_users');
+    AppLogger.i('✅ Hive initialized', tag: 'Main');
+
     // Set up Bloc observer
     Bloc.observer = AppBlocObserver();
     AppLogger.i('✅ Bloc observer initialized', tag: 'Main');
@@ -51,6 +64,11 @@ void main() async {
     // Initialize dependencies
     await di.init();
     AppLogger.i('✅ Dependencies initialized', tag: 'Main');
+
+    // Ensure default admin user exists
+    final authDataSource = di.sl<AppAuthLocalDataSource>();
+    await authDataSource.ensureDefaultAdminExists();
+    AppLogger.i('✅ Default admin user ensured', tag: 'Main');
 
     // Initialize Cafe Bazaar Subscription (only if enabled)
     if (BazaarConfig.subscriptionEnabled) {
@@ -92,15 +110,88 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   Locale _locale = const Locale('en', '');
+  late final AppAuthBloc _appAuthBloc;
   late final AuthBloc _authBloc;
   late final AppRouter _appRouter;
 
   @override
   void initState() {
     super.initState();
-    // Create AuthBloc once and share it between router and providers
+    // Create blocs once and share them
+    _appAuthBloc = di.sl<AppAuthBloc>();
     _authBloc = di.sl<AuthBloc>();
-    _appRouter = AppRouter(authBloc: _authBloc);
+    _appRouter = AppRouter(appAuthBloc: _appAuthBloc, authBloc: _authBloc);
+    
+    // Initialize back button handler for Android 13+
+    BackButtonHandler.initialize();
+    
+    // Setup global back button handler
+    BackButtonHandler.setOnBackPressed(() {
+      _handleBackButton();
+    });
+    
+    // Check if user is already logged in
+    _appAuthBloc.add(CheckAuthStatus());
+  }
+  
+  void _handleBackButton() {
+    AppLogger.d('Global back button pressed', tag: 'MyApp');
+    final currentLocation = _appRouter.router.routerDelegate.currentConfiguration.uri.path;
+    AppLogger.d('Current location: $currentLocation', tag: 'MyApp');
+    
+    // If on home page, show exit confirmation
+    if (currentLocation == '/') {
+      _showExitConfirmation();
+    } else {
+      // For other pages, try to navigate back
+      if (_appRouter.router.canPop()) {
+        AppLogger.d('Popping route', tag: 'MyApp');
+        _appRouter.router.pop();
+        // Log resulting location to verify pop succeeded
+        Future.microtask(() {
+          final newLocation = _appRouter.router.routerDelegate.currentConfiguration.uri.path;
+          AppLogger.d('Location after pop: $newLocation', tag: 'MyApp');
+        });
+      } else {
+        // If can't pop (no route stack), show exit confirmation
+        AppLogger.d('Cannot pop, showing exit dialog', tag: 'MyApp');
+        _showExitConfirmation();
+      }
+    }
+  }
+  
+  Future<void> _showExitConfirmation() async {
+    if (!mounted) return;
+    
+    AppLogger.d('Showing exit confirmation dialog', tag: 'MyApp');
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Network Assistant'),
+        content: const Text('آیا می‌خواهید از برنامه خارج شوید؟'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              AppLogger.d('User cancelled exit', tag: 'MyApp');
+              Navigator.of(context).pop(false);
+            },
+            child: const Text('لغو'),
+          ),
+          TextButton(
+            onPressed: () {
+              AppLogger.d('User confirmed exit', tag: 'MyApp');
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('خروج'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldExit == true && mounted) {
+      AppLogger.d('Exiting app', tag: 'MyApp');
+      SystemNavigator.pop();
+    }
   }
 
   void setLocale(Locale locale) {
@@ -113,7 +204,9 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // Use the same AuthBloc instance that AppRouter uses
+        // App-level authentication
+        BlocProvider.value(value: _appAuthBloc),
+        // Router-level authentication
         BlocProvider.value(value: _authBloc),
         BlocProvider(create: (_) => di.sl<DashboardBloc>()),
         BlocProvider(

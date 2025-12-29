@@ -24,6 +24,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get logout => 'خروج';
 
   @override
+  String get logoutConfirmation => 'آیا مطمئن هستید که می‌خواهید خارج شوید؟';
+
+  @override
   String get username => 'نام کاربری';
 
   @override
@@ -48,7 +51,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get connectionError => 'خطای اتصال';
 
   @override
-  String get invalidCredentials => 'نام کاربری یا رمز عبور اشتباه است';
+  String get invalidCredentials => '??? ?????? ?? ??? ???? ??????? ???';
 
   @override
   String get dashboard => 'داشبورد';
@@ -67,6 +70,57 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settings => 'تنظیمات';
+
+  @override
+  String get biometricAuthentication => 'احراز هویت بیومتریک';
+
+  @override
+  String get enableBiometricAuth => 'فعال‌سازی احراز هویت بیومتریک';
+
+  @override
+  String get biometricAuthDescription =>
+      'استفاده از اثر انگشت یا تشخیص چهره برای ورود';
+
+  @override
+  String get biometricComingSoon => 'قابلیت بیومتریک به زودی اضافه خواهد شد';
+
+  @override
+  String get comingSoon => 'به زودی اضافه خواهد شد';
+
+  @override
+  String get theme => 'تم';
+
+  @override
+  String get light => 'روشن';
+
+  @override
+  String get account => 'حساب کاربری';
+
+  @override
+  String get profileDescription => 'مشاهده و ویرایش اطلاعات حساب';
+
+  @override
+  String get profileComingSoon => 'صفحه پروفایل به زودی اضافه خواهد شد';
+
+  @override
+  String get changePassword => 'تغییر رمز عبور';
+
+  @override
+  String get changePasswordComingSoon =>
+      'تغییر رمز عبور به زودی اضافه خواهد شد';
+
+  @override
+  String get about => 'درباره';
+
+  @override
+  String get aboutApp => 'درباره برنامه';
+
+  @override
+  String get aboutAppDescription =>
+      'دستیار مدیریت شبکه\nابزاری قدرتمند برای مدیریت میکروتیک و SNMP';
+
+  @override
+  String get changeTheme => 'تغییر تم';
 
   @override
   String get systemResources => 'منابع سیستم';
@@ -1418,4 +1472,73 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get premiumFeatureSubtitle => 'برای باز کردن تمام امکانات ضربه بزنید';
+
+  @override
+  String get welcomeToNetworkAssistant => 'به دستیار شبکه خوش آمدید';
+
+  @override
+  String get selectModuleToStart => 'یک ماژول را برای شروع انتخاب کنید';
+
+  @override
+  String get mikrotikAssist => 'دستیار میکروتیک';
+
+  @override
+  String get mikrotikAssistDescription => 'مدیریت روترهای میکروتیک';
+
+  @override
+  String get snmpAssist => 'دستیار SNMP';
+
+  @override
+  String get snmpAssistDescription => 'نظارت بر دستگاه‌های شبکه از طریق SNMP';
+
+  @override
+  String get asteriskPbx => 'سرور تلفنی Asterisk';
+
+  @override
+  String get appLogin => '???? ?? ??????';
+
+  @override
+  String get register => '???????';
+
+  @override
+  String get createAccount => '????? ???? ??????';
+
+  @override
+  String get alreadyHaveAccount => '?? ??? ???? ?????? ??????';
+
+  @override
+  String get dontHaveAccount => '???? ?????? ???????';
+
+  @override
+  String get loginWithBiometric => '???? ?? ????????';
+
+  @override
+  String get biometricEnabled => '???????? ???? ???';
+
+  @override
+  String get enableBiometric => '????????? ????????';
+
+  @override
+  String get disableBiometric => '???????????? ????????';
+
+  @override
+  String get usernameRequired => '??? ?????? ?????? ???';
+
+  @override
+  String get passwordRequired => '??? ???? ?????? ???';
+
+  @override
+  String get passwordTooShort => '??? ???? ???? ?????  ??????? ????';
+
+  @override
+  String get registrationSuccess => '??????? ?? ?????? ????? ??';
+
+  @override
+  String get registrationFailed => '??????? ?????? ???';
+
+  @override
+  String get userAlreadyExists => '??? ??? ?????? ????? ??? ??? ???';
+
+  @override
+  String get defaultAdminHint => '???????: admin (???? ??? ????)';
 }

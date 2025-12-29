@@ -128,6 +128,12 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logout;
 
+  /// Logout confirmation message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to logout?'**
+  String get logoutConfirmation;
+
   /// Username field label
   ///
   /// In en, this message translates to:
@@ -176,7 +182,7 @@ abstract class AppLocalizations {
   /// **'Connection error'**
   String get connectionError;
 
-  /// Invalid credentials error message
+  /// Invalid credentials error
   ///
   /// In en, this message translates to:
   /// **'Invalid username or password'**
@@ -212,11 +218,107 @@ abstract class AppLocalizations {
   /// **'Firewall'**
   String get firewall;
 
-  /// Settings page title
+  /// Settings menu item
   ///
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
+
+  /// Biometric section title
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric Authentication'**
+  String get biometricAuthentication;
+
+  /// Enable biometric authentication label
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Biometric Authentication'**
+  String get enableBiometricAuth;
+
+  /// Description for biometric authentication
+  ///
+  /// In en, this message translates to:
+  /// **'Use fingerprint or face recognition to sign in'**
+  String get biometricAuthDescription;
+
+  /// Biometric coming soon message
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric authentication coming soon'**
+  String get biometricComingSoon;
+
+  /// General 'coming soon' message
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get comingSoon;
+
+  /// Theme label
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// Light theme option
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get light;
+
+  /// Account section title
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get account;
+
+  /// Description for profile list item
+  ///
+  /// In en, this message translates to:
+  /// **'View and edit account information'**
+  String get profileDescription;
+
+  /// Profile coming soon message
+  ///
+  /// In en, this message translates to:
+  /// **'Profile page coming soon'**
+  String get profileComingSoon;
+
+  /// Change password label
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get changePassword;
+
+  /// Change password coming soon message
+  ///
+  /// In en, this message translates to:
+  /// **'Change password coming soon'**
+  String get changePasswordComingSoon;
+
+  /// About section title
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// About this app title
+  ///
+  /// In en, this message translates to:
+  /// **'About this app'**
+  String get aboutApp;
+
+  /// Description for About dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Network Assistant\nPowerful tool for managing MikroTik and SNMP'**
+  String get aboutAppDescription;
+
+  /// Change theme action
+  ///
+  /// In en, this message translates to:
+  /// **'Change theme'**
+  String get changeTheme;
 
   /// System Resources section title
   ///
@@ -2761,6 +2863,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap to unlock all features'**
   String get premiumFeatureSubtitle;
+
+  /// Welcome message on home page
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Network Assistant'**
+  String get welcomeToNetworkAssistant;
+
+  /// Instruction text on home page
+  ///
+  /// In en, this message translates to:
+  /// **'Select a module to get started'**
+  String get selectModuleToStart;
+
+  /// MikroTik module name
+  ///
+  /// In en, this message translates to:
+  /// **'MikroTik Assist'**
+  String get mikrotikAssist;
+
+  /// MikroTik module description
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your MikroTik routers'**
+  String get mikrotikAssistDescription;
+
+  /// SNMP module name
+  ///
+  /// In en, this message translates to:
+  /// **'SNMP Assist'**
+  String get snmpAssist;
+
+  /// SNMP module description
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor network devices via SNMP'**
+  String get snmpAssistDescription;
+
+  /// Asterisk PBX module name
+  ///
+  /// In en, this message translates to:
+  /// **'Asterisk PBX'**
+  String get asteriskPbx;
+
+  /// App login page title
+  ///
+  /// In en, this message translates to:
+  /// **'App Login'**
+  String get appLogin;
+
+  /// Register button or page title
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
+  /// Create account button text
+  ///
+  /// In en, this message translates to:
+  /// **'Create Account'**
+  String get createAccount;
+
+  /// Already have account prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get alreadyHaveAccount;
+
+  /// Don't have account prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account?'**
+  String get dontHaveAccount;
+
+  /// Biometric login button
+  ///
+  /// In en, this message translates to:
+  /// **'Login with Biometric'**
+  String get loginWithBiometric;
+
+  /// Biometric authentication status
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric Enabled'**
+  String get biometricEnabled;
+
+  /// Enable biometric button
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Biometric'**
+  String get enableBiometric;
+
+  /// Disable biometric button
+  ///
+  /// In en, this message translates to:
+  /// **'Disable Biometric'**
+  String get disableBiometric;
+
+  /// Username validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Username is required'**
+  String get usernameRequired;
+
+  /// Password validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get passwordRequired;
+
+  /// Password length validation error
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 3 characters'**
+  String get passwordTooShort;
+
+  /// Registration success message
+  ///
+  /// In en, this message translates to:
+  /// **'Registration successful'**
+  String get registrationSuccess;
+
+  /// Registration failed message
+  ///
+  /// In en, this message translates to:
+  /// **'Registration failed'**
+  String get registrationFailed;
+
+  /// User already exists error
+  ///
+  /// In en, this message translates to:
+  /// **'Username already exists'**
+  String get userAlreadyExists;
+
+  /// Hint for default admin credentials
+  ///
+  /// In en, this message translates to:
+  /// **'Default: admin (no password)'**
+  String get defaultAdminHint;
 }
 
 class _AppLocalizationsDelegate

@@ -25,6 +25,14 @@ class CacheFailure extends Failure {
   const CacheFailure(super.message);
 }
 
+class NetworkFailure extends Failure {
+  const NetworkFailure(super.message);
+}
+
+class CancellationFailure extends Failure {
+  const CancellationFailure() : super('Operation cancelled by user.');
+}
+
 /// Failure when SSL certificate is missing or invalid on RouterOS
 class SslCertificateFailure extends Failure {
   final bool noCertificate;

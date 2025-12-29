@@ -1,0 +1,121 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
+import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/app_user_model.dart';
+import '../../domain/entities/app_user.dart';
+
+abstract class AppAuthLocalDataSource {
+  Future<AppUser?> getLoggedInUser();
+  Future<AppUser?> login(String username, String password);
+  Future<AppUser> register(String username, String password);
+  Future<void> logout();
+  Future<void> setLoggedInUser(String userId);
+  Future<void> updateBiometricStatus(String userId, bool enabled);
+  Future<AppUser?> getUserById(String userId);
+  Future<void> ensureDefaultAdminExists();
+}
+
+class AppAuthLocalDataSourceImpl implements AppAuthLocalDataSource {
+  static const String _boxName = 'app_users';
+  static const String _sessionKey = 'logged_in_user_id';
+  static const String _defaultAdminId = 'admin_default';
+
+  final SharedPreferences sharedPreferences;
+
+  AppAuthLocalDataSourceImpl(this.sharedPreferences);
+
+  Box<AppUserModel> get _userBox => Hive.box<AppUserModel>(_boxName);
+
+  String _hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final hash = sha256.convert(bytes);
+    return hash.toString();
+  }
+
+  @override
+  Future<void> ensureDefaultAdminExists() async {
+    if (_userBox.get(_defaultAdminId) == null) {
+      final admin = AppUserModel(
+        id: _defaultAdminId,
+        username: 'admin',
+        passwordHash: _hashPassword(''),
+        biometricEnabled: false,
+        createdAt: DateTime.now(),
+        isDefault: true,
+      );
+      await _userBox.put(_defaultAdminId, admin);
+    }
+  }
+
+  @override
+  Future<AppUser?> getLoggedInUser() async {
+    final userId = sharedPreferences.getString(_sessionKey);
+    if (userId == null) return null;
+    return getUserById(userId);
+  }
+
+  @override
+  Future<AppUser?> getUserById(String userId) async {
+    final userModel = _userBox.get(userId);
+    return userModel?.toEntity();
+  }
+
+  @override
+  Future<AppUser?> login(String username, String password) async {
+    final passwordHash = _hashPassword(password);
+    
+    for (var userModel in _userBox.values) {
+      if (userModel.username.toLowerCase() == username.toLowerCase() &&
+          userModel.passwordHash == passwordHash) {
+        await setLoggedInUser(userModel.id);
+        return userModel.toEntity();
+      }
+    }
+    
+    return null;
+  }
+
+  @override
+  Future<AppUser> register(String username, String password) async {
+    // Check if username already exists
+    for (var userModel in _userBox.values) {
+      if (userModel.username.toLowerCase() == username.toLowerCase()) {
+        throw Exception('Username already exists');
+      }
+    }
+
+    final userId = DateTime.now().millisecondsSinceEpoch.toString();
+    final user = AppUserModel(
+      id: userId,
+      username: username,
+      passwordHash: _hashPassword(password),
+      biometricEnabled: false,
+      createdAt: DateTime.now(),
+      isDefault: false,
+    );
+
+    await _userBox.put(userId, user);
+    await setLoggedInUser(userId);
+    return user.toEntity();
+  }
+
+  @override
+  Future<void> logout() async {
+    await sharedPreferences.remove(_sessionKey);
+  }
+
+  @override
+  Future<void> setLoggedInUser(String userId) async {
+    await sharedPreferences.setString(_sessionKey, userId);
+  }
+
+  @override
+  Future<void> updateBiometricStatus(String userId, bool enabled) async {
+    final userModel = _userBox.get(userId);
+    if (userModel != null) {
+      userModel.biometricEnabled = enabled;
+      await userModel.save();
+    }
+  }
+}

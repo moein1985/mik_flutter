@@ -1,10 +1,25 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Core
 import 'core/config/app_config.dart';
 import 'core/network/routeros_client_v2.dart';
 import 'core/network/routeros_client.dart';
+
+// Features - App Auth
+import 'features/app_auth/data/datasources/app_auth_local_datasource.dart';
+import 'features/app_auth/data/models/app_user_model.dart';
+import 'features/app_auth/data/repositories/app_auth_repository_impl.dart';
+import 'features/app_auth/domain/repositories/app_auth_repository.dart';
+import 'features/app_auth/domain/usecases/biometric_auth_usecase.dart';
+import 'features/app_auth/domain/usecases/get_current_user_usecase.dart';
+import 'features/app_auth/domain/usecases/login_usecase.dart' as app_auth_login;
+import 'features/app_auth/domain/usecases/logout_usecase.dart' as app_auth_logout;
+import 'features/app_auth/domain/usecases/register_usecase.dart';
+import 'features/app_auth/presentation/bloc/app_auth_bloc.dart';
 
 // Features - Auth
 import 'features/auth/data/datasources/auth_local_data_source.dart';
@@ -27,6 +42,14 @@ import 'features/auth/domain/usecases/set_default_router_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/saved_router_bloc.dart';
 import 'features/subscription/presentation/bloc/subscription_bloc.dart';
+
+// Features - SNMP
+import 'features/snmp/data/datasources/snmp_data_source.dart';
+import 'features/snmp/data/repositories/snmp_repository_impl.dart';
+import 'features/snmp/domain/repositories/snmp_repository.dart';
+import 'features/snmp/domain/usecases/get_device_info_usecase.dart';
+import 'features/snmp/domain/usecases/get_interface_status_usecase.dart';
+import 'features/snmp/presentation/bloc/snmp_monitor_bloc.dart';
 
 // Features - Dashboard
 import 'features/dashboard/data/datasources/dashboard_remote_data_source.dart';
@@ -191,6 +214,44 @@ import 'core/subscription/subscription_service.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  //! Features - App Auth
+  // Bloc
+  sl.registerFactory(
+    () => AppAuthBloc(
+      loginUseCase: sl(),
+      registerUseCase: sl(),
+      biometricAuthUseCase: sl(),
+      getCurrentUserUseCase: sl(),
+      logoutUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => app_auth_login.LoginUseCase(sl()));
+  sl.registerLazySingleton(() => RegisterUseCase(sl()));
+  sl.registerLazySingleton(() => BiometricAuthUseCase(sl()));
+  sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
+  sl.registerLazySingleton(() => app_auth_logout.LogoutUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<AppAuthRepository>(
+    () => AppAuthRepositoryImpl(
+      localDataSource: sl(),
+      localAuth: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<AppAuthLocalDataSource>(
+    () => AppAuthLocalDataSourceImpl(sl()),
+  );
+
+  // External
+  sl.registerLazySingleton(() => LocalAuthentication());
+  sl.registerLazySingleton(() => Hive.box<AppUserModel>('app_users'));
+  final prefs = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => prefs);
+
   //! Features - Auth
   // Bloc
   sl.registerFactory(
@@ -790,8 +851,26 @@ Future<void> init() async {
     () => sl<AuthRemoteDataSource>().legacyClient!,
   );
 
-  // Domain-specific RouterOS Clients (using old client for now - will migrate later)
-  // For now, we'll comment them out as they depend on RouterOSClient
+  //! SNMP Feature
+  // BLoC
+  sl.registerFactory(
+    () => SnmpMonitorBloc(
+      getDeviceInfoUseCase: sl(),
+      getInterfaceStatusUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetDeviceInfoUseCase(sl()));
+  sl.registerLazySingleton(() => GetInterfaceStatusUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<SnmpRepository>(
+    () => SnmpRepositoryImpl(sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton(() => SnmpDataSource());
 
   //! External
 }

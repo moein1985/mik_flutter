@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../injection_container.dart';
+import '../../features/app_auth/presentation/bloc/app_auth_bloc.dart';
+import '../../features/app_auth/presentation/bloc/app_auth_state.dart';
+import '../../features/app_auth/presentation/pages/app_login_page.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/snmp/presentation/bloc/snmp_monitor_bloc.dart';
+import '../../features/snmp/presentation/pages/snmp_dashboard_page.dart';
 import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/dashboard/presentation/pages/interfaces_page.dart';
@@ -51,7 +58,12 @@ import '../../features/subscription/presentation/pages/subscription_page.dart';
 
 /// Route names as constants
 class AppRoutes {
+  static const String appLogin = '/app-login';
   static const String login = '/login';
+  static const String home = '/';
+  static const String settings = '/settings';
+  static const String mikrotik = '/mikrotik';
+  static const String snmp = '/snmp';
   static const String dashboard = '/dashboard';
   static const String interfaces = '/dashboard/interfaces';
   static const String ipAddresses = '/dashboard/ip-addresses';
@@ -91,35 +103,58 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 /// App router configuration using go_router
 class AppRouter {
+  final AppAuthBloc appAuthBloc;
   final AuthBloc authBloc;
   late final GoRouter router;
 
-  AppRouter({required this.authBloc}) {
+  AppRouter({required this.appAuthBloc, required this.authBloc}) {
     router = GoRouter(
       navigatorKey: rootNavigatorKey,
-      initialLocation: AppRoutes.login,
+      initialLocation: AppRoutes.home,
       debugLogDiagnostics: true,
       redirect: (context, state) {
+        final appAuthState = appAuthBloc.state;
+        final isAppAuthenticated = appAuthState is AppAuthAuthenticated;
+        final isOnAppLogin = state.matchedLocation == AppRoutes.appLogin;
+
+        // App-level authentication check
+        if (!isAppAuthenticated && !isOnAppLogin) {
+          return AppRoutes.appLogin;
+        }
+        if (isAppAuthenticated && isOnAppLogin) {
+          return AppRoutes.home;
+        }
+
+        // Router-level authentication check (for MikroTik pages only)
         final authState = authBloc.state;
-        final isAuthenticated = authState is AuthAuthenticated;
+        final isRouterAuthenticated = authState is AuthAuthenticated;
         final isLoggingIn = state.matchedLocation == AppRoutes.login;
         final isOnSubscription = state.matchedLocation == AppRoutes.subscription;
+        
+        // Only check router auth for mikrotik and dashboard routes
+        final needsRouterAuth = state.matchedLocation.startsWith('/dashboard') || 
+                               state.matchedLocation == AppRoutes.mikrotik;
 
-        // If not authenticated and not on login/subscription page, redirect to login
-        if (!isAuthenticated && !isLoggingIn && !isOnSubscription) {
+        if (needsRouterAuth && !isRouterAuthenticated && !isLoggingIn && !isOnSubscription) {
           return AppRoutes.login;
         }
 
-        // If authenticated and on login page, redirect to dashboard
-        if (isAuthenticated && isLoggingIn) {
-          return AppRoutes.dashboard;
+        if (isRouterAuthenticated && isLoggingIn) {
+          return AppRoutes.mikrotik;
         }
 
         return null;
       },
-      refreshListenable: GoRouterRefreshStream(authBloc.stream),
+      refreshListenable: GoRouterRefreshStream([appAuthBloc.stream, authBloc.stream]),
       routes: [
-        // Login Route
+        // App Login Route
+        GoRoute(
+          path: AppRoutes.appLogin,
+          name: 'appLogin',
+          builder: (context, state) => const AppLoginPage(),
+        ),
+
+        // Router Login Route
         GoRoute(
           path: AppRoutes.login,
           name: 'login',
@@ -133,7 +168,38 @@ class AppRouter {
           builder: (context, state) => const SubscriptionPage(),
         ),
 
-        // Dashboard and nested routes
+        // Home Route (main dashboard with module tiles)
+        GoRoute(
+          path: AppRoutes.home,
+          name: 'home',
+          builder: (context, state) => const HomePage(),
+        ),
+
+        // Settings Route
+        GoRoute(
+          path: AppRoutes.settings,
+          name: 'settings',
+          builder: (context, state) => const SettingsPage(),
+        ),
+
+        // MikroTik Section (current dashboard)
+        GoRoute(
+          path: AppRoutes.mikrotik,
+          name: 'mikrotik',
+          builder: (context, state) => const DashboardPage(),
+        ),
+
+        // SNMP Section
+        GoRoute(
+          path: AppRoutes.snmp,
+          name: 'snmp',
+          builder: (context, state) => BlocProvider(
+            create: (_) => sl<SnmpMonitorBloc>(),
+            child: const SnmpDashboardPage(),
+          ),
+        ),
+
+        // Dashboard and nested routes (keeping old routes for compatibility)
         GoRoute(
           path: AppRoutes.dashboard,
           name: 'dashboard',
@@ -525,16 +591,18 @@ class AppRouter {
 
 /// Helper class to refresh GoRouter when auth state changes
 class GoRouterRefreshStream extends ChangeNotifier {
-  GoRouterRefreshStream(Stream<dynamic> stream) {
+  GoRouterRefreshStream(List<Stream<dynamic>> streams) {
     notifyListeners();
-    _subscription = stream.listen((_) => notifyListeners());
+    _subscriptions = streams.map((stream) => stream.listen((_) => notifyListeners())).toList();
   }
 
-  late final dynamic _subscription;
+  late final List<dynamic> _subscriptions;
 
   @override
   void dispose() {
-    _subscription.cancel();
+    for (final subscription in _subscriptions) {
+      subscription.cancel();
+    }
     super.dispose();
   }
 }

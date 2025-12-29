@@ -24,6 +24,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Logout';
 
   @override
+  String get logoutConfirmation => 'Are you sure you want to logout?';
+
+  @override
   String get username => 'Username';
 
   @override
@@ -67,6 +70,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings => 'Settings';
+
+  @override
+  String get biometricAuthentication => 'Biometric Authentication';
+
+  @override
+  String get enableBiometricAuth => 'Enable Biometric Authentication';
+
+  @override
+  String get biometricAuthDescription =>
+      'Use fingerprint or face recognition to sign in';
+
+  @override
+  String get biometricComingSoon => 'Biometric authentication coming soon';
+
+  @override
+  String get comingSoon => 'Coming soon';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get light => 'Light';
+
+  @override
+  String get account => 'Account';
+
+  @override
+  String get profileDescription => 'View and edit account information';
+
+  @override
+  String get profileComingSoon => 'Profile page coming soon';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get changePasswordComingSoon => 'Change password coming soon';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get aboutApp => 'About this app';
+
+  @override
+  String get aboutAppDescription =>
+      'Network Assistant\nPowerful tool for managing MikroTik and SNMP';
+
+  @override
+  String get changeTheme => 'Change theme';
 
   @override
   String get systemResources => 'System Resources';
@@ -1421,4 +1474,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumFeatureSubtitle => 'Tap to unlock all features';
+
+  @override
+  String get welcomeToNetworkAssistant => 'Welcome to Network Assistant';
+
+  @override
+  String get selectModuleToStart => 'Select a module to get started';
+
+  @override
+  String get mikrotikAssist => 'MikroTik Assist';
+
+  @override
+  String get mikrotikAssistDescription => 'Manage your MikroTik routers';
+
+  @override
+  String get snmpAssist => 'SNMP Assist';
+
+  @override
+  String get snmpAssistDescription => 'Monitor network devices via SNMP';
+
+  @override
+  String get asteriskPbx => 'Asterisk PBX';
+
+  @override
+  String get appLogin => 'App Login';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account?';
+
+  @override
+  String get loginWithBiometric => 'Login with Biometric';
+
+  @override
+  String get biometricEnabled => 'Biometric Enabled';
+
+  @override
+  String get enableBiometric => 'Enable Biometric';
+
+  @override
+  String get disableBiometric => 'Disable Biometric';
+
+  @override
+  String get usernameRequired => 'Username is required';
+
+  @override
+  String get passwordRequired => 'Password is required';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 3 characters';
+
+  @override
+  String get registrationSuccess => 'Registration successful';
+
+  @override
+  String get registrationFailed => 'Registration failed';
+
+  @override
+  String get userAlreadyExists => 'Username already exists';
+
+  @override
+  String get defaultAdminHint => 'Default: admin (no password)';
 }
