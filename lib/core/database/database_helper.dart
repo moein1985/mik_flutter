@@ -13,7 +13,7 @@ class DatabaseHelper {
   static final _log = AppLogger.tag('DatabaseHelper');
   static Database? _database;
   static const String _databaseName = 'mik_flutter.db';
-  static const int _databaseVersion = 2;
+  static const int _databaseVersion = 3;
 
   // Singleton pattern
   DatabaseHelper._();
@@ -75,6 +75,28 @@ class DatabaseHelper {
       ON saved_routers(host, port, username)
     ''');
 
+    // Saved SNMP Devices table
+    await db.execute('''
+      CREATE TABLE saved_snmp_devices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        host TEXT NOT NULL,
+        port INTEGER NOT NULL DEFAULT 161,
+        community TEXT NOT NULL DEFAULT 'public',
+        proprietary TEXT NOT NULL DEFAULT 'general',
+        is_default INTEGER NOT NULL DEFAULT 0,
+        last_connected TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    ''');
+
+    // Create unique index on host+port+community
+    await db.execute('''
+      CREATE UNIQUE INDEX idx_snmp_device_unique 
+      ON saved_snmp_devices(host, port, community)
+    ''');
+
     _log.i('Database tables created successfully');
   }
 
@@ -86,6 +108,31 @@ class DatabaseHelper {
       _log.i('Adding use_ssl column to saved_routers table...');
       await db.execute('ALTER TABLE saved_routers ADD COLUMN use_ssl INTEGER NOT NULL DEFAULT 0');
       _log.i('Migration to version 2 completed');
+    }
+
+    // Migration from version 2 to 3: Add saved_snmp_devices table
+    if (oldVersion < 3) {
+      _log.i('Creating saved_snmp_devices table...');
+      await db.execute('''
+        CREATE TABLE saved_snmp_devices (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          host TEXT NOT NULL,
+          port INTEGER NOT NULL DEFAULT 161,
+          community TEXT NOT NULL DEFAULT 'public',
+          proprietary TEXT NOT NULL DEFAULT 'general',
+          is_default INTEGER NOT NULL DEFAULT 0,
+          last_connected TEXT,
+          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      await db.execute('''
+        CREATE UNIQUE INDEX idx_snmp_device_unique 
+        ON saved_snmp_devices(host, port, community)
+      ''');
+      _log.i('Migration to version 3 completed');
     }
   }
 

@@ -50,3 +50,7 @@ class NotFoundFailure extends Failure {
 class ValidationFailure extends Failure {
   const ValidationFailure(super.message);
 }
+
+class DatabaseFailure extends Failure {
+  const DatabaseFailure(super.message);
+}

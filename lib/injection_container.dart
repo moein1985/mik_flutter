@@ -49,11 +49,21 @@ import 'features/subscription/presentation/bloc/subscription_bloc.dart';
 
 // Features - SNMP
 import 'features/snmp/data/datasources/snmp_data_source.dart';
+import 'features/snmp/data/datasources/saved_snmp_device_local_data_source.dart';
 import 'features/snmp/data/repositories/snmp_repository_impl.dart';
+import 'features/snmp/data/repositories/saved_snmp_device_repository_impl.dart';
 import 'features/snmp/domain/repositories/snmp_repository.dart';
+import 'features/snmp/domain/repositories/saved_snmp_device_repository.dart';
 import 'features/snmp/domain/usecases/get_device_info_usecase.dart';
 import 'features/snmp/domain/usecases/get_interface_status_usecase.dart';
+import 'features/snmp/domain/usecases/get_all_devices_usecase.dart';
+import 'features/snmp/domain/usecases/get_default_device_usecase.dart';
+import 'features/snmp/domain/usecases/save_device_usecase.dart';
+import 'features/snmp/domain/usecases/update_device_usecase.dart';
+import 'features/snmp/domain/usecases/delete_device_usecase.dart';
+import 'features/snmp/domain/usecases/set_default_device_usecase.dart';
 import 'features/snmp/presentation/bloc/snmp_monitor_bloc.dart';
+import 'features/snmp/presentation/bloc/saved_snmp_device_bloc.dart';
 
 // Features - Dashboard
 import 'features/dashboard/data/datasources/dashboard_remote_data_source.dart';
@@ -861,7 +871,7 @@ Future<void> init() async {
   );
 
   //! SNMP Feature
-  // BLoC
+  // BLoCs
   sl.registerFactory(
     () => SnmpMonitorBloc(
       getDeviceInfoUseCase: sl(),
@@ -869,17 +879,43 @@ Future<void> init() async {
     ),
   );
 
-  // Use cases
+  sl.registerFactory(
+    () => SavedSnmpDeviceBloc(
+      getAllDevicesUseCase: sl(),
+      getDefaultDeviceUseCase: sl(),
+      saveDeviceUseCase: sl(),
+      updateDeviceUseCase: sl(),
+      deleteDeviceUseCase: sl(),
+      setDefaultDeviceUseCase: sl(),
+    ),
+  );
+
+  // Use cases - SNMP Monitor
   sl.registerLazySingleton(() => GetDeviceInfoUseCase(sl()));
   sl.registerLazySingleton(() => GetInterfaceStatusUseCase(sl()));
 
-  // Repository
+  // Use cases - Saved Devices
+  sl.registerLazySingleton(() => GetAllDevicesUseCase(sl()));
+  sl.registerLazySingleton(() => GetDefaultDeviceUseCase(sl()));
+  sl.registerLazySingleton(() => SaveDeviceUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateDeviceUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteDeviceUseCase(sl()));
+  sl.registerLazySingleton(() => SetDefaultDeviceUseCase(sl()));
+
+  // Repositories
   sl.registerLazySingleton<SnmpRepository>(
     () => SnmpRepositoryImpl(sl()),
   );
 
+  sl.registerLazySingleton<SavedSnmpDeviceRepository>(
+    () => SavedSnmpDeviceRepositoryImpl(sl()),
+  );
+
   // Data sources
   sl.registerLazySingleton(() => SnmpDataSource());
+  sl.registerLazySingleton<SavedSnmpDeviceLocalDataSource>(
+    () => SavedSnmpDeviceLocalDataSourceImpl(),
+  );
 
   //! External
 }
