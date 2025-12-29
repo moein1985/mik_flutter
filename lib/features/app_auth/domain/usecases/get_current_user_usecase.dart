@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../../core/utils/logger.dart';
 import '../entities/app_user.dart';
 import '../repositories/app_auth_repository.dart';
 
@@ -8,7 +9,16 @@ class GetCurrentUserUseCase {
 
   GetCurrentUserUseCase(this.repository);
 
-  Future<Either<Failure, AppUser?>> call() {
-    return repository.getLoggedInUser();
+  Future<Either<Failure, AppUser?>> call() async {
+    print('DEBUG: GetCurrentUserUseCase.call() START');
+    final _log = AppLogger.tag('GetCurrentUserUseCase');
+    _log.i('GetCurrentUserUseCase: START');
+    final result = await repository.getLoggedInUser();
+    result.fold(
+      (failure) => _log.i('GetCurrentUserUseCase: failure ${failure.message}'),
+      (user) => _log.i('GetCurrentUserUseCase: returned user=${user != null}'),
+    );
+    print('DEBUG: GetCurrentUserUseCase.call() END');
+    return result;
   }
 }

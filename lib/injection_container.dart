@@ -19,6 +19,7 @@ import 'features/app_auth/domain/usecases/get_current_user_usecase.dart';
 import 'features/app_auth/domain/usecases/login_usecase.dart' as app_auth_login;
 import 'features/app_auth/domain/usecases/logout_usecase.dart' as app_auth_logout;
 import 'features/app_auth/domain/usecases/register_usecase.dart';
+import 'features/app_auth/domain/usecases/change_password_usecase.dart';
 import 'features/app_auth/presentation/bloc/app_auth_bloc.dart';
 
 // Features - Auth
@@ -214,6 +215,7 @@ import 'core/subscription/subscription_service.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  print('DEBUG: di.init START');
   //! Features - App Auth
   // Bloc
   sl.registerFactory(
@@ -232,6 +234,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => BiometricAuthUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
   sl.registerLazySingleton(() => app_auth_logout.LogoutUseCase(sl()));
+  sl.registerLazySingleton(() => ChangePasswordUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AppAuthRepository>(
@@ -249,8 +252,13 @@ Future<void> init() async {
   // External
   sl.registerLazySingleton(() => LocalAuthentication());
   sl.registerLazySingleton(() => Hive.box<AppUserModel>('app_users'));
+  print('DEBUG: before SharedPreferences.getInstance');
   final prefs = await SharedPreferences.getInstance();
+  print('DEBUG: after SharedPreferences.getInstance');
   sl.registerLazySingleton(() => prefs);
+  // Secure storage
+  sl.registerLazySingleton(() => FlutterSecureStorage());
+  print('DEBUG: di.init END');
 
   //! Features - Auth
   // Bloc
@@ -836,8 +844,7 @@ Future<void> init() async {
   );
 
   //! Core
-  sl.registerLazySingleton(() => const FlutterSecureStorage());
-  
+  // Secure storage is registered earlier to avoid duplicate GetIt registration
   // Subscription Service
   sl.registerLazySingleton(() => SubscriptionService());
   

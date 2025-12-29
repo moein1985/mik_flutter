@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/utils/logger.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/biometric_auth_usecase.dart';
@@ -6,6 +7,8 @@ import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import 'app_auth_event.dart';
 import 'app_auth_state.dart';
+
+final _log = AppLogger.tag('AppAuthBloc');
 
 class AppAuthBloc extends Bloc<AppAuthEvent, AppAuthState> {
   final LoginUseCase loginUseCase;
@@ -33,12 +36,17 @@ class AppAuthBloc extends Bloc<AppAuthEvent, AppAuthState> {
     CheckAuthStatus event,
     Emitter<AppAuthState> emit,
   ) async {
+    _log.i('CheckAuthStatus received');
     emit(const AppAuthLoading());
 
     final result = await getCurrentUserUseCase();
     result.fold(
-      (failure) => emit(const AppAuthUnauthenticated()),
+      (failure) {
+        _log.i('CheckAuthStatus result: failure -> unauthenticated: ${failure.message}');
+        emit(const AppAuthUnauthenticated());
+      },
       (user) {
+        _log.i('CheckAuthStatus result: user found = ${user != null}');
         if (user != null) {
           emit(AppAuthAuthenticated(user));
         } else {

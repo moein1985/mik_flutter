@@ -1,9 +1,12 @@
 import 'package:dartz/dartz.dart';
 import 'package:local_auth/local_auth.dart';
+import '../../../../core/utils/logger.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/app_auth_repository.dart';
 import '../datasources/app_auth_local_datasource.dart';
+
+final _log = AppLogger.tag('AppAuthRepository');
 
 class AppAuthRepositoryImpl implements AppAuthRepository {
   final AppAuthLocalDataSource localDataSource;
@@ -16,10 +19,17 @@ class AppAuthRepositoryImpl implements AppAuthRepository {
 
   @override
   Future<Either<Failure, AppUser?>> getLoggedInUser() async {
+    print('DEBUG: AppAuthRepositoryImpl.getLoggedInUser() START');
     try {
+      _log.i('getLoggedInUser: calling localDataSource');
+      print('DEBUG: calling localDataSource.getLoggedInUser()');
       final user = await localDataSource.getLoggedInUser();
+      _log.i('getLoggedInUser: localDataSource returned user=${user != null}');
+      print('DEBUG: AppAuthRepositoryImpl.getLoggedInUser() END - user=${user!=null}');
       return Right(user);
     } catch (e) {
+      _log.e('getLoggedInUser failed: $e');
+      print('DEBUG: AppAuthRepositoryImpl.getLoggedInUser() ERROR: $e');
       return Left(CacheFailure('Failed to get logged in user: ${e.toString()}'));
     }
   }
@@ -101,6 +111,16 @@ class AppAuthRepositoryImpl implements AppAuthRepository {
       return const Right(null);
     } catch (e) {
       return Left(CacheFailure('Failed to disable biometric: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword(String userId, String oldPassword, String newPassword) async {
+    try {
+      await localDataSource.changePassword(userId, oldPassword, newPassword);
+      return const Right(null);
+    } catch (e) {
+      return Left(CacheFailure('Failed to change password: ${e.toString()}'));
     }
   }
 }

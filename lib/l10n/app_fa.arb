@@ -99,6 +99,10 @@
   "@theme": { "description": "برچسب تنظیم تم" },
   "light": "روشن",
   "@light": { "description": "گزینه تم روشن" },
+  "dark": "تاریک",
+  "@dark": { "description": "گزینه تم تاریک" },
+  "system": "مطابق سیستم",
+  "@system": { "description": "گزینه تم مطابق سیستم" },
   "account": "حساب کاربری",
   "@account": { "description": "عنوان بخش حساب کاربری" },
   "profileDescription": "مشاهده و ویرایش اطلاعات حساب",
@@ -117,6 +121,17 @@
   "@aboutAppDescription": { "description": "توضیحات صفحه درباره برنامه" },
   "changeTheme": "تغییر تم",
   "@changeTheme": { "description": "اقدام تغییر تم" },
+  "profileSaved": "پروفایل ذخیره شد",
+  "@profileSaved": { "description": "پیغام ذخیره پروفایل" },
+  "passwordChanged": "رمز با موفقیت تغییر کرد",
+  "@passwordChanged": { "description": "پیغام موفقیت تغییر رمز" },
+  "mustBeLoggedIn": "برای تغییر رمز باید وارد شوید",
+  "pleaseEnterName": "لطفاً نام را وارد کنید",
+  "@pleaseEnterName": { "description": "پیغام اعتبارسنجی برای نام" },
+  "pleaseEnterEmail": "لطفاً ایمیل را وارد کنید",
+  "@pleaseEnterEmail": { "description": "پیغام اعتبارسنجی برای ایمیل" },
+  "email": "ایمیل",
+  "@email": { "description": "برچسب فیلد ایمیل" },
   "systemResources": "منابع سیستم",
   "@systemResources": {
     "description": "عنوان بخش منابع سیستم"
@@ -313,8 +328,8 @@
   "@disconnect": {
     "description": "اقدام قطع اتصال"
   },
-  "uptime": "مدت فعالیت",
-  "@uptime": {
+  "sessionUptime": "مدت فعالیت",
+  "@sessionUptime": {
     "description": "برچسب مدت فعالیت"
   },
   "bytesIn": "بایت دریافتی",

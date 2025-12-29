@@ -11,4 +11,5 @@ abstract class AppAuthRepository {
   Future<Either<Failure, void>> enableBiometric(String userId);
   Future<Either<Failure, void>> disableBiometric(String userId);
   Future<Either<Failure, bool>> canAuthenticateWithBiometric();
+  Future<Either<Failure, void>> changePassword(String userId, String oldPassword, String newPassword);
 }

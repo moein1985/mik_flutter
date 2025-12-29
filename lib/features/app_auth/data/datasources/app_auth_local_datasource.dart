@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/utils/logger.dart';
 import '../models/app_user_model.dart';
 import '../../domain/entities/app_user.dart';
 
@@ -12,6 +13,7 @@ abstract class AppAuthLocalDataSource {
   Future<void> logout();
   Future<void> setLoggedInUser(String userId);
   Future<void> updateBiometricStatus(String userId, bool enabled);
+  Future<void> changePassword(String userId, String oldPassword, String newPassword);
   Future<AppUser?> getUserById(String userId);
   Future<void> ensureDefaultAdminExists();
 }
@@ -24,6 +26,8 @@ class AppAuthLocalDataSourceImpl implements AppAuthLocalDataSource {
   final SharedPreferences sharedPreferences;
 
   AppAuthLocalDataSourceImpl(this.sharedPreferences);
+
+  final _log = AppLogger.tag('AppAuthLocalDataSource');
 
   Box<AppUserModel> get _userBox => Hive.box<AppUserModel>(_boxName);
 
@@ -50,9 +54,26 @@ class AppAuthLocalDataSourceImpl implements AppAuthLocalDataSource {
 
   @override
   Future<AppUser?> getLoggedInUser() async {
+    print('DEBUG: getLoggedInUser() START');
+    _log.i('getLoggedInUser: START');
     final userId = sharedPreferences.getString(_sessionKey);
-    if (userId == null) return null;
-    return getUserById(userId);
+    _log.i('getLoggedInUser: session userId = $userId');
+    if (userId == null) {
+      _log.i('No session user id found');
+      print('DEBUG: getLoggedInUser() END - no userId');
+      return null;
+    }
+    AppUser? user;
+    try {
+      user = await getUserById(userId);
+      _log.i('getLoggedInUser: found user = ${user != null}');
+      print('DEBUG: getLoggedInUser() END - foundUser=${user != null}');
+    } catch (e, st) {
+      _log.e('getLoggedInUser error: $e\n$st');
+      print('DEBUG: getLoggedInUser() ERROR: $e');
+      rethrow;
+    }
+    return user;
   }
 
   @override
@@ -117,5 +138,16 @@ class AppAuthLocalDataSourceImpl implements AppAuthLocalDataSource {
       userModel.biometricEnabled = enabled;
       await userModel.save();
     }
+  }
+
+  @override
+  Future<void> changePassword(String userId, String oldPassword, String newPassword) async {
+    final userModel = _userBox.get(userId);
+    if (userModel == null) throw Exception('User not found');
+    final oldHash = _hashPassword(oldPassword);
+    if (userModel.passwordHash != oldHash) throw Exception('Old password is incorrect');
+
+    userModel.passwordHash = _hashPassword(newPassword);
+    await userModel.save();
   }
 }

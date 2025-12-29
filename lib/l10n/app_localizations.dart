@@ -182,23 +182,17 @@ abstract class AppLocalizations {
   /// **'Connection error'**
   String get connectionError;
 
-  /// Invalid credentials error
-  ///
-  /// In en, this message translates to:
-  /// **'Invalid username or password'**
-  String get invalidCredentials;
-
   /// Dashboard page title
   ///
   /// In en, this message translates to:
   /// **'Dashboard'**
   String get dashboard;
 
-  /// Wireless interfaces tab
+  /// Interfaces section title
   ///
   /// In en, this message translates to:
   /// **'Interfaces'**
-  String get interfaces;
+  String get interfacesSection;
 
   /// IP Addresses section title
   ///
@@ -217,12 +211,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Firewall'**
   String get firewall;
-
-  /// Settings menu item
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get settings;
 
   /// Biometric section title
   ///
@@ -265,6 +253,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Light'**
   String get light;
+
+  /// Dark theme option
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get dark;
+
+  /// System theme option
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get system;
 
   /// Account section title
   ///
@@ -319,6 +319,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change theme'**
   String get changeTheme;
+
+  /// SnackBar message when profile is saved
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
+  String get profileSaved;
+
+  /// Password changed success message
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully'**
+  String get passwordChanged;
+
+  /// No description provided for @mustBeLoggedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'You must be logged in to change password'**
+  String get mustBeLoggedIn;
+
+  /// Validation message for empty name
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter name'**
+  String get pleaseEnterName;
+
+  /// Validation message for empty email
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter email'**
+  String get pleaseEnterEmail;
+
+  /// Email field label
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
 
   /// System Resources section title
   ///
@@ -476,13 +512,13 @@ abstract class AppLocalizations {
   /// **'Status'**
   String get status;
 
-  /// Status indicator for enabled items
+  /// Enabled status
   ///
   /// In en, this message translates to:
   /// **'Enabled'**
   String get enabled;
 
-  /// Status indicator for disabled items
+  /// Disabled status
   ///
   /// In en, this message translates to:
   /// **'Disabled'**
@@ -1982,10 +2018,10 @@ abstract class AppLocalizations {
   /// **'Comment (Optional)'**
   String get commentOptional;
 
-  /// Comment hint
+  /// Comment hint text
   ///
   /// In en, this message translates to:
-  /// **'Optional description'**
+  /// **'e.g., VIP user, Guest network'**
   String get commentHint;
 
   /// Saving status
@@ -2114,6 +2150,12 @@ abstract class AppLocalizations {
   /// **'Wireless Management'**
   String get wirelessManagement;
 
+  /// Wireless interfaces tab
+  ///
+  /// In en, this message translates to:
+  /// **'Interfaces'**
+  String get interfaces;
+
   /// Connected clients tab
   ///
   /// In en, this message translates to:
@@ -2143,576 +2185,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No security profiles found'**
   String get noSecurityProfiles;
-
-  /// Status indicator for connected clients
-  ///
-  /// In en, this message translates to:
-  /// **'Connected'**
-  String get connected;
-
-  /// System logs page title
-  ///
-  /// In en, this message translates to:
-  /// **'System Logs'**
-  String get systemLogs;
-
-  /// Logs tab
-  ///
-  /// In en, this message translates to:
-  /// **'Logs'**
-  String get logs;
-
-  /// Follow logs tab
-  ///
-  /// In en, this message translates to:
-  /// **'Follow'**
-  String get follow;
-
-  /// Live log tab - shows real-time log updates
-  ///
-  /// In en, this message translates to:
-  /// **'Live Log'**
-  String get liveLog;
-
-  /// Information about Logs tab functionality
-  ///
-  /// In en, this message translates to:
-  /// **'Shows all router system logs. Logs are displayed from oldest (top) to newest (bottom). Use the filter button to narrow down logs by topics. Pull down to refresh.'**
-  String get logsTabInfo;
-
-  /// Information about Live Log tab functionality
-  ///
-  /// In en, this message translates to:
-  /// **'Shows real-time log updates as they occur on the router. Starts empty and displays only new logs (max 500). Logs are displayed from oldest (top) to newest (bottom).'**
-  String get liveLogTabInfo;
-
-  /// Close button
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get close;
-
-  /// Search button/action
-  ///
-  /// In en, this message translates to:
-  /// **'Search'**
-  String get search;
-
-  /// Search logs hint text
-  ///
-  /// In en, this message translates to:
-  /// **'Search logs...'**
-  String get searchLogs;
-
-  /// Clear logs action
-  ///
-  /// In en, this message translates to:
-  /// **'Clear Logs'**
-  String get clearLogs;
-
-  /// Clear logs confirmation message
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to clear all logs?'**
-  String get clearLogsConfirmation;
-
-  /// Clear action
-  ///
-  /// In en, this message translates to:
-  /// **'Clear'**
-  String get clear;
-
-  /// Filter logs title
-  ///
-  /// In en, this message translates to:
-  /// **'Filter Logs'**
-  String get filterLogs;
-
-  /// Topics filter label
-  ///
-  /// In en, this message translates to:
-  /// **'Topics'**
-  String get topics;
-
-  /// Apply filter button
-  ///
-  /// In en, this message translates to:
-  /// **'Apply Filter'**
-  String get applyFilter;
-
-  /// Clear filter button
-  ///
-  /// In en, this message translates to:
-  /// **'Clear Filter'**
-  String get clearFilter;
-
-  /// Common topics label
-  ///
-  /// In en, this message translates to:
-  /// **'Common Topics:'**
-  String get commonTopics;
-
-  /// Message when no logs are found
-  ///
-  /// In en, this message translates to:
-  /// **'No logs found'**
-  String get noLogsFound;
-
-  /// Message when no live logs are available
-  ///
-  /// In en, this message translates to:
-  /// **'No live logs available'**
-  String get noLiveLogs;
-
-  /// Success message when logs are cleared
-  ///
-  /// In en, this message translates to:
-  /// **'Logs cleared successfully'**
-  String get logsCleared;
-
-  /// Backup & Restore section title
-  ///
-  /// In en, this message translates to:
-  /// **'Backup & Restore'**
-  String get backupRestore;
-
-  /// Create backup button/action
-  ///
-  /// In en, this message translates to:
-  /// **'Create Backup'**
-  String get createBackup;
-
-  /// Backup name field label
-  ///
-  /// In en, this message translates to:
-  /// **'Backup Name'**
-  String get backupName;
-
-  /// Validation message for required backup name
-  ///
-  /// In en, this message translates to:
-  /// **'Backup name is required'**
-  String get backupNameRequired;
-
-  /// Validation message for backup name containing spaces
-  ///
-  /// In en, this message translates to:
-  /// **'Backup name cannot contain spaces'**
-  String get backupNameNoSpaces;
-
-  /// Description text for backup creation
-  ///
-  /// In en, this message translates to:
-  /// **'Create a backup of the current RouterOS configuration.'**
-  String get backupDescription;
-
-  /// Generic create button text
-  ///
-  /// In en, this message translates to:
-  /// **'Create'**
-  String get create;
-
-  /// Message when no backups are found
-  ///
-  /// In en, this message translates to:
-  /// **'No backups found'**
-  String get noBackupsFound;
-
-  /// Restore action/button text
-  ///
-  /// In en, this message translates to:
-  /// **'Restore'**
-  String get restore;
-
-  /// Confirm restore dialog title
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm Restore'**
-  String get confirmRestore;
-
-  /// Warning message for backup restore operation
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to restore from this backup? This will overwrite current configuration.'**
-  String get restoreBackupWarning;
-
-  /// Confirm delete dialog title
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm Delete'**
-  String get confirmDelete;
-
-  /// Warning message for backup delete operation
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to delete this backup?'**
-  String get deleteBackupWarning;
-
-  /// Network Management section title
-  ///
-  /// In en, this message translates to:
-  /// **'Network Management'**
-  String get networkManagement;
-
-  /// Security & Access section title
-  ///
-  /// In en, this message translates to:
-  /// **'Security & Access'**
-  String get securityAccess;
-
-  /// Monitoring & Tools section title
-  ///
-  /// In en, this message translates to:
-  /// **'Monitoring & Tools'**
-  String get monitoringTools;
-
-  /// Advanced Features section title
-  ///
-  /// In en, this message translates to:
-  /// **'Advanced Features'**
-  String get advancedFeatures;
-
-  /// Quick tip for ping page
-  ///
-  /// In en, this message translates to:
-  /// **'For most tasks, you don\'t need advanced settings! Just enter the address and tap Start.'**
-  String get pingQuickTip;
-
-  /// Advanced options section title
-  ///
-  /// In en, this message translates to:
-  /// **'Advanced Options'**
-  String get advancedOptions;
-
-  /// Subtitle for advanced options
-  ///
-  /// In en, this message translates to:
-  /// **'For advanced users'**
-  String get forAdvancedUsers;
-
-  /// Packet size field label
-  ///
-  /// In en, this message translates to:
-  /// **'Packet Size'**
-  String get packetSize;
-
-  /// Help text for packet size field
-  ///
-  /// In en, this message translates to:
-  /// **'Data packet size in bytes.\n\n• Default: 56 bytes\n• Sufficient for normal testing\n• Use higher values (e.g., 1500) for MTU testing'**
-  String get packetSizeHelp;
-
-  /// TTL field label
-  ///
-  /// In en, this message translates to:
-  /// **'TTL'**
-  String get ttl;
-
-  /// Help text for TTL field
-  ///
-  /// In en, this message translates to:
-  /// **'Maximum number of routers the packet can pass through.\n\n• Default: 64\n• Usually no need to change\n• Higher values mean lost packets take longer to detect'**
-  String get ttlHelp;
-
-  /// Interval field label
-  ///
-  /// In en, this message translates to:
-  /// **'Interval'**
-  String get interval;
-
-  /// Help text for interval field
-  ///
-  /// In en, this message translates to:
-  /// **'Time between sending each packet in seconds.\n\n• Default: 1 second\n• Lower = faster test\n• Higher = less network load'**
-  String get intervalHelp;
-
-  /// Count field label
-  ///
-  /// In en, this message translates to:
-  /// **'Count'**
-  String get count;
-
-  /// Help text for count field
-  ///
-  /// In en, this message translates to:
-  /// **'Total number of packets to send.\n\n• Default: 100\n• For quick test: 4 to 10\n• For stability test: 100+'**
-  String get countHelp;
-
-  /// Source address field label
-  ///
-  /// In en, this message translates to:
-  /// **'Source Address'**
-  String get sourceAddress;
-
-  /// Help text for source address field
-  ///
-  /// In en, this message translates to:
-  /// **'IP address from which packets are sent.\n\n• Auto: Router chooses the best address\n• If you have multiple IPs, you can specify which one to use'**
-  String get sourceAddressHelp;
-
-  /// Help text for interface field
-  ///
-  /// In en, this message translates to:
-  /// **'Which network port to send packets from.\n\n• Auto: Router decides automatically\n• Useful when you have multiple routes to a destination\n• Select to test a specific port'**
-  String get interfaceHelp;
-
-  /// Do not fragment switch label
-  ///
-  /// In en, this message translates to:
-  /// **'Do Not Fragment'**
-  String get doNotFragment;
-
-  /// Help text for do not fragment switch
-  ///
-  /// In en, this message translates to:
-  /// **'If enabled, packets won\'t be fragmented.\n\n• Used for testing network MTU\n• If packet is larger than MTU, it will fail\n• Usually not needed'**
-  String get doNotFragmentHelp;
-
-  /// Subtitle for do not fragment switch
-  ///
-  /// In en, this message translates to:
-  /// **'For MTU testing'**
-  String get forMtuTesting;
-
-  /// Auto default option in dropdown
-  ///
-  /// In en, this message translates to:
-  /// **'Auto (default)'**
-  String get autoDefault;
-
-  /// Live statistics card title
-  ///
-  /// In en, this message translates to:
-  /// **'Live Statistics'**
-  String get liveStatistics;
-
-  /// Sent packets label
-  ///
-  /// In en, this message translates to:
-  /// **'Sent'**
-  String get sent;
-
-  /// Received packets label
-  ///
-  /// In en, this message translates to:
-  /// **'Received'**
-  String get received;
-
-  /// Packet loss label
-  ///
-  /// In en, this message translates to:
-  /// **'Loss'**
-  String get loss;
-
-  /// Success rate display
-  ///
-  /// In en, this message translates to:
-  /// **'{rate}% Success Rate'**
-  String successRate(String rate);
-
-  /// RTT card title
-  ///
-  /// In en, this message translates to:
-  /// **'Round Trip Time'**
-  String get roundTripTime;
-
-  /// Minimum RTT label
-  ///
-  /// In en, this message translates to:
-  /// **'Min'**
-  String get min;
-
-  /// Average RTT label
-  ///
-  /// In en, this message translates to:
-  /// **'Avg'**
-  String get avg;
-
-  /// Maximum RTT label
-  ///
-  /// In en, this message translates to:
-  /// **'Max'**
-  String get max;
-
-  /// Packet history card title
-  ///
-  /// In en, this message translates to:
-  /// **'Packet History'**
-  String get packetHistory;
-
-  /// Packet count display
-  ///
-  /// In en, this message translates to:
-  /// **'{count} packets'**
-  String packetsCount(int count);
-
-  /// Waiting for packets message
-  ///
-  /// In en, this message translates to:
-  /// **'Waiting for packets...'**
-  String get waitingForPackets;
-
-  /// Start button text
-  ///
-  /// In en, this message translates to:
-  /// **'START'**
-  String get start;
-
-  /// Stop button text
-  ///
-  /// In en, this message translates to:
-  /// **'STOP'**
-  String get stop;
-
-  /// Error message when target is empty
-  ///
-  /// In en, this message translates to:
-  /// **'Please enter a target address'**
-  String get pleaseEnterTarget;
-
-  /// Hint for target host input
-  ///
-  /// In en, this message translates to:
-  /// **'e.g., 1.1.1.1 or 8.8.8.8'**
-  String get targetHostHint;
-
-  /// Bytes unit
-  ///
-  /// In en, this message translates to:
-  /// **'bytes'**
-  String get bytes;
-
-  /// Seconds unit
-  ///
-  /// In en, this message translates to:
-  /// **'sec'**
-  String get sec;
-
-  /// Timeout label
-  ///
-  /// In en, this message translates to:
-  /// **'timeout'**
-  String get timeout;
-
-  /// Quick tip for traceroute
-  ///
-  /// In en, this message translates to:
-  /// **'💡 Traceroute shows the path packets take to reach an IP address. Note: Only IP addresses are supported, not domain names.'**
-  String get tracerouteQuickTip;
-
-  /// Maximum hops field label
-  ///
-  /// In en, this message translates to:
-  /// **'Max Hops'**
-  String get maxHopsLabel;
-
-  /// Help text for max hops
-  ///
-  /// In en, this message translates to:
-  /// **'Maximum number of hops to trace.\n\n• Default: 30\n• Lower value = faster but may not reach destination\n• Higher value = can trace longer paths'**
-  String get maxHopsHelp;
-
-  /// Count of probes per hop label
-  ///
-  /// In en, this message translates to:
-  /// **'Probes per Hop'**
-  String get countProbes;
-
-  /// Help text for probes per hop
-  ///
-  /// In en, this message translates to:
-  /// **'Number of probe packets sent per hop.\n\n• Default: 3\n• More probes = more accurate RTT statistics\n• Fewer probes = faster completion'**
-  String get countProbesHelp;
-
-  /// No description provided for @timeoutMsLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Timeout'**
-  String get timeoutMsLabel;
-
-  /// Help text for timeout
-  ///
-  /// In en, this message translates to:
-  /// **'Time to wait for each probe response.\n\n• Default: 1000ms\n• Lower timeout = faster but may miss slow responses\n• Higher timeout = more accurate for high-latency paths'**
-  String get timeoutMsHelp;
-
-  /// Milliseconds unit
-  ///
-  /// In en, this message translates to:
-  /// **'ms'**
-  String get ms;
-
-  /// Route path section title
-  ///
-  /// In en, this message translates to:
-  /// **'Route Path'**
-  String get routePath;
-
-  /// Hop count display
-  ///
-  /// In en, this message translates to:
-  /// **'{count} hops'**
-  String hopCount(int count);
-
-  /// Total time label
-  ///
-  /// In en, this message translates to:
-  /// **'Total Time'**
-  String get totalTime;
-
-  /// Target reached status
-  ///
-  /// In en, this message translates to:
-  /// **'Target Reached'**
-  String get targetReached;
-
-  /// Target not reached status
-  ///
-  /// In en, this message translates to:
-  /// **'Target Not Reached'**
-  String get targetNotReached;
-
-  /// Hop number display
-  ///
-  /// In en, this message translates to:
-  /// **'Hop #{number}'**
-  String hopNumber(int number);
-
-  /// Unknown value
-  ///
-  /// In en, this message translates to:
-  /// **'Unknown'**
-  String get unknown;
-
-  /// Best RTT label
-  ///
-  /// In en, this message translates to:
-  /// **'Best'**
-  String get best;
-
-  /// Worst RTT label
-  ///
-  /// In en, this message translates to:
-  /// **'Worst'**
-  String get worst;
-
-  /// Waiting for hops message
-  ///
-  /// In en, this message translates to:
-  /// **'Waiting for route discovery...'**
-  String get waitingForHops;
-
-  /// Traceroute in progress message
-  ///
-  /// In en, this message translates to:
-  /// **'Tracing route to {target}...'**
-  String tracerouteInProgress(String target);
-
-  /// Hops unit
-  ///
-  /// In en, this message translates to:
-  /// **'hops'**
-  String get hops;
 
   /// Description text for wireless management section
   ///
@@ -2906,6 +2378,12 @@ abstract class AppLocalizations {
   /// **'Asterisk PBX'**
   String get asteriskPbx;
 
+  /// Settings menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
   /// App login page title
   ///
   /// In en, this message translates to:
@@ -2996,11 +2474,527 @@ abstract class AppLocalizations {
   /// **'Username already exists'**
   String get userAlreadyExists;
 
+  /// Invalid credentials error
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid username or password'**
+  String get invalidCredentials;
+
   /// Hint for default admin credentials
   ///
   /// In en, this message translates to:
   /// **'Default: admin (no password)'**
   String get defaultAdminHint;
+
+  /// Network management section
+  ///
+  /// In en, this message translates to:
+  /// **'Network Management'**
+  String get networkManagement;
+
+  /// Security and access section
+  ///
+  /// In en, this message translates to:
+  /// **'Security & Access'**
+  String get securityAccess;
+
+  /// Monitoring tools section
+  ///
+  /// In en, this message translates to:
+  /// **'Monitoring & Tools'**
+  String get monitoringTools;
+
+  /// System Logs title
+  ///
+  /// In en, this message translates to:
+  /// **'System Logs'**
+  String get systemLogs;
+
+  /// Logs tab title
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get logs;
+
+  /// Live log tab title
+  ///
+  /// In en, this message translates to:
+  /// **'Live Log'**
+  String get liveLog;
+
+  /// Info text for logs tab
+  ///
+  /// In en, this message translates to:
+  /// **'Shows all router system logs. Use filter to narrow by topic.'**
+  String get logsTabInfo;
+
+  /// Info text for live log tab
+  ///
+  /// In en, this message translates to:
+  /// **'Shows live log updates as they happen on the router.'**
+  String get liveLogTabInfo;
+
+  /// Close action
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// Search action
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// Search placeholder for logs
+  ///
+  /// In en, this message translates to:
+  /// **'Search logs...'**
+  String get searchLogs;
+
+  /// Clear logs action
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Logs'**
+  String get clearLogs;
+
+  /// Clear logs confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to clear all logs?'**
+  String get clearLogsConfirmation;
+
+  /// Clear action label
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// Snackbar after clearing logs
+  ///
+  /// In en, this message translates to:
+  /// **'Logs cleared successfully'**
+  String get logsCleared;
+
+  /// No logs found message
+  ///
+  /// In en, this message translates to:
+  /// **'No logs found'**
+  String get noLogsFound;
+
+  /// No live logs message
+  ///
+  /// In en, this message translates to:
+  /// **'No live logs available'**
+  String get noLiveLogs;
+
+  /// Backup page title
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & Restore'**
+  String get backupRestore;
+
+  /// Create backup button
+  ///
+  /// In en, this message translates to:
+  /// **'Create Backup'**
+  String get createBackup;
+
+  /// Description shown in create backup card
+  ///
+  /// In en, this message translates to:
+  /// **'Create a backup of current RouterOS settings.'**
+  String get backupDescription;
+
+  /// Backup name field
+  ///
+  /// In en, this message translates to:
+  /// **'Backup Name'**
+  String get backupName;
+
+  /// Create action
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// Validation for backup name
+  ///
+  /// In en, this message translates to:
+  /// **'Backup name is required'**
+  String get backupNameRequired;
+
+  /// No spaces validation
+  ///
+  /// In en, this message translates to:
+  /// **'Backup name cannot contain spaces'**
+  String get backupNameNoSpaces;
+
+  /// No backups message
+  ///
+  /// In en, this message translates to:
+  /// **'No backups found'**
+  String get noBackupsFound;
+
+  /// Restore action
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restore;
+
+  /// Confirm restore dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Restore'**
+  String get confirmRestore;
+
+  /// Warning shown before restore
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to restore this backup? This will overwrite current settings.'**
+  String get restoreBackupWarning;
+
+  /// Confirm delete dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Delete'**
+  String get confirmDelete;
+
+  /// Warning shown before deleting backup
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this backup?'**
+  String get deleteBackupWarning;
+
+  /// Advanced features section
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Features'**
+  String get advancedFeatures;
+
+  /// Advanced options title
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced Options'**
+  String get advancedOptions;
+
+  /// Advanced options subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'For advanced users'**
+  String get forAdvancedUsers;
+
+  /// Validation for target input
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter target'**
+  String get pleaseEnterTarget;
+
+  /// Hint for target host
+  ///
+  /// In en, this message translates to:
+  /// **'Target host or IP'**
+  String get targetHostHint;
+
+  /// Start action
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get start;
+
+  /// Stop action
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get stop;
+
+  /// Ping quick tip text
+  ///
+  /// In en, this message translates to:
+  /// **'Quick tip: use proper hostnames or IPs'**
+  String get pingQuickTip;
+
+  /// Packet size label
+  ///
+  /// In en, this message translates to:
+  /// **'Packet Size'**
+  String get packetSize;
+
+  /// Help for packet size
+  ///
+  /// In en, this message translates to:
+  /// **'Size of each ICMP packet in bytes'**
+  String get packetSizeHelp;
+
+  /// Bytes unit
+  ///
+  /// In en, this message translates to:
+  /// **'bytes'**
+  String get bytes;
+
+  /// Time To Live label
+  ///
+  /// In en, this message translates to:
+  /// **'TTL'**
+  String get ttl;
+
+  /// Help for TTL
+  ///
+  /// In en, this message translates to:
+  /// **'Time to live for packets'**
+  String get ttlHelp;
+
+  /// Interval label
+  ///
+  /// In en, this message translates to:
+  /// **'Interval'**
+  String get interval;
+
+  /// Help for interval
+  ///
+  /// In en, this message translates to:
+  /// **'Interval between requests in seconds'**
+  String get intervalHelp;
+
+  /// Seconds unit
+  ///
+  /// In en, this message translates to:
+  /// **'sec'**
+  String get sec;
+
+  /// Count label
+  ///
+  /// In en, this message translates to:
+  /// **'Count'**
+  String get count;
+
+  /// Help for count
+  ///
+  /// In en, this message translates to:
+  /// **'Number of packets to send'**
+  String get countHelp;
+
+  /// Source address label
+  ///
+  /// In en, this message translates to:
+  /// **'Source Address'**
+  String get sourceAddress;
+
+  /// Help for source address
+  ///
+  /// In en, this message translates to:
+  /// **'Source address to use'**
+  String get sourceAddressHelp;
+
+  /// Auto or Default hint
+  ///
+  /// In en, this message translates to:
+  /// **'Auto / Default'**
+  String get autoDefault;
+
+  /// Help for interface
+  ///
+  /// In en, this message translates to:
+  /// **'Network interface to use'**
+  String get interfaceHelp;
+
+  /// Don't Fragment label
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t Fragment'**
+  String get doNotFragment;
+
+  /// Help for Don't Fragment
+  ///
+  /// In en, this message translates to:
+  /// **'Set Don\'t Fragment flag for packets'**
+  String get doNotFragmentHelp;
+
+  /// Subtitle for MTU testing
+  ///
+  /// In en, this message translates to:
+  /// **'For MTU testing'**
+  String get forMtuTesting;
+
+  /// Live statistics title
+  ///
+  /// In en, this message translates to:
+  /// **'Live Statistics'**
+  String get liveStatistics;
+
+  /// Sent stat
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get sent;
+
+  /// Received stat
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get received;
+
+  /// Loss stat
+  ///
+  /// In en, this message translates to:
+  /// **'Loss'**
+  String get loss;
+
+  /// Success rate label
+  ///
+  /// In en, this message translates to:
+  /// **'Success Rate'**
+  String get successRate;
+
+  /// RTT label
+  ///
+  /// In en, this message translates to:
+  /// **'Round Trip Time'**
+  String get roundTripTime;
+
+  /// Minimum label
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get min;
+
+  /// Average label
+  ///
+  /// In en, this message translates to:
+  /// **'avg'**
+  String get avg;
+
+  /// Maximum label
+  ///
+  /// In en, this message translates to:
+  /// **'max'**
+  String get max;
+
+  /// Packet history title
+  ///
+  /// In en, this message translates to:
+  /// **'Packet History'**
+  String get packetHistory;
+
+  /// Packets count
+  ///
+  /// In en, this message translates to:
+  /// **'{count} packets'**
+  String packetsCount(int count);
+
+  /// Waiting text
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for packets'**
+  String get waitingForPackets;
+
+  /// Timeout label
+  ///
+  /// In en, this message translates to:
+  /// **'Timeout'**
+  String get timeout;
+
+  /// Unknown label
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get unknown;
+
+  /// Max hops label
+  ///
+  /// In en, this message translates to:
+  /// **'Max Hops'**
+  String get maxHopsLabel;
+
+  /// Help for max hops
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum number of hops to probe'**
+  String get maxHopsHelp;
+
+  /// Hops label
+  ///
+  /// In en, this message translates to:
+  /// **'Hops'**
+  String get hops;
+
+  /// Timeout ms label
+  ///
+  /// In en, this message translates to:
+  /// **'Timeout (ms)'**
+  String get timeoutMsLabel;
+
+  /// Help for timeout ms
+  ///
+  /// In en, this message translates to:
+  /// **'Max time in milliseconds to wait for a probe response'**
+  String get timeoutMsHelp;
+
+  /// Milliseconds unit
+  ///
+  /// In en, this message translates to:
+  /// **'ms'**
+  String get ms;
+
+  /// Count probes label
+  ///
+  /// In en, this message translates to:
+  /// **'Count Probes'**
+  String get countProbes;
+
+  /// Help for count probes
+  ///
+  /// In en, this message translates to:
+  /// **'Number of probes per hop'**
+  String get countProbesHelp;
+
+  /// Traceroute quick tip
+  ///
+  /// In en, this message translates to:
+  /// **'Quick tip: traceroute shows path taken to target'**
+  String get tracerouteQuickTip;
+
+  /// Traceroute progress
+  ///
+  /// In en, this message translates to:
+  /// **'Traceroute in progress for {target}'**
+  String tracerouteInProgress(String target);
+
+  /// Waiting for hops
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for hops'**
+  String get waitingForHops;
+
+  /// Route path
+  ///
+  /// In en, this message translates to:
+  /// **'Route Path'**
+  String get routePath;
+
+  /// Hop count
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hops'**
+  String hopCount(int count);
+
+  /// Total time label
+  ///
+  /// In en, this message translates to:
+  /// **'Total Time'**
+  String get totalTime;
+
+  /// Target reached label
+  ///
+  /// In en, this message translates to:
+  /// **'Target Reached'**
+  String get targetReached;
+
+  /// Target not reached label
+  ///
+  /// In en, this message translates to:
+  /// **'Target Not Reached'**
+  String get targetNotReached;
 }
 
 class _AppLocalizationsDelegate

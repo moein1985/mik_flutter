@@ -51,13 +51,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get connectionError => 'خطای اتصال';
 
   @override
-  String get invalidCredentials => '??? ?????? ?? ??? ???? ??????? ???';
-
-  @override
   String get dashboard => 'داشبورد';
 
   @override
-  String get interfaces => 'رابط‌ها';
+  String get interfacesSection => 'Interfaces';
 
   @override
   String get ipAddresses => 'آدرس‌های IP';
@@ -67,9 +64,6 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get firewall => 'فایروال';
-
-  @override
-  String get settings => 'تنظیمات';
 
   @override
   String get biometricAuthentication => 'احراز هویت بیومتریک';
@@ -92,6 +86,12 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get light => 'روشن';
+
+  @override
+  String get dark => 'تاریک';
+
+  @override
+  String get system => 'مطابق سیستم';
 
   @override
   String get account => 'حساب کاربری';
@@ -123,10 +123,28 @@ class AppLocalizationsFa extends AppLocalizations {
   String get changeTheme => 'تغییر تم';
 
   @override
+  String get profileSaved => 'پروفایل ذخیره شد';
+
+  @override
+  String get passwordChanged => 'رمز با موفقیت تغییر کرد';
+
+  @override
+  String get mustBeLoggedIn => 'برای تغییر رمز باید وارد شوید';
+
+  @override
+  String get pleaseEnterName => 'لطفاً نام را وارد کنید';
+
+  @override
+  String get pleaseEnterEmail => 'لطفاً ایمیل را وارد کنید';
+
+  @override
+  String get email => 'ایمیل';
+
+  @override
   String get systemResources => 'منابع سیستم';
 
   @override
-  String get uptime => 'مدت فعالیت';
+  String get uptime => 'زمان فعالیت';
 
   @override
   String get version => 'نسخه';
@@ -1065,6 +1083,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get wirelessManagement => 'مدیریت بی‌سیم';
 
   @override
+  String get interfaces => 'رابط‌ها';
+
+  @override
   String get clients => 'کلاینت‌ها';
 
   @override
@@ -1078,318 +1099,6 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get noSecurityProfiles => 'هیچ پروفایل امنیتی یافت نشد';
-
-  @override
-  String get connected => 'متصل';
-
-  @override
-  String get systemLogs => 'لاگ‌های سیستم';
-
-  @override
-  String get logs => 'لاگ‌ها';
-
-  @override
-  String get follow => 'پیگیری';
-
-  @override
-  String get liveLog => 'لاگ زنده';
-
-  @override
-  String get logsTabInfo =>
-      'نمایش تمام لاگ‌های سیستم روتر. لاگ‌ها از قدیمی‌ترین (بالا) به جدیدترین (پایین) نمایش داده می‌شوند. از دکمه فیلتر برای محدود کردن لاگ‌ها بر اساس موضوع استفاده کنید. برای بروزرسانی به پایین بکشید.';
-
-  @override
-  String get liveLogTabInfo =>
-      'نمایش بروزرسانی‌های زنده لاگ‌ها به محض رخ دادن در روتر. با لیست خالی شروع می‌شود و فقط لاگ‌های جدید را نمایش می‌دهد (حداکثر 500). لاگ‌ها از قدیمی‌ترین (بالا) به جدیدترین (پایین) نمایش داده می‌شوند.';
-
-  @override
-  String get close => 'بستن';
-
-  @override
-  String get search => 'جستجو';
-
-  @override
-  String get searchLogs => 'جستجو در لاگ‌ها...';
-
-  @override
-  String get clearLogs => 'پاک کردن لاگ‌ها';
-
-  @override
-  String get clearLogsConfirmation =>
-      'آیا مطمئن هستید که می‌خواهید تمام لاگ‌ها را پاک کنید؟';
-
-  @override
-  String get clear => 'پاک کردن';
-
-  @override
-  String get filterLogs => 'فیلتر لاگ‌ها';
-
-  @override
-  String get topics => 'موضوعات';
-
-  @override
-  String get applyFilter => 'اعمال فیلتر';
-
-  @override
-  String get clearFilter => 'پاک کردن فیلتر';
-
-  @override
-  String get commonTopics => 'موضوعات رایج:';
-
-  @override
-  String get noLogsFound => 'هیچ لاگی یافت نشد';
-
-  @override
-  String get noLiveLogs => 'هیچ لاگ زنده‌ای موجود نیست';
-
-  @override
-  String get logsCleared => 'لاگ‌ها با موفقیت پاک شدند';
-
-  @override
-  String get backupRestore => 'پشتیبان‌گیری و بازیابی';
-
-  @override
-  String get createBackup => 'ایجاد پشتیبان';
-
-  @override
-  String get backupName => 'نام پشتیبان';
-
-  @override
-  String get backupNameRequired => 'نام پشتیبان الزامی است';
-
-  @override
-  String get backupNameNoSpaces => 'نام پشتیبان نمی‌تواند شامل فاصله باشد';
-
-  @override
-  String get backupDescription => 'ایجاد پشتیبان از تنظیمات فعلی RouterOS.';
-
-  @override
-  String get create => 'ایجاد';
-
-  @override
-  String get noBackupsFound => 'هیچ پشتیبانی یافت نشد';
-
-  @override
-  String get restore => 'بازیابی';
-
-  @override
-  String get confirmRestore => 'تأیید بازیابی';
-
-  @override
-  String get restoreBackupWarning =>
-      'آیا مطمئن هستید که می‌خواهید از این پشتیبان بازیابی کنید؟ این کار تنظیمات فعلی را بازنویسی خواهد کرد.';
-
-  @override
-  String get confirmDelete => 'تأیید حذف';
-
-  @override
-  String get deleteBackupWarning =>
-      'آیا مطمئن هستید که می‌خواهید این پشتیبان را حذف کنید؟';
-
-  @override
-  String get networkManagement => 'مدیریت شبکه';
-
-  @override
-  String get securityAccess => 'امنیت و دسترسی';
-
-  @override
-  String get monitoringTools => 'مانیتورینگ و ابزارها';
-
-  @override
-  String get advancedFeatures => 'ویژگی‌های پیشرفته';
-
-  @override
-  String get pingQuickTip =>
-      'برای اکثر کارها نیازی به تنظیمات پیشرفته نیست! فقط آدرس رو وارد کن و Start بزن.';
-
-  @override
-  String get advancedOptions => 'تنظیمات پیشرفته';
-
-  @override
-  String get forAdvancedUsers => 'برای کاربران حرفه‌ای';
-
-  @override
-  String get packetSize => 'اندازه بسته';
-
-  @override
-  String get packetSizeHelp =>
-      'اندازه بسته داده به بایت.\n\n• مقدار پیش‌فرض: ۵۶ بایت\n• برای تست عادی کافیه\n• برای تست MTU مقدار بالاتر (مثلاً ۱۵۰۰) استفاده کن';
-
-  @override
-  String get ttl => 'زمان زندگی';
-
-  @override
-  String get ttlHelp =>
-      'حداکثر تعداد روترهایی که بسته می‌تونه ازشون عبور کنه.\n\n• مقدار پیش‌فرض: ۶۴\n• معمولاً نیازی به تغییر نیست\n• اگه زیاد باشه، بسته‌های گم‌شده دیرتر تشخیص داده میشن';
-
-  @override
-  String get interval => 'فاصله زمانی';
-
-  @override
-  String get intervalHelp =>
-      'فاصله بین ارسال هر پکت به ثانیه.\n\n• مقدار پیش‌فرض: ۱ ثانیه\n• مقدار کمتر = تست سریع‌تر\n• مقدار بیشتر = بار کمتر روی شبکه';
-
-  @override
-  String get count => 'تعداد';
-
-  @override
-  String get countHelp =>
-      'تعداد کل پکت‌هایی که ارسال میشه.\n\n• مقدار پیش‌فرض: ۱۰۰\n• برای تست سریع: ۴ تا ۱۰\n• برای تست پایداری: ۱۰۰+';
-
-  @override
-  String get sourceAddress => 'آدرس مبدأ';
-
-  @override
-  String get sourceAddressHelp =>
-      'آدرس IP که پکت‌ها ازش ارسال میشه.\n\n• Auto: روتر خودش بهترین آدرس رو انتخاب میکنه\n• اگه چند IP داری، می‌تونی مشخص کنی از کدوم ارسال بشه';
-
-  @override
-  String get interfaceHelp =>
-      'از کدوم پورت شبکه پکت ارسال بشه.\n\n• Auto: روتر خودش تصمیم میگیره\n• مفید وقتی چند مسیر به یه مقصد داری\n• برای تست یه پورت خاص انتخاب کن';
-
-  @override
-  String get doNotFragment => 'تکه‌تکه نکن';
-
-  @override
-  String get doNotFragmentHelp =>
-      'اگه فعال باشه، بسته‌ها تیکه‌تیکه نمیشن.\n\n• برای تست MTU شبکه استفاده میشه\n• اگه بسته بزرگ‌تر از MTU باشه، خطا میده\n• معمولاً نیازی به فعال کردن نیست';
-
-  @override
-  String get forMtuTesting => 'برای تست MTU';
-
-  @override
-  String get autoDefault => 'خودکار (پیش‌فرض)';
-
-  @override
-  String get liveStatistics => 'آمار زنده';
-
-  @override
-  String get sent => 'ارسال';
-
-  @override
-  String get received => 'دریافت';
-
-  @override
-  String get loss => 'از دست رفته';
-
-  @override
-  String successRate(String rate) {
-    return '$rate% موفقیت';
-  }
-
-  @override
-  String get roundTripTime => 'زمان رفت و برگشت';
-
-  @override
-  String get min => 'حداقل';
-
-  @override
-  String get avg => 'میانگین';
-
-  @override
-  String get max => 'حداکثر';
-
-  @override
-  String get packetHistory => 'تاریخچه پکت‌ها';
-
-  @override
-  String packetsCount(int count) {
-    return '$count پکت';
-  }
-
-  @override
-  String get waitingForPackets => 'در انتظار پکت‌ها...';
-
-  @override
-  String get start => 'شروع';
-
-  @override
-  String get stop => 'توقف';
-
-  @override
-  String get pleaseEnterTarget => 'لطفاً آدرس مقصد را وارد کنید';
-
-  @override
-  String get targetHostHint => 'مثلاً 1.1.1.1 یا 8.8.8.8';
-
-  @override
-  String get bytes => 'بایت';
-
-  @override
-  String get sec => 'ثانیه';
-
-  @override
-  String get timeout => 'وقفه';
-
-  @override
-  String get tracerouteQuickTip =>
-      '💡 Traceroute مسیر بسته‌ها تا یک آدرس IP را نشان می‌دهد. توجه: فقط از آدرس IP پشتیبانی می‌شود، نه نام دامنه.';
-
-  @override
-  String get maxHopsLabel => 'حداکثر گام';
-
-  @override
-  String get maxHopsHelp =>
-      'حداکثر تعداد گام‌هایی که ردیابی می‌شود.\n\n• پیش‌فرض: ۳۰\n• مقدار کمتر = سریع‌تر ولی ممکن است به مقصد نرسد\n• مقدار بیشتر = می‌تواند مسیرهای طولانی‌تر را ردیابی کند';
-
-  @override
-  String get countProbes => 'تعداد کاوش هر گام';
-
-  @override
-  String get countProbesHelp =>
-      'تعداد بسته‌های کاوش ارسال شده برای هر گام.\n\n• پیش‌فرض: ۳\n• کاوش بیشتر = آمار RTT دقیق‌تر\n• کاوش کمتر = اتمام سریع‌تر';
-
-  @override
-  String get timeoutMsLabel => 'مهلت زمانی';
-
-  @override
-  String get timeoutMsHelp =>
-      'زمان انتظار برای پاسخ هر کاوش.\n\n• پیش‌فرض: ۱۰۰۰ میلی‌ثانیه\n• مهلت کمتر = سریع‌تر ولی ممکن است پاسخ‌های کند را از دست بدهد\n• مهلت بیشتر = دقیق‌تر برای مسیرهای با تأخیر بالا';
-
-  @override
-  String get ms => 'میلی‌ثانیه';
-
-  @override
-  String get routePath => 'مسیر';
-
-  @override
-  String hopCount(int count) {
-    return '$count گام';
-  }
-
-  @override
-  String get totalTime => 'زمان کل';
-
-  @override
-  String get targetReached => 'به مقصد رسید';
-
-  @override
-  String get targetNotReached => 'به مقصد نرسید';
-
-  @override
-  String hopNumber(int number) {
-    return 'گام #$number';
-  }
-
-  @override
-  String get unknown => 'ناشناخته';
-
-  @override
-  String get best => 'بهترین';
-
-  @override
-  String get worst => 'بدترین';
-
-  @override
-  String get waitingForHops => 'در انتظار کشف مسیر...';
-
-  @override
-  String tracerouteInProgress(String target) {
-    return 'در حال ردیابی مسیر به $target...';
-  }
-
-  @override
-  String get hops => 'گام';
 
   @override
   String get wirelessManagementDescription =>
@@ -1495,6 +1204,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get asteriskPbx => 'سرور تلفنی Asterisk';
 
   @override
+  String get settings => 'تنظیمات';
+
+  @override
   String get appLogin => '???? ?? ??????';
 
   @override
@@ -1540,5 +1252,286 @@ class AppLocalizationsFa extends AppLocalizations {
   String get userAlreadyExists => '??? ??? ?????? ????? ??? ??? ???';
 
   @override
+  String get invalidCredentials => '??? ?????? ?? ??? ???? ??????? ???';
+
+  @override
   String get defaultAdminHint => '???????: admin (???? ??? ????)';
+
+  @override
+  String get networkManagement => 'مدیریت شبکه';
+
+  @override
+  String get securityAccess => 'امنیت و دسترسی';
+
+  @override
+  String get monitoringTools => 'مانیتورینگ و ابزارها';
+
+  @override
+  String get systemLogs => 'لاگ‌های سیستم';
+
+  @override
+  String get logs => 'لاگ‌ها';
+
+  @override
+  String get liveLog => 'لاگ زنده';
+
+  @override
+  String get logsTabInfo =>
+      'نمایش تمام لاگ‌های سیستم روتر. لاگ‌ها از قدیمی‌ترین (بالا) به جدیدترین (پایین) نمایش داده می‌شوند. از دکمه فیلتر برای محدود کردن لاگ‌ها بر اساس موضوع استفاده کنید. برای بروزرسانی به پایین بکشید.';
+
+  @override
+  String get liveLogTabInfo =>
+      'نمایش بروزرسانی‌های زنده لاگ‌ها به محض رخ دادن در روتر. با لیست خالی شروع می‌شود و فقط لاگ‌های جدید را نمایش می‌دهد (حداکثر 500). لاگ‌ها از قدیمی‌ترین (بالا) به جدیدترین (پایین) نمایش داده می‌شوند.';
+
+  @override
+  String get close => 'بستن';
+
+  @override
+  String get search => 'جستجو';
+
+  @override
+  String get searchLogs => 'جستجو در لاگ‌ها...';
+
+  @override
+  String get clearLogs => 'پاک کردن لاگ‌ها';
+
+  @override
+  String get clearLogsConfirmation =>
+      'آیا مطمئن هستید که می‌خواهید تمام لاگ‌ها را پاک کنید؟';
+
+  @override
+  String get clear => 'پاک کردن';
+
+  @override
+  String get logsCleared => 'لاگ‌ها با موفقیت پاک شدند';
+
+  @override
+  String get noLogsFound => 'هیچ لاگی یافت نشد';
+
+  @override
+  String get noLiveLogs => 'هیچ لاگ زنده‌ای موجود نیست';
+
+  @override
+  String get backupRestore => 'پشتیبان‌گیری و بازیابی';
+
+  @override
+  String get createBackup => 'ایجاد پشتیبان';
+
+  @override
+  String get backupDescription => 'ایجاد پشتیبان از تنظیمات فعلی RouterOS.';
+
+  @override
+  String get backupName => 'نام پشتیبان';
+
+  @override
+  String get create => 'ایجاد';
+
+  @override
+  String get backupNameRequired => 'نام پشتیبان الزامی است';
+
+  @override
+  String get backupNameNoSpaces => 'نام پشتیبان نمی‌تواند شامل فاصله باشد';
+
+  @override
+  String get noBackupsFound => 'هیچ پشتیبانی یافت نشد';
+
+  @override
+  String get restore => 'بازیابی';
+
+  @override
+  String get confirmRestore => 'تأیید بازیابی';
+
+  @override
+  String get restoreBackupWarning =>
+      'آیا مطمئن هستید که می‌خواهید از این پشتیبان بازیابی کنید؟ این کار تنظیمات فعلی را بازنویسی خواهد کرد.';
+
+  @override
+  String get confirmDelete => 'تأیید حذف';
+
+  @override
+  String get deleteBackupWarning =>
+      'آیا مطمئن هستید که می‌خواهید این پشتیبان را حذف کنید؟';
+
+  @override
+  String get advancedFeatures => 'ویژگی‌های پیشرفته';
+
+  @override
+  String get advancedOptions => 'تنظیمات پیشرفته';
+
+  @override
+  String get forAdvancedUsers => 'برای کاربران حرفه‌ای';
+
+  @override
+  String get pleaseEnterTarget => 'لطفاً آدرس مقصد را وارد کنید';
+
+  @override
+  String get targetHostHint => 'مثلاً 1.1.1.1 یا 8.8.8.8';
+
+  @override
+  String get start => 'شروع';
+
+  @override
+  String get stop => 'توقف';
+
+  @override
+  String get pingQuickTip =>
+      'برای اکثر کارها نیازی به تنظیمات پیشرفته نیست! فقط آدرس رو وارد کن و Start بزن.';
+
+  @override
+  String get packetSize => 'اندازه بسته';
+
+  @override
+  String get packetSizeHelp =>
+      'اندازه بسته داده به بایت.\n\n• مقدار پیش‌فرض: ۵۶ بایت\n• برای تست عادی کافیه\n• برای تست MTU مقدار بالاتر (مثلاً ۱۵۰۰) استفاده کن';
+
+  @override
+  String get bytes => 'بایت';
+
+  @override
+  String get ttl => 'زمان زندگی';
+
+  @override
+  String get ttlHelp =>
+      'حداکثر تعداد روترهایی که بسته می‌تونه ازشون عبور کنه.\n\n• مقدار پیش‌فرض: ۶۴\n• معمولاً نیازی به تغییر نیست\n• اگه زیاد باشه، بسته‌های گم‌شده دیرتر تشخیص داده میشن';
+
+  @override
+  String get interval => 'فاصله زمانی';
+
+  @override
+  String get intervalHelp =>
+      'فاصله بین ارسال هر پکت به ثانیه.\n\n• مقدار پیش‌فرض: ۱ ثانیه\n• مقدار کمتر = تست سریع‌تر\n• مقدار بیشتر = بار کمتر روی شبکه';
+
+  @override
+  String get sec => 'ثانیه';
+
+  @override
+  String get count => 'تعداد';
+
+  @override
+  String get countHelp =>
+      'تعداد کل پکت‌هایی که ارسال میشه.\n\n• مقدار پیش‌فرض: ۱۰۰\n• برای تست سریع: ۴ تا ۱۰\n• برای تست پایداری: ۱۰۰+';
+
+  @override
+  String get sourceAddress => 'آدرس مبدأ';
+
+  @override
+  String get sourceAddressHelp =>
+      'آدرس IP که پکت‌ها ازش ارسال میشه.\n\n• Auto: روتر خودش بهترین آدرس رو انتخاب میکنه\n• اگه چند IP داری، می‌تونی مشخص کنی از کدوم ارسال بشه';
+
+  @override
+  String get autoDefault => 'خودکار (پیش‌فرض)';
+
+  @override
+  String get interfaceHelp =>
+      'از کدوم پورت شبکه پکت ارسال بشه.\n\n• Auto: روتر خودش تصمیم میگیره\n• مفید وقتی چند مسیر به یه مقصد داری\n• برای تست یه پورت خاص انتخاب کن';
+
+  @override
+  String get doNotFragment => 'تکه‌تکه نکن';
+
+  @override
+  String get doNotFragmentHelp =>
+      'اگه فعال باشه، بسته‌ها تیکه‌تیکه نمیشن.\n\n• برای تست MTU شبکه استفاده میشه\n• اگه بسته بزرگ‌تر از MTU باشه، خطا میده\n• معمولاً نیازی به فعال کردن نیست';
+
+  @override
+  String get forMtuTesting => 'برای تست MTU';
+
+  @override
+  String get liveStatistics => 'آمار زنده';
+
+  @override
+  String get sent => 'ارسال';
+
+  @override
+  String get received => 'دریافت';
+
+  @override
+  String get loss => 'از دست رفته';
+
+  @override
+  String get successRate => 'null% موفقیت';
+
+  @override
+  String get roundTripTime => 'زمان رفت و برگشت';
+
+  @override
+  String get min => 'حداقل';
+
+  @override
+  String get avg => 'میانگین';
+
+  @override
+  String get max => 'حداکثر';
+
+  @override
+  String get packetHistory => 'تاریخچه پکت‌ها';
+
+  @override
+  String packetsCount(int count) {
+    return '$count پکت';
+  }
+
+  @override
+  String get waitingForPackets => 'در انتظار پکت‌ها...';
+
+  @override
+  String get timeout => 'وقفه';
+
+  @override
+  String get unknown => 'ناشناخته';
+
+  @override
+  String get maxHopsLabel => 'حداکثر گام';
+
+  @override
+  String get maxHopsHelp =>
+      'حداکثر تعداد گام‌هایی که ردیابی می‌شود.\n\n• پیش‌فرض: ۳۰\n• مقدار کمتر = سریع‌تر ولی ممکن است به مقصد نرسد\n• مقدار بیشتر = می‌تواند مسیرهای طولانی‌تر را ردیابی کند';
+
+  @override
+  String get hops => 'گام';
+
+  @override
+  String get timeoutMsLabel => 'مهلت زمانی';
+
+  @override
+  String get timeoutMsHelp =>
+      'زمان انتظار برای پاسخ هر کاوش.\n\n• پیش‌فرض: ۱۰۰۰ میلی‌ثانیه\n• مهلت کمتر = سریع‌تر ولی ممکن است پاسخ‌های کند را از دست بدهد\n• مهلت بیشتر = دقیق‌تر برای مسیرهای با تأخیر بالا';
+
+  @override
+  String get ms => 'میلی‌ثانیه';
+
+  @override
+  String get countProbes => 'تعداد کاوش هر گام';
+
+  @override
+  String get countProbesHelp =>
+      'تعداد بسته‌های کاوش ارسال شده برای هر گام.\n\n• پیش‌فرض: ۳\n• کاوش بیشتر = آمار RTT دقیق‌تر\n• کاوش کمتر = اتمام سریع‌تر';
+
+  @override
+  String get tracerouteQuickTip =>
+      '💡 Traceroute مسیر بسته‌ها تا یک آدرس IP را نشان می‌دهد. توجه: فقط از آدرس IP پشتیبانی می‌شود، نه نام دامنه.';
+
+  @override
+  String tracerouteInProgress(String target) {
+    return 'در حال ردیابی مسیر به $target...';
+  }
+
+  @override
+  String get waitingForHops => 'در انتظار کشف مسیر...';
+
+  @override
+  String get routePath => 'مسیر';
+
+  @override
+  String hopCount(int count) {
+    return '$count گام';
+  }
+
+  @override
+  String get totalTime => 'زمان کل';
+
+  @override
+  String get targetReached => 'به مقصد رسید';
+
+  @override
+  String get targetNotReached => 'به مقصد نرسید';
 }

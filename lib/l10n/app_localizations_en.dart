@@ -51,13 +51,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectionError => 'Connection error';
 
   @override
-  String get invalidCredentials => 'Invalid username or password';
-
-  @override
   String get dashboard => 'Dashboard';
 
   @override
-  String get interfaces => 'Interfaces';
+  String get interfacesSection => 'Interfaces';
 
   @override
   String get ipAddresses => 'IP Addresses';
@@ -67,9 +64,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firewall => 'Firewall';
-
-  @override
-  String get settings => 'Settings';
 
   @override
   String get biometricAuthentication => 'Biometric Authentication';
@@ -92,6 +86,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get light => 'Light';
+
+  @override
+  String get dark => 'Dark';
+
+  @override
+  String get system => 'System';
 
   @override
   String get account => 'Account';
@@ -120,6 +120,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get changeTheme => 'Change theme';
+
+  @override
+  String get profileSaved => 'Profile saved';
+
+  @override
+  String get passwordChanged => 'Password changed successfully';
+
+  @override
+  String get mustBeLoggedIn => 'You must be logged in to change password';
+
+  @override
+  String get pleaseEnterName => 'Please enter name';
+
+  @override
+  String get pleaseEnterEmail => 'Please enter email';
+
+  @override
+  String get email => 'Email';
 
   @override
   String get systemResources => 'System Resources';
@@ -1000,7 +1018,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commentOptional => 'Comment (Optional)';
 
   @override
-  String get commentHint => 'Optional description';
+  String get commentHint => 'e.g., VIP user, Guest network';
 
   @override
   String get saving => 'Saving...';
@@ -1066,6 +1084,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wirelessManagement => 'Wireless Management';
 
   @override
+  String get interfaces => 'Interfaces';
+
+  @override
   String get clients => 'Clients';
 
   @override
@@ -1079,319 +1100,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noSecurityProfiles => 'No security profiles found';
-
-  @override
-  String get connected => 'Connected';
-
-  @override
-  String get systemLogs => 'System Logs';
-
-  @override
-  String get logs => 'Logs';
-
-  @override
-  String get follow => 'Follow';
-
-  @override
-  String get liveLog => 'Live Log';
-
-  @override
-  String get logsTabInfo =>
-      'Shows all router system logs. Logs are displayed from oldest (top) to newest (bottom). Use the filter button to narrow down logs by topics. Pull down to refresh.';
-
-  @override
-  String get liveLogTabInfo =>
-      'Shows real-time log updates as they occur on the router. Starts empty and displays only new logs (max 500). Logs are displayed from oldest (top) to newest (bottom).';
-
-  @override
-  String get close => 'Close';
-
-  @override
-  String get search => 'Search';
-
-  @override
-  String get searchLogs => 'Search logs...';
-
-  @override
-  String get clearLogs => 'Clear Logs';
-
-  @override
-  String get clearLogsConfirmation =>
-      'Are you sure you want to clear all logs?';
-
-  @override
-  String get clear => 'Clear';
-
-  @override
-  String get filterLogs => 'Filter Logs';
-
-  @override
-  String get topics => 'Topics';
-
-  @override
-  String get applyFilter => 'Apply Filter';
-
-  @override
-  String get clearFilter => 'Clear Filter';
-
-  @override
-  String get commonTopics => 'Common Topics:';
-
-  @override
-  String get noLogsFound => 'No logs found';
-
-  @override
-  String get noLiveLogs => 'No live logs available';
-
-  @override
-  String get logsCleared => 'Logs cleared successfully';
-
-  @override
-  String get backupRestore => 'Backup & Restore';
-
-  @override
-  String get createBackup => 'Create Backup';
-
-  @override
-  String get backupName => 'Backup Name';
-
-  @override
-  String get backupNameRequired => 'Backup name is required';
-
-  @override
-  String get backupNameNoSpaces => 'Backup name cannot contain spaces';
-
-  @override
-  String get backupDescription =>
-      'Create a backup of the current RouterOS configuration.';
-
-  @override
-  String get create => 'Create';
-
-  @override
-  String get noBackupsFound => 'No backups found';
-
-  @override
-  String get restore => 'Restore';
-
-  @override
-  String get confirmRestore => 'Confirm Restore';
-
-  @override
-  String get restoreBackupWarning =>
-      'Are you sure you want to restore from this backup? This will overwrite current configuration.';
-
-  @override
-  String get confirmDelete => 'Confirm Delete';
-
-  @override
-  String get deleteBackupWarning =>
-      'Are you sure you want to delete this backup?';
-
-  @override
-  String get networkManagement => 'Network Management';
-
-  @override
-  String get securityAccess => 'Security & Access';
-
-  @override
-  String get monitoringTools => 'Monitoring & Tools';
-
-  @override
-  String get advancedFeatures => 'Advanced Features';
-
-  @override
-  String get pingQuickTip =>
-      'For most tasks, you don\'t need advanced settings! Just enter the address and tap Start.';
-
-  @override
-  String get advancedOptions => 'Advanced Options';
-
-  @override
-  String get forAdvancedUsers => 'For advanced users';
-
-  @override
-  String get packetSize => 'Packet Size';
-
-  @override
-  String get packetSizeHelp =>
-      'Data packet size in bytes.\n\n• Default: 56 bytes\n• Sufficient for normal testing\n• Use higher values (e.g., 1500) for MTU testing';
-
-  @override
-  String get ttl => 'TTL';
-
-  @override
-  String get ttlHelp =>
-      'Maximum number of routers the packet can pass through.\n\n• Default: 64\n• Usually no need to change\n• Higher values mean lost packets take longer to detect';
-
-  @override
-  String get interval => 'Interval';
-
-  @override
-  String get intervalHelp =>
-      'Time between sending each packet in seconds.\n\n• Default: 1 second\n• Lower = faster test\n• Higher = less network load';
-
-  @override
-  String get count => 'Count';
-
-  @override
-  String get countHelp =>
-      'Total number of packets to send.\n\n• Default: 100\n• For quick test: 4 to 10\n• For stability test: 100+';
-
-  @override
-  String get sourceAddress => 'Source Address';
-
-  @override
-  String get sourceAddressHelp =>
-      'IP address from which packets are sent.\n\n• Auto: Router chooses the best address\n• If you have multiple IPs, you can specify which one to use';
-
-  @override
-  String get interfaceHelp =>
-      'Which network port to send packets from.\n\n• Auto: Router decides automatically\n• Useful when you have multiple routes to a destination\n• Select to test a specific port';
-
-  @override
-  String get doNotFragment => 'Do Not Fragment';
-
-  @override
-  String get doNotFragmentHelp =>
-      'If enabled, packets won\'t be fragmented.\n\n• Used for testing network MTU\n• If packet is larger than MTU, it will fail\n• Usually not needed';
-
-  @override
-  String get forMtuTesting => 'For MTU testing';
-
-  @override
-  String get autoDefault => 'Auto (default)';
-
-  @override
-  String get liveStatistics => 'Live Statistics';
-
-  @override
-  String get sent => 'Sent';
-
-  @override
-  String get received => 'Received';
-
-  @override
-  String get loss => 'Loss';
-
-  @override
-  String successRate(String rate) {
-    return '$rate% Success Rate';
-  }
-
-  @override
-  String get roundTripTime => 'Round Trip Time';
-
-  @override
-  String get min => 'Min';
-
-  @override
-  String get avg => 'Avg';
-
-  @override
-  String get max => 'Max';
-
-  @override
-  String get packetHistory => 'Packet History';
-
-  @override
-  String packetsCount(int count) {
-    return '$count packets';
-  }
-
-  @override
-  String get waitingForPackets => 'Waiting for packets...';
-
-  @override
-  String get start => 'START';
-
-  @override
-  String get stop => 'STOP';
-
-  @override
-  String get pleaseEnterTarget => 'Please enter a target address';
-
-  @override
-  String get targetHostHint => 'e.g., 1.1.1.1 or 8.8.8.8';
-
-  @override
-  String get bytes => 'bytes';
-
-  @override
-  String get sec => 'sec';
-
-  @override
-  String get timeout => 'timeout';
-
-  @override
-  String get tracerouteQuickTip =>
-      '💡 Traceroute shows the path packets take to reach an IP address. Note: Only IP addresses are supported, not domain names.';
-
-  @override
-  String get maxHopsLabel => 'Max Hops';
-
-  @override
-  String get maxHopsHelp =>
-      'Maximum number of hops to trace.\n\n• Default: 30\n• Lower value = faster but may not reach destination\n• Higher value = can trace longer paths';
-
-  @override
-  String get countProbes => 'Probes per Hop';
-
-  @override
-  String get countProbesHelp =>
-      'Number of probe packets sent per hop.\n\n• Default: 3\n• More probes = more accurate RTT statistics\n• Fewer probes = faster completion';
-
-  @override
-  String get timeoutMsLabel => 'Timeout';
-
-  @override
-  String get timeoutMsHelp =>
-      'Time to wait for each probe response.\n\n• Default: 1000ms\n• Lower timeout = faster but may miss slow responses\n• Higher timeout = more accurate for high-latency paths';
-
-  @override
-  String get ms => 'ms';
-
-  @override
-  String get routePath => 'Route Path';
-
-  @override
-  String hopCount(int count) {
-    return '$count hops';
-  }
-
-  @override
-  String get totalTime => 'Total Time';
-
-  @override
-  String get targetReached => 'Target Reached';
-
-  @override
-  String get targetNotReached => 'Target Not Reached';
-
-  @override
-  String hopNumber(int number) {
-    return 'Hop #$number';
-  }
-
-  @override
-  String get unknown => 'Unknown';
-
-  @override
-  String get best => 'Best';
-
-  @override
-  String get worst => 'Worst';
-
-  @override
-  String get waitingForHops => 'Waiting for route discovery...';
-
-  @override
-  String tracerouteInProgress(String target) {
-    return 'Tracing route to $target...';
-  }
-
-  @override
-  String get hops => 'hops';
 
   @override
   String get wirelessManagementDescription =>
@@ -1497,6 +1205,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get asteriskPbx => 'Asterisk PBX';
 
   @override
+  String get settings => 'Settings';
+
+  @override
   String get appLogin => 'App Login';
 
   @override
@@ -1542,5 +1253,277 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userAlreadyExists => 'Username already exists';
 
   @override
+  String get invalidCredentials => 'Invalid username or password';
+
+  @override
   String get defaultAdminHint => 'Default: admin (no password)';
+
+  @override
+  String get networkManagement => 'Network Management';
+
+  @override
+  String get securityAccess => 'Security & Access';
+
+  @override
+  String get monitoringTools => 'Monitoring & Tools';
+
+  @override
+  String get systemLogs => 'System Logs';
+
+  @override
+  String get logs => 'Logs';
+
+  @override
+  String get liveLog => 'Live Log';
+
+  @override
+  String get logsTabInfo =>
+      'Shows all router system logs. Use filter to narrow by topic.';
+
+  @override
+  String get liveLogTabInfo =>
+      'Shows live log updates as they happen on the router.';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get searchLogs => 'Search logs...';
+
+  @override
+  String get clearLogs => 'Clear Logs';
+
+  @override
+  String get clearLogsConfirmation =>
+      'Are you sure you want to clear all logs?';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get logsCleared => 'Logs cleared successfully';
+
+  @override
+  String get noLogsFound => 'No logs found';
+
+  @override
+  String get noLiveLogs => 'No live logs available';
+
+  @override
+  String get backupRestore => 'Backup & Restore';
+
+  @override
+  String get createBackup => 'Create Backup';
+
+  @override
+  String get backupDescription =>
+      'Create a backup of current RouterOS settings.';
+
+  @override
+  String get backupName => 'Backup Name';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get backupNameRequired => 'Backup name is required';
+
+  @override
+  String get backupNameNoSpaces => 'Backup name cannot contain spaces';
+
+  @override
+  String get noBackupsFound => 'No backups found';
+
+  @override
+  String get restore => 'Restore';
+
+  @override
+  String get confirmRestore => 'Confirm Restore';
+
+  @override
+  String get restoreBackupWarning =>
+      'Are you sure you want to restore this backup? This will overwrite current settings.';
+
+  @override
+  String get confirmDelete => 'Confirm Delete';
+
+  @override
+  String get deleteBackupWarning =>
+      'Are you sure you want to delete this backup?';
+
+  @override
+  String get advancedFeatures => 'Advanced Features';
+
+  @override
+  String get advancedOptions => 'Advanced Options';
+
+  @override
+  String get forAdvancedUsers => 'For advanced users';
+
+  @override
+  String get pleaseEnterTarget => 'Please enter target';
+
+  @override
+  String get targetHostHint => 'Target host or IP';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String get stop => 'Stop';
+
+  @override
+  String get pingQuickTip => 'Quick tip: use proper hostnames or IPs';
+
+  @override
+  String get packetSize => 'Packet Size';
+
+  @override
+  String get packetSizeHelp => 'Size of each ICMP packet in bytes';
+
+  @override
+  String get bytes => 'bytes';
+
+  @override
+  String get ttl => 'TTL';
+
+  @override
+  String get ttlHelp => 'Time to live for packets';
+
+  @override
+  String get interval => 'Interval';
+
+  @override
+  String get intervalHelp => 'Interval between requests in seconds';
+
+  @override
+  String get sec => 'sec';
+
+  @override
+  String get count => 'Count';
+
+  @override
+  String get countHelp => 'Number of packets to send';
+
+  @override
+  String get sourceAddress => 'Source Address';
+
+  @override
+  String get sourceAddressHelp => 'Source address to use';
+
+  @override
+  String get autoDefault => 'Auto / Default';
+
+  @override
+  String get interfaceHelp => 'Network interface to use';
+
+  @override
+  String get doNotFragment => 'Don\'t Fragment';
+
+  @override
+  String get doNotFragmentHelp => 'Set Don\'t Fragment flag for packets';
+
+  @override
+  String get forMtuTesting => 'For MTU testing';
+
+  @override
+  String get liveStatistics => 'Live Statistics';
+
+  @override
+  String get sent => 'Sent';
+
+  @override
+  String get received => 'Received';
+
+  @override
+  String get loss => 'Loss';
+
+  @override
+  String get successRate => 'Success Rate';
+
+  @override
+  String get roundTripTime => 'Round Trip Time';
+
+  @override
+  String get min => 'min';
+
+  @override
+  String get avg => 'avg';
+
+  @override
+  String get max => 'max';
+
+  @override
+  String get packetHistory => 'Packet History';
+
+  @override
+  String packetsCount(int count) {
+    return '$count packets';
+  }
+
+  @override
+  String get waitingForPackets => 'Waiting for packets';
+
+  @override
+  String get timeout => 'Timeout';
+
+  @override
+  String get unknown => 'Unknown';
+
+  @override
+  String get maxHopsLabel => 'Max Hops';
+
+  @override
+  String get maxHopsHelp => 'Maximum number of hops to probe';
+
+  @override
+  String get hops => 'Hops';
+
+  @override
+  String get timeoutMsLabel => 'Timeout (ms)';
+
+  @override
+  String get timeoutMsHelp =>
+      'Max time in milliseconds to wait for a probe response';
+
+  @override
+  String get ms => 'ms';
+
+  @override
+  String get countProbes => 'Count Probes';
+
+  @override
+  String get countProbesHelp => 'Number of probes per hop';
+
+  @override
+  String get tracerouteQuickTip =>
+      'Quick tip: traceroute shows path taken to target';
+
+  @override
+  String tracerouteInProgress(String target) {
+    return 'Traceroute in progress for $target';
+  }
+
+  @override
+  String get waitingForHops => 'Waiting for hops';
+
+  @override
+  String get routePath => 'Route Path';
+
+  @override
+  String hopCount(int count) {
+    return '$count hops';
+  }
+
+  @override
+  String get totalTime => 'Total Time';
+
+  @override
+  String get targetReached => 'Target Reached';
+
+  @override
+  String get targetNotReached => 'Target Not Reached';
 }

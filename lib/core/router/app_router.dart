@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../injection_container.dart';
+import '../utils/logger.dart';
 import '../../features/app_auth/presentation/bloc/app_auth_bloc.dart';
 import '../../features/app_auth/presentation/bloc/app_auth_state.dart';
 import '../../features/app_auth/presentation/pages/app_login_page.dart';
@@ -10,6 +11,8 @@ import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
+import '../../features/settings/presentation/pages/profile_page.dart';
+import '../../features/settings/presentation/pages/change_password_page.dart';
 import '../../features/snmp/presentation/bloc/snmp_monitor_bloc.dart';
 import '../../features/snmp/presentation/pages/snmp_dashboard_page.dart';
 import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
@@ -62,6 +65,8 @@ class AppRoutes {
   static const String login = '/login';
   static const String home = '/';
   static const String settings = '/settings';
+  static const String profile = '/settings/profile';
+  static const String changePassword = '/settings/change-password';
   static const String mikrotik = '/mikrotik';
   static const String snmp = '/snmp';
   static const String dashboard = '/dashboard';
@@ -105,6 +110,7 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 class AppRouter {
   final AppAuthBloc appAuthBloc;
   final AuthBloc authBloc;
+  final _log = AppLogger.tag('AppRouter');
   late final GoRouter router;
 
   AppRouter({required this.appAuthBloc, required this.authBloc}) {
@@ -116,12 +122,15 @@ class AppRouter {
         final appAuthState = appAuthBloc.state;
         final isAppAuthenticated = appAuthState is AppAuthAuthenticated;
         final isOnAppLogin = state.matchedLocation == AppRoutes.appLogin;
+        _log.i('Redirect check: matched=${state.matchedLocation}, appAuth=${appAuthState.runtimeType}, isAppAuthenticated=$isAppAuthenticated, isOnAppLogin=$isOnAppLogin');
 
         // App-level authentication check
         if (!isAppAuthenticated && !isOnAppLogin) {
+          _log.i('Redirecting to AppLogin');
           return AppRoutes.appLogin;
         }
         if (isAppAuthenticated && isOnAppLogin) {
+          _log.i('Authenticated and on app login - redirect to home');
           return AppRoutes.home;
         }
 
@@ -135,11 +144,15 @@ class AppRouter {
         final needsRouterAuth = state.matchedLocation.startsWith('/dashboard') || 
                                state.matchedLocation == AppRoutes.mikrotik;
 
+        _log.i('Router auth check: needsRouterAuth=$needsRouterAuth, authState=${authState.runtimeType}, isRouterAuthenticated=$isRouterAuthenticated');
+
         if (needsRouterAuth && !isRouterAuthenticated && !isLoggingIn && !isOnSubscription) {
+          _log.i('Redirecting to router login');
           return AppRoutes.login;
         }
 
         if (isRouterAuthenticated && isLoggingIn) {
+          _log.i('Router authenticated and on login - redirect to mikrotik');
           return AppRoutes.mikrotik;
         }
 
@@ -180,6 +193,20 @@ class AppRouter {
           path: AppRoutes.settings,
           name: 'settings',
           builder: (context, state) => const SettingsPage(),
+        ),
+
+        // Profile Route
+        GoRoute(
+          path: AppRoutes.profile,
+          name: 'profile',
+          builder: (context, state) => const ProfilePage(),
+        ),
+
+        // Change Password Route
+        GoRoute(
+          path: AppRoutes.changePassword,
+          name: 'changePassword',
+          builder: (context, state) => const ChangePasswordPage(),
         ),
 
         // MikroTik Section (current dashboard)

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,12 +43,15 @@ extension MyAppExtension on BuildContext {
 }
 
 void main() async {
+  print('DEBUG: main START');
   WidgetsFlutterBinding.ensureInitialized();
 
   // Allow self-signed SSL certificates for MikroTik routers
+  print('DEBUG: setting HttpOverrides');
   HttpOverrides.global = MyHttpOverrides();
 
   Future<void> bootstrap() async {
+    print('DEBUG: bootstrap START');
     // Initialize logging
     AppLogger.i('🚀 App starting...', tag: 'Main');
 
@@ -62,15 +66,21 @@ void main() async {
     AppLogger.i('✅ Bloc observer initialized', tag: 'Main');
 
     // Initialize dependencies
+    print('DEBUG: before di.init');
     await di.init();
+    print('DEBUG: after di.init');
     AppLogger.i('✅ Dependencies initialized', tag: 'Main');
 
     // Ensure default admin user exists
+    print('DEBUG: resolving AppAuthLocalDataSource');
     final authDataSource = di.sl<AppAuthLocalDataSource>();
+    print('DEBUG: resolved AppAuthLocalDataSource');
+    print('DEBUG: before ensureDefaultAdminExists');
     await authDataSource.ensureDefaultAdminExists();
+    print('DEBUG: after ensureDefaultAdminExists');
     AppLogger.i('✅ Default admin user ensured', tag: 'Main');
 
-    // Initialize Cafe Bazaar Subscription (only if enabled)
+    // Initialize Cafe Bazaar Subscription (only if enabled')
     if (BazaarConfig.subscriptionEnabled) {
       Future.microtask(() async {
         try {
@@ -88,15 +98,23 @@ void main() async {
     runApp(const MyApp());
   }
 
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = _glitchtipDsn;
-      options.tracesSampleRate = 0.2; // Adjust as needed
-      options.sendDefaultPii = false;
-      options.environment = 'production';
-    },
-    appRunner: bootstrap,
-  );
+  // In debug builds, skip Sentry initialization to reduce noisy logs and
+  // potential interference with early startup diagnostics. In release, keep Sentry.
+  print('DEBUG: about to init Sentry (skipped in debug)');
+  if (kDebugMode) {
+    print('DEBUG: Debug mode detected — calling bootstrap() directly');
+    await bootstrap();
+  } else {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = _glitchtipDsn;
+        options.tracesSampleRate = 0.2; // Adjust as needed
+        options.sendDefaultPii = false;
+        options.environment = 'production';
+      },
+      appRunner: bootstrap,
+    );
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -110,6 +128,7 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   Locale _locale = const Locale('en', '');
+  ThemeMode _themeMode = ThemeMode.system;
   late final AppAuthBloc _appAuthBloc;
   late final AuthBloc _authBloc;
   late final AppRouter _appRouter;
@@ -117,10 +136,18 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    print('DEBUG: MyApp.initState START');
+    AppLogger.i('MyApp.initState start', tag: 'MyApp');
     // Create blocs once and share them
     _appAuthBloc = di.sl<AppAuthBloc>();
+    print('DEBUG: MyApp.initState after creating AppAuthBloc');
+    AppLogger.i('AppAuthBloc instance created', tag: 'MyApp');
     _authBloc = di.sl<AuthBloc>();
+    print('DEBUG: MyApp.initState after creating AuthBloc');
+    AppLogger.i('AuthBloc instance created', tag: 'MyApp');
     _appRouter = AppRouter(appAuthBloc: _appAuthBloc, authBloc: _authBloc);
+    print('DEBUG: MyApp.initState after creating AppRouter');
+    AppLogger.i('AppRouter created', tag: 'MyApp');
     
     // Initialize back button handler for Android 13+
     BackButtonHandler.initialize();
@@ -131,7 +158,11 @@ class MyAppState extends State<MyApp> {
     });
     
     // Check if user is already logged in
+    print('DEBUG: Dispatching CheckAuthStatus event');
+    AppLogger.i('Dispatching CheckAuthStatus event', tag: 'MyApp');
     _appAuthBloc.add(CheckAuthStatus());
+    print('DEBUG: CheckAuthStatus event dispatched');
+    AppLogger.i('CheckAuthStatus event dispatched', tag: 'MyApp');
   }
   
   void _handleBackButton() {
@@ -200,8 +231,16 @@ class MyAppState extends State<MyApp> {
     });
   }
 
+  /// Apply a new theme mode globally
+  void setThemeMode(ThemeMode mode) {
+    setState(() {
+      _themeMode = mode;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    AppLogger.i('MyApp.build called', tag: 'MyApp');
     return MultiBlocProvider(
       providers: [
         // App-level authentication
@@ -274,6 +313,7 @@ class MyAppState extends State<MyApp> {
           ),
           useMaterial3: true,
         ),
+        themeMode: _themeMode,
       ),
     );
   }

@@ -55,12 +55,12 @@ class HomePage extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              context.push(AppRoutes.settings);
-            },
-            tooltip: l10n.settings,
-          ),
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                  context.push(AppRoutes.settings);
+                },
+                tooltip: l10n.settings,
+              ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {

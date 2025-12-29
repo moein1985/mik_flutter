@@ -56,16 +56,12 @@
   "@connectionError": {
     "description": "Connection error message"
   },
-  "invalidCredentials": "Invalid username or password",
-  "@invalidCredentials": {
-    "description": "Invalid credentials error message"
-  },
   "dashboard": "Dashboard",
   "@dashboard": {
     "description": "Dashboard page title"
   },
-  "interfaces": "Interfaces",
-  "@interfaces": {
+  "interfacesSection": "Interfaces",
+  "@interfacesSection": {
     "description": "Interfaces section title"
   },
   "ipAddresses": "IP Addresses",
@@ -79,10 +75,6 @@
   "firewall": "Firewall",
   "@firewall": {
     "description": "Firewall section title"
-  },
-  "settings": "Settings",
-  "@settings": {
-    "description": "Settings page title"
   },
 
   "biometricAuthentication": "Biometric Authentication",
@@ -99,6 +91,10 @@
   "@theme": { "description": "Theme label" },
   "light": "Light",
   "@light": { "description": "Light theme option" },
+  "dark": "Dark",
+  "@dark": { "description": "Dark theme option" },
+  "system": "System",
+  "@system": { "description": "System theme option" },
   "account": "Account",
   "@account": { "description": "Account section title" },
   "profileDescription": "View and edit account information",
@@ -117,6 +113,17 @@
   "@aboutAppDescription": { "description": "Description for About dialog" },
   "changeTheme": "Change theme",
   "@changeTheme": { "description": "Change theme action" },
+  "profileSaved": "Profile saved",
+  "@profileSaved": { "description": "SnackBar message when profile is saved" },
+  "passwordChanged": "Password changed successfully",
+  "@passwordChanged": { "description": "Password changed success message" },
+  "mustBeLoggedIn": "You must be logged in to change password",
+  "pleaseEnterName": "Please enter name",
+  "@pleaseEnterName": { "description": "Validation message for empty name" },
+  "pleaseEnterEmail": "Please enter email",
+  "@pleaseEnterEmail": { "description": "Validation message for empty email" },
+  "email": "Email",
+  "@email": { "description": "Email field label" },
   "systemResources": "System Resources",
   "@systemResources": {
     "description": "System Resources section title"
@@ -1319,12 +1326,13 @@
   "@edit": {
     "description": "Edit button text"
   },
+  "commentOptional": "Comment (Optional)",
   "@commentOptional": {
     "description": "Comment optional label"
   },
-  "commentHint": "Optional description",
+  "commentHint": "e.g., VIP user, Guest network",
   "@commentHint": {
-    "description": "Comment hint"
+    "description": "Comment hint text"
   },
   "saving": "Saving...",
   "@saving": {
@@ -1357,417 +1365,6 @@
   "noSecurityProfiles": "No security profiles found",
   "@noSecurityProfiles": {
     "description": "Message when no security profiles are available"
-  },
-  "enabled": "Enabled",
-  "@enabled": {
-    "description": "Status indicator for enabled items"
-  },
-  "disabled": "Disabled",
-  "@disabled": {
-    "description": "Status indicator for disabled items"
-  },
-  "connected": "Connected",
-  "@connected": {
-    "description": "Status indicator for connected clients"
-  },
-  "systemLogs": "System Logs",
-  "@systemLogs": {
-    "description": "System logs page title"
-  },
-  "logs": "Logs",
-  "@logs": {
-    "description": "Logs tab"
-  },
-  "follow": "Follow",
-  "@follow": {
-    "description": "Follow logs tab"
-  },
-  "liveLog": "Live Log",
-  "@liveLog": {
-    "description": "Live log tab - shows real-time log updates"
-  },
-  "logsTabInfo": "Shows all router system logs. Logs are displayed from oldest (top) to newest (bottom). Use the filter button to narrow down logs by topics. Pull down to refresh.",
-  "@logsTabInfo": {
-    "description": "Information about Logs tab functionality"
-  },
-  "liveLogTabInfo": "Shows real-time log updates as they occur on the router. Starts empty and displays only new logs (max 500). Logs are displayed from oldest (top) to newest (bottom).",
-  "@liveLogTabInfo": {
-    "description": "Information about Live Log tab functionality"
-  },
-  "close": "Close",
-  "@close": {
-    "description": "Close button"
-  },
-  "search": "Search",
-  "@search": {
-    "description": "Search button/action"
-  },
-  "searchLogs": "Search logs...",
-  "@searchLogs": {
-    "description": "Search logs hint text"
-  },
-  "clearLogs": "Clear Logs",
-  "@clearLogs": {
-    "description": "Clear logs action"
-  },
-  "clearLogsConfirmation": "Are you sure you want to clear all logs?",
-  "@clearLogsConfirmation": {
-    "description": "Clear logs confirmation message"
-  },
-  "clear": "Clear",
-  "@clear": {
-    "description": "Clear action"
-  },
-  "filterLogs": "Filter Logs",
-  "@filterLogs": {
-    "description": "Filter logs title"
-  },
-  "topics": "Topics",
-  "@topics": {
-    "description": "Topics filter label"
-  },
-  "applyFilter": "Apply Filter",
-  "@applyFilter": {
-    "description": "Apply filter button"
-  },
-  "clearFilter": "Clear Filter",
-  "@clearFilter": {
-    "description": "Clear filter button"
-  },
-  "commonTopics": "Common Topics:",
-  "@commonTopics": {
-    "description": "Common topics label"
-  },
-  "noLogsFound": "No logs found",
-  "@noLogsFound": {
-    "description": "Message when no logs are found"
-  },
-  "noLiveLogs": "No live logs available",
-  "@noLiveLogs": {
-    "description": "Message when no live logs are available"
-  },
-  "logsCleared": "Logs cleared successfully",
-  "@logsCleared": {
-    "description": "Success message when logs are cleared"
-  },
-  "backupRestore": "Backup & Restore",
-  "@backupRestore": {
-    "description": "Backup & Restore section title"
-  },
-  "createBackup": "Create Backup",
-  "@createBackup": {
-    "description": "Create backup button/action"
-  },
-  "backupName": "Backup Name",
-  "@backupName": {
-    "description": "Backup name field label"
-  },
-  "backupNameRequired": "Backup name is required",
-  "@backupNameRequired": {
-    "description": "Validation message for required backup name"
-  },
-  "backupNameNoSpaces": "Backup name cannot contain spaces",
-  "@backupNameNoSpaces": {
-    "description": "Validation message for backup name containing spaces"
-  },
-  "backupDescription": "Create a backup of the current RouterOS configuration.",
-  "@backupDescription": {
-    "description": "Description text for backup creation"
-  },
-  "create": "Create",
-  "@create": {
-    "description": "Generic create button text"
-  },
-  "noBackupsFound": "No backups found",
-  "@noBackupsFound": {
-    "description": "Message when no backups are found"
-  },
-  "restore": "Restore",
-  "@restore": {
-    "description": "Restore action/button text"
-  },
-  "confirmRestore": "Confirm Restore",
-  "@confirmRestore": {
-    "description": "Confirm restore dialog title"
-  },
-  "restoreBackupWarning": "Are you sure you want to restore from this backup? This will overwrite current configuration.",
-  "@restoreBackupWarning": {
-    "description": "Warning message for backup restore operation"
-  },
-  "confirmDelete": "Confirm Delete",
-  "@confirmDelete": {
-    "description": "Confirm delete dialog title"
-  },
-  "deleteBackupWarning": "Are you sure you want to delete this backup?",
-  "@deleteBackupWarning": {
-    "description": "Warning message for backup delete operation"
-  },
-  "networkManagement": "Network Management",
-  "@networkManagement": {
-    "description": "Network Management section title"
-  },
-  "securityAccess": "Security & Access",
-  "@securityAccess": {
-    "description": "Security & Access section title"
-  },
-  "monitoringTools": "Monitoring & Tools",
-  "@monitoringTools": {
-    "description": "Monitoring & Tools section title"
-  },
-  "advancedFeatures": "Advanced Features",
-  "@advancedFeatures": {
-    "description": "Advanced Features section title"
-  },
-  "pingQuickTip": "For most tasks, you don't need advanced settings! Just enter the address and tap Start.",
-  "@pingQuickTip": {
-    "description": "Quick tip for ping page"
-  },
-  "advancedOptions": "Advanced Options",
-  "@advancedOptions": {
-    "description": "Advanced options section title"
-  },
-  "forAdvancedUsers": "For advanced users",
-  "@forAdvancedUsers": {
-    "description": "Subtitle for advanced options"
-  },
-  "packetSize": "Packet Size",
-  "@packetSize": {
-    "description": "Packet size field label"
-  },
-  "packetSizeHelp": "Data packet size in bytes.\n\n• Default: 56 bytes\n• Sufficient for normal testing\n• Use higher values (e.g., 1500) for MTU testing",
-  "@packetSizeHelp": {
-    "description": "Help text for packet size field"
-  },
-  "ttl": "TTL",
-  "@ttl": {
-    "description": "TTL field label"
-  },
-  "ttlHelp": "Maximum number of routers the packet can pass through.\n\n• Default: 64\n• Usually no need to change\n• Higher values mean lost packets take longer to detect",
-  "@ttlHelp": {
-    "description": "Help text for TTL field"
-  },
-  "interval": "Interval",
-  "@interval": {
-    "description": "Interval field label"
-  },
-  "intervalHelp": "Time between sending each packet in seconds.\n\n• Default: 1 second\n• Lower = faster test\n• Higher = less network load",
-  "@intervalHelp": {
-    "description": "Help text for interval field"
-  },
-  "count": "Count",
-  "@count": {
-    "description": "Count field label"
-  },
-  "countHelp": "Total number of packets to send.\n\n• Default: 100\n• For quick test: 4 to 10\n• For stability test: 100+",
-  "@countHelp": {
-    "description": "Help text for count field"
-  },
-  "sourceAddress": "Source Address",
-  "@sourceAddress": {
-    "description": "Source address field label"
-  },
-  "sourceAddressHelp": "IP address from which packets are sent.\n\n• Auto: Router chooses the best address\n• If you have multiple IPs, you can specify which one to use",
-  "@sourceAddressHelp": {
-    "description": "Help text for source address field"
-  },
-  "interfaceHelp": "Which network port to send packets from.\n\n• Auto: Router decides automatically\n• Useful when you have multiple routes to a destination\n• Select to test a specific port",
-  "@interfaceHelp": {
-    "description": "Help text for interface field"
-  },
-  "doNotFragment": "Do Not Fragment",
-  "@doNotFragment": {
-    "description": "Do not fragment switch label"
-  },
-  "doNotFragmentHelp": "If enabled, packets won't be fragmented.\n\n• Used for testing network MTU\n• If packet is larger than MTU, it will fail\n• Usually not needed",
-  "@doNotFragmentHelp": {
-    "description": "Help text for do not fragment switch"
-  },
-  "forMtuTesting": "For MTU testing",
-  "@forMtuTesting": {
-    "description": "Subtitle for do not fragment switch"
-  },
-  "autoDefault": "Auto (default)",
-  "@autoDefault": {
-    "description": "Auto default option in dropdown"
-  },
-  "liveStatistics": "Live Statistics",
-  "@liveStatistics": {
-    "description": "Live statistics card title"
-  },
-  "sent": "Sent",
-  "@sent": {
-    "description": "Sent packets label"
-  },
-  "received": "Received",
-  "@received": {
-    "description": "Received packets label"
-  },
-  "loss": "Loss",
-  "@loss": {
-    "description": "Packet loss label"
-  },
-  "successRate": "{rate}% Success Rate",
-  "@successRate": {
-    "description": "Success rate display",
-    "placeholders": {
-      "rate": {
-        "type": "String"
-      }
-    }
-  },
-  "roundTripTime": "Round Trip Time",
-  "@roundTripTime": {
-    "description": "RTT card title"
-  },
-  "min": "Min",
-  "@min": {
-    "description": "Minimum RTT label"
-  },
-  "avg": "Avg",
-  "@avg": {
-    "description": "Average RTT label"
-  },
-  "max": "Max",
-  "@max": {
-    "description": "Maximum RTT label"
-  },
-  "packetHistory": "Packet History",
-  "@packetHistory": {
-    "description": "Packet history card title"
-  },
-  "packetsCount": "{count} packets",
-  "@packetsCount": {
-    "description": "Packet count display",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "waitingForPackets": "Waiting for packets...",
-  "@waitingForPackets": {
-    "description": "Waiting for packets message"
-  },
-  "start": "START",
-  "@start": {
-    "description": "Start button text"
-  },
-  "stop": "STOP",
-  "@stop": {
-    "description": "Stop button text"
-  },
-  "pleaseEnterTarget": "Please enter a target address",
-  "@pleaseEnterTarget": {
-    "description": "Error message when target is empty"
-  },
-  "targetHostHint": "e.g., 1.1.1.1 or 8.8.8.8",
-  "@targetHostHint": {
-    "description": "Hint for target host input"
-  },
-  "bytes": "bytes",
-  "@bytes": {
-    "description": "Bytes unit"
-  },
-  "sec": "sec",
-  "@sec": {
-    "description": "Seconds unit"
-  },
-  "timeout": "timeout",
-  "@timeout": {
-    "description": "Timeout label"
-  },
-  
-  "tracerouteQuickTip": "💡 Traceroute shows the path packets take to reach an IP address. Note: Only IP addresses are supported, not domain names.",
-  "@tracerouteQuickTip": {
-    "description": "Quick tip for traceroute"
-  },
-  "maxHopsLabel": "Max Hops",
-  "@maxHopsLabel": {
-    "description": "Maximum hops field label"
-  },
-  "maxHopsHelp": "Maximum number of hops to trace.\n\n• Default: 30\n• Lower value = faster but may not reach destination\n• Higher value = can trace longer paths",
-  "@maxHopsHelp": {
-    "description": "Help text for max hops"
-  },
-  "countProbes": "Probes per Hop",
-  "@countProbes": {
-    "description": "Count of probes per hop label"
-  },
-  "countProbesHelp": "Number of probe packets sent per hop.\n\n• Default: 3\n• More probes = more accurate RTT statistics\n• Fewer probes = faster completion",
-  "@countProbesHelp": {
-    "description": "Help text for probes per hop"
-  },
-  "timeoutMsLabel": "Timeout",
-  "timeoutMsHelp": "Time to wait for each probe response.\n\n• Default: 1000ms\n• Lower timeout = faster but may miss slow responses\n• Higher timeout = more accurate for high-latency paths",
-  "@timeoutMsHelp": {
-    "description": "Help text for timeout"
-  },
-  "ms": "ms",
-  "@ms": {
-    "description": "Milliseconds unit"
-  },
-  "routePath": "Route Path",
-  "@routePath": {
-    "description": "Route path section title"
-  },
-  "hopCount": "{count} hops",
-  "@hopCount": {
-    "description": "Hop count display",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "totalTime": "Total Time",
-  "@totalTime": {
-    "description": "Total time label"
-  },
-  "targetReached": "Target Reached",
-  "@targetReached": {
-    "description": "Target reached status"
-  },
-  "targetNotReached": "Target Not Reached",
-  "@targetNotReached": {
-    "description": "Target not reached status"
-  },
-  "hopNumber": "Hop #{number}",
-  "@hopNumber": {
-    "description": "Hop number display",
-    "placeholders": {
-      "number": {
-        "type": "int"
-      }
-    }
-  },
-  "unknown": "Unknown",
-  "@unknown": {
-    "description": "Unknown value"
-  },
-  "best": "Best",
-  "@best": {
-    "description": "Best RTT label"
-  },
-  "worst": "Worst",
-  "@worst": {
-    "description": "Worst RTT label"
-  },
-  "waitingForHops": "Waiting for route discovery...",
-  "@waitingForHops": {
-    "description": "Waiting for hops message"
-  },
-  "tracerouteInProgress": "Tracing route to {target}...",
-  "@tracerouteInProgress": {
-    "description": "Traceroute in progress message",
-    "placeholders": {
-      "target": {
-        "type": "String"
-      }
-    }
-  },
-  "hops": "hops",
-  "@hops": {
-    "description": "Hops unit"
   },
   "wirelessManagementDescription": "Manage wireless interfaces, clients, and security profiles",
   "@wirelessManagementDescription": {
@@ -1910,40 +1507,249 @@
   "settings": "Settings",
   "@settings": {
     "description": "Settings menu item"
-  }
-,
+  },
   "appLogin": "App Login",
-  "@appLogin": {"description": "App login page title"},
+  "@appLogin": {
+    "description": "App login page title"
+  },
   "register": "Register",
-  "@register": {"description": "Register button or page title"},
+  "@register": {
+    "description": "Register button or page title"
+  },
   "createAccount": "Create Account",
-  "@createAccount": {"description": "Create account button text"},
+  "@createAccount": {
+    "description": "Create account button text"
+  },
   "alreadyHaveAccount": "Already have an account?",
-  "@alreadyHaveAccount": {"description": "Already have account prompt"},
+  "@alreadyHaveAccount": {
+    "description": "Already have account prompt"
+  },
   "dontHaveAccount": "Don't have an account?",
-  "@dontHaveAccount": {"description": "Don't have account prompt"},
+  "@dontHaveAccount": {
+    "description": "Don't have account prompt"
+  },
   "loginWithBiometric": "Login with Biometric",
-  "@loginWithBiometric": {"description": "Biometric login button"},
+  "@loginWithBiometric": {
+    "description": "Biometric login button"
+  },
   "biometricEnabled": "Biometric Enabled",
-  "@biometricEnabled": {"description": "Biometric authentication status"},
+  "@biometricEnabled": {
+    "description": "Biometric authentication status"
+  },
   "enableBiometric": "Enable Biometric",
-  "@enableBiometric": {"description": "Enable biometric button"},
+  "@enableBiometric": {
+    "description": "Enable biometric button"
+  },
   "disableBiometric": "Disable Biometric",
-  "@disableBiometric": {"description": "Disable biometric button"},
+  "@disableBiometric": {
+    "description": "Disable biometric button"
+  },
   "usernameRequired": "Username is required",
-  "@usernameRequired": {"description": "Username validation error"},
+  "@usernameRequired": {
+    "description": "Username validation error"
+  },
   "passwordRequired": "Password is required",
-  "@passwordRequired": {"description": "Password validation error"},
+  "@passwordRequired": {
+    "description": "Password validation error"
+  },
   "passwordTooShort": "Password must be at least 3 characters",
-  "@passwordTooShort": {"description": "Password length validation error"},
+  "@passwordTooShort": {
+    "description": "Password length validation error"
+  },
   "registrationSuccess": "Registration successful",
-  "@registrationSuccess": {"description": "Registration success message"},
+  "@registrationSuccess": {
+    "description": "Registration success message"
+  },
   "registrationFailed": "Registration failed",
-  "@registrationFailed": {"description": "Registration failed message"},
+  "@registrationFailed": {
+    "description": "Registration failed message"
+  },
   "userAlreadyExists": "Username already exists",
-  "@userAlreadyExists": {"description": "User already exists error"},
+  "@userAlreadyExists": {
+    "description": "User already exists error"
+  },
   "invalidCredentials": "Invalid username or password",
-  "@invalidCredentials": {"description": "Invalid credentials error"},
+  "@invalidCredentials": {
+    "description": "Invalid credentials error"
+  },
   "defaultAdminHint": "Default: admin (no password)",
-  "@defaultAdminHint": {"description": "Hint for default admin credentials"}
+  "@defaultAdminHint": {
+    "description": "Hint for default admin credentials"
+  },
+
+  "networkManagement": "Network Management",
+  "@networkManagement": { "description": "Network management section" },
+  "securityAccess": "Security & Access",
+  "@securityAccess": { "description": "Security and access section" },
+  "monitoringTools": "Monitoring & Tools",
+  "@monitoringTools": { "description": "Monitoring tools section" },
+
+  "systemLogs": "System Logs",
+  "@systemLogs": { "description": "System Logs title" },
+  "logs": "Logs",
+  "@logs": { "description": "Logs tab title" },
+  "liveLog": "Live Log",
+  "@liveLog": { "description": "Live log tab title" },
+  "logsTabInfo": "Shows all router system logs. Use filter to narrow by topic.",
+  "@logsTabInfo": { "description": "Info text for logs tab" },
+  "liveLogTabInfo": "Shows live log updates as they happen on the router.",
+  "@liveLogTabInfo": { "description": "Info text for live log tab" },
+  "close": "Close",
+  "@close": { "description": "Close action" },
+  "search": "Search",
+  "@search": { "description": "Search action" },
+  "searchLogs": "Search logs...",
+  "@searchLogs": { "description": "Search placeholder for logs" },
+  "clearLogs": "Clear Logs",
+  "@clearLogs": { "description": "Clear logs action" },
+  "clearLogsConfirmation": "Are you sure you want to clear all logs?",
+  "@clearLogsConfirmation": { "description": "Clear logs confirmation dialog" },
+  "clear": "Clear",
+  "@clear": { "description": "Clear action label" },
+  "logsCleared": "Logs cleared successfully",
+  "@logsCleared": { "description": "Snackbar after clearing logs" },
+  "noLogsFound": "No logs found",
+  "@noLogsFound": { "description": "No logs found message" },
+  "noLiveLogs": "No live logs available",
+  "@noLiveLogs": { "description": "No live logs message" },
+
+  "backupRestore": "Backup & Restore",
+  "@backupRestore": { "description": "Backup page title" },
+  "createBackup": "Create Backup",
+  "@createBackup": { "description": "Create backup button" },
+  "backupDescription": "Create a backup of current RouterOS settings.",
+  "@backupDescription": { "description": "Description shown in create backup card" },
+  "backupName": "Backup Name",
+  "@backupName": { "description": "Backup name field" },
+  "create": "Create",
+  "@create": { "description": "Create action" },
+  "backupNameRequired": "Backup name is required",
+  "@backupNameRequired": { "description": "Validation for backup name" },
+  "backupNameNoSpaces": "Backup name cannot contain spaces",
+  "@backupNameNoSpaces": { "description": "No spaces validation" },
+  "noBackupsFound": "No backups found",
+  "@noBackupsFound": { "description": "No backups message" },
+  "restore": "Restore",
+  "@restore": { "description": "Restore action" },
+  "confirmRestore": "Confirm Restore",
+  "@confirmRestore": { "description": "Confirm restore dialog title" },
+  "restoreBackupWarning": "Are you sure you want to restore this backup? This will overwrite current settings.",
+  "@restoreBackupWarning": { "description": "Warning shown before restore" },
+  "confirmDelete": "Confirm Delete",
+  "@confirmDelete": { "description": "Confirm delete dialog title" },
+  "deleteBackupWarning": "Are you sure you want to delete this backup?",
+  "@deleteBackupWarning": { "description": "Warning shown before deleting backup" },
+  "advancedFeatures": "Advanced Features",
+  "@advancedFeatures": { "description": "Advanced features section" },
+
+  "advancedOptions": "Advanced Options",
+  "@advancedOptions": { "description": "Advanced options title" },
+  "forAdvancedUsers": "For advanced users",
+  "@forAdvancedUsers": { "description": "Advanced options subtitle" },
+
+  "pleaseEnterTarget": "Please enter target",
+  "@pleaseEnterTarget": { "description": "Validation for target input" },
+  "targetHostHint": "Target host or IP",
+  "@targetHostHint": { "description": "Hint for target host" },
+  "start": "Start",
+  "@start": { "description": "Start action" },
+  "stop": "Stop",
+  "@stop": { "description": "Stop action" },
+  "pingQuickTip": "Quick tip: use proper hostnames or IPs",
+  "@pingQuickTip": { "description": "Ping quick tip text" },
+  "packetSize": "Packet Size",
+  "@packetSize": { "description": "Packet size label" },
+  "packetSizeHelp": "Size of each ICMP packet in bytes",
+  "@packetSizeHelp": { "description": "Help for packet size" },
+  "bytes": "bytes",
+  "@bytes": { "description": "Bytes unit" },
+  "ttl": "TTL",
+  "@ttl": { "description": "Time To Live label" },
+  "ttlHelp": "Time to live for packets",
+  "@ttlHelp": { "description": "Help for TTL" },
+  "interval": "Interval",
+  "@interval": { "description": "Interval label" },
+  "intervalHelp": "Interval between requests in seconds",
+  "@intervalHelp": { "description": "Help for interval" },
+  "sec": "sec",
+  "@sec": { "description": "Seconds unit" },
+  "count": "Count",
+  "@count": { "description": "Count label" },
+  "countHelp": "Number of packets to send",
+  "@countHelp": { "description": "Help for count" },
+  "sourceAddress": "Source Address",
+  "@sourceAddress": { "description": "Source address label" },
+  "sourceAddressHelp": "Source address to use",
+  "@sourceAddressHelp": { "description": "Help for source address" },
+  "autoDefault": "Auto / Default",
+  "@autoDefault": { "description": "Auto or Default hint" },
+  "interfaceHelp": "Network interface to use",
+  "@interfaceHelp": { "description": "Help for interface" },
+  "doNotFragment": "Don't Fragment",
+  "@doNotFragment": { "description": "Don't Fragment label" },
+  "doNotFragmentHelp": "Set Don't Fragment flag for packets",
+  "@doNotFragmentHelp": { "description": "Help for Don't Fragment" },
+  "forMtuTesting": "For MTU testing",
+  "@forMtuTesting": { "description": "Subtitle for MTU testing" },
+  "liveStatistics": "Live Statistics",
+  "@liveStatistics": { "description": "Live statistics title" },
+  "sent": "Sent",
+  "@sent": { "description": "Sent stat" },
+  "received": "Received",
+  "@received": { "description": "Received stat" },
+  "loss": "Loss",
+  "@loss": { "description": "Loss stat" },
+  "successRate": "Success Rate",
+  "@successRate": { "description": "Success rate label" },
+  "roundTripTime": "Round Trip Time",
+  "@roundTripTime": { "description": "RTT label" },
+  "min": "min",
+  "@min": { "description": "Minimum label" },
+  "avg": "avg",
+  "@avg": { "description": "Average label" },
+  "max": "max",
+  "@max": { "description": "Maximum label" },
+  "packetHistory": "Packet History",
+  "@packetHistory": { "description": "Packet history title" },
+  "packetsCount": "{count} packets",
+  "@packetsCount": { "description": "Packets count", "placeholders": { "count": { "type": "int" } } },
+  "waitingForPackets": "Waiting for packets",
+  "@waitingForPackets": { "description": "Waiting text" },
+  "timeout": "Timeout",
+  "@timeout": { "description": "Timeout label" },
+  "unknown": "Unknown",
+  "@unknown": { "description": "Unknown label" },
+
+  "maxHopsLabel": "Max Hops",
+  "@maxHopsLabel": { "description": "Max hops label" },
+  "maxHopsHelp": "Maximum number of hops to probe",
+  "@maxHopsHelp": { "description": "Help for max hops" },
+  "hops": "Hops",
+  "@hops": { "description": "Hops label" },
+  "timeoutMsLabel": "Timeout (ms)",
+  "@timeoutMsLabel": { "description": "Timeout ms label" },
+  "timeoutMsHelp": "Max time in milliseconds to wait for a probe response",
+  "@timeoutMsHelp": { "description": "Help for timeout ms" },
+  "ms": "ms",
+  "@ms": { "description": "Milliseconds unit" },
+  "countProbes": "Count Probes",
+  "@countProbes": { "description": "Count probes label" },
+  "countProbesHelp": "Number of probes per hop",
+  "@countProbesHelp": { "description": "Help for count probes" },
+  "tracerouteQuickTip": "Quick tip: traceroute shows path taken to target",
+  "@tracerouteQuickTip": { "description": "Traceroute quick tip" },
+  "tracerouteInProgress": "Traceroute in progress for {target}",
+  "@tracerouteInProgress": { "description": "Traceroute progress", "placeholders": { "target": { "type": "String" } } },
+  "waitingForHops": "Waiting for hops",
+  "@waitingForHops": { "description": "Waiting for hops" },
+  "routePath": "Route Path",
+  "@routePath": { "description": "Route path" },
+  "hopCount": "{count} hops",
+  "@hopCount": { "description": "Hop count", "placeholders": { "count": { "type": "int" } } },
+  "totalTime": "Total Time",
+  "@totalTime": { "description": "Total time label" },
+  "targetReached": "Target Reached",
+  "@targetReached": { "description": "Target reached label" },
+  "targetNotReached": "Target Not Reached",
+  "@targetNotReached": { "description": "Target not reached label" }
 }
