@@ -71,6 +71,10 @@ class SnmpRepositoryImpl implements SnmpRepository {
           displayInErrors: _parseIntValue(data['inErrors'])?.toString() ?? 'N/A',
           displayOutErrors: _parseIntValue(data['outErrors'])?.toString() ?? 'N/A',
           vlanInfo: null,
+          duplex: _parseDuplex(data['duplex']),
+          poeEnabled: data['poeEnabled'] == '1',
+          poePowerAllocated: _parseIntValue(data['poePowerAllocated']),
+          poePowerConsumption: _parseIntValue(data['poePowerConsumption']),
         ));
       });
       interfaces.sort((a, b) => a.index.compareTo(b.index));
@@ -218,5 +222,24 @@ class SnmpRepositoryImpl implements SnmpRepository {
   String? _formatUptime(String? value) {
     if (value == null) return 'N/A';
     return _formatTimeTicks(value);
+  }
+
+  String? _parseDuplex(dynamic value) {
+    if (value == null) return null;
+    try {
+      final duplexCode = int.parse(value.toString());
+      switch (duplexCode) {
+        case 1:
+          return 'unknown';
+        case 2:
+          return 'half';
+        case 3:
+          return 'full';
+        default:
+          return 'unknown';
+      }
+    } catch (_) {
+      return null;
+    }
   }
 }

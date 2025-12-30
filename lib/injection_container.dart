@@ -56,6 +56,7 @@ import 'features/snmp/domain/repositories/snmp_repository.dart';
 import 'features/snmp/domain/repositories/saved_snmp_device_repository.dart';
 import 'features/snmp/domain/usecases/get_device_info_usecase.dart';
 import 'features/snmp/domain/usecases/get_interface_status_usecase.dart';
+import 'features/snmp/domain/usecases/get_cisco_device_info_usecase.dart';
 import 'features/snmp/domain/usecases/get_all_devices_usecase.dart';
 import 'features/snmp/domain/usecases/get_default_device_usecase.dart';
 import 'features/snmp/domain/usecases/save_device_usecase.dart';
@@ -876,6 +877,7 @@ Future<void> init() async {
     () => SnmpMonitorBloc(
       getDeviceInfoUseCase: sl(),
       getInterfaceStatusUseCase: sl(),
+      getCiscoDeviceInfoUseCase: sl(),
     ),
   );
 
@@ -893,6 +895,7 @@ Future<void> init() async {
   // Use cases - SNMP Monitor
   sl.registerLazySingleton(() => GetDeviceInfoUseCase(sl()));
   sl.registerLazySingleton(() => GetInterfaceStatusUseCase(sl()));
+  sl.registerLazySingleton(() => GetCiscoDeviceInfoUseCase(sl()));
 
   // Use cases - Saved Devices
   sl.registerLazySingleton(() => GetAllDevicesUseCase(sl()));

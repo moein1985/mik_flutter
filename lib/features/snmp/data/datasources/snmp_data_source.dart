@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dart_snmp/dart_snmp.dart';
 import 'package:flutter/foundation.dart';
 import 'oid_constants.dart';
+import '../models/cisco_device_info_model.dart';
 
 // Custom Exception Classes
 class CancelledException implements Exception {
@@ -324,6 +325,16 @@ class SnmpDataSource {
       if (vendor == DeviceVendor.cisco) {
         oidsToFetch
             .add(MapEntry('ciscoVlanId', '${OidConstants.ciscoVmVlan}$index'));
+        // Add PoE information for Cisco devices
+        oidsToFetch.add(MapEntry(
+            'poeEnabled', '${OidConstants.cpeExtPsePortEnable}$index'));
+        oidsToFetch.add(MapEntry('poePowerAllocated',
+            '${OidConstants.cpeExtPsePortPwrAllocated}$index'));
+        oidsToFetch.add(MapEntry('poePowerConsumption',
+            '${OidConstants.cpeExtPsePortPwrConsumption}$index'));
+        // Add Duplex information
+        oidsToFetch.add(
+            MapEntry('duplex', '${OidConstants.dot3StatsDuplexStatus}$index'));
       }
 
       final futures = oidsToFetch
@@ -380,5 +391,313 @@ class SnmpDataSource {
     debugPrint('DataSource: Cancellation requested.');
     _isCancelled = true;
     _closeSession();
+  }
+
+  /// Fetch Cisco-specific device information
+  Future<CiscoDeviceInfoModel?> fetchCiscoDeviceInfo(
+    String ip,
+    String community,
+    int port,
+  ) async {
+    debugPrint('DataSource: Starting Cisco device info fetch. IP: $ip');
+    _isCancelled = false;
+
+    try {
+      final target = InternetAddress(ip);
+      final session = await _getOrCreateSession(target, community, port);
+
+      // Check if it's actually a Cisco device
+      final vendor = await _detectVendor(session);
+      if (vendor != DeviceVendor.cisco) {
+        debugPrint('DataSource: Device is not Cisco, skipping Cisco-specific info');
+        return null;
+      }
+
+      // Fetch all Cisco-specific information in parallel
+      final results = await Future.wait([
+        _fetchCiscoHardwareInfo(session),
+        _fetchCiscoCpuUsage(session),
+        _fetchCiscoMemoryUsage(session),
+        _fetchCiscoEnvironmentalStatus(session),
+      ]);
+
+      final hardwareInfo = results[0] as Map<String, dynamic>?;
+      final cpuInfo = results[1] as Map<String, dynamic>?;
+      final memoryInfo = results[2] as Map<String, dynamic>?;
+      final envInfo = results[3] as EnvironmentalStatus?;
+
+      return CiscoDeviceInfoModel(
+        modelName: hardwareInfo?['modelName'],
+        serialNumber: hardwareInfo?['serialNumber'],
+        iosVersion: hardwareInfo?['iosVersion'],
+        hardwareVersion: hardwareInfo?['hardwareVersion'],
+        description: hardwareInfo?['description'],
+        cpuUsage5sec: cpuInfo?['cpu5sec'],
+        cpuUsage1min: cpuInfo?['cpu1min'],
+        cpuUsage5min: cpuInfo?['cpu5min'],
+        memoryUsed: memoryInfo?['used'],
+        memoryFree: memoryInfo?['free'],
+        memoryTotal: memoryInfo?['total'],
+        memoryUtilization: memoryInfo?['utilization'],
+        environmental: envInfo,
+      );
+    } on SocketException catch (e) {
+      debugPrint('DataSource: SocketException during Cisco info fetch: $e');
+      throw NetworkException('Socket error: ${e.message}');
+    } catch (e) {
+      debugPrint('DataSource: Error fetching Cisco info: $e');
+      return null;
+    } finally {
+      _releaseSession();
+      _isCancelled = false;
+    }
+  }
+
+  /// Fetch hardware information
+  Future<Map<String, dynamic>?> _fetchCiscoHardwareInfo(Snmp session) async {
+    try {
+      final results = await Future.wait([
+        _getSingleOid(session, OidConstants.entPhysicalModelName),
+        _getSingleOid(session, OidConstants.entPhysicalSerialNum),
+        _getSingleOid(session, OidConstants.entPhysicalSoftwareRev),
+        _getSingleOid(session, OidConstants.entPhysicalHardwareRev),
+        _getSingleOid(session, OidConstants.entPhysicalDescr),
+      ]);
+
+      return {
+        'modelName': results[0],
+        'serialNumber': results[1],
+        'iosVersion': results[2],
+        'hardwareVersion': results[3],
+        'description': results[4],
+      };
+    } catch (e) {
+      debugPrint('Error fetching Cisco hardware info: $e');
+      return null;
+    }
+  }
+
+  /// Fetch CPU usage information
+  Future<Map<String, dynamic>?> _fetchCiscoCpuUsage(Snmp session) async {
+    try {
+      final results = await Future.wait([
+        _getSingleOid(session, OidConstants.cpmCPUTotal5sec),
+        _getSingleOid(session, OidConstants.cpmCPUTotal1min),
+        _getSingleOid(session, OidConstants.cpmCPUTotal5min),
+      ]);
+
+      return {
+        'cpu5sec': results[0] != null ? int.tryParse(results[0]!) : null,
+        'cpu1min': results[1] != null ? int.tryParse(results[1]!) : null,
+        'cpu5min': results[2] != null ? int.tryParse(results[2]!) : null,
+      };
+    } catch (e) {
+      debugPrint('Error fetching Cisco CPU usage: $e');
+      return null;
+    }
+  }
+
+  /// Fetch memory usage information
+  Future<Map<String, dynamic>?> _fetchCiscoMemoryUsage(Snmp session) async {
+    try {
+      final results = await Future.wait([
+        _getSingleOid(session, OidConstants.ciscoMemoryPoolUsed),
+        _getSingleOid(session, OidConstants.ciscoMemoryPoolFree),
+      ]);
+
+      final used = results[0] != null ? int.tryParse(results[0]!) : null;
+      final free = results[1] != null ? int.tryParse(results[1]!) : null;
+
+      int? total;
+      double? utilization;
+      if (used != null && free != null) {
+        total = used + free;
+        utilization = total > 0 ? (used / total * 100) : 0;
+      }
+
+      return {
+        'used': used,
+        'free': free,
+        'total': total,
+        'utilization': utilization,
+      };
+    } catch (e) {
+      debugPrint('Error fetching Cisco memory usage: $e');
+      return null;
+    }
+  }
+
+  /// Fetch environmental status (temperature, fans, power supplies)
+  Future<EnvironmentalStatus?> _fetchCiscoEnvironmentalStatus(
+      Snmp session) async {
+    try {
+      final results = await Future.wait([
+        _fetchTemperatureInfo(session),
+        _fetchFanInfo(session),
+        _fetchPowerSupplyInfo(session),
+      ]);
+
+      return EnvironmentalStatus(
+        temperature: results[0] as TemperatureInfo?,
+        fans: results[1] as List<FanInfo>?,
+        powerSupplies: results[2] as List<PowerSupplyInfo>?,
+      );
+    } catch (e) {
+      debugPrint('Error fetching Cisco environmental status: $e');
+      return null;
+    }
+  }
+
+  /// Fetch temperature sensor information
+  Future<TemperatureInfo?> _fetchTemperatureInfo(Snmp session) async {
+    try {
+      final results = await Future.wait([
+        _getSingleOid(session, OidConstants.ciscoEnvMonTemperatureStatusDescr),
+        _getSingleOid(session, OidConstants.ciscoEnvMonTemperatureStatusValue),
+        _getSingleOid(session, OidConstants.ciscoEnvMonTemperatureState),
+      ]);
+
+      if (results[0] == null && results[1] == null) return null;
+
+      return TemperatureInfo(
+        description: results[0],
+        value: results[1] != null ? int.tryParse(results[1]!) : null,
+        state: _parseEnvMonState(results[2]),
+      );
+    } catch (e) {
+      debugPrint('Error fetching temperature info: $e');
+      return null;
+    }
+  }
+
+  /// Fetch fan status information
+  Future<List<FanInfo>?> _fetchFanInfo(Snmp session) async {
+    try {
+      final descr =
+          await _getSingleOid(session, OidConstants.ciscoEnvMonFanStatusDescr);
+      final state =
+          await _getSingleOid(session, OidConstants.ciscoEnvMonFanState);
+
+      if (descr == null && state == null) return null;
+
+      return [
+        FanInfo(
+          description: descr,
+          state: _parseEnvMonState(state),
+        ),
+      ];
+    } catch (e) {
+      debugPrint('Error fetching fan info: $e');
+      return null;
+    }
+  }
+
+  /// Fetch power supply status information
+  Future<List<PowerSupplyInfo>?> _fetchPowerSupplyInfo(Snmp session) async {
+    try {
+      final results = await Future.wait([
+        _getSingleOid(session, OidConstants.ciscoEnvMonSupplyStatusDescr),
+        _getSingleOid(session, OidConstants.ciscoEnvMonSupplyState),
+        _getSingleOid(session, OidConstants.ciscoEnvMonSupplySource),
+      ]);
+
+      if (results[0] == null && results[1] == null) return null;
+
+      return [
+        PowerSupplyInfo(
+          description: results[0],
+          state: _parseEnvMonState(results[1]),
+          source: _parsePowerSource(results[2]),
+        ),
+      ];
+    } catch (e) {
+      debugPrint('Error fetching power supply info: $e');
+      return null;
+    }
+  }
+
+  /// Parse environmental monitor state
+  String? _parseEnvMonState(String? value) {
+    if (value == null) return null;
+    final state = int.tryParse(value);
+    if (state == null) return null;
+
+    switch (state) {
+      case 1:
+        return 'normal';
+      case 2:
+        return 'warning';
+      case 3:
+        return 'critical';
+      case 4:
+        return 'shutdown';
+      case 5:
+        return 'notPresent';
+      case 6:
+        return 'notFunctioning';
+      default:
+        return 'unknown';
+    }
+  }
+
+  /// Parse power source
+  String? _parsePowerSource(String? value) {
+    if (value == null) return null;
+    final source = int.tryParse(value);
+    if (source == null) return null;
+
+    switch (source) {
+      case 1:
+        return 'unknown';
+      case 2:
+        return 'ac';
+      case 3:
+        return 'dc';
+      case 4:
+        return 'externalPowerSupply';
+      case 5:
+        return 'internalRedundant';
+      default:
+        return 'unknown';
+    }
+  }
+
+  /// Fetch PoE information for a specific interface
+  Future<PoePortInfo?> fetchPoePortInfo(
+    String ip,
+    String community,
+    int port,
+    int interfaceIndex,
+  ) async {
+    try {
+      final target = InternetAddress(ip);
+      final session = await _getOrCreateSession(target, community, port);
+
+      final results = await Future.wait([
+        _getSingleOid(
+            session, '${OidConstants.cpeExtPsePortEnable}$interfaceIndex'),
+        _getSingleOid(session,
+            '${OidConstants.cpeExtPsePortPwrAllocated}$interfaceIndex'),
+        _getSingleOid(session,
+            '${OidConstants.cpeExtPsePortPwrAvailable}$interfaceIndex'),
+        _getSingleOid(session,
+            '${OidConstants.cpeExtPsePortPwrConsumption}$interfaceIndex'),
+      ]);
+
+      if (results.every((r) => r == null)) return null;
+
+      return PoePortInfo(
+        enabled: results[0] == '1',
+        powerAllocated: results[1] != null ? int.tryParse(results[1]!) : null,
+        powerAvailable: results[2] != null ? int.tryParse(results[2]!) : null,
+        powerConsumption:
+            results[3] != null ? int.tryParse(results[3]!) : null,
+      );
+    } catch (e) {
+      debugPrint('Error fetching PoE port info: $e');
+      return null;
+    } finally {
+      _releaseSession();
+    }
   }
 }

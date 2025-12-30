@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../injection_container.dart' as di;
 import '../../domain/entities/saved_snmp_device.dart';
+import '../../data/models/cisco_device_info_model.dart';
 import '../bloc/saved_snmp_device_bloc.dart';
 import '../bloc/saved_snmp_device_event.dart';
 import '../bloc/saved_snmp_device_state.dart';
@@ -251,6 +252,10 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                 else if (state is SnmpMonitorSuccess) ...[
                   _buildDeviceInfoCard(theme, state),
                   const SizedBox(height: 16),
+                  if (state.ciscoInfo != null) ...[
+                    _buildCiscoInfoCard(theme, state.ciscoInfo!),
+                    const SizedBox(height: 16),
+                  ],
                   _buildInterfacesCard(theme, state),
                 ],
               ],
@@ -421,31 +426,92 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
               ],
             ),
             const Divider(height: 24),
-            ...state.interfaces.map((iface) => Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  color: Colors.grey.shade50,
-                  child: ListTile(
-                    leading: Icon(
-                      iface.operStatusIcon,
-                      color: iface.operStatusColor,
-                    ),
-                    title: Text(
-                      iface.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      '${iface.displayOperStatus} | ${iface.displaySpeed ?? "N/A"}',
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text('↓ ${iface.displayInOctets}'),
-                        Text('↑ ${iface.displayOutOctets}'),
-                      ],
-                    ),
+            ...state.interfaces.map((iface) {
+              final hasPoe = iface.poeEnabled == true;
+              final hasConsumption =
+                  iface.poePowerConsumption != null && iface.poePowerConsumption! > 0;
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 8),
+                color: Colors.grey.shade50,
+                child: ListTile(
+                  leading: Icon(
+                    iface.operStatusIcon,
+                    color: iface.operStatusColor,
                   ),
-                )),
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          iface.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      if (hasPoe)
+                        Tooltip(
+                          message: hasConsumption
+                              ? 'PoE Active: ${iface.poePowerConsumptionWatts?.toStringAsFixed(1)}W'
+                              : 'PoE Enabled',
+                          child: Icon(
+                            hasConsumption ? Icons.flash_on : Icons.flash_off,
+                            size: 18,
+                            color: hasConsumption ? Colors.amber : Colors.grey,
+                          ),
+                        ),
+                      if (iface.duplex != null && iface.duplex != 'unknown')
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: iface.duplex == 'full'
+                                  ? Colors.green.shade100
+                                  : Colors.orange.shade100,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              iface.duplex!.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: iface.duplex == 'full'
+                                    ? Colors.green.shade800
+                                    : Colors.orange.shade800,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${iface.displayOperStatus} | ${iface.displaySpeed ?? "N/A"}',
+                      ),
+                      if (hasPoe && hasConsumption)
+                        Text(
+                          'PoE: ${iface.poePowerConsumptionWatts?.toStringAsFixed(1)}W',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.amber.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                    ],
+                  ),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('↓ ${iface.displayInOctets}'),
+                      Text('↑ ${iface.displayOutOctets}'),
+                    ],
+                  ),
+                ),
+              );
+            }),
           ],
         ),
       ),
@@ -463,20 +529,363 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
             child: Text(
               '$label:',
               style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: const TextStyle(color: Colors.black54),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildCiscoInfoCard(ThemeData theme, CiscoDeviceInfoModel cisco) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.developer_board, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Cisco Device Details',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            
+            // Hardware Information
+            if (cisco.modelName != null ||
+                cisco.serialNumber != null ||
+                cisco.iosVersion != null) ...[
+              _buildSectionTitle('Hardware Information', Icons.memory),
+              const SizedBox(height: 8),
+              if (cisco.modelName != null)
+                _buildInfoRow('Model', cisco.modelName!),
+              if (cisco.serialNumber != null)
+                _buildInfoRow('Serial Number', cisco.serialNumber!),
+              if (cisco.iosVersion != null)
+                _buildInfoRow('IOS Version', cisco.iosVersion!),
+              if (cisco.hardwareVersion != null)
+                _buildInfoRow('Hardware Rev', cisco.hardwareVersion!),
+              const SizedBox(height: 16),
+            ],
+
+            // CPU Usage
+            if (cisco.cpuUsage5sec != null ||
+                cisco.cpuUsage1min != null ||
+                cisco.cpuUsage5min != null) ...[
+              _buildSectionTitle('CPU Usage', Icons.speed),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  if (cisco.cpuUsage5sec != null)
+                    Expanded(
+                      child: _buildMetricCard(
+                        '5 sec',
+                        '${cisco.cpuUsage5sec}%',
+                        _getCpuColor(cisco.cpuUsage5sec!),
+                      ),
+                    ),
+                  if (cisco.cpuUsage1min != null) ...[
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildMetricCard(
+                        '1 min',
+                        '${cisco.cpuUsage1min}%',
+                        _getCpuColor(cisco.cpuUsage1min!),
+                      ),
+                    ),
+                  ],
+                  if (cisco.cpuUsage5min != null) ...[
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildMetricCard(
+                        '5 min',
+                        '${cisco.cpuUsage5min}%',
+                        _getCpuColor(cisco.cpuUsage5min!),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Memory Usage
+            if (cisco.memoryUsed != null || cisco.memoryFree != null) ...[
+              _buildSectionTitle('Memory Usage', Icons.storage),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildMemoryInfo(cisco),
+                  ),
+                  if (cisco.memoryUtilization != null) ...[
+                    const SizedBox(width: 16),
+                    SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            value: cisco.memoryUtilization! / 100,
+                            strokeWidth: 8,
+                            backgroundColor: Colors.grey.shade200,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              _getMemoryColor(cisco.memoryUtilization!),
+                            ),
+                          ),
+                          Text(
+                            '${cisco.memoryUtilization!.toStringAsFixed(1)}%',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: _getMemoryColor(cisco.memoryUtilization!),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Environmental Status
+            if (cisco.environmental != null) ...[
+              _buildEnvironmentalStatus(theme, cisco.environmental!),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: Colors.grey.shade700),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMetricCard(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMemoryInfo(CiscoDeviceInfoModel cisco) {
+    final used = cisco.memoryUsed ?? 0;
+    final free = cisco.memoryFree ?? 0;
+    final total = cisco.memoryTotal ?? (used + free);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInfoRow('Used', '${_formatBytes(used)}'),
+        _buildInfoRow('Free', '${_formatBytes(free)}'),
+        _buildInfoRow('Total', '${_formatBytes(total)}'),
+      ],
+    );
+  }
+
+  Widget _buildEnvironmentalStatus(
+      ThemeData theme, EnvironmentalStatus env) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('Environmental Status', Icons.thermostat),
+        const SizedBox(height: 8),
+        
+        // Temperature
+        if (env.temperature != null) ...[
+          _buildStatusCard(
+            'Temperature',
+            env.temperature!.value != null
+                ? '${env.temperature!.value}°C'
+                : 'N/A',
+            _getStatusIcon(env.temperature!.state),
+            _getStatusColor(env.temperature!.state),
+          ),
+          const SizedBox(height: 8),
+        ],
+
+        // Fans
+        if (env.fans != null && env.fans!.isNotEmpty) ...[
+          for (final fan in env.fans!)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _buildStatusCard(
+                fan.description ?? 'Fan',
+                fan.state?.toUpperCase() ?? 'UNKNOWN',
+                _getStatusIcon(fan.state),
+                _getStatusColor(fan.state),
+              ),
+            ),
+        ],
+
+        // Power Supplies
+        if (env.powerSupplies != null && env.powerSupplies!.isNotEmpty) ...[
+          for (final ps in env.powerSupplies!)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _buildStatusCard(
+                ps.description ?? 'Power Supply',
+                '${ps.state?.toUpperCase() ?? "UNKNOWN"} (${ps.source ?? "unknown"})',
+                _getStatusIcon(ps.state),
+                _getStatusColor(ps.state),
+              ),
+            ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildStatusCard(
+      String label, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getCpuColor(int usage) {
+    if (usage < 60) return Colors.green;
+    if (usage < 80) return Colors.orange;
+    return Colors.red;
+  }
+
+  Color _getMemoryColor(double usage) {
+    if (usage < 70) return Colors.green;
+    if (usage < 85) return Colors.orange;
+    return Colors.red;
+  }
+
+  IconData _getStatusIcon(String? state) {
+    switch (state?.toLowerCase()) {
+      case 'normal':
+        return Icons.check_circle;
+      case 'warning':
+        return Icons.warning;
+      case 'critical':
+      case 'shutdown':
+        return Icons.error;
+      case 'notpresent':
+        return Icons.remove_circle_outline;
+      case 'notfunctioning':
+        return Icons.cancel;
+      default:
+        return Icons.help;
+    }
+  }
+
+  Color _getStatusColor(String? state) {
+    switch (state?.toLowerCase()) {
+      case 'normal':
+        return Colors.green;
+      case 'warning':
+        return Colors.orange;
+      case 'critical':
+      case 'shutdown':
+      case 'notfunctioning':
+        return Colors.red;
+      case 'notpresent':
+        return Colors.grey;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 }
 

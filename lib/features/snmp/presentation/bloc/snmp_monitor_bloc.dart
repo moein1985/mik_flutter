@@ -3,16 +3,19 @@ import '../../domain/entities/device_info.dart';
 import '../../domain/entities/interface_info.dart';
 import '../../domain/usecases/get_device_info_usecase.dart';
 import '../../domain/usecases/get_interface_status_usecase.dart';
+import '../../domain/usecases/get_cisco_device_info_usecase.dart';
 import 'snmp_monitor_event.dart';
 import 'snmp_monitor_state.dart';
 
 class SnmpMonitorBloc extends Bloc<SnmpMonitorEvent, SnmpMonitorState> {
   final GetDeviceInfoUseCase getDeviceInfoUseCase;
   final GetInterfaceStatusUseCase getInterfaceStatusUseCase;
+  final GetCiscoDeviceInfoUseCase getCiscoDeviceInfoUseCase;
 
   SnmpMonitorBloc({
     required this.getDeviceInfoUseCase,
     required this.getInterfaceStatusUseCase,
+    required this.getCiscoDeviceInfoUseCase,
   }) : super(const SnmpMonitorInitial()) {
     on<FetchDataRequested>(_onFetchDataRequested);
     on<FetchCancelled>(_onFetchCancelled);
@@ -31,6 +34,13 @@ class SnmpMonitorBloc extends Bloc<SnmpMonitorEvent, SnmpMonitorState> {
         getInterfaceStatusUseCase(event.ip, event.community, event.port),
       ]);
 
+      // Fetch Cisco info separately (doesn't use Either)
+      final ciscoInfo = await getCiscoDeviceInfoUseCase(
+        event.ip,
+        event.community,
+        event.port,
+      );
+
       final deviceInfoResult = results[0];
       final interfacesResult = results[1];
 
@@ -42,6 +52,7 @@ class SnmpMonitorBloc extends Bloc<SnmpMonitorEvent, SnmpMonitorState> {
             (interfaces) => emit(SnmpMonitorSuccess(
               deviceInfo: deviceInfo as DeviceInfo,
               interfaces: interfaces as List<InterfaceInfo>,
+              ciscoInfo: ciscoInfo,
             )),
           );
         },

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/device_info.dart';
 import '../../domain/entities/interface_info.dart';
+import '../../data/models/cisco_device_info_model.dart';
 
 abstract class SnmpMonitorState extends Equatable {
   const SnmpMonitorState();
@@ -20,14 +21,16 @@ class SnmpMonitorLoading extends SnmpMonitorState {
 class SnmpMonitorSuccess extends SnmpMonitorState {
   final DeviceInfo deviceInfo;
   final List<InterfaceInfo> interfaces;
+  final CiscoDeviceInfoModel? ciscoInfo;
 
   const SnmpMonitorSuccess({
     required this.deviceInfo,
     required this.interfaces,
+    this.ciscoInfo,
   });
 
   @override
-  List<Object?> get props => [deviceInfo, interfaces];
+  List<Object?> get props => [deviceInfo, interfaces, ciscoInfo];
 }
 
 class SnmpMonitorFailure extends SnmpMonitorState {

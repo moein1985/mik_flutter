@@ -49,6 +49,10 @@ class InterfaceInfo {
   final String displayInErrors;
   final String displayOutErrors;
   final VlanInfo? vlanInfo;
+  final String? duplex; // half, full, auto
+  final bool? poeEnabled;
+  final int? poePowerAllocated; // in milliwatts
+  final int? poePowerConsumption; // in milliwatts
 
   InterfaceInfo({
     required this.index,
@@ -78,6 +82,10 @@ class InterfaceInfo {
     required this.displayInErrors,
     required this.displayOutErrors,
     this.vlanInfo,
+    this.duplex,
+    this.poeEnabled,
+    this.poePowerAllocated,
+    this.poePowerConsumption,
   });
 
   Map<String, dynamic> toJson() {
@@ -109,6 +117,10 @@ class InterfaceInfo {
       'displayInErrors': displayInErrors,
       'displayOutErrors': displayOutErrors,
       'vlanInfo': vlanInfo?.toJson(),
+      'duplex': duplex,
+      'poeEnabled': poeEnabled,
+      'poePowerAllocated': poePowerAllocated,
+      'poePowerConsumption': poePowerConsumption,
     };
   }
 
@@ -141,6 +153,16 @@ class InterfaceInfo {
       displayInErrors: json['displayInErrors'] as String,
       displayOutErrors: json['displayOutErrors'] as String,
       vlanInfo: json['vlanInfo'] != null ? VlanInfo.fromJson(json['vlanInfo'] as Map<String, dynamic>) : null,
+      duplex: json['duplex'] as String?,
+      poeEnabled: json['poeEnabled'] as bool?,
+      poePowerAllocated: json['poePowerAllocated'] as int?,
+      poePowerConsumption: json['poePowerConsumption'] as int?,
     );
   }
+
+  // Helper to get PoE power in watts
+  double? get poePowerAllocatedWatts =>
+      poePowerAllocated != null ? poePowerAllocated! / 1000.0 : null;
+  double? get poePowerConsumptionWatts =>
+      poePowerConsumption != null ? poePowerConsumption! / 1000.0 : null;
 }
