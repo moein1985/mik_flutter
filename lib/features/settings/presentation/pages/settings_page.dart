@@ -12,7 +12,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_router.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../injection_container.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/utils/logger.dart';
 
 final _settingsLog = AppLogger.tag('SettingsPage');
