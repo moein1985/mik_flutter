@@ -266,7 +266,6 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.appName),
         actions: [
           TextButton.icon(
             onPressed: () {
@@ -399,7 +398,7 @@ class _LoginPageState extends State<LoginPage> {
                     
                     // App Title
                     Text(
-                      l10n.appName,
+                      'MikroTik Assist',
                       style: theme.textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
