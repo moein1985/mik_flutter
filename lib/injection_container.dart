@@ -14,6 +14,9 @@ import 'modules/_shared/base_device_module.dart';
 import 'modules/mikrotik/core/mikrotik_module.dart';
 import 'modules/snmp/core/snmp_module.dart';
 
+// SNMP (fake for tests/dev)
+import 'features/snmp/data/datasources/fake_snmp_data_source.dart';
+
 // Features - App Auth
 import 'features/app_auth/data/datasources/app_auth_local_datasource.dart';
 import 'features/app_auth/data/models/app_user_model.dart';
@@ -926,7 +929,13 @@ Future<void> init() async {
   );
 
   // Data sources
-  sl.registerLazySingleton(() => SnmpDataSource());
+  if (AppConfig.useSnmpFakeRepositories) {
+    // Use fake SNMP datasource for development and tests
+    sl.registerLazySingleton<SnmpDataSource>(() => FakeSnmpDataSource());
+  } else {
+    sl.registerLazySingleton(() => SnmpDataSource());
+  }
+
   sl.registerLazySingleton<SavedSnmpDeviceLocalDataSource>(
     () => SavedSnmpDeviceLocalDataSourceImpl(),
   );

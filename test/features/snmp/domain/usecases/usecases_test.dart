@@ -5,7 +5,6 @@ import 'package:hsmik/features/snmp/domain/usecases/get_all_devices_usecase.dart
 import 'package:hsmik/features/snmp/domain/usecases/save_device_usecase.dart';
 import 'package:hsmik/features/snmp/domain/repositories/saved_snmp_device_repository.dart';
 import 'package:hsmik/features/snmp/domain/entities/saved_snmp_device.dart';
-import 'package:hsmik/core/errors/failures.dart';
 
 class MockRepository extends Mock implements SavedSnmpDeviceRepository {}
 

@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:hsmik/features/snmp/data/datasources/saved_snmp_device_local_data_source.dart';
 import 'package:hsmik/features/snmp/data/models/saved_snmp_device_model.dart';
 import 'package:hsmik/features/snmp/domain/entities/saved_snmp_device.dart';

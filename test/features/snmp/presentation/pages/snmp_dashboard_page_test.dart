@@ -10,7 +10,6 @@ import 'package:hsmik/features/snmp/presentation/bloc/snmp_monitor_event.dart';
 import 'package:hsmik/features/snmp/presentation/bloc/saved_snmp_device_bloc.dart';
 import 'package:hsmik/features/snmp/presentation/bloc/saved_snmp_device_state.dart';
 import 'package:hsmik/features/snmp/presentation/bloc/saved_snmp_device_event.dart';
-import 'package:hsmik/features/snmp/domain/entities/saved_snmp_device.dart';
 import 'package:hsmik/injection_container.dart' as di;
 
 class MockSnmpMonitorBloc extends Mock implements SnmpMonitorBloc {}
@@ -50,7 +49,7 @@ void main() {
     }
   });
 
-  Widget _buildTestableWidget(Widget child) {
+  Widget buildTestableWidget(Widget child) {
     return MaterialApp(
       home: BlocProvider<SnmpMonitorBloc>.value(
         value: mockMonitor,
@@ -60,7 +59,7 @@ void main() {
   }
 
   testWidgets('shows error SnackBar when refreshing with empty IP', (tester) async {
-    await tester.pumpWidget(_buildTestableWidget(const SnmpDashboardPage()));
+    await tester.pumpWidget(buildTestableWidget(const SnmpDashboardPage()));
 
     await tester.tap(find.byIcon(Icons.refresh));
     await tester.pump();
@@ -69,7 +68,7 @@ void main() {
   });
 
   testWidgets('adds FetchDataRequested when IP entered and refresh tapped', (tester) async {
-    await tester.pumpWidget(_buildTestableWidget(const SnmpDashboardPage()));
+    await tester.pumpWidget(buildTestableWidget(const SnmpDashboardPage()));
 
     await tester.enterText(find.byType(TextField).at(0), '1.2.3.4');
     await tester.tap(find.byIcon(Icons.refresh));
@@ -82,7 +81,7 @@ void main() {
     when(() => mockSavedBloc.state).thenReturn(const SavedSnmpDeviceLoaded(devices: []));
     whenListen(mockSavedBloc, Stream.fromIterable([const SavedSnmpDeviceLoaded(devices: [])]), initialState: const SavedSnmpDeviceLoaded(devices: []));
 
-    await tester.pumpWidget(_buildTestableWidget(const SnmpDashboardPage()));
+    await tester.pumpWidget(buildTestableWidget(const SnmpDashboardPage()));
 
     // fill IP so dialog default name is non-empty
     await tester.enterText(find.byType(TextField).at(0), '2.2.2.2');

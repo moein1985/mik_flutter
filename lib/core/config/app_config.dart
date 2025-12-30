@@ -5,6 +5,9 @@ class AppConfig {
   /// Enable fake repositories for development without a real router
   /// Set to `true` to use fake data, `false` to connect to real MikroTik router
   static const bool useMikrotikFakeRepositories = false;
+
+  /// Enable fake SNMP repositories (used for tests & dev preview)
+  static const bool useSnmpFakeRepositories = false;
   
   /// Network delay simulation for fake repositories
   /// Simulates realistic network latency
@@ -19,4 +22,8 @@ class AppConfig {
   
   /// Maximum delay for fake operations
   static const Duration fakeMaxDelay = Duration(milliseconds: 1200);
+
+  /// SNMP-specific fake settings
+  static const int fakeDefaultInterfaceCount = 8; // default number of interfaces when profile doesn't specify
+  static const bool fakeUseDeterministicData = true; // make fake deterministic by default
 }
