@@ -134,4 +134,31 @@ class OidConstants {
   // Spanning Tree (BRIDGE-MIB)
   static const String dot1dStpPortState = '1.3.6.1.2.1.17.2.15.1.3.';
   static const String dot1dStpPortPriority = '1.3.6.1.2.1.17.2.15.1.2.';
+
+  // --- ASTERISK-SPECIFIC OIDs (ASTERISK-MIB) ---
+  // Version Information
+  static const String asteriskVersion = '1.3.6.1.4.1.22736.1.1.1.0';
+  static const String asteriskVersionNum = '1.3.6.1.4.1.22736.1.1.2.0';
+  
+  // Configuration Information
+  static const String asteriskConfigUptime = '1.3.6.1.4.1.22736.1.2.1.0';
+  static const String asteriskConfigReloadTime = '1.3.6.1.4.1.22736.1.2.2.0';
+  static const String asteriskConfigPid = '1.3.6.1.4.1.22736.1.2.3.0';
+  static const String asteriskConfigSocket = '1.3.6.1.4.1.22736.1.2.4.0';
+  static const String asteriskConfigCallsActive = '1.3.6.1.4.1.22736.1.2.5.0';
+  static const String asteriskConfigCallsProcessed = '1.3.6.1.4.1.22736.1.2.6.0';
+  
+  // Channel Information
+  static const String asteriskChannelCount = '1.3.6.1.4.1.22736.1.5.1.0';
+  static const String asteriskChannelTableCount = '1.3.6.1.4.1.22736.1.5.3.0';
+  
+  // Channel Types Table
+  static const String asteriskChanTypeTable = '1.3.6.1.4.1.22736.1.5.4.1';
+  static const String asteriskChanTypeIndex = '1.3.6.1.4.1.22736.1.5.4.1.1.';
+  static const String asteriskChanTypeName = '1.3.6.1.4.1.22736.1.5.4.1.2.';
+  static const String asteriskChanTypeDesc = '1.3.6.1.4.1.22736.1.5.4.1.3.';
+  static const String asteriskChanTypeDeviceState = '1.3.6.1.4.1.22736.1.5.4.1.4.';
+  static const String asteriskChanTypeIndications = '1.3.6.1.4.1.22736.1.5.4.1.5.';
+  static const String asteriskChanTypeTransfer = '1.3.6.1.4.1.22736.1.5.4.1.6.';
+  static const String asteriskChanTypeChannels = '1.3.6.1.4.1.22736.1.5.4.1.7.';
 }

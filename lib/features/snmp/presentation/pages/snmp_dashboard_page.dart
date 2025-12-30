@@ -109,7 +109,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<DeviceVendor>(
-                      value: dialogVendor,
+                      initialValue: dialogVendor,
                       decoration: const InputDecoration(
                         labelText: 'Vendor/Type',
                         border: OutlineInputBorder(),
@@ -342,7 +342,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<DeviceVendor>(
-              value: _selectedVendor,
+              initialValue: _selectedVendor,
               decoration: const InputDecoration(
                 labelText: 'Device Type',
                 border: OutlineInputBorder(),
@@ -708,9 +708,9 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -743,9 +743,9 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildInfoRow('Used', '${_formatBytes(used)}'),
-        _buildInfoRow('Free', '${_formatBytes(free)}'),
-        _buildInfoRow('Total', '${_formatBytes(total)}'),
+        _buildInfoRow('Used', _formatBytes(used)),
+        _buildInfoRow('Free', _formatBytes(free)),
+        _buildInfoRow('Total', _formatBytes(total)),
       ],
     );
   }
@@ -958,7 +958,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(0.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -991,7 +991,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(0.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -1008,7 +1008,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: loadColor.withOpacity(0.2),
+                    color: loadColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -1063,7 +1063,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -1076,7 +1076,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(0.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -1170,7 +1170,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(0.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -1230,7 +1230,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -1248,7 +1248,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(0.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -1292,7 +1292,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -1335,6 +1335,12 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
             if (asterisk.asteriskProcess != null)
               const SizedBox(height: 16),
             
+            // Channel Types (Trunks) Information
+            if (asterisk.channelTypes != null && asterisk.channelTypes!.isNotEmpty)
+              _buildAsteriskChannelTypesInfo(theme, asterisk),
+            if (asterisk.channelTypes != null && asterisk.channelTypes!.isNotEmpty)
+              const SizedBox(height: 16),
+            
             // CPU Information
             if (asterisk.processors != null && asterisk.processors!.isNotEmpty)
               _buildAsteriskCpuInfo(theme, asterisk),
@@ -1358,7 +1364,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(0.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -1385,9 +1391,9 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.1),
+        color: Colors.green.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.green.withOpacity(0.3), width: 2),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1404,6 +1410,8 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
           ),
           const SizedBox(height: 12),
           _buildInfoRow('Process Name', process.name ?? 'N/A'),
+          if (process.version != null)
+            _buildInfoRow('Asterisk Version', process.version!),
           if (process.path != null)
             _buildInfoRow('Path', process.path!),
           Row(
@@ -1412,7 +1420,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.2),
+                  color: statusColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -1427,8 +1435,119 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
             ],
           ),
           const SizedBox(height: 4),
-          _buildInfoRow('CPU Time', '${process.cpuTimeSeconds} seconds'),
-          _buildInfoRow('Memory Usage', '${process.memoryUsedMB} MB'),
+          if (process.callsActive != null)
+            _buildInfoRow('Active Calls', process.callsActive.toString()),
+          if (process.callsProcessed != null)
+            _buildInfoRow('Total Processed Calls', process.callsProcessed.toString()),
+          if (process.cpuTimeSeconds != null)
+            _buildInfoRow('CPU Time', '${process.cpuTimeSeconds} seconds'),
+          if (process.memoryUsedMB != null)
+            _buildInfoRow('Memory Usage', '${process.memoryUsedMB} MB'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAsteriskChannelTypesInfo(ThemeData theme, AsteriskDeviceInfoModel asterisk) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.3), width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.settings_input_antenna, color: Colors.blue, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Channel Types (Trunks)',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...asterisk.channelTypes!.map((channelType) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            channelType.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+                        if (channelType.channelCount != null) ...[
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: channelType.channelCount! > 0 
+                                  ? Colors.green.withValues(alpha: 0.2)
+                                  : Colors.grey.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.phone_in_talk,
+                                  size: 14,
+                                  color: channelType.channelCount! > 0 ? Colors.green : Colors.grey,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${channelType.channelCount} channels',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: channelType.channelCount! > 0 ? Colors.green : Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    if (channelType.description != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        channelType.description!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
         ],
       ),
     );
@@ -1445,7 +1564,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(0.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -1462,7 +1581,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: loadColor.withOpacity(0.2),
+                    color: loadColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -1514,7 +1633,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -1527,7 +1646,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(0.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -1621,7 +1740,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(0.1),
+        color: theme.primaryColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -1681,7 +1800,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -1837,7 +1956,7 @@ class _SavedDeviceTile extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: device.isDefault
               ? Colors.green
-              : Theme.of(context).primaryColor.withOpacity(0.1),
+              : Theme.of(context).primaryColor.withValues(alpha: 0.1),
           child: Icon(
             Icons.devices,
             color: device.isDefault

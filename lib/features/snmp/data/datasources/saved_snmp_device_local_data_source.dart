@@ -1,3 +1,4 @@
+import 'package:sqflite/sqflite.dart';
 import '../models/saved_snmp_device_model.dart';
 import '../../../../core/database/database_helper.dart';
 import '../../../../core/utils/logger.dart';
@@ -208,7 +209,7 @@ class SavedSnmpDeviceLocalDataSourceImpl
   }
 
   /// Clear default flag from all devices
-  Future<void> _clearDefaultDevice(db) async {
+  Future<void> _clearDefaultDevice(Database db) async {
     await db.update(
       _tableName,
       {'is_default': 0},

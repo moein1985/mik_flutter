@@ -298,16 +298,21 @@ class _LoginPageState extends State<LoginPage> {
               );
             }
           } else if (state is AuthUnauthenticated && state.savedCredentials != null) {
-            _hostController.text = state.savedCredentials!.host;
-            _portController.text = state.savedCredentials!.port.toString();
-            _usernameController.text = state.savedCredentials!.username;
-            _passwordController.text = state.savedCredentials!.password;
-            _useSsl = state.savedCredentials!.useSsl;
-            _rememberMe = true;
+            // Only auto-fill credentials if not already filled
+            // This prevents re-triggering when navigating back to login page
+            if (_hostController.text.isEmpty) {
+              _hostController.text = state.savedCredentials!.host;
+              _portController.text = state.savedCredentials!.port.toString();
+              _usernameController.text = state.savedCredentials!.username;
+              _passwordController.text = state.savedCredentials!.password;
+              _useSsl = state.savedCredentials!.useSsl;
+              _rememberMe = true;
+            }
           }
         },
         builder: (context, state) {
           final isLoading = state is AuthLoading;
+          final isAuthenticated = state is AuthAuthenticated;
 
           return Center(
             child: SingleChildScrollView(
@@ -324,7 +329,7 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         // Saved Routers Button
                         TextButton.icon(
-                          onPressed: _showSavedRoutersDialog,
+                          onPressed: (isLoading || isAuthenticated) ? null : _showSavedRoutersDialog,
                           icon: const Icon(Icons.folder_open),
                           label: const Text('Saved Routers'),
                         ),
@@ -416,7 +421,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.next,
-                      enabled: !isLoading,
+                      enabled: !isLoading && !isAuthenticated,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter host';
@@ -436,7 +441,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.next,
-                      enabled: !isLoading,
+                      enabled: !isLoading && !isAuthenticated,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter port';
@@ -458,7 +463,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: SwitchListTile(
                         value: _useSsl,
-                        onChanged: isLoading
+                        onChanged: (isLoading || isAuthenticated)
                             ? null
                             : (value) {
                                 setState(() {
@@ -494,7 +499,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.next,
-                      enabled: !isLoading,
+                      enabled: !isLoading && !isAuthenticated,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter username';
@@ -524,7 +529,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.done,
-                      enabled: !isLoading,
+                      enabled: !isLoading && !isAuthenticated,
                       onFieldSubmitted: (_) => _login(),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -541,7 +546,7 @@ class _LoginPageState extends State<LoginPage> {
                         Expanded(
                           child: CheckboxListTile(
                             value: _rememberMe,
-                            onChanged: isLoading
+                            onChanged: (isLoading || isAuthenticated)
                                 ? null
                                 : (value) {
                                     setState(() {
@@ -554,7 +559,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         TextButton.icon(
-                          onPressed: isLoading ? null : _showSaveRouterDialog,
+                          onPressed: (isLoading || isAuthenticated) ? null : _showSaveRouterDialog,
                           icon: const Icon(Icons.save, size: 18),
                           label: const Text('Save'),
                         ),
@@ -564,7 +569,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     // Login Button
                     ElevatedButton(
-                      onPressed: isLoading ? null : _login,
+                      onPressed: (isLoading || isAuthenticated) ? null : _login,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -574,10 +579,22 @@ class _LoginPageState extends State<LoginPage> {
                               width: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : Text(
-                              l10n.loginButton,
-                              style: const TextStyle(fontSize: 16),
-                            ),
+                          : isAuthenticated
+                              ? const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.check_circle, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Authenticated - Redirecting...',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ],
+                                )
+                              : Text(
+                                  l10n.loginButton,
+                                  style: const TextStyle(fontSize: 16),
+                                ),
                     ),
                   ],
                 ),

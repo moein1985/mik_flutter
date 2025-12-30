@@ -43,7 +43,6 @@ class _DashboardPageState extends State<DashboardPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go(AppRoutes.home),
         ),
-        title: Text(l10n.appName),
         actions: [
           IconButton(
             icon: const Icon(Icons.language),

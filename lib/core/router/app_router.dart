@@ -151,8 +151,9 @@ class AppRouter {
           return AppRoutes.login;
         }
 
-        if (isRouterAuthenticated && isLoggingIn) {
-          _log.i('Router authenticated and on login - redirect to mikrotik');
+        // Redirect to mikrotik after successful authentication
+        if (isRouterAuthenticated && (isLoggingIn || state.matchedLocation == '/')) {
+          _log.i('Router authenticated - redirect to mikrotik (from ${state.matchedLocation})');
           return AppRoutes.mikrotik;
         }
 

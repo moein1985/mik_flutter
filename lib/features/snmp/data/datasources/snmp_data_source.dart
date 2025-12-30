@@ -222,6 +222,7 @@ class SnmpDataSource {
 
   Future<DeviceVendor> _detectVendor(Snmp session) async {
     try {
+      // First, try to detect by sysObjectID
       final oid = Oid.fromString(OidConstants.sysObjectId);
       final result = await session.get(oid).timeout(const Duration(seconds: 2));
       if (result.pdu.error == PduError.noError &&
@@ -238,6 +239,22 @@ class SnmpDataSource {
         }
       }
       
+      // Try to detect Asterisk by querying Asterisk-specific OID
+      try {
+        final asteriskOid = Oid.fromString(OidConstants.asteriskVersion);
+        final asteriskResult = await session.get(asteriskOid).timeout(const Duration(seconds: 2));
+        if (asteriskResult.pdu.error == PduError.noError &&
+            asteriskResult.pdu.varbinds.isNotEmpty) {
+          final value = asteriskResult.pdu.varbinds[0].value.toString();
+          if (value.isNotEmpty && !value.startsWith('ASN1Object')) {
+            debugPrint('Detected Asterisk server by querying asteriskVersion OID: $value');
+            return DeviceVendor.asterisk;
+          }
+        }
+      } catch (e) {
+        debugPrint('Not an Asterisk server (asteriskVersion OID query failed)');
+      }
+      
       // Try to detect by sysDescr for Windows/Microsoft
       final descrOid = Oid.fromString(OidConstants.sysDescr);
       final descrResult = await session.get(descrOid).timeout(const Duration(seconds: 2));
@@ -247,9 +264,7 @@ class SnmpDataSource {
         if (descr.contains('windows') || descr.contains('microsoft')) {
           return DeviceVendor.microsoft;
         }
-        if (descr.contains('asterisk') || descr.contains('linux') && descr.contains('pbx')) {
-          return DeviceVendor.asterisk;
-        }
+        // Note: Removed generic Asterisk detection by sysDescr since it's unreliable
       }
     } catch (e) {
       debugPrint('Could not detect vendor from sysObjectID: $e');
@@ -813,15 +828,17 @@ class SnmpDataSource {
       // Fetch all information in parallel
       final results = await Future.wait([
         _fetchHostResourcesSystemInfo(session),
-        _fetchHostResourcesProcessors(session),
-        _fetchHostResourcesStorage(session),
+        _fetchHostResourcesProcessorsForAsterisk(session),
+        _fetchHostResourcesStorageForAsterisk(session),
         _fetchAsteriskProcess(session),
+        _fetchAsteriskChannelTypes(session),
       ]);
 
       final systemInfo = results[0] as Map<String, dynamic>?;
       final processors = results[1] as List<asterisk.ProcessorInfo>?;
       final storages = results[2] as List<asterisk.StorageInfo>?;
       final asteriskProcess = results[3] as asterisk.AsteriskProcessInfo?;
+      final channelTypes = results[4] as List<asterisk.AsteriskChannelType>;
 
       // Parse memory from storage table
       final memoryInfo = _parseMemoryFromStorageForAsterisk(storages);
@@ -838,6 +855,7 @@ class SnmpDataSource {
         virtualMemoryUsed: memoryInfo['virtualUsed'],
         storages: storages,
         asteriskProcess: asteriskProcess,
+        channelTypes: channelTypes.isNotEmpty ? channelTypes : null,
       );
     } on SocketException catch (e) {
       debugPrint('DataSource: SocketException during Asterisk info fetch: $e');
@@ -914,6 +932,38 @@ class SnmpDataSource {
     }
   }
 
+  /// Fetch processor information for Asterisk (returns Asterisk ProcessorInfo)
+  Future<List<asterisk.ProcessorInfo>?> _fetchHostResourcesProcessorsForAsterisk(
+      Snmp session) async {
+    try {
+      final processors = <asterisk.ProcessorInfo>[];
+
+      // Try to fetch up to 16 processors
+      for (int i = 1; i <= 16; i++) {
+        if (_isCancelled) throw CancelledException();
+
+        final results = await Future.wait([
+          _getSingleOid(session, '${OidConstants.hrDeviceDescr}$i'),
+          _getSingleOid(session, '${OidConstants.hrProcessorLoad}$i'),
+        ]);
+
+        // If no description, assume no more processors
+        if (results[0] == null) break;
+
+        processors.add(asterisk.ProcessorInfo(
+          index: i,
+          description: results[0],
+          load: results[1] != null ? int.tryParse(results[1]!) : null,
+        ));
+      }
+
+      return processors.isEmpty ? null : processors;
+    } catch (e) {
+      debugPrint('Error fetching processors for Asterisk: $e');
+      return null;
+    }
+  }
+
   /// Fetch storage information from hrStorageTable
   Future<List<StorageInfo>?> _fetchHostResourcesStorage(Snmp session) async {
     try {
@@ -948,6 +998,44 @@ class SnmpDataSource {
       return storages.isEmpty ? null : storages;
     } catch (e) {
       debugPrint('Error fetching storage: $e');
+      return null;
+    }
+  }
+
+  /// Fetch storage information for Asterisk (returns Asterisk StorageInfo)
+  Future<List<asterisk.StorageInfo>?> _fetchHostResourcesStorageForAsterisk(Snmp session) async {
+    try {
+      final storages = <asterisk.StorageInfo>[];
+
+      // Try to fetch up to 50 storage entries
+      for (int i = 1; i <= 50; i++) {
+        if (_isCancelled) throw CancelledException();
+
+        final results = await Future.wait([
+          _getSingleOid(session, '${OidConstants.hrStorageType}$i'),
+          _getSingleOid(session, '${OidConstants.hrStorageDescr}$i'),
+          _getSingleOid(session, '${OidConstants.hrStorageAllocationUnits}$i'),
+          _getSingleOid(session, '${OidConstants.hrStorageSize}$i'),
+          _getSingleOid(session, '${OidConstants.hrStorageUsed}$i'),
+        ]);
+
+        // If no type, assume no more storage entries
+        if (results[0] == null) break;
+
+        storages.add(asterisk.StorageInfo(
+          index: i,
+          type: _parseStorageType(results[0]),
+          description: results[1],
+          allocationUnits:
+              results[2] != null ? int.tryParse(results[2]!) : null,
+          size: results[3] != null ? int.tryParse(results[3]!) : null,
+          used: results[4] != null ? int.tryParse(results[4]!) : null,
+        ));
+      }
+
+      return storages.isEmpty ? null : storages;
+    } catch (e) {
+      debugPrint('Error fetching storage for Asterisk: $e');
       return null;
     }
   }
@@ -996,11 +1084,43 @@ class SnmpDataSource {
     }
   }
 
-  /// Fetch Asterisk process specifically
+  /// Fetch Asterisk process information using Asterisk-specific MIB
   Future<asterisk.AsteriskProcessInfo?> _fetchAsteriskProcess(
       Snmp session) async {
     try {
-      // Search for asterisk process in hrSWRunTable
+      // First try to get Asterisk-specific information from ASTERISK-MIB
+      final results = await Future.wait([
+        _getSingleOid(session, OidConstants.asteriskVersion),
+        _getSingleOid(session, OidConstants.asteriskConfigUptime),
+        _getSingleOid(session, OidConstants.asteriskConfigPid),
+        _getSingleOid(session, OidConstants.asteriskConfigSocket),
+        _getSingleOid(session, OidConstants.asteriskConfigCallsActive),
+        _getSingleOid(session, OidConstants.asteriskConfigCallsProcessed),
+      ]);
+
+      final version = results[0];
+      final uptime = results[1];
+      final pid = results[2];
+      final socket = results[3];
+      final callsActive = results[4];
+      final callsProcessed = results[5];
+
+      // If we got Asterisk-specific data, use it
+      if (version != null && pid != null) {
+        return asterisk.AsteriskProcessInfo(
+          index: int.tryParse(pid) ?? 0,
+          name: 'asterisk',
+          path: socket,
+          status: 'running',
+          cpuTime: uptime != null ? int.tryParse(uptime) : null,
+          memoryUsed: null, // Not available from Asterisk MIB
+          version: version,
+          callsActive: callsActive != null ? int.tryParse(callsActive) : null,
+          callsProcessed: callsProcessed != null ? int.tryParse(callsProcessed) : null,
+        );
+      }
+
+      // Fall back to searching in hrSWRunTable
       for (int i = 1; i <= 1000; i++) {
         if (_isCancelled) throw CancelledException();
 
@@ -1009,7 +1129,7 @@ class SnmpDataSource {
 
         // Check if this is the asterisk process
         if (name.toLowerCase().contains('asterisk')) {
-          final results = await Future.wait([
+          final fallbackResults = await Future.wait([
             _getSingleOid(session, '${OidConstants.hrSWRunPath}$i'),
             _getSingleOid(session, '${OidConstants.hrSWRunStatus}$i'),
             _getSingleOid(session, '${OidConstants.hrSWRunPerfCPU}$i'),
@@ -1019,10 +1139,10 @@ class SnmpDataSource {
           return asterisk.AsteriskProcessInfo(
             index: i,
             name: name,
-            path: results[0],
-            status: _parseServiceStatus(results[1]),
-            cpuTime: results[2] != null ? int.tryParse(results[2]!) : null,
-            memoryUsed: results[3] != null ? int.tryParse(results[3]!) : null,
+            path: fallbackResults[0],
+            status: _parseServiceStatus(fallbackResults[1]),
+            cpuTime: fallbackResults[2] != null ? int.tryParse(fallbackResults[2]!) : null,
+            memoryUsed: fallbackResults[3] != null ? int.tryParse(fallbackResults[3]!) : null,
           );
         }
       }
@@ -1032,6 +1152,51 @@ class SnmpDataSource {
       debugPrint('Error fetching Asterisk process: $e');
       return null;
     }
+  }
+
+  /// Fetch Asterisk channel types (trunks) information from ASTERISK-MIB
+  Future<List<asterisk.AsteriskChannelType>> _fetchAsteriskChannelTypes(
+      Snmp session) async {
+    final channelTypes = <asterisk.AsteriskChannelType>[];
+
+    try {
+      // Try numeric indices 1-20 to find channel types
+      for (int i = 1; i <= 20; i++) {
+        if (_isCancelled) throw CancelledException();
+        
+        final nameOid = '${OidConstants.asteriskChanTypeName}$i';
+        final name = await _getSingleOid(session, nameOid);
+        
+        if (name != null && name.isNotEmpty) {
+          debugPrint('Found channel type at index $i: $name');
+          
+          // Fetch additional info for this channel type
+          final descOid = '${OidConstants.asteriskChanTypeDesc}$i';
+          final countOid = '${OidConstants.asteriskChanTypeChannels}$i';
+          
+          final infoResults = await Future.wait([
+            _getSingleOid(session, descOid),
+            _getSingleOid(session, countOid),
+          ]);
+          
+          channelTypes.add(asterisk.AsteriskChannelType(
+            name: name,
+            description: infoResults[0],
+            channelCount: infoResults[1] != null 
+                ? int.tryParse(infoResults[1]!.replaceAll(RegExp(r'[^0-9]'), '')) 
+                : null,
+          ));
+          
+          debugPrint('  Description: ${infoResults[0]}, Channels: ${infoResults[1]}');
+        }
+      }
+      
+      debugPrint('Fetched ${channelTypes.length} Asterisk channel types');
+    } catch (e) {
+      debugPrint('Error fetching Asterisk channel types: $e');
+    }
+
+    return channelTypes;
   }
 
   /// Parse memory information from storage table

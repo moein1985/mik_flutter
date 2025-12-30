@@ -23,6 +23,9 @@ class AsteriskDeviceInfoModel extends Equatable {
   
   // Asterisk Process Information
   final AsteriskProcessInfo? asteriskProcess;
+  
+  // Asterisk Channel/Trunk Information
+  final List<AsteriskChannelType>? channelTypes;
 
   const AsteriskDeviceInfoModel({
     this.osVersion,
@@ -36,6 +39,7 @@ class AsteriskDeviceInfoModel extends Equatable {
     this.virtualMemoryUsed,
     this.storages,
     this.asteriskProcess,
+    this.channelTypes,
   });
 
   // Helper methods
@@ -82,6 +86,7 @@ class AsteriskDeviceInfoModel extends Equatable {
         virtualMemoryUsed,
         storages,
         asteriskProcess,
+        channelTypes,
       ];
 }
 
@@ -146,14 +151,19 @@ class StorageInfo extends Equatable {
       ];
 }
 
-/// Asterisk-specific process information from hrSWRunTable
+/// Asterisk-specific process information from ASTERISK-MIB and hrSWRunTable
 class AsteriskProcessInfo extends Equatable {
   final int index;
   final String? name;
   final String? path;
   final String? status; // running, runnable, notRunnable, invalid
-  final int? cpuTime; // centi-seconds
+  final int? cpuTime; // centi-seconds or uptime
   final int? memoryUsed; // KBytes
+  
+  // Asterisk-specific fields from ASTERISK-MIB
+  final String? version; // Asterisk version string
+  final int? callsActive; // Current active calls
+  final int? callsProcessed; // Total processed calls
 
   const AsteriskProcessInfo({
     required this.index,
@@ -162,6 +172,9 @@ class AsteriskProcessInfo extends Equatable {
     this.status,
     this.cpuTime,
     this.memoryUsed,
+    this.version,
+    this.callsActive,
+    this.callsProcessed,
   });
 
   double? get cpuTimeSeconds {
@@ -182,5 +195,24 @@ class AsteriskProcessInfo extends Equatable {
         status,
         cpuTime,
         memoryUsed,
+        version,
+        callsActive,
+        callsProcessed,
       ];
+}
+
+/// Asterisk channel type (trunk) information from ASTERISK-MIB
+class AsteriskChannelType extends Equatable {
+  final String name; // e.g., "SIP", "IAX2", "PJSIP"
+  final String? description;
+  final int? channelCount; // Active channels on this trunk
+
+  const AsteriskChannelType({
+    required this.name,
+    this.description,
+    this.channelCount,
+  });
+
+  @override
+  List<Object?> get props => [name, description, channelCount];
 }
