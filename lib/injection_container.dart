@@ -57,6 +57,8 @@ import 'features/snmp/domain/repositories/saved_snmp_device_repository.dart';
 import 'features/snmp/domain/usecases/get_device_info_usecase.dart';
 import 'features/snmp/domain/usecases/get_interface_status_usecase.dart';
 import 'features/snmp/domain/usecases/get_cisco_device_info_usecase.dart';
+import 'features/snmp/domain/usecases/get_microsoft_device_info_usecase.dart';
+import 'features/snmp/domain/usecases/get_asterisk_device_info_usecase.dart';
 import 'features/snmp/domain/usecases/get_all_devices_usecase.dart';
 import 'features/snmp/domain/usecases/get_default_device_usecase.dart';
 import 'features/snmp/domain/usecases/save_device_usecase.dart';
@@ -878,6 +880,8 @@ Future<void> init() async {
       getDeviceInfoUseCase: sl(),
       getInterfaceStatusUseCase: sl(),
       getCiscoDeviceInfoUseCase: sl(),
+      getMicrosoftDeviceInfoUseCase: sl(),
+      getAsteriskDeviceInfoUseCase: sl(),
     ),
   );
 
@@ -896,6 +900,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetDeviceInfoUseCase(sl()));
   sl.registerLazySingleton(() => GetInterfaceStatusUseCase(sl()));
   sl.registerLazySingleton(() => GetCiscoDeviceInfoUseCase(sl()));
+  sl.registerLazySingleton(() => GetMicrosoftDeviceInfoUseCase(sl()));
+  sl.registerLazySingleton(() => GetAsteriskDeviceInfoUseCase(sl()));
 
   // Use cases - Saved Devices
   sl.registerLazySingleton(() => GetAllDevicesUseCase(sl()));

@@ -6,6 +6,8 @@ import 'package:dart_snmp/dart_snmp.dart';
 import 'package:flutter/foundation.dart';
 import 'oid_constants.dart';
 import '../models/cisco_device_info_model.dart';
+import '../models/microsoft_device_info_model.dart';
+import '../models/asterisk_device_info_model.dart' as asterisk;
 
 // Custom Exception Classes
 class CancelledException implements Exception {
@@ -43,7 +45,7 @@ class TimeoutException implements Exception {
 }
 
 // Enum to represent different device vendors
-enum DeviceVendor { cisco, mikrotik, unknown }
+enum DeviceVendor { cisco, mikrotik, microsoft, asterisk, unknown }
 
 class SnmpDataSource {
   // Private member to track active session
@@ -230,6 +232,23 @@ class SnmpDataSource {
         }
         if (objectId.startsWith(OidConstants.mikrotikEnterpriseId)) {
           return DeviceVendor.mikrotik;
+        }
+        if (objectId.startsWith(OidConstants.asteriskEnterpriseId)) {
+          return DeviceVendor.asterisk;
+        }
+      }
+      
+      // Try to detect by sysDescr for Windows/Microsoft
+      final descrOid = Oid.fromString(OidConstants.sysDescr);
+      final descrResult = await session.get(descrOid).timeout(const Duration(seconds: 2));
+      if (descrResult.pdu.error == PduError.noError &&
+          descrResult.pdu.varbinds.isNotEmpty) {
+        final descr = descrResult.pdu.varbinds[0].value.toString().toLowerCase();
+        if (descr.contains('windows') || descr.contains('microsoft')) {
+          return DeviceVendor.microsoft;
+        }
+        if (descr.contains('asterisk') || descr.contains('linux') && descr.contains('pbx')) {
+          return DeviceVendor.asterisk;
         }
       }
     } catch (e) {
@@ -698,6 +717,440 @@ class SnmpDataSource {
       return null;
     } finally {
       _releaseSession();
+    }
+  }
+
+  // ============================================================
+  // Microsoft Windows Device Info Methods (HOST-RESOURCES-MIB)
+  // ============================================================
+
+  Future<MicrosoftDeviceInfoModel?> fetchMicrosoftDeviceInfo(
+    String ip,
+    String community,
+    int port,
+  ) async {
+    debugPrint('DataSource: Starting Microsoft device info fetch. IP: $ip');
+    _isCancelled = false;
+
+    try {
+      final target = InternetAddress(ip);
+      final session = await _getOrCreateSession(target, community, port);
+
+      // Check if device is Microsoft
+      final vendor = await _detectVendor(session);
+      if (vendor != DeviceVendor.microsoft) {
+        debugPrint(
+            'DataSource: Device is not Microsoft, skipping Microsoft-specific info');
+        return null;
+      }
+
+      // Fetch all information in parallel
+      final results = await Future.wait([
+        _fetchHostResourcesSystemInfo(session),
+        _fetchHostResourcesProcessors(session),
+        _fetchHostResourcesStorage(session),
+        _fetchHostResourcesServices(session, limit: 20), // Top 20 services
+      ]);
+
+      final systemInfo = results[0] as Map<String, dynamic>?;
+      final processors = results[1] as List<ProcessorInfo>?;
+      final storages = results[2] as List<StorageInfo>?;
+      final services = results[3] as List<ServiceInfo>?;
+
+      // Parse memory from storage table
+      final memoryInfo = _parseMemoryFromStorage(storages);
+
+      return MicrosoftDeviceInfoModel(
+        osVersion: systemInfo?['osVersion'],
+        uptimeSeconds: systemInfo?['uptimeSeconds'],
+        numUsers: systemInfo?['numUsers'],
+        numProcesses: systemInfo?['numProcesses'],
+        maxProcesses: systemInfo?['maxProcesses'],
+        processors: processors,
+        physicalMemoryTotal: memoryInfo['physicalTotal'],
+        physicalMemoryUsed: memoryInfo['physicalUsed'],
+        virtualMemoryTotal: memoryInfo['virtualTotal'],
+        virtualMemoryUsed: memoryInfo['virtualUsed'],
+        storages: storages,
+        services: services,
+      );
+    } on SocketException catch (e) {
+      debugPrint('DataSource: SocketException during Microsoft info fetch: $e');
+      throw NetworkException('Socket error: ${e.message}');
+    } catch (e) {
+      debugPrint('DataSource: Error fetching Microsoft info: $e');
+      return null;
+    } finally {
+      _releaseSession();
+      _isCancelled = false;
+    }
+  }
+
+  // ============================================================
+  // Asterisk PBX Device Info Methods (HOST-RESOURCES-MIB)
+  // ============================================================
+
+  Future<asterisk.AsteriskDeviceInfoModel?> fetchAsteriskDeviceInfo(
+    String ip,
+    String community,
+    int port,
+  ) async {
+    debugPrint('DataSource: Starting Asterisk device info fetch. IP: $ip');
+    _isCancelled = false;
+
+    try {
+      final target = InternetAddress(ip);
+      final session = await _getOrCreateSession(target, community, port);
+
+      // Check if device is Asterisk
+      final vendor = await _detectVendor(session);
+      if (vendor != DeviceVendor.asterisk) {
+        debugPrint(
+            'DataSource: Device is not Asterisk, skipping Asterisk-specific info');
+        return null;
+      }
+
+      // Fetch all information in parallel
+      final results = await Future.wait([
+        _fetchHostResourcesSystemInfo(session),
+        _fetchHostResourcesProcessors(session),
+        _fetchHostResourcesStorage(session),
+        _fetchAsteriskProcess(session),
+      ]);
+
+      final systemInfo = results[0] as Map<String, dynamic>?;
+      final processors = results[1] as List<asterisk.ProcessorInfo>?;
+      final storages = results[2] as List<asterisk.StorageInfo>?;
+      final asteriskProcess = results[3] as asterisk.AsteriskProcessInfo?;
+
+      // Parse memory from storage table
+      final memoryInfo = _parseMemoryFromStorageForAsterisk(storages);
+
+      return asterisk.AsteriskDeviceInfoModel(
+        osVersion: systemInfo?['osVersion'],
+        uptimeSeconds: systemInfo?['uptimeSeconds'],
+        numUsers: systemInfo?['numUsers'],
+        numProcesses: systemInfo?['numProcesses'],
+        processors: processors,
+        physicalMemoryTotal: memoryInfo['physicalTotal'],
+        physicalMemoryUsed: memoryInfo['physicalUsed'],
+        virtualMemoryTotal: memoryInfo['virtualTotal'],
+        virtualMemoryUsed: memoryInfo['virtualUsed'],
+        storages: storages,
+        asteriskProcess: asteriskProcess,
+      );
+    } on SocketException catch (e) {
+      debugPrint('DataSource: SocketException during Asterisk info fetch: $e');
+      throw NetworkException('Socket error: ${e.message}');
+    } catch (e) {
+      debugPrint('DataSource: Error fetching Asterisk info: $e');
+      return null;
+    } finally {
+      _releaseSession();
+      _isCancelled = false;
+    }
+  }
+
+  // ============================================================
+  // HOST-RESOURCES-MIB Helper Methods (Shared)
+  // ============================================================
+
+  /// Fetch system information from HOST-RESOURCES-MIB
+  Future<Map<String, dynamic>?> _fetchHostResourcesSystemInfo(
+      Snmp session) async {
+    try {
+      final results = await Future.wait([
+        _getSingleOid(session, OidConstants.sysDescr),
+        _getSingleOid(session, OidConstants.hrSystemUptime),
+        _getSingleOid(session, OidConstants.hrSystemNumUsers),
+        _getSingleOid(session, OidConstants.hrSystemProcesses),
+        _getSingleOid(session, OidConstants.hrSystemMaxProcesses),
+      ]);
+
+      return {
+        'osVersion': results[0],
+        'uptimeSeconds': results[1] != null
+            ? int.tryParse(results[1]!)?.toInt() ?? 0
+            : null,
+        'numUsers': results[2] != null ? int.tryParse(results[2]!) : null,
+        'numProcesses': results[3] != null ? int.tryParse(results[3]!) : null,
+        'maxProcesses': results[4] != null ? int.tryParse(results[4]!) : null,
+      };
+    } catch (e) {
+      debugPrint('Error fetching HOST-RESOURCES system info: $e');
+      return null;
+    }
+  }
+
+  /// Fetch processor information from hrProcessorTable
+  Future<List<ProcessorInfo>?> _fetchHostResourcesProcessors(
+      Snmp session) async {
+    try {
+      final processors = <ProcessorInfo>[];
+
+      // Try to fetch up to 16 processors
+      for (int i = 1; i <= 16; i++) {
+        if (_isCancelled) throw CancelledException();
+
+        final results = await Future.wait([
+          _getSingleOid(session, '${OidConstants.hrDeviceDescr}$i'),
+          _getSingleOid(session, '${OidConstants.hrProcessorLoad}$i'),
+        ]);
+
+        // If no description, assume no more processors
+        if (results[0] == null) break;
+
+        processors.add(ProcessorInfo(
+          index: i,
+          description: results[0],
+          load: results[1] != null ? int.tryParse(results[1]!) : null,
+        ));
+      }
+
+      return processors.isEmpty ? null : processors;
+    } catch (e) {
+      debugPrint('Error fetching processors: $e');
+      return null;
+    }
+  }
+
+  /// Fetch storage information from hrStorageTable
+  Future<List<StorageInfo>?> _fetchHostResourcesStorage(Snmp session) async {
+    try {
+      final storages = <StorageInfo>[];
+
+      // Try to fetch up to 50 storage entries
+      for (int i = 1; i <= 50; i++) {
+        if (_isCancelled) throw CancelledException();
+
+        final results = await Future.wait([
+          _getSingleOid(session, '${OidConstants.hrStorageType}$i'),
+          _getSingleOid(session, '${OidConstants.hrStorageDescr}$i'),
+          _getSingleOid(session, '${OidConstants.hrStorageAllocationUnits}$i'),
+          _getSingleOid(session, '${OidConstants.hrStorageSize}$i'),
+          _getSingleOid(session, '${OidConstants.hrStorageUsed}$i'),
+        ]);
+
+        // If no type, assume no more storage entries
+        if (results[0] == null) break;
+
+        storages.add(StorageInfo(
+          index: i,
+          type: _parseStorageType(results[0]),
+          description: results[1],
+          allocationUnits:
+              results[2] != null ? int.tryParse(results[2]!) : null,
+          size: results[3] != null ? int.tryParse(results[3]!) : null,
+          used: results[4] != null ? int.tryParse(results[4]!) : null,
+        ));
+      }
+
+      return storages.isEmpty ? null : storages;
+    } catch (e) {
+      debugPrint('Error fetching storage: $e');
+      return null;
+    }
+  }
+
+  /// Fetch running services/processes from hrSWRunTable
+  Future<List<ServiceInfo>?> _fetchHostResourcesServices(Snmp session,
+      {int limit = 20}) async {
+    try {
+      final services = <ServiceInfo>[];
+      int count = 0;
+
+      // Fetch services with a limit
+      for (int i = 1; i <= 1000 && count < limit; i++) {
+        if (_isCancelled) throw CancelledException();
+
+        final results = await Future.wait([
+          _getSingleOid(session, '${OidConstants.hrSWRunName}$i'),
+          _getSingleOid(session, '${OidConstants.hrSWRunPath}$i'),
+          _getSingleOid(session, '${OidConstants.hrSWRunType}$i'),
+          _getSingleOid(session, '${OidConstants.hrSWRunStatus}$i'),
+          _getSingleOid(session, '${OidConstants.hrSWRunPerfCPU}$i'),
+          _getSingleOid(session, '${OidConstants.hrSWRunPerfMem}$i'),
+        ]);
+
+        // If no name, skip this index
+        if (results[0] == null) continue;
+
+        services.add(ServiceInfo(
+          index: i,
+          name: results[0],
+          path: results[1],
+          type: _parseServiceType(results[2]),
+          status: _parseServiceStatus(results[3]),
+          cpuTime: results[4] != null ? int.tryParse(results[4]!) : null,
+          memoryUsed: results[5] != null ? int.tryParse(results[5]!) : null,
+        ));
+
+        count++;
+        if (count >= limit) break;
+      }
+
+      return services.isEmpty ? null : services;
+    } catch (e) {
+      debugPrint('Error fetching services: $e');
+      return null;
+    }
+  }
+
+  /// Fetch Asterisk process specifically
+  Future<asterisk.AsteriskProcessInfo?> _fetchAsteriskProcess(
+      Snmp session) async {
+    try {
+      // Search for asterisk process in hrSWRunTable
+      for (int i = 1; i <= 1000; i++) {
+        if (_isCancelled) throw CancelledException();
+
+        final name = await _getSingleOid(session, '${OidConstants.hrSWRunName}$i');
+        if (name == null) continue;
+
+        // Check if this is the asterisk process
+        if (name.toLowerCase().contains('asterisk')) {
+          final results = await Future.wait([
+            _getSingleOid(session, '${OidConstants.hrSWRunPath}$i'),
+            _getSingleOid(session, '${OidConstants.hrSWRunStatus}$i'),
+            _getSingleOid(session, '${OidConstants.hrSWRunPerfCPU}$i'),
+            _getSingleOid(session, '${OidConstants.hrSWRunPerfMem}$i'),
+          ]);
+
+          return asterisk.AsteriskProcessInfo(
+            index: i,
+            name: name,
+            path: results[0],
+            status: _parseServiceStatus(results[1]),
+            cpuTime: results[2] != null ? int.tryParse(results[2]!) : null,
+            memoryUsed: results[3] != null ? int.tryParse(results[3]!) : null,
+          );
+        }
+      }
+
+      return null;
+    } catch (e) {
+      debugPrint('Error fetching Asterisk process: $e');
+      return null;
+    }
+  }
+
+  /// Parse memory information from storage table
+  Map<String, int?> _parseMemoryFromStorage(List<StorageInfo>? storages) {
+    if (storages == null) {
+      return {
+        'physicalTotal': null,
+        'physicalUsed': null,
+        'virtualTotal': null,
+        'virtualUsed': null,
+      };
+    }
+
+    int? physicalTotal, physicalUsed, virtualTotal, virtualUsed;
+
+    for (final storage in storages) {
+      if (storage.type == 'Physical Memory' || storage.type == 'RAM') {
+        physicalTotal = storage.totalBytes;
+        physicalUsed = storage.usedBytes;
+      } else if (storage.type == 'Virtual Memory') {
+        virtualTotal = storage.totalBytes;
+        virtualUsed = storage.usedBytes;
+      }
+    }
+
+    return {
+      'physicalTotal': physicalTotal,
+      'physicalUsed': physicalUsed,
+      'virtualTotal': virtualTotal,
+      'virtualUsed': virtualUsed,
+    };
+  }
+
+  /// Parse memory for Asterisk (same logic, different types)
+  Map<String, int?> _parseMemoryFromStorageForAsterisk(
+      List<asterisk.StorageInfo>? storages) {
+    if (storages == null) {
+      return {
+        'physicalTotal': null,
+        'physicalUsed': null,
+        'virtualTotal': null,
+        'virtualUsed': null,
+      };
+    }
+
+    int? physicalTotal, physicalUsed, virtualTotal, virtualUsed;
+
+    for (final storage in storages) {
+      if (storage.type == 'Physical Memory' || storage.type == 'RAM') {
+        physicalTotal = storage.totalBytes;
+        physicalUsed = storage.usedBytes;
+      } else if (storage.type == 'Virtual Memory' || storage.type == 'Swap') {
+        virtualTotal = storage.totalBytes;
+        virtualUsed = storage.usedBytes;
+      }
+    }
+
+    return {
+      'physicalTotal': physicalTotal,
+      'physicalUsed': physicalUsed,
+      'virtualTotal': virtualTotal,
+      'virtualUsed': virtualUsed,
+    };
+  }
+
+  /// Parse storage type from OID value
+  String? _parseStorageType(String? value) {
+    if (value == null) return null;
+    
+    // Storage type OIDs: 1.3.6.1.2.1.25.2.1.x
+    if (value.endsWith('.2')) return 'Physical Memory';
+    if (value.endsWith('.3')) return 'Virtual Memory';
+    if (value.endsWith('.4')) return 'Fixed Disk';
+    if (value.endsWith('.5')) return 'Removable Disk';
+    if (value.endsWith('.6')) return 'Floppy Disk';
+    if (value.endsWith('.7')) return 'Compact Disc';
+    if (value.endsWith('.8')) return 'RAM Disk';
+    if (value.endsWith('.10')) return 'Network Disk';
+    
+    return 'Other';
+  }
+
+  /// Parse service/process type
+  String? _parseServiceType(String? value) {
+    if (value == null) return null;
+    final type = int.tryParse(value);
+    if (type == null) return null;
+
+    switch (type) {
+      case 1:
+        return 'unknown';
+      case 2:
+        return 'operatingSystem';
+      case 3:
+        return 'deviceDriver';
+      case 4:
+        return 'application';
+      default:
+        return 'unknown';
+    }
+  }
+
+  /// Parse service/process status
+  String? _parseServiceStatus(String? value) {
+    if (value == null) return null;
+    final status = int.tryParse(value);
+    if (status == null) return null;
+
+    switch (status) {
+      case 1:
+        return 'running';
+      case 2:
+        return 'runnable';
+      case 3:
+        return 'notRunnable';
+      case 4:
+        return 'invalid';
+      default:
+        return 'unknown';
     }
   }
 }

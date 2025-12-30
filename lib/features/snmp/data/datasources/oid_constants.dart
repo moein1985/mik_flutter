@@ -41,6 +41,45 @@ class OidConstants {
   // --- Vendor Identification OID Prefixes ---
   static const String ciscoEnterpriseId = '1.3.6.1.4.1.9';
   static const String mikrotikEnterpriseId = '1.3.6.1.4.1.14988';
+  // Microsoft Windows typically uses standard MIBs, identified by sysDescr pattern
+  // Asterisk/Digium Enterprise ID
+  static const String asteriskEnterpriseId = '1.3.6.1.4.1.22736';
+
+  // --- HOST-RESOURCES-MIB (RFC 2790) - Used by Microsoft Windows & Asterisk ---
+  // System Group
+  static const String hrSystemUptime = '1.3.6.1.2.1.25.1.1.0';
+  static const String hrSystemDate = '1.3.6.1.2.1.25.1.2.0';
+  static const String hrSystemNumUsers = '1.3.6.1.2.1.25.1.5.0';
+  static const String hrSystemProcesses = '1.3.6.1.2.1.25.1.6.0';
+  static const String hrSystemMaxProcesses = '1.3.6.1.2.1.25.1.7.0';
+  
+  // Memory/Storage Group
+  static const String hrMemorySize = '1.3.6.1.2.1.25.2.2.0'; // Total physical RAM in KB
+  static const String hrStorageTable = '1.3.6.1.2.1.25.2.3.1';
+  static const String hrStorageIndex = '1.3.6.1.2.1.25.2.3.1.1.';
+  static const String hrStorageType = '1.3.6.1.2.1.25.2.3.1.2.';
+  static const String hrStorageDescr = '1.3.6.1.2.1.25.2.3.1.3.';
+  static const String hrStorageAllocationUnits = '1.3.6.1.2.1.25.2.3.1.4.';
+  static const String hrStorageSize = '1.3.6.1.2.1.25.2.3.1.5.';
+  static const String hrStorageUsed = '1.3.6.1.2.1.25.2.3.1.6.';
+  
+  // Device/Processor Group
+  static const String hrDeviceTable = '1.3.6.1.2.1.25.3.2.1';
+  static const String hrDeviceDescr = '1.3.6.1.2.1.25.3.2.1.3.';
+  static const String hrProcessorLoad = '1.3.6.1.2.1.25.3.3.1.2.'; // CPU load %
+  
+  // Running Software Group
+  static const String hrSWRunTable = '1.3.6.1.2.1.25.4.2.1';
+  static const String hrSWRunIndex = '1.3.6.1.2.1.25.4.2.1.1.';
+  static const String hrSWRunName = '1.3.6.1.2.1.25.4.2.1.2.';
+  static const String hrSWRunPath = '1.3.6.1.2.1.25.4.2.1.4.';
+  static const String hrSWRunParameters = '1.3.6.1.2.1.25.4.2.1.5.';
+  static const String hrSWRunType = '1.3.6.1.2.1.25.4.2.1.6.';
+  static const String hrSWRunStatus = '1.3.6.1.2.1.25.4.2.1.7.';
+  
+  // Running Software Performance Group
+  static const String hrSWRunPerfCPU = '1.3.6.1.2.1.25.5.1.1.1.';
+  static const String hrSWRunPerfMem = '1.3.6.1.2.1.25.5.1.1.2.';
 
   // --- CISCO-SPECIFIC OIDs ---
   

@@ -4,6 +4,11 @@ import '../../domain/entities/interface_info.dart';
 import '../../domain/usecases/get_device_info_usecase.dart';
 import '../../domain/usecases/get_interface_status_usecase.dart';
 import '../../domain/usecases/get_cisco_device_info_usecase.dart';
+import '../../domain/usecases/get_microsoft_device_info_usecase.dart';
+import '../../domain/usecases/get_asterisk_device_info_usecase.dart';
+import '../../data/models/cisco_device_info_model.dart';
+import '../../data/models/microsoft_device_info_model.dart';
+import '../../data/models/asterisk_device_info_model.dart';
 import 'snmp_monitor_event.dart';
 import 'snmp_monitor_state.dart';
 
@@ -11,11 +16,15 @@ class SnmpMonitorBloc extends Bloc<SnmpMonitorEvent, SnmpMonitorState> {
   final GetDeviceInfoUseCase getDeviceInfoUseCase;
   final GetInterfaceStatusUseCase getInterfaceStatusUseCase;
   final GetCiscoDeviceInfoUseCase getCiscoDeviceInfoUseCase;
+  final GetMicrosoftDeviceInfoUseCase getMicrosoftDeviceInfoUseCase;
+  final GetAsteriskDeviceInfoUseCase getAsteriskDeviceInfoUseCase;
 
   SnmpMonitorBloc({
     required this.getDeviceInfoUseCase,
     required this.getInterfaceStatusUseCase,
     required this.getCiscoDeviceInfoUseCase,
+    required this.getMicrosoftDeviceInfoUseCase,
+    required this.getAsteriskDeviceInfoUseCase,
   }) : super(const SnmpMonitorInitial()) {
     on<FetchDataRequested>(_onFetchDataRequested);
     on<FetchCancelled>(_onFetchCancelled);
@@ -34,12 +43,16 @@ class SnmpMonitorBloc extends Bloc<SnmpMonitorEvent, SnmpMonitorState> {
         getInterfaceStatusUseCase(event.ip, event.community, event.port),
       ]);
 
-      // Fetch Cisco info separately (doesn't use Either)
-      final ciscoInfo = await getCiscoDeviceInfoUseCase(
-        event.ip,
-        event.community,
-        event.port,
-      );
+      // Fetch vendor-specific info separately (doesn't use Either)
+      final vendorInfoResults = await Future.wait([
+        getCiscoDeviceInfoUseCase(event.ip, event.community, event.port),
+        getMicrosoftDeviceInfoUseCase(event.ip, event.community, event.port),
+        getAsteriskDeviceInfoUseCase(event.ip, event.community, event.port),
+      ]);
+
+      final ciscoInfo = vendorInfoResults[0] as CiscoDeviceInfoModel?;
+      final microsoftInfo = vendorInfoResults[1] as MicrosoftDeviceInfoModel?;
+      final asteriskInfo = vendorInfoResults[2] as AsteriskDeviceInfoModel?;
 
       final deviceInfoResult = results[0];
       final interfacesResult = results[1];
@@ -53,6 +66,8 @@ class SnmpMonitorBloc extends Bloc<SnmpMonitorEvent, SnmpMonitorState> {
               deviceInfo: deviceInfo as DeviceInfo,
               interfaces: interfaces as List<InterfaceInfo>,
               ciscoInfo: ciscoInfo,
+              microsoftInfo: microsoftInfo,
+              asteriskInfo: asteriskInfo,
             )),
           );
         },

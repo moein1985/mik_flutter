@@ -5,6 +5,8 @@ import '../../../../core/router/app_router.dart';
 import '../../../../injection_container.dart' as di;
 import '../../domain/entities/saved_snmp_device.dart';
 import '../../data/models/cisco_device_info_model.dart';
+import '../../data/models/microsoft_device_info_model.dart';
+import '../../data/models/asterisk_device_info_model.dart';
 import '../bloc/saved_snmp_device_bloc.dart';
 import '../bloc/saved_snmp_device_event.dart';
 import '../bloc/saved_snmp_device_state.dart';
@@ -254,6 +256,14 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                   const SizedBox(height: 16),
                   if (state.ciscoInfo != null) ...[
                     _buildCiscoInfoCard(theme, state.ciscoInfo!),
+                    const SizedBox(height: 16),
+                  ],
+                  if (state.microsoftInfo != null) ...[
+                    _buildMicrosoftInfoCard(theme, state.microsoftInfo!),
+                    const SizedBox(height: 16),
+                  ],
+                  if (state.asteriskInfo != null) ...[
+                    _buildAsteriskInfoCard(theme, state.asteriskInfo!),
                     const SizedBox(height: 16),
                   ],
                   _buildInterfacesCard(theme, state),
@@ -886,6 +896,795 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
       return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
+  }
+
+  // ============================================================
+  // Microsoft Windows Device Info Card
+  // ============================================================
+
+  Widget _buildMicrosoftInfoCard(ThemeData theme, MicrosoftDeviceInfoModel microsoft) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.computer, color: theme.primaryColor, size: 28),
+                const SizedBox(width: 12),
+                Text(
+                  'Microsoft Windows Server',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            
+            // System Information
+            _buildMicrosoftSystemInfo(theme, microsoft),
+            const SizedBox(height: 16),
+            
+            // CPU Information
+            if (microsoft.processors != null && microsoft.processors!.isNotEmpty)
+              _buildMicrosoftCpuInfo(theme, microsoft),
+            if (microsoft.processors != null && microsoft.processors!.isNotEmpty)
+              const SizedBox(height: 16),
+            
+            // Memory Information
+            _buildMicrosoftMemoryInfo(theme, microsoft),
+            const SizedBox(height: 16),
+            
+            // Storage Information
+            if (microsoft.storages != null && microsoft.storages!.isNotEmpty)
+              _buildMicrosoftStorageInfo(theme, microsoft),
+            if (microsoft.storages != null && microsoft.storages!.isNotEmpty)
+              const SizedBox(height: 16),
+            
+            // Top Services
+            if (microsoft.services != null && microsoft.services!.isNotEmpty)
+              _buildMicrosoftServicesInfo(theme, microsoft),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMicrosoftSystemInfo(ThemeData theme, MicrosoftDeviceInfoModel microsoft) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'System Information',
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          _buildInfoRow('OS Version', microsoft.osVersion ?? 'N/A'),
+          _buildInfoRow('Uptime', microsoft.formattedUptime),
+          _buildInfoRow('Active Users', microsoft.numUsers?.toString() ?? 'N/A'),
+          _buildInfoRow('Running Processes', microsoft.numProcesses?.toString() ?? 'N/A'),
+          if (microsoft.maxProcesses != null)
+            _buildInfoRow('Max Processes', microsoft.maxProcesses.toString()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMicrosoftCpuInfo(ThemeData theme, MicrosoftDeviceInfoModel microsoft) {
+    final avgLoad = microsoft.averageCpuLoad;
+    final loadColor = avgLoad != null && avgLoad > 80 
+        ? Colors.red 
+        : avgLoad != null && avgLoad > 60 
+            ? Colors.orange 
+            : Colors.green;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'CPU Information',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              if (avgLoad != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: loadColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'Avg: ${avgLoad.toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      color: loadColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...microsoft.processors!.map((proc) {
+            final procLoadColor = proc.load != null && proc.load! > 80
+                ? Colors.red
+                : proc.load != null && proc.load! > 60
+                    ? Colors.orange
+                    : Colors.green;
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          proc.description ?? 'CPU ${proc.index}',
+                          style: theme.textTheme.bodyMedium,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        '${proc.load ?? 0}%',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: procLoadColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  LinearProgressIndicator(
+                    value: (proc.load ?? 0) / 100,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(procLoadColor),
+                    minHeight: 6,
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMicrosoftMemoryInfo(ThemeData theme, MicrosoftDeviceInfoModel microsoft) {
+    final physicalPercent = microsoft.physicalMemoryUsagePercent;
+    final virtualPercent = microsoft.virtualMemoryUsagePercent;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Memory Information',
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          
+          // Physical Memory
+          if (microsoft.physicalMemoryTotal != null) ...[
+            Text('Physical Memory', style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${_formatBytes(microsoft.physicalMemoryUsed ?? 0)} / ${_formatBytes(microsoft.physicalMemoryTotal!)}',
+                  style: theme.textTheme.bodySmall,
+                ),
+                if (physicalPercent != null)
+                  Text(
+                    '${physicalPercent.toStringAsFixed(1)}%',
+                    style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: physicalPercent != null ? physicalPercent / 100 : 0,
+              backgroundColor: Colors.grey[300],
+              valueColor: AlwaysStoppedAnimation<Color>(
+                physicalPercent != null && physicalPercent > 80
+                    ? Colors.red
+                    : physicalPercent != null && physicalPercent > 60
+                        ? Colors.orange
+                        : Colors.green,
+              ),
+              minHeight: 6,
+            ),
+            const SizedBox(height: 12),
+          ],
+          
+          // Virtual Memory
+          if (microsoft.virtualMemoryTotal != null) ...[
+            Text('Virtual Memory', style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${_formatBytes(microsoft.virtualMemoryUsed ?? 0)} / ${_formatBytes(microsoft.virtualMemoryTotal!)}',
+                  style: theme.textTheme.bodySmall,
+                ),
+                if (virtualPercent != null)
+                  Text(
+                    '${virtualPercent.toStringAsFixed(1)}%',
+                    style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: virtualPercent != null ? virtualPercent / 100 : 0,
+              backgroundColor: Colors.grey[300],
+              valueColor: AlwaysStoppedAnimation<Color>(
+                virtualPercent != null && virtualPercent > 80
+                    ? Colors.red
+                    : virtualPercent != null && virtualPercent > 60
+                        ? Colors.orange
+                        : Colors.green,
+              ),
+              minHeight: 6,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMicrosoftStorageInfo(ThemeData theme, MicrosoftDeviceInfoModel microsoft) {
+    // Filter only disk storages
+    final disks = microsoft.storages!
+        .where((s) => s.type?.contains('Disk') ?? false)
+        .toList();
+    
+    if (disks.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Storage Information',
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          ...disks.take(10).map((storage) {
+            final percent = storage.usagePercent;
+            final usageColor = percent != null && percent > 90
+                ? Colors.red
+                : percent != null && percent > 75
+                    ? Colors.orange
+                    : Colors.green;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          storage.description ?? 'Storage ${storage.index}',
+                          style: theme.textTheme.bodyMedium,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (percent != null)
+                        Text(
+                          '${percent.toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: usageColor,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  if (storage.totalBytes != null)
+                    Text(
+                      '${_formatBytes(storage.usedBytes ?? 0)} / ${_formatBytes(storage.totalBytes!)}',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  const SizedBox(height: 4),
+                  LinearProgressIndicator(
+                    value: percent != null ? percent / 100 : 0,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(usageColor),
+                    minHeight: 6,
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMicrosoftServicesInfo(ThemeData theme, MicrosoftDeviceInfoModel microsoft) {
+    // Sort services by CPU time (descending) and take top 10
+    final topServices = microsoft.services!
+        .where((s) => s.status == 'running')
+        .toList()
+      ..sort((a, b) => (b.cpuTime ?? 0).compareTo(a.cpuTime ?? 0));
+
+    if (topServices.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Top Running Services',
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          ...topServices.take(10).map((service) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          service.name ?? 'Unknown',
+                          style: theme.textTheme.bodyMedium,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (service.memoryUsed != null)
+                          Text(
+                            'Memory: ${_formatBytes(service.memoryUsed! * 1024)}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // Asterisk PBX Device Info Card
+  // ============================================================
+
+  Widget _buildAsteriskInfoCard(ThemeData theme, AsteriskDeviceInfoModel asterisk) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.phone_in_talk, color: theme.primaryColor, size: 28),
+                const SizedBox(width: 12),
+                Text(
+                  'Asterisk PBX Server',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            
+            // System Information
+            _buildAsteriskSystemInfo(theme, asterisk),
+            const SizedBox(height: 16),
+            
+            // Asterisk Process Information
+            if (asterisk.asteriskProcess != null)
+              _buildAsteriskProcessInfo(theme, asterisk),
+            if (asterisk.asteriskProcess != null)
+              const SizedBox(height: 16),
+            
+            // CPU Information
+            if (asterisk.processors != null && asterisk.processors!.isNotEmpty)
+              _buildAsteriskCpuInfo(theme, asterisk),
+            if (asterisk.processors != null && asterisk.processors!.isNotEmpty)
+              const SizedBox(height: 16),
+            
+            // Memory Information
+            _buildAsteriskMemoryInfo(theme, asterisk),
+            const SizedBox(height: 16),
+            
+            // Storage Information
+            if (asterisk.storages != null && asterisk.storages!.isNotEmpty)
+              _buildAsteriskStorageInfo(theme, asterisk),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAsteriskSystemInfo(ThemeData theme, AsteriskDeviceInfoModel asterisk) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'System Information',
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          _buildInfoRow('OS Version', asterisk.osVersion ?? 'N/A'),
+          _buildInfoRow('Uptime', asterisk.formattedUptime),
+          _buildInfoRow('Active Users', asterisk.numUsers?.toString() ?? 'N/A'),
+          _buildInfoRow('Running Processes', asterisk.numProcesses?.toString() ?? 'N/A'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAsteriskProcessInfo(ThemeData theme, AsteriskDeviceInfoModel asterisk) {
+    final process = asterisk.asteriskProcess!;
+    final statusColor = process.status == 'running' ? Colors.green : Colors.red;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.green.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.withOpacity(0.3), width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.verified, color: Colors.green, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Asterisk Process',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildInfoRow('Process Name', process.name ?? 'N/A'),
+          if (process.path != null)
+            _buildInfoRow('Path', process.path!),
+          Row(
+            children: [
+              const Text('Status: ', style: TextStyle(fontWeight: FontWeight.w500)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  process.status?.toUpperCase() ?? 'UNKNOWN',
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          _buildInfoRow('CPU Time', '${process.cpuTimeSeconds} seconds'),
+          _buildInfoRow('Memory Usage', '${process.memoryUsedMB} MB'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAsteriskCpuInfo(ThemeData theme, AsteriskDeviceInfoModel asterisk) {
+    final avgLoad = asterisk.averageCpuLoad;
+    final loadColor = avgLoad != null && avgLoad > 80 
+        ? Colors.red 
+        : avgLoad != null && avgLoad > 60 
+            ? Colors.orange 
+            : Colors.green;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'CPU Information',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              if (avgLoad != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: loadColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'Avg: ${avgLoad.toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      color: loadColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...asterisk.processors!.map((proc) {
+            final procLoadColor = proc.load != null && proc.load! > 80
+                ? Colors.red
+                : proc.load != null && proc.load! > 60
+                    ? Colors.orange
+                    : Colors.green;
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        proc.description ?? 'CPU ${proc.index}',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      Text(
+                        '${proc.load ?? 0}%',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: procLoadColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  LinearProgressIndicator(
+                    value: (proc.load ?? 0) / 100,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(procLoadColor),
+                    minHeight: 6,
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAsteriskMemoryInfo(ThemeData theme, AsteriskDeviceInfoModel asterisk) {
+    final physicalPercent = asterisk.physicalMemoryUsagePercent;
+    final virtualPercent = asterisk.virtualMemoryUsagePercent;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Memory Information',
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          
+          // Physical Memory
+          if (asterisk.physicalMemoryTotal != null) ...[
+            Text('Physical Memory', style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${_formatBytes(asterisk.physicalMemoryUsed ?? 0)} / ${_formatBytes(asterisk.physicalMemoryTotal!)}',
+                  style: theme.textTheme.bodySmall,
+                ),
+                if (physicalPercent != null)
+                  Text(
+                    '${physicalPercent.toStringAsFixed(1)}%',
+                    style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: physicalPercent != null ? physicalPercent / 100 : 0,
+              backgroundColor: Colors.grey[300],
+              valueColor: AlwaysStoppedAnimation<Color>(
+                physicalPercent != null && physicalPercent > 80
+                    ? Colors.red
+                    : physicalPercent != null && physicalPercent > 60
+                        ? Colors.orange
+                        : Colors.green,
+              ),
+              minHeight: 6,
+            ),
+            const SizedBox(height: 12),
+          ],
+          
+          // Virtual Memory / Swap
+          if (asterisk.virtualMemoryTotal != null) ...[
+            Text('Swap Memory', style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${_formatBytes(asterisk.virtualMemoryUsed ?? 0)} / ${_formatBytes(asterisk.virtualMemoryTotal!)}',
+                  style: theme.textTheme.bodySmall,
+                ),
+                if (virtualPercent != null)
+                  Text(
+                    '${virtualPercent.toStringAsFixed(1)}%',
+                    style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: virtualPercent != null ? virtualPercent / 100 : 0,
+              backgroundColor: Colors.grey[300],
+              valueColor: AlwaysStoppedAnimation<Color>(
+                virtualPercent != null && virtualPercent > 80
+                    ? Colors.red
+                    : virtualPercent != null && virtualPercent > 60
+                        ? Colors.orange
+                        : Colors.green,
+              ),
+              minHeight: 6,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAsteriskStorageInfo(ThemeData theme, AsteriskDeviceInfoModel asterisk) {
+    // Filter only disk storages
+    final disks = asterisk.storages!
+        .where((s) => s.type?.contains('Disk') ?? false)
+        .toList();
+    
+    if (disks.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Storage Information',
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          ...disks.take(10).map((storage) {
+            final percent = storage.usagePercent;
+            final usageColor = percent != null && percent > 90
+                ? Colors.red
+                : percent != null && percent > 75
+                    ? Colors.orange
+                    : Colors.green;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          storage.description ?? 'Storage ${storage.index}',
+                          style: theme.textTheme.bodyMedium,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (percent != null)
+                        Text(
+                          '${percent.toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: usageColor,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  if (storage.totalBytes != null)
+                    Text(
+                      '${_formatBytes(storage.usedBytes ?? 0)} / ${_formatBytes(storage.totalBytes!)}',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  const SizedBox(height: 4),
+                  LinearProgressIndicator(
+                    value: percent != null ? percent / 100 : 0,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(usageColor),
+                    minHeight: 6,
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
   }
 }
 
