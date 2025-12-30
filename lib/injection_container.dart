@@ -314,7 +314,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SetDefaultRouterUseCase(sl()));
 
   // Repository
-  if (AppConfig.useFakeRepositories) {
+  if (AppConfig.useMikrotikFakeRepositories) {
     sl.registerLazySingleton<AuthRepository>(
       () => FakeAuthRepositoryImpl(),
     );
@@ -386,7 +386,7 @@ Future<void> init() async {
   // Repository
   sl.registerLazySingleton<DashboardRepository>(
     () {
-      if (AppConfig.useFakeRepositories) {
+      if (AppConfig.useMikrotikFakeRepositories) {
         return FakeDashboardRepositoryImpl();
       } else {
         return DashboardRepositoryImpl(
@@ -397,7 +397,7 @@ Future<void> init() async {
   );
 
   // Data sources (only needed for real repository)
-  if (!AppConfig.useFakeRepositories) {
+  if (!AppConfig.useMikrotikFakeRepositories) {
     sl.registerLazySingleton<DashboardRemoteDataSource>(
       () => DashboardRemoteDataSourceImpl(
         authRemoteDataSource: sl(),
@@ -476,7 +476,7 @@ Future<void> init() async {
   // Repository
   sl.registerLazySingleton<HotspotRepository>(
     () {
-      if (AppConfig.useFakeRepositories) {
+      if (AppConfig.useMikrotikFakeRepositories) {
         return FakeHotspotRepositoryImpl();
       } else {
         return HotspotRepositoryImpl(
@@ -487,7 +487,7 @@ Future<void> init() async {
   );
 
   // Data sources (only needed for real repository)
-  if (!AppConfig.useFakeRepositories) {
+  if (!AppConfig.useMikrotikFakeRepositories) {
     sl.registerLazySingleton<HotspotRemoteDataSource>(
       () => HotspotRemoteDataSourceImpl(
         authRemoteDataSource: sl(),
@@ -535,7 +535,7 @@ Future<void> init() async {
   );
 
   // Repository
-  if (AppConfig.useFakeRepositories) {
+  if (AppConfig.useMikrotikFakeRepositories) {
     sl.registerLazySingleton<IpServiceRepository>(
       () => FakeIpServiceRepositoryImpl(),
     );
@@ -564,7 +564,7 @@ Future<void> init() async {
   );
 
   // Repository
-  if (AppConfig.useFakeRepositories) {
+  if (AppConfig.useMikrotikFakeRepositories) {
     sl.registerLazySingleton<CertificateRepository>(
       () => FakeCertificateRepositoryImpl(),
     );
@@ -592,7 +592,7 @@ Future<void> init() async {
   );
 
   // Repository
-  if (AppConfig.useFakeRepositories) {
+  if (AppConfig.useMikrotikFakeRepositories) {
     sl.registerLazySingleton<DhcpRepository>(
       () => FakeDhcpRepositoryImpl(),
     );
@@ -620,7 +620,7 @@ Future<void> init() async {
   );
 
   // Repository
-  if (AppConfig.useFakeRepositories) {
+  if (AppConfig.useMikrotikFakeRepositories) {
     sl.registerLazySingleton<CloudRepository>(
       () => FakeCloudRepositoryImpl(),
     );
@@ -680,7 +680,7 @@ Future<void> init() async {
 
   // Repository
   sl.registerLazySingleton<ToolsRepository>(() {
-    if (AppConfig.useFakeRepositories) {
+    if (AppConfig.useMikrotikFakeRepositories) {
       return FakeToolsRepositoryImpl();
     } else {
       return ToolsRepositoryImpl(
@@ -714,7 +714,7 @@ Future<void> init() async {
   // Repository
   sl.registerLazySingleton<QueuesRepository>(
     () {
-      if (AppConfig.useFakeRepositories) {
+      if (AppConfig.useMikrotikFakeRepositories) {
         return FakeQueuesRepositoryImpl();
       } else {
         return QueuesRepositoryImpl(
@@ -726,7 +726,7 @@ Future<void> init() async {
 
   //! Features - Wireless
   // Data sources
-  if (!AppConfig.useFakeRepositories) {
+  if (!AppConfig.useMikrotikFakeRepositories) {
     sl.registerLazySingleton<WirelessRemoteDataSource>(
       () => WirelessRemoteDataSourceImpl(authRemoteDataSource: sl()),
     );
@@ -734,7 +734,7 @@ Future<void> init() async {
 
   // Repository
   sl.registerLazySingleton<WirelessRepository>(() {
-    if (AppConfig.useFakeRepositories) {
+    if (AppConfig.useMikrotikFakeRepositories) {
       return FakeWirelessRepositoryImpl();
     } else {
       return WirelessRepositoryImpl(sl());
@@ -805,7 +805,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SearchLogsUseCase(sl()));
 
   // Repository
-  if (AppConfig.useFakeRepositories) {
+  if (AppConfig.useMikrotikFakeRepositories) {
     sl.registerLazySingleton<LogsRepository>(
       () => FakeLogsRepositoryImpl(),
     );
@@ -844,7 +844,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ExportConfigUseCase(sl()));
 
   // Repository
-  if (AppConfig.useFakeRepositories) {
+  if (AppConfig.useMikrotikFakeRepositories) {
     sl.registerLazySingleton<BackupRepository>(
       () => FakeBackupRepositoryImpl(),
     );

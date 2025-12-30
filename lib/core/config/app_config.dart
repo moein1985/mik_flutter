@@ -4,7 +4,7 @@
 class AppConfig {
   /// Enable fake repositories for development without a real router
   /// Set to `true` to use fake data, `false` to connect to real MikroTik router
-  static const bool useFakeRepositories = false;
+  static const bool useMikrotikFakeRepositories = false;
   
   /// Network delay simulation for fake repositories
   /// Simulates realistic network latency
