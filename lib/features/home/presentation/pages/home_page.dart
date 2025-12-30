@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../injection_container.dart' as di;
+import '../../../../modules/_shared/base_device_module.dart';
 import '../../../app_auth/presentation/bloc/app_auth_bloc.dart';
 import '../../../app_auth/presentation/bloc/app_auth_event.dart';
 import '../../domain/entities/app_module.dart';
@@ -11,7 +13,26 @@ import '../widgets/module_tile.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  List<AppModule> _getModules(AppLocalizations l10n) {
+  List<AppModule> _getModulesFromRegistry(AppLocalizations l10n) {
+    // Get registered modules from dependency injection
+    final registeredModules = di.sl<List<BaseDeviceModule>>();
+    
+    // Convert BaseDeviceModule to AppModule for backwards compatibility
+    return registeredModules.map((module) {
+      return AppModule(
+        name: module.displayName,
+        nameKey: module.id,
+        icon: module.icon,
+        route: module.getRouteBasePath(),
+        isEnabled: !module.isBeta, // Enable non-beta modules
+        description: module.description,
+        color: module.primaryColor,
+      );
+    }).toList();
+  }
+
+  List<AppModule> _getFallbackModules(AppLocalizations l10n) {
+    // Fallback to hardcoded modules if registry fails
     return [
       AppModule(
         name: 'MikroTik Assist',
@@ -31,15 +52,6 @@ class HomePage extends StatelessWidget {
         description: l10n.snmpAssistDescription,
         color: Colors.green,
       ),
-      const AppModule(
-        name: 'Asterisk PBX',
-        nameKey: 'asteriskPbx',
-        icon: Icons.phone,
-        route: null,
-        isEnabled: false,
-        description: 'VoIP Phone System Management',
-        color: Colors.orange,
-      ),
     ];
   }
 
@@ -47,7 +59,15 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    final modules = _getModules(l10n);
+    
+    // Try to get modules from registry, fallback to hardcoded if fails
+    List<AppModule> modules;
+    try {
+      modules = _getModulesFromRegistry(l10n);
+    } catch (e) {
+      debugPrint('Failed to get modules from registry: $e');
+      modules = _getFallbackModules(l10n);
+    }
 
     return Scaffold(
       appBar: AppBar(

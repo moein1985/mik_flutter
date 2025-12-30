@@ -9,6 +9,11 @@ import 'core/config/app_config.dart';
 import 'core/network/routeros_client_v2.dart';
 import 'core/network/routeros_client.dart';
 
+// Modules
+import 'modules/_shared/base_device_module.dart';
+import 'modules/mikrotik/core/mikrotik_module.dart';
+import 'modules/snmp/core/snmp_module.dart';
+
 // Features - App Auth
 import 'features/app_auth/data/datasources/app_auth_local_datasource.dart';
 import 'features/app_auth/data/models/app_user_model.dart';
@@ -926,5 +931,35 @@ Future<void> init() async {
     () => SavedSnmpDeviceLocalDataSourceImpl(),
   );
 
+  //! Module Registry
+  _initModules();
+
   //! External
+}
+
+/// Initialize and register device modules
+void _initModules() {
+  // Import modules
+  final mikrotikModule = MikroTikModule();
+  final snmpModule = SNMPModule();
+
+  // Create list of enabled modules
+  final modules = <BaseDeviceModule>[
+    mikrotikModule,
+    snmpModule,
+    // Future modules (disabled for now):
+    // CiscoModule(),
+    // AsteriskModule(),
+    // MicrosoftModule(),
+    // ESXiModule(),
+  ];
+
+  // Filter enabled modules and register as singleton
+  final enabledModules = modules.where((m) => m.isEnabled).toList();
+  sl.registerSingleton<List<BaseDeviceModule>>(enabledModules);
+
+  // Initialize each module (if needed)
+  for (final module in enabledModules) {
+    module.initialize();
+  }
 }
