@@ -38,10 +38,15 @@ class SavedSnmpDeviceLocalDataSourceImpl
   final _log = AppLogger.tag('SavedSnmpDeviceDataSource');
   static const String _tableName = 'saved_snmp_devices';
 
+  /// Accept a database factory to make the data source testable (defaults to DatabaseHelper.instance.database)
+  final Future<Database> Function() databaseFactory;
+
+  SavedSnmpDeviceLocalDataSourceImpl({Future<Database> Function()? databaseFactory}) : databaseFactory = databaseFactory ?? (() => DatabaseHelper.instance.database);
+
   @override
   Future<List<SavedSnmpDeviceModel>> getAllDevices() async {
     _log.d('Getting all saved SNMP devices...');
-    final db = await DatabaseHelper.instance.database;
+    final db = await databaseFactory();
     final results = await db.query(
       _tableName,
       orderBy: 'is_default DESC, last_connected DESC, name ASC',
@@ -56,7 +61,7 @@ class SavedSnmpDeviceLocalDataSourceImpl
   @override
   Future<SavedSnmpDeviceModel?> getDeviceById(int id) async {
     _log.d('Getting SNMP device by ID: $id');
-    final db = await DatabaseHelper.instance.database;
+    final db = await databaseFactory();
     final results = await db.query(
       _tableName,
       where: 'id = ?',
@@ -75,7 +80,7 @@ class SavedSnmpDeviceLocalDataSourceImpl
   @override
   Future<SavedSnmpDeviceModel?> getDefaultDevice() async {
     _log.d('Getting default SNMP device...');
-    final db = await DatabaseHelper.instance.database;
+    final db = await databaseFactory();
     final results = await db.query(
       _tableName,
       where: 'is_default = ?',
@@ -96,7 +101,7 @@ class SavedSnmpDeviceLocalDataSourceImpl
   @override
   Future<SavedSnmpDeviceModel> saveDevice(SavedSnmpDeviceModel device) async {
     _log.i('Saving new SNMP device: ${device.name}');
-    final db = await DatabaseHelper.instance.database;
+    final db = await databaseFactory();
 
     // If this is set as default, unset other defaults first
     if (device.isDefault) {
@@ -106,7 +111,7 @@ class SavedSnmpDeviceLocalDataSourceImpl
     final id = await db.insert(_tableName, device.toInsertMap());
     _log.i('Device saved with ID: $id');
 
-    return device.copyWith(id: id) as SavedSnmpDeviceModel;
+    return SavedSnmpDeviceModel.fromEntity(device.copyWith(id: id));
   }
 
   @override
@@ -117,16 +122,16 @@ class SavedSnmpDeviceLocalDataSourceImpl
     }
 
     _log.i('Updating SNMP device: ${device.name} (ID: ${device.id})');
-    final db = await DatabaseHelper.instance.database;
+    final db = await databaseFactory();
 
     // If this is set as default, unset other defaults first
     if (device.isDefault) {
       await _clearDefaultDevice(db);
     }
 
-    final updatedDevice = device.copyWith(
+    final updatedDevice = SavedSnmpDeviceModel.fromEntity(device.copyWith(
       updatedAt: DateTime.now(),
-    ) as SavedSnmpDeviceModel;
+    ));
 
     await db.update(
       _tableName,
@@ -142,7 +147,7 @@ class SavedSnmpDeviceLocalDataSourceImpl
   @override
   Future<bool> deleteDevice(int id) async {
     _log.i('Deleting SNMP device: $id');
-    final db = await DatabaseHelper.instance.database;
+    final db = await databaseFactory();
 
     final count = await db.delete(
       _tableName,
@@ -163,7 +168,7 @@ class SavedSnmpDeviceLocalDataSourceImpl
   @override
   Future<void> setDefaultDevice(int id) async {
     _log.i('Setting SNMP device as default: $id');
-    final db = await DatabaseHelper.instance.database;
+    final db = await databaseFactory();
 
     await _clearDefaultDevice(db);
 
@@ -180,7 +185,7 @@ class SavedSnmpDeviceLocalDataSourceImpl
   @override
   Future<void> updateLastConnected(int id) async {
     _log.d('Updating last connected time for device: $id');
-    final db = await DatabaseHelper.instance.database;
+    final db = await databaseFactory();
 
     await db.update(
       _tableName,
@@ -196,7 +201,7 @@ class SavedSnmpDeviceLocalDataSourceImpl
   @override
   Future<bool> deviceExists(String host, int port, String community) async {
     _log.d('Checking if SNMP device exists: $host:$port');
-    final db = await DatabaseHelper.instance.database;
+    final db = await databaseFactory();
 
     final results = await db.query(
       _tableName,

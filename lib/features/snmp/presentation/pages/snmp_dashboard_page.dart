@@ -1547,7 +1547,7 @@ class _SnmpDashboardPageState extends State<SnmpDashboardPage> {
                 ),
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
