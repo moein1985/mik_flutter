@@ -69,6 +69,16 @@ class AppRoutes {
   static const String changePassword = '/settings/change-password';
   static const String mikrotik = '/mikrotik';
   static const String snmp = '/snmp';
+  static const String asterisk = '/asterisk';
+  static const String asteriskDashboard = '/asterisk/dashboard';
+  static const String asteriskExtensions = '/asterisk/extensions';
+  static const String asteriskCalls = '/asterisk/calls';
+  static const String asteriskQueues = '/asterisk/queues';
+  static const String asteriskCdr = '/asterisk/cdr';
+  static const String asteriskTrunks = '/asterisk/trunks';
+  static const String asteriskParking = '/asterisk/parking';
+  static const String asteriskOriginate = '/asterisk/originate';
+  static const String asteriskSettings = '/asterisk/settings';
   static const String dashboard = '/dashboard';
   static const String interfaces = '/dashboard/interfaces';
   static const String ipAddresses = '/dashboard/ip-addresses';

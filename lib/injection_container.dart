@@ -13,6 +13,7 @@ import 'core/network/routeros_client.dart';
 import 'modules/_shared/base_device_module.dart';
 import 'modules/mikrotik/core/mikrotik_module.dart';
 import 'modules/snmp/core/snmp_module.dart';
+import 'modules/asterisk/core/asterisk_module.dart';
 
 // SNMP (fake for tests/dev)
 import 'features/snmp/data/datasources/fake_snmp_data_source.dart';
@@ -951,14 +952,15 @@ void _initModules() {
   // Import modules
   final mikrotikModule = MikroTikModule();
   final snmpModule = SNMPModule();
+  final asteriskModule = AsteriskModule();
 
   // Create list of enabled modules
   final modules = <BaseDeviceModule>[
     mikrotikModule,
     snmpModule,
+    asteriskModule,
     // Future modules (disabled for now):
     // CiscoModule(),
-    // AsteriskModule(),
     // MicrosoftModule(),
     // ESXiModule(),
   ];

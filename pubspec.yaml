@@ -70,6 +70,16 @@ dependencies:
   # SNMP Protocol
   dart_snmp: ^3.0.1
   
+  # Asterisk PBX (AMI & SSH)
+  dartssh2: ^2.9.0
+  dio: ^5.9.0
+  logger: ^2.4.0
+  csv: ^6.0.0
+  flutter_local_notifications: ^17.0.0
+  workmanager: ^0.9.0
+  just_audio: ^0.9.36
+  audio_session: ^0.1.7
+  
   # Cafe Bazaar In-App Purchase
   flutter_poolakey: ^2.2.0+1.0.0
   
