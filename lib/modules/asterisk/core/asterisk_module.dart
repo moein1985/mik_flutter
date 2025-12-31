@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import '../../_shared/base_device_module.dart';
 import '../../../features/asterisk/presentation/pages/asterisk_dashboard_page.dart';
+import '../../../features/asterisk/core/injection_container.dart' as asterisk_di;
+import '../../../core/config/app_config.dart';
 
 /// Asterisk PBX Module
 /// 
@@ -19,6 +22,8 @@ import '../../../features/asterisk/presentation/pages/asterisk_dashboard_page.da
 /// Protocols: Asterisk Manager Interface (AMI), SSH
 /// Compatible with: Asterisk 11+, 13+, 16+, 18+, 20+
 class AsteriskModule extends BaseDeviceModule {
+  bool _initialized = false;
+
   @override
   String get id => 'asterisk';
 
@@ -42,6 +47,18 @@ class AsteriskModule extends BaseDeviceModule {
     'Asterisk Manager Interface (AMI)',
     'SSH',
   ];
+
+  @override
+  Future<void> initialize() async {
+    if (!_initialized) {
+      // Register Asterisk dependencies with GetIt
+      await asterisk_di.setupAsteriskDependencies(
+        GetIt.instance,
+        useMock: AppConfig.useAsteriskFakeRepositories,
+      );
+      _initialized = true;
+    }
+  }
 
   @override
   Widget getDashboardPage() {

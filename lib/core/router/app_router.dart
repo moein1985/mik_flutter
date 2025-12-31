@@ -58,11 +58,14 @@ import '../../features/backup/presentation/bloc/backup_bloc.dart';
 import '../../features/backup/presentation/pages/backup_page.dart';
 import '../../features/about/presentation/pages/about_page.dart';
 import '../../features/subscription/presentation/pages/subscription_page.dart';
+import '../../features/asterisk/presentation/pages/asterisk_dashboard_page.dart';
+import '../../features/asterisk/presentation/pages/asterisk_login_page.dart';
 
 /// Route names as constants
 class AppRoutes {
   static const String appLogin = '/app-login';
   static const String login = '/login';
+  static const String asteriskLogin = '/asterisk-login';
   static const String home = '/';
   static const String settings = '/settings';
   static const String profile = '/settings/profile';
@@ -235,6 +238,20 @@ class AppRouter {
             create: (_) => sl<SnmpMonitorBloc>(),
             child: const SnmpDashboardPage(),
           ),
+        ),
+
+        // Asterisk Login/Setup Page
+        GoRoute(
+          path: AppRoutes.asteriskLogin,
+          name: 'asteriskLogin',
+          builder: (context, state) => const AsteriskLoginPage(),
+        ),
+
+        // Asterisk PBX Section
+        GoRoute(
+          path: AppRoutes.asterisk,
+          name: 'asterisk',
+          builder: (context, state) => const AsteriskDashboardPage(),
         ),
 
         // Dashboard and nested routes (keeping old routes for compatibility)
